@@ -91,19 +91,15 @@ const MisDashboard = () => {
                     <Retention />
 
                 </CardWrapper>
+                <div className="col-span-2 ">
+    <CardWrapper heading={"Event's Breakup Current Month"}>
+      <ShortShip />
+    </CardWrapper>  
+  </div>
             </div>
 3              
 
-3            <div className='w-full flex justify-center mt-2'>
-                <div className='w-[100%]'>  <div className='w-[50%]'>
-                    <CardWrapper heading={"Event's  Breakup Current Month"}>
-                        <ShortShip />
-                    </CardWrapper></div></div>
-            </div>
-
-            <div className='flex w-full h-[80%]'>
-
-            </div>
+3  
         </div>
     );
 };

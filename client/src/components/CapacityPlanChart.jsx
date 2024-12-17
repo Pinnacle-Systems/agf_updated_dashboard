@@ -231,7 +231,7 @@ const ApexChart = ({ capPlanData, selected, setSelected }) => {
 
                 </Modal>
             )}
-            <div className='flex w-full justify-end'> <label htmlFor="">Select:</label> <DropdownDt option={comCode} selected={selected} setSelected={setSelected} />
+            <div className='flex w-full justify-end'> <label htmlFor=""></label> <DropdownDt option={comCode} selected={selected} setSelected={setSelected} />
                 <div className='flex  group relative'>
                     <button
                         className=' bg-sky-500 rounded-sm p-1 flex items-center justify-center h-[30px] text-center font-normal text-[16px] border-2 border-[#E0E0E0]'

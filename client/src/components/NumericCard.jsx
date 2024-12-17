@@ -4,6 +4,7 @@ import staff from "../assets/businessman.png";
 import money from "../assets/img/money.png";
 import worker from "../assets/img/layout/labour-day.png";
 import staffs from "../assets/img/layout/bussines.png";
+import totalIcon from "../assets/img/layout/all.png";
 import male from "../assets/man.png";
 import female from "../assets/human.png";
 
@@ -76,13 +77,24 @@ const NumericCard = ({ misData, selectedBuyer }) => {
           className="relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 p-3"
         >
           <div
-            className="absolute -top-4 -right-4 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-tr from-[#FFD700] to-[#F4A300] shadow-md"
+            className="absolute -top-2 -right-1 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-tr from-[#FFD700] to-[#F4A300] shadow-md"
             style={{ border: `2px solid ${val.borderColor}` }}
           >
-            <img src={val.icon} alt="icon" className="w-10 h-10" />
+            {/* Conditionally display icons */}
+            <img
+              src={
+                activeTabs[i] === "total"
+                  ? totalIcon
+                  : activeTabs[i] === "previousValue"
+                  ? male
+                  : female
+              }
+              alt="icon"
+              className="w-10 h-10"
+            />
           </div>
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-1 truncate">{val.heading}</h2>
             <p className="text-2xl font-bold text-[#CA8A04] mb-1">
               {activeTabs[i] === "total"
@@ -100,19 +112,20 @@ const NumericCard = ({ misData, selectedBuyer }) => {
             </p>
           </div>
 
-          {/* <div className="flex justify-center my-2">
-            {activeTabs[i] === "previousValue" && (
-              <img src={male} alt="Male" className="w-10 h-10 absolute left-0 top-29" />
-            )}
-            {activeTabs[i] === "value" && (
-              <img src={female} alt="Female" className="w-10 h-10 absolute right-0 top-29" />
-            )}
-          </div> */}
-
           <div className="flex justify-between mt-2">
             <button
+              onClick={() => toggleTab(i, "total")}
+              className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
+                activeTabs[i] === "total"
+                  ? "bg-[#CA8A04] text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"
+              }`}
+            >
+              Total
+            </button>
+            <button
               onClick={() => toggleTab(i, "previousValue")}
-              className={`w-1/2 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
+              className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${
                 activeTabs[i] === "previousValue"
                   ? "bg-[#CA8A04] text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"
@@ -122,7 +135,7 @@ const NumericCard = ({ misData, selectedBuyer }) => {
             </button>
             <button
               onClick={() => toggleTab(i, "value")}
-              className={`w-1/2 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
+              className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
                 activeTabs[i] === "value"
                   ? "bg-[#CA8A04] text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"

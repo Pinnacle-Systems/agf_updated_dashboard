@@ -25,20 +25,20 @@ const YearlyComChart = () => {
 
     const series = years.flatMap(year => [
         {
-            name: `${year} Male`,
+            name: ` Male`,
             data: categories.map(customer => {
                 const order = groupedData[year].find(o => o.customer === customer);
                 return order ? order.male : 0;
             }),
-            color: '#3B82F6',
+            color: '#DE9A07',
         },
         {
-            name: `${year} Female`,
+            name: ` Female`,
             data: categories.map(customer => {
                 const order = groupedData[year].find(o => o.customer === customer);
                 return order ? order.female : 0;
             }),
-            color: '#F87171',
+            color: '#1F2937',
         },
     ]);
 

@@ -18,8 +18,8 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
                 alpha: 40
             },
             backgroundColor: '#FFFFFF',
-            width: 380,
-            height: 380
+            width: 320,
+            height: 320
         },
         title: {
             text: '',

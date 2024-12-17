@@ -178,7 +178,7 @@ const ChartTable = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div className="flex justify-end ">
                     <div className='flex items-center h-8  gap-1'>
-                        <label className='text-sm text-center flex px-3  '>Select:</label>
+                        <label className='text-sm text-center flex px-3  '></label>
                         <DropdownData selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
                         <DropdownCom
     style={{ width: '200px' }} 

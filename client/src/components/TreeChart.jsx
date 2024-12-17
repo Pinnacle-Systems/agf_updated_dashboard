@@ -13,56 +13,43 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [chartOptions, setChartOptions] = useState({
         series: [],
         chart: {
-            height: 330,
-            type: 'bar', 
+            height: 320, // Reduce overall chart height
+            type: 'bar',
             toolbar: { show: false },
-            perspective: 0.3, // Add more depth with perspective
-            zoom: {
-                enabled: true,
-            },
-            offsetX: 20,  // Adjust for rotation effect
-            offsetY: 20,
+            zoom: { enabled: true },
+            offsetX: 10, // Adjust offset for cleaner layout
+            offsetY: 10,
         },
         plotOptions: {
             bar: {
                 horizontal: false,
-                borderRadius: 12,
+                borderRadius: 8, // Reduce border radius slightly
                 distributed: true,
-                columnWidth: '60%',  // Adjust width for 3D depth
-                barHeight: '50%',
-                dataLabels: {
-                    position: 'top',
-                },
-                // Enhanced shadow for 3D effect
+                columnWidth: '70%', // Adjust bar width for better spacing
+                dataLabels: { position: 'top' },
                 shadow: {
                     enabled: true,
-                    blur: 12,
-                    opacity: 0.5, // Increased opacity for shadow to enhance 3D feel
+                    blur: 6, // Reduced shadow blur for subtle effect
+                    opacity: 0.3, // Lower shadow opacity
                     color: '#000',
-                    x: 6,
-                    y: 6,
+                    x: 3,
+                    y: 3,
                 },
             },
         },
-        colors: [
-            '#525252',
-            '#F7B900',
-            '#1C2937', 
-            'rgb(255, 140, 0)', 
-            '#101010'
-        ],
+        colors: ['#525252', '#F7B900', '#1C2937', 'rgb(255, 140, 0)', '#101010'],
         dataLabels: {
             style: {
-                colors: ['black'],
-                fontSize: '12px',
+                colors: ['#000'],
+                fontSize: '10px', // Reduce font size for data labels
                 fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', // Subtle text shadow
             },
         },
         tooltip: {
             custom: ({ series, seriesIndex, dataPointIndex, w }) => {
                 const { fullX, y } = w.config.series[seriesIndex].data[dataPointIndex];
-                return `<div>${fullX}: ${y}</div>`;
+                return `<div style="padding: 4px; font-size: 10px;">${fullX}: ${y}</div>`;
             },
         },
     });
@@ -83,9 +70,15 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     }, [overAllSuppCon]);
 
     return (
-        <div id="chart">
+        <div id="chart" className="p-4">
             <DropdownDt selected={selected} setSelected={setSelected} option={option} />
-            <Chart options={chartOptions} series={chartOptions.series} type="bar" height={350} className="text-black" />
+            <Chart
+                options={chartOptions}
+                series={chartOptions.series}
+                type="bar"
+                height={320} // Reduce chart height further for compact UI
+                className="text-black"
+            />
         </div>
     );
 };

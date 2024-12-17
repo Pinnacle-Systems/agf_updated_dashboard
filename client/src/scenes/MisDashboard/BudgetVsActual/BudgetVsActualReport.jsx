@@ -56,7 +56,7 @@ const ComparisonTableWithProgressBar = () => {
             <div className="w-full overflow-scroll">
                 <div className='flex gap-5 justify-end'>
                     <div className="flex justify-end p-1 w-[100%]">
-                        <h2>Select:</h2>
+                        <h2></h2>
                         <div className="flex px-2">
                             <div className="flex items-center px-2">
                                 <input
