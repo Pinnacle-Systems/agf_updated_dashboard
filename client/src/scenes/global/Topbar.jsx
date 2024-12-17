@@ -23,7 +23,7 @@ const Topbar = ({ onLogout }) => {
       </div>
 
       {/* Yellow Section */}
-      <div className="bg-[#544FC5] w-1/2 flex justify-between items-center px-4 text-white">
+      <div className="bg-[#CA8717] w-1/2 flex justify-between items-center px-4 text-white">
         <div className="text-xl font-semibold">Management Information Dashboard</div>
         <button
           onClick={onLogout}
