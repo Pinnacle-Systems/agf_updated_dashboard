@@ -91,9 +91,9 @@ const Sidebar = () => {
                 position: 'absolute',
                 bottom: 0,
                 left: '25%',
-                width: '70%',
+                width: '70%', 
                 height: '2px',
-                backgroundColor: '#C57B03',
+                backgroundColor: color? color:'#C57B03',
                 transform: 'translateX(-25%)',
               }}
             ></span>
