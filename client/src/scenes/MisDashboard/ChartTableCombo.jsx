@@ -6,6 +6,9 @@ import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
 import DropdownCom from '../../Ui Component/modelParam';
 import DropdownData from '../../Ui Component/modelUi';
+import { ColorContext } from '../global/context/ColorContext';
+import { useContext } from "react";
+
 const ChartTable = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState('');
@@ -13,7 +16,7 @@ const ChartTable = () => {
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
-
+    const { color } = useContext(ColorContext); 
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } });
     const { data: year } = useGetFinYearQuery({});
@@ -40,8 +43,8 @@ const ChartTable = () => {
                 height: 350,
                 options3d: {
                     enabled: true,
-                    alpha: 10, // Rotation angle in the X-axis
-                    beta: 10,  // Rotation angle in the Y-axis
+                    alpha: 10, 
+                    beta: 10,  
                     depth: 40,
                     viewDistance: 25,
                 },
@@ -114,9 +117,9 @@ const ChartTable = () => {
                     name: 'Attrition',
                     data: fabPlVsActFullDt.map((order) => ({
                         y: order.attrition,
-                        color: '#C57B03' 
+                        color:color? color: '#C57B03' 
                     })),
-                    color: '#C57B03', 
+                    color: color? color: '#C57B03', 
                 },
             ],
         };

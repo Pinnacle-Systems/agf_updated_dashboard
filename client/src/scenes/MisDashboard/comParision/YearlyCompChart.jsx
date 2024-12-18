@@ -4,12 +4,14 @@ import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import { useGetYearlyCompQuery } from '../../../redux/service/misDashboardService';
 import { HiOutlineRefresh } from 'react-icons/hi';
+import { ColorContext } from '../../global/context/ColorContext';
+import { useContext } from "react";
 
-// Initialize 3D module
 Highcharts3D(Highcharts);
 
 const YearlyComChart = () => {
     const { data: comparisionData, refetch } = useGetYearlyCompQuery({ params: {} });
+  const { color } = useContext(ColorContext); 
     const yearlyComparision = comparisionData?.data || [];
 
     const groupedData = yearlyComparision.reduce((acc, curr) => {
@@ -25,13 +27,14 @@ const YearlyComChart = () => {
 
     const series = years.flatMap(year => [
         {
-            name: ` Male`,
+            name: 'Male',
             data: categories.map(customer => {
-                const order = groupedData[year].find(o => o.customer === customer);
+                const order = groupedData[year]?.find(o => o.customer === customer);
                 return order ? order.male : 0;
             }),
-            color: '#DE9A07',
+            color: color ? color : '#DE9A07',
         },
+        
         {
             name: ` Female`,
             data: categories.map(customer => {

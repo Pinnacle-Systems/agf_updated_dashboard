@@ -7,6 +7,9 @@ import staffs from "../assets/img/layout/bussines.png";
 import totalIcon from "../assets/img/layout/all.png";
 import male from "../assets/man.png";
 import female from "../assets/human.png";
+import { ColorContext } from "../scenes/global/context/ColorContext";
+import { useContext } from "react";
+
 
 const NumericCard = ({ misData, selectedBuyer }) => {
   const totalTurnOver = misData?.data?.totalTurnOver || [];
@@ -14,6 +17,7 @@ const NumericCard = ({ misData, selectedBuyer }) => {
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
   const loss = misData?.data?.loss || [];
+  const { color } = useContext(ColorContext); 
 
   const filteredTotalTurnOver = totalTurnOver.filter((item) =>
     selectedBuyer.includes(item.comCode)
@@ -68,6 +72,7 @@ const NumericCard = ({ misData, selectedBuyer }) => {
     newTabs[index] = tab;
     setActiveTabs(newTabs);
   };
+  console.log(color,"color1234")
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-4 bg-gradient-to-br from-[#1e293b] to-[#374151]">
@@ -76,30 +81,40 @@ const NumericCard = ({ misData, selectedBuyer }) => {
           key={i}
           className="relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 p-3"
         >
-          <div
-            className="absolute -top-2 -right-1 w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-tr from-[#FFD700] to-[#F4A300] shadow-md"
-            style={{ border: `2px solid ${val.borderColor}` }}
-          >
-            {/* Conditionally display icons */}
-            <img
-              src={
-                activeTabs[i] === "total"
-                  ? totalIcon
-                  : activeTabs[i] === "previousValue"
-                  ? male
-                  : female
-              }
-              alt="icon"
-              className="w-10 h-10"
-            />
-          </div>
+         <div
+  className={`absolute -top-2 -right-1 w-14 h-14 rounded-full flex items-center justify-center 
+   shadow-md`}
+   style={{
+    border: `2px solid ${val.borderColor}`,
+    background: color 
+      ? color 
+      : 'linear-gradient(to top right, #FFD700, #F4A300)',
+  }}
+  >
+  <img
+    src={
+      activeTabs[i] === "total"
+        ? totalIcon
+        : activeTabs[i] === "previousValue"
+        ? male
+        : female
+    }
+    alt="icon"
+    className="w-10 h-10"
+  />
+</div>
+
 
           <div className="text-center mt-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-1 truncate">{val.heading}</h2>
-            <p className="text-2xl font-bold text-[#CA8A04] mb-1">
+            <p className="text-2xl font-bold text-[#CA8A04] mb-1"   style={{
+    color: color 
+      ? color 
+      : 'linear-gradient(to top right, #FFD700, #F4A300)',
+  }}>
               {activeTabs[i] === "total"
                 ? (val.value + val.previousValue).toLocaleString()
-                : activeTabs[i] === "previousValue"
+                : activeTabs[i] === "previousValue "
                 ? val.previousValue.toLocaleString()
                 : val.value.toLocaleString()}
             </p>
@@ -113,23 +128,31 @@ const NumericCard = ({ misData, selectedBuyer }) => {
           </div>
 
           <div className="flex justify-between mt-2">
-            <button
-              onClick={() => toggleTab(i, "total")}
-              className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
-                activeTabs[i] === "total"
-                  ? "bg-[#CA8A04] text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"
-              }`}
-            >
-              Total
-            </button>
+          <button
+  onClick={() => toggleTab(i, "total")}
+  className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
+    activeTabs[i] === "total" ? "text-white" : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+  }`}
+  style={
+    activeTabs[i] === "total"
+      ? { backgroundColor: color || "#CA8A04" }
+      : {}
+  }
+>
+  Total
+</button>
             <button
               onClick={() => toggleTab(i, "previousValue")}
               className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${
                 activeTabs[i] === "previousValue"
                   ? "bg-[#CA8A04] text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
               }`}
+              style={
+                activeTabs[i] === "previousValue"
+                  ? { backgroundColor: color || "#CA8A04" }
+                  : {}
+              }
             >
               Male
             </button>
@@ -138,8 +161,13 @@ const NumericCard = ({ misData, selectedBuyer }) => {
               className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
                 activeTabs[i] === "value"
                   ? "bg-[#CA8A04] text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-[#CA8A04] hover:text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
               }`}
+              style={
+                activeTabs[i] === "value"
+                  ? { backgroundColor: color || "#CA8A04" }
+                  : {}
+              }
             >
               Female
             </button>

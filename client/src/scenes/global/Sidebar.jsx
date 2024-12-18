@@ -8,6 +8,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -17,52 +18,49 @@ import {
 import { useDispatch } from 'react-redux';
 import { push } from '../../redux/features/opentabs';
 import { useGetUsersQuery } from '../../redux/service/user';
+import { ColorContext } from './context/ColorContext';
+import { useContext } from "react";
 
-const StyledListItemIcon = styled(ListItemIcon)(({ theme, isCollapsed }) => ({
-  minWidth: '40px',
-  height: '40px',
+const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
+  minWidth: '32px',
+  height: '32px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: '#FFFFFF',
-  borderRadius: '8px',
-  border: '1px solid #D3D3D3',
-  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-  transition: 'all 0.3s ease',
-}));
-
-const StyledListItemButton = styled(ListItemButton)(({ theme, isCollapsed }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(1),
+  borderRadius: '50%',
+  transition: 'transform 0.2s ease',
   '&:hover': {
+    transform: 'scale(1.1)',
     backgroundColor: theme.palette.action.hover,
   },
-  position: 'relative',
-  '&:hover .menu-text': {
-    opacity: 1,
+}));
+
+const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(0.5, 1),
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
   },
 }));
 
 const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
-  width:'60px',
+  width: isCollapsed ? '50px' : '180px',
   overflow: 'hidden',
-  backgroundColor: theme.palette.mode === 'dark' ? '#2C2C2C' : '#F4F4F4',
-  borderRight: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.mode === 'dark' ? '#1E1E1E' : '#F9FAFB',
   transition: 'width 0.3s ease, background-color 0.3s ease',
   height: '100vh',
   boxShadow: isCollapsed ? 'none' : '2px 0 4px rgba(0, 0, 0, 0.1)',
+  paddingTop: theme.spacing(1),
 }));
 
 const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const dispatch = useDispatch();
   const { data: userData } = useGetUsersQuery();
-  const storedUsername = localStorage.getItem('userName');
+  const { color } = useContext(ColorContext); 
 
-  const currentUser = useMemo(() => {
-    return userData?.data?.find((user) => user.userName === storedUsername);
-  }, [userData, storedUsername]);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -70,49 +68,80 @@ const Sidebar = () => {
 
   return (
     <SidebarContainer isCollapsed={isCollapsed}>
-    <List>
-      <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))} isCollapsed={isCollapsed}>
-        <StyledListItemIcon isCollapsed={isCollapsed}>
-          <DashboardIcon sx={{ color: '#CA8A04' }} />
-        </StyledListItemIcon>
-        <ListItemText
-          className="menu-text"
-          primary="Dashboard"
-          sx={{
-            opacity: isCollapsed ? 0 : 1,
-            transition: 'opacity 0.3s ease',
-            marginLeft: '10px',
-            color: '#F3F4F6',
-            display: 'inline-block',
-            '&:hover': {
-              opacity: 1, // Text appears on hover, even when collapsed
-            },
-          }}
-        />
-      </StyledListItemButton>
-  
-      <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))} isCollapsed={isCollapsed}>
-        <StyledListItemIcon isCollapsed={isCollapsed}>
-          <PersonIcon sx={{ color: '#CA8A04' }} />
-        </StyledListItemIcon>
-        <ListItemText
-          className="menu-text"
-          primary="User"
-          sx={{
-            opacity: isCollapsed ? 0 : 1, 
-            transition: 'opacity 0.3s ease',
-            marginLeft: '10px',
-            color: '#F3F4F6',
-            display: 'inline-block',
-            '&:hover': {
-              opacity: 1, 
-            },
-          }}
-        />
-      </StyledListItemButton>
-    </List>
-  </SidebarContainer>
-  
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent={isCollapsed ? 'center' : 'space-between'}
+        p={1}
+      >
+        {!isCollapsed && (
+          <Typography
+            variant="h6"
+            color="textPrimary"
+            style={{
+              position: 'relative',
+              display: 'inline-block',
+              marginLeft: '10px',
+              fontWeight: '400',
+            }}
+          >
+            BS APPARELS
+            <span
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: '25%',
+                width: '70%',
+                height: '2px',
+                backgroundColor: '#C57B03',
+                transform: 'translateX(-25%)',
+              }}
+            ></span>
+          </Typography>
+        )}
+        <IconButton onClick={toggleSidebar}>
+          <MenuIcon sx={{ fontSize: isCollapsed ? '18px' : '24px' }} />
+        </IconButton>
+      </Box>
+
+      <List>
+        <Tooltip title="Dashboard" placement="right" disableHoverListener={!isCollapsed}>
+          <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>
+            <StyledListItemIcon>
+              <DashboardIcon sx={{ color:color?`${color}`: '#CA8A04', fontSize: '28px', background:"white" }} />
+            </StyledListItemIcon>
+            {!isCollapsed && (
+              <ListItemText
+                primary="Dashboard"
+                primaryTypographyProps={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                }}
+                sx={{ ml: 1 }}
+              />
+            )}
+          </StyledListItemButton>
+        </Tooltip>
+
+        <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
+          <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>
+            <StyledListItemIcon>
+              <PersonIcon sx={{ color:color?`${color}`: '#CA8A04', fontSize: '28px' , background:"white"  }} />
+            </StyledListItemIcon>
+            {!isCollapsed && (
+              <ListItemText
+                primary="User"
+                primaryTypographyProps={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                }}
+                sx={{ ml: 1 }}
+              />
+            )}
+          </StyledListItemButton>
+        </Tooltip>
+      </List>
+    </SidebarContainer>
   );
 };
 

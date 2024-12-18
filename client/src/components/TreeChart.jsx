@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 import DropdownDt from '../Ui Component/dropDownParam';
+import { ColorContext } from '../scenes/global/context/ColorContext';
+import { useContext } from 'react';
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const truncateText = (text, maxLength) => {
@@ -9,6 +11,25 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
         }
         return text;
     };
+    const {color} = useContext(ColorContext)
+    function generateColorArray(color, count = 7) {
+        const colorsArray = [];
+        let hueShift = 0;
+    
+        for (let i = 0; i < count; i++) {
+            hueShift = (i * 30) % 360; 
+            colorsArray.push(`hsl(${hueShift}, 70%, 50%)`);
+        }
+     console.log(colorsArray,"colorsArray")
+        return colorsArray;
+    }
+    
+   
+    const baseColor = 'hsl(0, 70%, 50%)'; // Red base color
+    const colorArray = generateColorArray(baseColor);
+    console.log(colorArray); // Array of 7 distinct colors
+    
+
 
     const [chartOptions, setChartOptions] = useState({
         series: [],
@@ -37,13 +58,14 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 },
             },
         },
+        
         colors: ['#525252', '#F7B900', '#1C2937', 'rgb(255, 140, 0)', '#101010'],
         dataLabels: {
             style: {
                 colors: ['#000'],
-                fontSize: '10px', // Reduce font size for data labels
+                fontSize: '10px', 
                 fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', // Subtle text shadow
+                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', 
             },
         },
         tooltip: {
@@ -76,7 +98,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 options={chartOptions}
                 series={chartOptions.series}
                 type="bar"
-                height={320} // Reduce chart height further for compact UI
+                height={320} 
                 className="text-black"
             />
         </div>

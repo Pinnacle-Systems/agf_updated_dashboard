@@ -219,8 +219,9 @@ JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID <> 'STAFF' 
 WHERE A.PAYPERIOD = '${lstMnth}'
 )
+
 GROUP BY COMPCODE`
-        console.log(sql, 'sql');
+        console.log(sql, 'lastmonthDetsql');
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
