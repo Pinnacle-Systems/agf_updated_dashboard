@@ -1,46 +1,94 @@
-import React from 'react';
-import NumericCard from '../../components/NumericCard';
+import React, { useState, useContext } from 'react';
+import { styled, alpha } from '@mui/material/styles';
+import Switch from '@mui/material/Switch';
 import DropdownCom from '../../Ui Component/modelParam';
 import { HiOutlineRefresh } from 'react-icons/hi';
+import NumericCard from '../../components/NumericCard';
+import { ColorContext } from '../global/context/ColorContext';
+import { Tooltip } from '@mui/material';
 
 const Header = ({
-    selectedBuyer, setSelectedBuyer,
-    selectedYear, setSelectedYear,
-    selectedMonth, setSelectedMonth,
-
-    refetch, misData
+    selectedBuyer,
+    setSelectedBuyer,
+    selectedYear,
+    setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
+    refetch,
+    misData,
 }) => {
-    console.log(misData, 'mis');
+    const [checked, setChecked] = useState(true);
+    const { color } = useContext(ColorContext);
+
+    const handleChange = (event) => {
+        setChecked(event.target.checked);
+    };
+
+    const CustomSwitch = styled(Switch)(({ theme }) => ({
+        '& .MuiSwitch-switchBase': {
+            color: '#bdbdbd',
+            '&.Mui-checked': {
+                color: color || '#4caf50',
+                '& + .MuiSwitch-track': {
+                    background: `linear-gradient(90deg, ${color || '#4caf50'} 0%, #81c784 100%)`,
+                    opacity: 1,
+                },
+            },
+        },
+        '& .MuiSwitch-thumb': {
+            width: 18,
+            height: 18,
+        },
+        '& .MuiSwitch-track': {
+            borderRadius: 20,
+            backgroundColor: '#e0e0e0',
+            opacity: 1,
+        },
+    }));
+
     return (
         <>
-            <div className='bg-[#1F2937] h-[35px] flex justify-center items-center mb-1 font-semibold'>
-                <div className='flex group w-full justify-end relative'>
-                    <div className='flex items-center'>
-                        <label className='text-sm text-center text-white p-3'>Select :</label>
+            {/* Header Section */}
+            <div className="bg-[#1F2937] h-[40px] flex justify-between items-center px-4 mb-2">
+                <div className="flex items-center">
+                    <label className="text-sm text-white mr-3">Select:</label>
+                    <DropdownCom
+                        selectedBuyer={selectedBuyer}
+                        setSelectedBuyer={setSelectedBuyer}
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        columnHeaderHeight="20"
+                    />
+                </div>
 
-                        <div>
-                            <DropdownCom
-                                selectedBuyer={selectedBuyer}
-                                setSelectedBuyer={setSelectedBuyer}
-                                selectedMonth={selectedMonth}
-                                setSelectedMonth={setSelectedMonth}
-                                selectedYear={selectedYear}
-                                setSelectedYear={setSelectedYear}
-
-                                columnHeaderHeight={"20"}
-                            />   </div>
-                    </div>
-                    <div>
+                <div className="flex items-center space-x-3">
+                    <Tooltip title="Refresh Data">
                         <button
-                            className='bg-gray-800 rounded-sm p-1 flex items-center justify-center h-[40px] text-white w-[40px] text-center font-normal text-[18px] border-2 border-[#E0E0E0]'
-                            onClick={() => refetch()}>
-                            <HiOutlineRefresh />
+                            className="bg-gray-800 rounded p-2 flex items-center justify-center text-white border-2 border-gray-600 hover:bg-gray-700 transition duration-200"
+                            onClick={refetch}
+                        >
+                            <HiOutlineRefresh size={20} />
                         </button>
+                    </Tooltip>
+
+                    <div className="flex items-center text-white">
+                        <label className="text-sm font-medium mr-2">
+                            {checked ? 'Esi' : 'PF'}
+                        </label>
+                        <CustomSwitch
+                            checked={checked}
+                            onChange={handleChange}
+                            inputProps={{ 'aria-label': 'controlled' }}
+                        />
                     </div>
                 </div>
             </div>
-            <div className='h-[%]'>
-                <NumericCard misData={misData} selectedBuyer={selectedBuyer} />
+
+            {/* Numeric Card */}
+            <div>
+                <NumericCard misData={misData} selectedBuyer={selectedBuyer} checked={checked} />
             </div>
         </>
     );

@@ -1,31 +1,41 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import * as React from "react";
 import { useTheme } from "@mui/material";
-import { ColorModeContext, tokens } from "../../theme";
-import { MdLogout } from "react-icons/md";
-import { useDispatch } from "react-redux";
-import logo from "../../assets/l.png";
+import { MdLogout, MdClose } from "react-icons/md";
 import { ChromePicker } from "react-color";
 import { ColorContext } from "./context/ColorContext";
-import { MdClose } from "react-icons/md"; // Import Close Icon
+import logo from "../../assets/l.png";
 
 const Topbar = ({ onLogout }) => {
   const theme = useTheme();
-  const { color, setColor } = useContext(ColorContext); 
+  const { color, setColor } = useContext(ColorContext);
   const [showPicker, setShowPicker] = useState(false);
 
+  const DEFAULT_COLOR = "#1F2937"; 
+  useEffect(() => {
+    const storedColor = localStorage.getItem("themeColor");
+    if (storedColor) {
+      setColor(storedColor);
+    } else {
+      setColor(DEFAULT_COLOR);
+    }
+  }, [setColor]);
+
   const handleColorChange = (newColor) => {
-    setColor(newColor.hex);
+    const selectedColor = newColor.hex;
+    setColor(selectedColor);
+    localStorage.setItem("themeColor", selectedColor); 
+  };
+
+  const handleResetColor = () => {
+    setColor(DEFAULT_COLOR);
+    localStorage.setItem("themeColor", DEFAULT_COLOR);
   };
 
   return (
     <div className="flex h-14">
       <div className="bg-[#1F2937] w-1/2 flex items-center px-4">
-        <img
-          src={logo}
-          alt="user-profile"
-          className="w-44 cursor-pointer"
-        />
+        <img src={logo} alt="logo" className="w-44 cursor-pointer" />
       </div>
 
       <div
@@ -35,7 +45,6 @@ const Topbar = ({ onLogout }) => {
         <div className="text-xl font-semibold">Management Information Dashboard</div>
 
         <div className="flex items-center gap-4">
-          {/* Theme Picker Button */}
           <button
             onClick={() => setShowPicker(!showPicker)}
             className="text-white hover:text-gray-300 text-sm px-2 py-1 border rounded-lg"
@@ -45,7 +54,6 @@ const Topbar = ({ onLogout }) => {
 
           {showPicker && (
             <div className="absolute top-16 right-4 z-50 bg-white rounded-lg shadow-lg p-2">
-              {/* Close Button */}
               <div className="flex justify-end mb-2">
                 <button
                   onClick={() => setShowPicker(false)}
@@ -54,16 +62,24 @@ const Topbar = ({ onLogout }) => {
                   <MdClose size={20} />
                 </button>
               </div>
-              {/* ChromePicker */}
+
               <ChromePicker
                 color={color}
                 onChange={handleColorChange}
                 disableAlpha={true}
               />
+
+             
+              <button
+                onClick={handleResetColor}
+                className="mt-2 w-full bg-blue-500 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600"
+              >
+                Set Default
+              </button>
             </div>
           )}
 
-          {/* Logout Button */}
+          
           <button
             onClick={onLogout}
             className="text-white hover:text-gray-300 text-2xl focus:outline-none"

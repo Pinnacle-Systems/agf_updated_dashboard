@@ -1,6 +1,6 @@
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
-import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss }
+import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss,getLoss1 }
     from "../queries/misDashboard.js";
 
 
@@ -16,13 +16,15 @@ export async function get(req, res) {
         const newCustomers = await getNewCustomers(connection, type, filterYear, filterBuyer, filterMonth);
         const topCustomers = await getTopCustomers(connection, type, filterYear, filterBuyer, filterMonth);
         const loss = await getLoss(connection, type, filterYear, filterMonth);
+        const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
+
         return res.json({
             statusCode: 0, data: {
                 totalTurnOver,
                 profit,
                 newCustomers,
                 topCustomers,
-                loss
+                loss,loss1
             }
         })
     }
