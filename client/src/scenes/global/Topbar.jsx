@@ -11,7 +11,7 @@ const Topbar = ({ onLogout }) => {
   const { color, setColor } = useContext(ColorContext);
   const [showPicker, setShowPicker] = useState(false);
 
-  const DEFAULT_COLOR = "#1F2937"; 
+  const DEFAULT_COLOR = "#056028"; 
   useEffect(() => {
     const storedColor = localStorage.getItem("themeColor");
     if (storedColor) {

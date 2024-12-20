@@ -53,7 +53,7 @@ const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
   height: '100vh',
   boxShadow: isCollapsed ? 'none' : '2px 0 4px rgba(0, 0, 0, 0.1)',
   paddingTop: theme.spacing(1),
-  marginLeft: "15px"
+  paddingLeft: "5px"
 }));
 
 const Sidebar = () => {
@@ -101,7 +101,7 @@ const Sidebar = () => {
           </Typography>
         )}
         <IconButton onClick={toggleSidebar}>
-          <MenuIcon sx={{ fontSize: isCollapsed ? '18px' : '24px' }} />
+          <MenuIcon sx={{ fontSize: isCollapsed ? '18px' : '24px',paddingLeft:"3px" }} />
         </IconButton>
       </Box>
 

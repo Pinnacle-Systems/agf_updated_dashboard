@@ -54,31 +54,34 @@ const DropdownCom = ({ selectedBuyer, setSelectedBuyer }) => {
 
     return (
         <div ref={dropdownRef} className="relative w-64">
+            {/* Dropdown Button */}
             <button
                 onClick={toggleDropdown}
-                className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm 
-                           text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700
-                           hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg shadow-sm 
+                           text-left flex items-center justify-between px-4 py-2 text-sm text-gray-700
+                           hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-200 ease-in-out"
                 type="button"
             >
-                <span>{selectedBuyer.length > 0 ? selectedBuyer.join(', ') : 'Select'}</span>
-                <svg className="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <span className="truncate">{selectedBuyer.length > 0 ? selectedBuyer.join(', ') : 'Select Buyers'}</span>
+                <svg className="w-4 h-4 text-gray-500 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fillRule="evenodd" d="M5.293 9.293a1 1 0 011.414 0L10 12.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
             </button>
+
+            {/* Dropdown List */}
             {isOpen && (
-                <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
-                    <div className="max-h-60 overflow-y-auto py-2">
+                <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                    <div className="py-2">
                         {buyerOptions.map(option => (
-                            <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2">
+                            <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2 rounded-md transition duration-200 ease-in-out">
                                 <input
                                     type="checkbox"
                                     value={option.value}
                                     checked={option.value === "select_all" ? isSelectAllChecked : selectedBuyer.includes(option.value)}
                                     onChange={handleOptionChange}
-                                    className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                    className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-md transition duration-150 ease-in-out"
                                 />
-                                <span className="ml-3 text-sm text-gray-700">{option.label}</span>
+                                <span className="ml-3 text-sm text-gray-700 truncate">{option.label}</span>
                             </label>
                         ))}
                     </div>

@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { styled, alpha } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import DropdownCom from '../../Ui Component/modelParam';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import NumericCard from '../../components/NumericCard';
 import { ColorContext } from '../global/context/ColorContext';
 import { Tooltip } from '@mui/material';
+import './HeaderStyles.css'; // Import your CSS file
 
 const Header = ({
     selectedBuyer,
@@ -23,28 +23,6 @@ const Header = ({
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
-
-    const CustomSwitch = styled(Switch)(({ theme }) => ({
-        '& .MuiSwitch-switchBase': {
-            color: '#bdbdbd',
-            '&.Mui-checked': {
-                color: color || '#4caf50',
-                '& + .MuiSwitch-track': {
-                    background: `linear-gradient(90deg, ${color || '#4caf50'} 0%, #81c784 100%)`,
-                    opacity: 1,
-                },
-            },
-        },
-        '& .MuiSwitch-thumb': {
-            width: 18,
-            height: 18,
-        },
-        '& .MuiSwitch-track': {
-            borderRadius: 20,
-            backgroundColor: '#e0e0e0',
-            opacity: 1,
-        },
-    }));
 
     return (
         <>
@@ -73,25 +51,43 @@ const Header = ({
                         </button>
                     </Tooltip>
 
-                    <div className="flex items-center text-white">
-                        <label className="text-sm font-medium mr-2">
-                            {checked ? 'Esi' : 'PF'}
+                    <div className="flex items-center">
+                        <label
+                            className={`animated-label w-20 ${
+                                checked ? 'labour-style' : 'staff-style'
+                            }`}
+                        >
+                            {checked ? 'Labour' : 'Staff'}
                         </label>
-                        <CustomSwitch
-                            checked={checked}
-                            onChange={handleChange}
-                            inputProps={{ 'aria-label': 'controlled' }}
-                        />
+                        <Switch
+    checked={checked}
+    onChange={handleChange}
+    sx={{
+        '& .MuiSwitch-thumb': { 
+            backgroundColor: color || 'yellow' // Thumb color
+        },
+        '& .MuiSwitch-track': { 
+            backgroundColor: color || 'yellow', // Track color
+        },
+    }}
+    inputProps={{ 'aria-label': 'controlled' }}
+/>
+
                     </div>
                 </div>
             </div>
 
             {/* Numeric Card */}
             <div>
-                <NumericCard misData={misData} selectedBuyer={selectedBuyer} checked={checked} />
+                <NumericCard
+                    misData={misData}
+                    selectedBuyer={selectedBuyer}
+                    checked={checked}
+                />
             </div>
         </>
     );
 };
 
 export default Header;
+    

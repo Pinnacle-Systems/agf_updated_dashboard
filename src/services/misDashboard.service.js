@@ -1,6 +1,6 @@
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
-import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss,getLoss1 }
+import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss,getLoss1 ,getEmployees1,getProfit1,getLoss11,getLoss01}
     from "../queries/misDashboard.js";
 
 
@@ -9,22 +9,30 @@ export async function get(req, res) {
     try {
         const { type, filterYear, filterBuyer, filterMonth } = req.query
 
-        console.log(filterBuyer, filterMonth, 'total');
         const totalTurnOver = await getEmployees(connection, type, filterYear, filterBuyer, filterMonth);
+        const totalTurnOver1 = await getEmployees1(connection, type, filterYear, filterBuyer, filterMonth);
+
         const profit = await getProfit(connection, type, filterYear, filterBuyer, filterMonth);
-        console.log(profit, 'totla');
+        const profit1 = await getProfit1(connection, type, filterYear, filterBuyer, filterMonth);
+
         const newCustomers = await getNewCustomers(connection, type, filterYear, filterBuyer, filterMonth);
         const topCustomers = await getTopCustomers(connection, type, filterYear, filterBuyer, filterMonth);
+
         const loss = await getLoss(connection, type, filterYear, filterMonth);
+        const loss01 = await getLoss01(connection, type, filterYear, filterMonth);
+
         const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
+        const loss11 = await getLoss11(connection, type, filterYear, filterMonth);
+      
 
         return res.json({
             statusCode: 0, data: {
                 totalTurnOver,
+                totalTurnOver1,
                 profit,
                 newCustomers,
                 topCustomers,
-                loss,loss1
+                loss,loss1,profit1,loss11,loss01
             }
         })
     }

@@ -32,7 +32,7 @@ function App() {
                 element={
                   <main className="w-screen flex h-screen">
                     <div className="flex-col">
-                      <div className="w-screen h-[8%]">
+                      <div className="w-screen h-[7%]">
                         <Topbar onLogout={handleLogout} />
                       </div>
                       <div className="h-[92%]">

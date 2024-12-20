@@ -34,7 +34,7 @@ const ActiveTabList = () => {
     return (
         <div className="relative w-full h-full overflow-hidden">
             <div className="flex justify-between ">
-                <div className="flex gap-2 m-2  ">
+                <div className="flex gap-2 m-1 ml-2">
                     {currentShowingTabs.map((tab, index) => (
                         <div
                             key={index}
