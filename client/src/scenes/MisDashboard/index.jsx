@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import OrdersInHand from './OrdersInHand';
 import Header from "./Header";
-import OrdersInHandMonthWise from './OrdersInHandMonthWise';
-import ActualVsBudgetValueMonthWise from './ActualVsBudgetValueMonthWise';
 import YearlyComparisionBuyerWise from './comParision';
-
-
 import ShortShip from './ShortShipment';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
 import { useGetMisDashboardQuery } from '../../redux/service/misDashboardService';
@@ -15,17 +11,13 @@ import CardWrapper from '../../components/CardWrapper';
 import Retention from './BuyerWiseRev';
 import ChartTable from './ChartTableCombo';
 import TreeMapChart from '../../components/TreeChart';
-
+import { ColorContext } from '../global/context/ColorContext';
 import BloodGrp from './BloodGroupDistribution';
 
 const MisDashboard = () => {
-    const [selectedBuyer, setSelectedBuyer] = useState('');
+    const [selectedBuyer, setSelectedBuyer] = useState([]);
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedMonth, setSelectedMonth] = useState();
-    const [buyerNm, setBuyerNm] = useState([]);
-    const [monthData, setMonthData] = useState([]);
-    const [options, setOptions] = useState([]);
-    const [lastItem, setLastItem] = useState(null);
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
     const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected })
@@ -54,11 +46,7 @@ const MisDashboard = () => {
         <div className='h-full w-full overflow-auto px-1'>
             <Header
                 selectedBuyer={selectedBuyer}
-                selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
                 setSelectedBuyer={setSelectedBuyer}
-                setSelectedYear={setSelectedYear}
-                setSelectedMonth={setSelectedMonth}
                 refetch={refetch}
                 misData={misData}
             />

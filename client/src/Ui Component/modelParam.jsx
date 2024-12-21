@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
 const DropdownCom = ({ selectedBuyer, setSelectedBuyer }) => {
+    
     const [buyerOptions, setBuyerOptions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });

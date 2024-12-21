@@ -11,7 +11,13 @@ import { faUsers, faHardHat } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColorContext } from "../scenes/global/context/ColorContext";
 import './ToggleSwitch.css';
-const NumericCard = ({ misData, selectedBuyer  }) => {
+import './Model.css';
+import DropdownCom from "../Ui Component/modelParam";
+const NumericCard = ({ misData, selectedBuyer,
+  setSelectedBuyer,
+ 
+  refetch,
+   }) => {
   const totalTurnOver = misData?.data?.totalTurnOver || [];
   const totalTurnOver1 = misData?.data?.totalTurnOver1 || [];
   const [isOn, setIsOn] = useState(false);
@@ -25,7 +31,11 @@ const NumericCard = ({ misData, selectedBuyer  }) => {
 
   const loss1 = misData?.data?.loss1 || [];
   const loss11 = misData?.data?.loss11 || [];
-  
+  const [showModel, setShowModel] = useState(false);
+
+  const handleArrowClick = () => {
+    setShowModel(prevState => !prevState);
+  };
   const { color } = useContext(ColorContext);
 
   const filteredTotalTurnOver = totalTurnOver.filter((item) =>
@@ -225,19 +235,79 @@ const NumericCard = ({ misData, selectedBuyer  }) => {
       );
     })}
   </div>
-  <div className="toggle-container">
+  <div className="toggle-container"
+        style={{ color: color ? `${color}` : '#1DB954' }} 
+        >
   <label className="switch">
     <input type="checkbox" isOn={isOn} onChange={toggleSwitch} />
     <span className="slider">
-      <span className={`icon-left ${isOn ? 'hidden' : ''}`}>
-        <FontAwesomeIcon icon={faHardHat} size="lg" />
-      </span>
-      <span className={`icon-right ${isOn ? '' : 'hidden'}`}>
-        <FontAwesomeIcon icon={faUsers} size="lg" />
-      </span>
+    <span className={`icon-left ${isOn ? 'hidden' : ''}`}>
+  <FontAwesomeIcon icon={faHardHat} style={{ fontSize: '26px' }} /> 
+</span>
+<span className={`icon-right ${isOn ? '' : 'hidden'}`}>
+  <FontAwesomeIcon icon={faUsers} style={{ fontSize: '26px' }} /> 
+</span>
+
     </span>
   </label>
 </div>
+<div>
+{/* Arrow Button */}
+<div
+  className={`arrow-button bg-white hover:bg-gray-100 shadow-lg rounded-lg px-3 py-1 flex items-center justify-center ${
+    showModel ? 'translate-x-[-220px]' : ''
+  }`}
+  onClick={handleArrowClick}
+  style={{
+    position: 'absolute',
+    top: '5px',
+    right: '15px',
+    transition: 'transform 0.3s ease, background-color 0.3s ease',
+    cursor: 'pointer',
+  }}
+>
+  <span
+    className="text-gray-600 text-2xl transition-transform duration-300"
+    style={{ color: color ? `${color}` : '#4B5563' }}
+  >
+    {showModel ? '❮' : '❯'}
+  </span>
+</div>
+
+
+{/* Sidebar Content */}
+<div
+  className={`model-box ${showModel ? 'open' : 'closed'}`}
+  style={{
+    position: 'absolute',
+    top: '0',
+    right: showModel ? '0' : '-220px',
+    width: '220px',
+    height: '48vh', 
+    backgroundColor: '#f9f9f9',
+    boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.2)',
+    transition: 'right 0.3s ease',
+    borderRadius: '8px 0 0 8px',
+    zIndex: "20"
+  }}
+>
+  <div
+    className="model-content"
+    style={{
+      padding: '20px',
+      overflowY: 'auto',
+      height: '100%',
+    }}
+  >
+    <DropdownCom
+      selectedBuyer={selectedBuyer}
+      setSelectedBuyer={setSelectedBuyer}
+      columnHeaderHeight="20"
+    />
+  </div>
+</div>
+
+    </div>
 
 
 </div>

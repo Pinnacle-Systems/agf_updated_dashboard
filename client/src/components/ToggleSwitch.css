@@ -9,7 +9,7 @@
     position: relative;
     display: inline-block;
     width: 60px;
-    height: 140px;
+    height: 135px;
     padding-right: 3px;
 }
 
@@ -26,7 +26,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #f0f0f0; /* Default OFF color */
+    background-color: white; /* Default OFF color */
     transition: 0.4s;
     border-radius: 34px;
     display: flex;
@@ -44,7 +44,7 @@
     border-radius: 50%;
     top: 5px;
     left: 5px;
-    background-color: white;
+    background-color: #E5E7EB;
     transition: 0.4s;
 }
 
@@ -74,6 +74,3 @@ input:checked + .slider:before {
 }
 
 /* Optional: Add hover effect for better UX */
-.slider:hover {
-    background-color: #E2E8F0; /* Light hover color */
-}

@@ -6,11 +6,7 @@ import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../icons";
 import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
-
 import { MisDashboard } from "../../scenes"
-
-import Form from '../form'
-import OrderMgmtNumCard from "../../components/OrderMgmtCard";
 import OrderManagement from "../OrderManagement";
 import OutlinedCard from "../Users/Users";
 const ActiveTabList = () => {
@@ -34,7 +30,7 @@ const ActiveTabList = () => {
     return (
         <div className="relative w-full h-full overflow-hidden">
             <div className="flex justify-between ">
-                <div className="flex gap-2 m-1 ml-2">
+                <div className="flex gap-2 m-2  ">
                     {currentShowingTabs.map((tab, index) => (
                         <div
                             key={index}
