@@ -41,10 +41,8 @@ import ModelMultiSelect from "./ModelMultiSelect";
   const filteredTopCus = topCustomers.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-  const toggleSwitch = () => {
-    setIsOn(!isOn);
-  };
-  console.log(isOn,"isOn")
+
+  console.log(selectedState,"selectedState")
   const filterLoss = loss.filter((item) => selectedBuyer.includes(item.comCode));
   const filterLoss01 = loss01.filter((item) => selectedBuyer.includes(item.comCode));
   const filterLoss1 = loss1.filter((item) =>
@@ -58,61 +56,60 @@ import ModelMultiSelect from "./ModelMultiSelect";
     {
       heading: "Employees on Roll",
       borderColor: "#1F588B",
-      value: isOn ? filteredTotalTurnOver1.reduce(
-        (acc, item) => acc + item.currentValue,
-        0
-      ) : filteredTotalTurnOver.reduce(
-        (acc, item) => acc + item.currentValue,
-        0
-      ),
-      previousValue: isOn ? filteredTotalTurnOver1.reduce(
-        (acc, item) => acc + item.prevValue,
-        0
-      ) : filteredTotalTurnOver.reduce(
-        (acc, item) => acc + item.prevValue,
-        0
-      ),
+      value: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0) 
+            : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0) 
+            : filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0) + filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0),
+      previousValue: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.prevValue, 0) 
+                  : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.prevValue, 0) 
+                  : filteredTotalTurnOver1.reduce((acc, item) => acc + item.prevValue, 0) + filteredTotalTurnOver.reduce((acc, item) => acc + item.prevValue, 0),
       icon: lab,
     },
     {
       heading: "Attrition Breakup",
       borderColor: "#62AAA3",
-      value: isOn ? profit1.reduce((acc, item) => acc + item.currentQty, 0) : profit.reduce((acc, item) => acc + item.currentQty, 0),
-      previousValue: isOn ? profit1.reduce((acc, item) => acc + item.comCode, 0) : profit.reduce((acc, item) => acc + item.comCode, 0),
+      value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0) 
+            : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.currentQty, 0)
+            : profit1.reduce((acc, item) => acc + item.currentQty, 0) + profit1.reduce((acc, item) => acc + item.currentQty, 0),
+      previousValue: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.comCode, 0) 
+                  : selectedState == "Staff" ?  profit.reduce((acc, item) => acc + item.comCode, 0):
+                  profit1.reduce((acc, item) => acc + item.comCode, 0) +  profit.reduce((acc, item) => acc + item.comCode, 0),
       icon: staff,
     },
     {
-      heading: !isOn ? "Staff Last Month Salary" : "Labour Last Month Salary",
+      heading: selectedState == "Labour" ? "Staff Last Month Salary" : "Labour Last Month Salary",
       borderColor: "#96A669",
-      value: isOn ? filteredTopCus.reduce(
-        (acc, item) => acc + item.currentValue,
-        0
-      ) : filterNewCus.reduce((acc, item) => acc + item.currentValue, 0),
-      previousValue: isOn ? filteredTopCus.reduce(
-        (acc, item) => acc + item.prevValue,
-        0
-      ) : filterNewCus.reduce(
-        (acc, item) => acc + item.prevValue,
-        0
-      ),
+      value: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0) 
+            : selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.currentValue, 0):
+            filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0)+filterNewCus.reduce((acc, item) => acc + item.currentValue, 0) ,
+      previousValue: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.prevValue, 0) 
+                  :  selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.prevValue, 0):
+                  filteredTopCus.reduce((acc, item) => acc + item.prevValue, 0) + filterNewCus.reduce((acc, item) => acc + item.prevValue, 0)  ,
       icon: money,
     },
     {
       heading: "Employees' Pf Details",
       borderColor: "#F4A300",
-      value: isOn ? filterLoss.reduce((acc, item) => acc + item.currentValue, 0) : filterLoss01.reduce((acc, item) => acc + item.currentValue, 0),
-      previousValue: isOn ? filterLoss.reduce((acc, item) => acc + item.prevValue, 0) : filterLoss01.reduce((acc, item) => acc + item.prevValue, 0),
+      value: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.currentValue, 0) 
+            :selectedState == "Staff" ? filterLoss01.reduce((acc, item) => acc + item.currentValue, 0):
+            filterLoss.reduce((acc, item) => acc + item.currentValue, 0) +filterLoss01.reduce((acc, item) => acc + item.currentValue, 0),
+      previousValue: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.prevValue, 0) 
+                  :selectedState == "Staff"?  filterLoss01.reduce((acc, item) => acc + item.prevValue, 0) :
+                  filterLoss.reduce((acc, item) => acc + item.prevValue, 0) + filterLoss01.reduce((acc, item) => acc + item.prevValue, 0) ,
       icon: worker,
     },
     {
       heading: "Employees' Esi Details",
       borderColor: "#F4A300",
-      value: isOn ? filterLoss1.reduce((acc, item) => acc + item.currentValue, 0) : filterLoss11.reduce((acc, item) => acc + item.currentValue, 0),
-      previousValue: isOn ? filterLoss1.reduce((acc, item) => acc + item.prevValue, 0) : filterLoss11.reduce((acc, item) => acc + item.prevValue, 0),
+      value: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.currentValue, 0) 
+            :selectedState == "Staff"?  filterLoss11.reduce((acc, item) => acc + item.currentValue, 0):
+            filterLoss1.reduce((acc, item) => acc + item.currentValue, 0) + filterLoss11.reduce((acc, item) => acc + item.currentValue, 0) ,
+      previousValue: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.prevValue, 0) 
+                  :  selectedState == "Staff" ?  filterLoss11.reduce((acc, item) => acc + item.prevValue, 0):
+                  filterLoss1.reduce((acc, item) => acc + item.prevValue, 0) + filterLoss11.reduce((acc, item) => acc + item.prevValue, 0),
       icon: worker,
     },
   ];
-
+  
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {

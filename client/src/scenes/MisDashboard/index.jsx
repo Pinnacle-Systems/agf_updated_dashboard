@@ -11,7 +11,6 @@ import CardWrapper from '../../components/CardWrapper';
 import Retention from './BuyerWiseRev';
 import ChartTable from './ChartTableCombo';
 import TreeMapChart from '../../components/TreeChart';
-import { ColorContext } from '../global/context/ColorContext';
 import BloodGrp from './BloodGroupDistribution';
 
 const MisDashboard = () => {
