@@ -6,6 +6,7 @@ import NumericCard from '../../components/NumericCard';
 import { ColorContext } from '../global/context/ColorContext';
 import { Tooltip } from '@mui/material';
 import './HeaderStyles.css'; // Import your CSS file
+import ModelMultiSelect from '../../components/ModelMultiSelect';
 
 const Header = ({
     selectedBuyer,
@@ -19,6 +20,7 @@ const Header = ({
     const handleChange = (event) => {
         setChecked(event.target.checked);
     };
+    console.log(selectedBuyer, "selectfor Header")
 
     return (
         <>
@@ -74,13 +76,15 @@ const Header = ({
             </div> */}
 
             {/* Numeric Card */}
+            {console.log(selectedBuyer,'selected Buyer rr')}
+            
             <div>
                 <NumericCard
-                 selectedBuyer = {selectedBuyer}
-                 setSelectedBuyer = {setSelectedBuyer}
-                  refetch = {refetch}
-                  misData={misData}
-                    
+                    selectedBuyer={selectedBuyer}
+                    setSelectedBuyer={setSelectedBuyer}
+                    refetch={refetch}
+                    misData={misData}
+
                     checked={checked}
                 />
             </div>
@@ -89,4 +93,3 @@ const Header = ({
 };
 
 export default Header;
-    

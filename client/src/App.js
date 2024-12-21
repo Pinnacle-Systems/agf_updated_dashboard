@@ -34,7 +34,7 @@ function App() {
                     <div className="flex-col">
                       <div className="w-screen h-[7%]">
                         <Topbar onLogout={handleLogout} />
-                      </div>
+                      </div>  
                       <div className="h-[92%]">
                         <div className="flex float-left w-auto h-full side-bar">
                           <Sidebar isCollapsed={isCollapsed} />

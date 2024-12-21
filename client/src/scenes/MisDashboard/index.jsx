@@ -49,6 +49,7 @@ const MisDashboard = () => {
                 setSelectedBuyer={setSelectedBuyer}
                 refetch={refetch}
                 misData={misData}
+                
             />
             <div className='grid grid-cols-4 gap-2 mt-1 h-auto'>
                 <YearlyComparisionBuyerWise

@@ -101,7 +101,7 @@ export async function getFinYr(req, res) {
     }
     catch (err) {
         console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Internal Server Error' });   
     }
     finally {
         await connection.close()
