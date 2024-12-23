@@ -23,14 +23,6 @@ const PieChart = () => {
     return (
         <div className="w-full h-full flex flex-col items-center justify-between">
             {/* ModelMultiSelect */}
-            <ModelMultiSelect1
-                selected={selected}
-                setSelected={setSelected}
-                color={color}
-                showModel={showModel}
-                setShowModel={setShowModel}
-            />
-            {/* Filter and Chart Container */}
             <div className="w-full flex items-center justify-between px-4 mb-4">
                 {/* Filter Icon */}
                 <div className="flex items-center">
@@ -42,6 +34,15 @@ const PieChart = () => {
                     />
                 </div>
             </div>
+            <ModelMultiSelect1
+                selected={selected}
+                setSelected={setSelected}
+                color={color}
+                showModel={showModel}
+                setShowModel={setShowModel}
+            />
+            {/* Filter and Chart Container */}
+           
             {/* Chart */}
             <div className="w-full flex justify-center">
                 <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise} />

@@ -48,7 +48,7 @@ export default function DropdownDt({ selected, setSelected, option }) {
         }
         .p-dropdown .p-dropdown-item {
           padding: 12px 16px;
-          font-size: 14px;
+          font-size: 12px;
           color: #374151;
         }
         .p-dropdown .p-dropdown-item:hover {

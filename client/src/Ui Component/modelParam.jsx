@@ -56,7 +56,7 @@ const DropdownCom = ({ selectedBuyer, setSelectedBuyer }) => {
         <div ref={dropdownRef} className="relative w-64">
             <button
                 onClick={toggleDropdown}
-                className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm 
+                className="w-full bg-white border border-2 border-gray-800 w-48 rounded-md shadow-sm 
                            text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700
                            hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 type="button"
@@ -67,7 +67,7 @@ const DropdownCom = ({ selectedBuyer, setSelectedBuyer }) => {
                 </svg>
             </button>
             {isOpen && (
-                <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                <div className="absolute mt-2 w-full bg-white border border-gray-300 w-48 rounded-md shadow-lg z-50">
                     <div className="max-h-60 overflow-y-auto py-2">
                         {buyerOptions.map(option => (
                             <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2">

@@ -19,7 +19,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             },
             backgroundColor: '#FFFFFF',
             width: 320,
-            height: 320
+            height: 360
         },
         title: {
             text: '',

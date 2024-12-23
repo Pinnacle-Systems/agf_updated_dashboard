@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
+import DropdownData from "../Ui Component/modelUi";
+import DropdownCom from "../Ui Component/modelParam";
 
-const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowModel }) => {
+const ModelMultiSelectChart2 = ({color,showModel, setShowModel ,selectedYear, setSelectedYear,
+  selectedBuyer, setSelectedBuyer}) => {
   const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
 
@@ -41,22 +44,30 @@ const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowMode
             height: "100%",
           }}
         >
-          <label
-            htmlFor="employeeType"
-            className="text-[14px] font-semibold text-gray-700 mb-2 transition-all duration-300 hover:text-gray-800"
-          >
-            Select Company
-          </label>
+       
 
           {/* Dropdown Component */}
-          <div className="flex w-full justify-end">
-            <DropdownDt selected={selected} setSelected={setSelected} option={option} />
-            <div className="flex group relative">
-              <span className="group-hover:opacity-100 transition-opacity bg-gray-800 px-1 bottom-6 text-sm text-gray-100 rounded-md -translate-x-1/2 absolute opacity-0 z-40">
-                Refresh
-              </span>
+          <div className="p-5 overflow-y-auto h-full">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Select Company</h2>
+
+          {/* Dropdowns */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+              <label className="text-sm font-medium text-gray-600">Year:</label>
+              <DropdownData selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <DropdownCom
+                style={{ width: "200px" }}
+                selectedBuyer={selectedBuyer}
+                setSelectedBuyer={setSelectedBuyer}
+                columnHeaderHeight={"30"}
+              />
             </div>
           </div>
+         
+        </div>
           <button
   className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
   style={{
@@ -64,7 +75,7 @@ const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowMode
   }}
   onClick={() => setShowModel(false)}
 >
-  Ok
+  0k
 </button>
         </div>
       </div>
@@ -72,4 +83,4 @@ const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowMode
   );
 };
 
-export default ModelMultiSelect1;
+export default ModelMultiSelectChart2;

@@ -4,10 +4,10 @@ import HighchartsReact from 'highcharts-react-official';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
-import DropdownCom from '../../Ui Component/modelParam';
-import DropdownData from '../../Ui Component/modelUi';
 import { ColorContext } from '../global/context/ColorContext';
 import { useContext } from "react";
+import ModelMultiSelectChart2 from '../../components/ModelMultiSelectChart2';
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
 const ChartTable = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
@@ -137,7 +137,11 @@ const ChartTable = () => {
             attrition: totalPlanned.toLocaleString(),
         },
     ];
-
+       const [showModel, setShowModel] = useState(false);
+    
+        const handleArrowClick = () => {
+            setShowModel((prevState) => !prevState);
+        };
     const valueFormatter = ({ value }) => {
         const formattedValue = parseFloat(value ? value : 0).toLocaleString();
         return isNaN(formattedValue) ? '' : formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -179,30 +183,15 @@ const ChartTable = () => {
     return (
         <ThemeProvider theme={theme}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div className="flex justify-end ">
-                    <div className='flex items-center h-8  gap-1'>
-                        <label className='text-sm text-center flex px-3  '></label>
-                        <DropdownData selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
-                        <DropdownCom
-    style={{ width: '200px' }} 
-    selectedBuyer={selectedBuyer}
-    setSelectedBuyer={setSelectedBuyer}
-    selectedMonth={selectedMonth}
-    setSelectedMonth={setSelectedMonth}
-    selectedYear={selectedYear}
-    setSelectedYear={setSelectedYear}
-    options={buyerNm}
-    monthOptions={monthData}
-    yearOptions={yearData}
-    columnHeaderHeight={"30"}
-/>
- </div>
-                    <div className='flex group relative'>
-                        <span className='group-hover:opacity-100 transition-opacity bg-gray-800 px-1 bottom-5 text-sm text-gray-100 rounded-md -translate-x-1/2 absolute opacity-0 z-40'>
-                            Refresh
-                        </span>
-                    </div>
-                </div>
+            <FilterAltIcon
+                        onClick={handleArrowClick}
+                        className="text-gray-600 text-xl cursor-pointer "
+                        style={{ color: color || "#4B5563" }}
+                        alt="Filter"
+                    />
+                <ModelMultiSelectChart2  color={color}
+                     showModel = {showModel} setShowModel = {setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear} 
+                     selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
                         <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'>
