@@ -7,10 +7,12 @@ const OrdersInHand = ({ selectedBuyer, setSelectedBuyer,
     selectedMonth, setSelectedMonth,
 
     refetch, misData }) => {
+
+
     return (
         <CardWrapper heading={"Age Distribution"}>
             <PieChart selectedBuyer={selectedBuyer} selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
+                selectedMonth={selectedMonth} 
                 setSelectedBuyer={setSelectedBuyer} setSelectedYear={setSelectedYear} setSelectedMonth={
                     setSelectedMonth} refetch={refetch} misData={misData} />
         </CardWrapper>

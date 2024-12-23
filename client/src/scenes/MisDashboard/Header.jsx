@@ -25,55 +25,10 @@ const Header = ({
     return (
         <>
             {/* Header Section */}
-            {/* <div className="bg-[#1F2937] h-[40px] flex justify-between items-center px-4 mb-2">
-                <div className="flex items-center">
-                    <label className="text-sm text-white mr-3">Select:</label>
-                    <DropdownCom
-                        selectedBuyer={selectedBuyer}
-                        setSelectedBuyer={setSelectedBuyer}
-                        selectedMonth={selectedMonth}
-                        setSelectedMonth={setSelectedMonth}
-                        selectedYear={selectedYear}
-                        setSelectedYear={setSelectedYear}
-                        columnHeaderHeight="20"
-                    />
-                </div>
-
-                <div className="flex items-center space-x-3">
-                    <Tooltip title="Refresh Data">
-                        <button
-                            className="bg-gray-800 rounded p-2  flex items-center justify-center text-white border-2 border-gray-600 hover:bg-gray-700 transition duration-200"
-                            onClick={refetch}
-                        >
-                            <HiOutlineRefresh size={20} />
-                        </button>
-                    </Tooltip>
-
-                    <div className="flex items-center">
-                        <label
-                            className={`animated-label w-20 ${
-                                checked ? 'labour-style' : 'staff-style'
-                            }`}
-                        >
-                            {checked ? 'Labour' : 'Staff'}
-                        </label>
-                        <Switch
-    checked={checked}
-    onChange={handleChange}
-    sx={{
-        '& .MuiSwitch-thumb': { 
-            backgroundColor: color || 'yellow' // Thumb color
-        },
-        '& .MuiSwitch-track': { 
-            backgroundColor: color || 'yellow', // Track color
-        },
-    }}
-    inputProps={{ 'aria-label': 'controlled' }}
-/>
-
-                    </div>
-                </div>
-            </div> */}
+            <div className="bg-[#1F2937] h-[10px] flex justify-between items-center px-4 mb-1">
+           
+           
+            </div>
 
             {/* Numeric Card */}
             {console.log(selectedBuyer,'selected Buyer rr')}
