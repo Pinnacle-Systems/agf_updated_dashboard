@@ -15,6 +15,7 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
   const profit = misData?.data?.profit || [];
   const profit1 = misData?.data?.profit1 || [];
   const [selectedState, setSelectedState] = useState("");
+  const [showModel, setShowModel] = useState(false);
 
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
@@ -45,7 +46,6 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
   const filterLoss1 = loss1.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-    const [showModel, setShowModel] = useState(false);
   
   const filterLoss11 = loss11.filter((item) =>
     selectedBuyer.includes(item.comCode)
