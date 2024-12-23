@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
-import filter from "../assets/filter.png"
 import { ColorContext } from "../scenes/global/context/ColorContext";
 import './ToggleSwitch.css';
 import './Model.css';
 import ModelMultiSelect from "./ModelMultiSelect";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
   const NumericCard = ({ misData, selectedBuyer,
     setSelectedBuyer,
   
@@ -45,6 +45,8 @@ import ModelMultiSelect from "./ModelMultiSelect";
   const filterLoss1 = loss1.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
+    const [showModel, setShowModel] = useState(false);
+  
   const filterLoss11 = loss11.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );  
@@ -59,7 +61,7 @@ import ModelMultiSelect from "./ModelMultiSelect";
       previousValue: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.prevValue, 0) 
                   : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.prevValue, 0) 
                   : filteredTotalTurnOver1.reduce((acc, item) => acc + item.prevValue, 0) + filteredTotalTurnOver.reduce((acc, item) => acc + item.prevValue, 0),
-      icon: filter,
+      
     },
     {
       heading: "Attrition Breakup",
@@ -70,7 +72,7 @@ import ModelMultiSelect from "./ModelMultiSelect";
       previousValue: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.comCode, 0) 
                   : selectedState == "Staff" ?  profit.reduce((acc, item) => acc + item.comCode, 0):
                   profit1.reduce((acc, item) => acc + item.comCode, 0) +  profit.reduce((acc, item) => acc + item.comCode, 0),
-      icon: filter,
+      
     },
     {
       heading: selectedState == "Labour" ? "Staff Last Month Salary" : "Labour Last Month Salary",
@@ -81,7 +83,7 @@ import ModelMultiSelect from "./ModelMultiSelect";
       previousValue: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.prevValue, 0) 
                   :  selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.prevValue, 0):
                   filteredTopCus.reduce((acc, item) => acc + item.prevValue, 0) + filterNewCus.reduce((acc, item) => acc + item.prevValue, 0)  ,
-      icon: filter,
+      
     },
     {
       heading: "Employees' Pf Details",
@@ -92,7 +94,7 @@ import ModelMultiSelect from "./ModelMultiSelect";
       previousValue: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.prevValue, 0) 
                   :selectedState == "Staff"?  filterLoss01.reduce((acc, item) => acc + item.prevValue, 0) :
                   filterLoss.reduce((acc, item) => acc + item.prevValue, 0) + filterLoss01.reduce((acc, item) => acc + item.prevValue, 0) ,
-      icon: filter,
+      
     },
     {
       heading: "Employees' Esi Details",
@@ -103,7 +105,7 @@ import ModelMultiSelect from "./ModelMultiSelect";
       previousValue: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.prevValue, 0) 
                   :  selectedState == "Staff" ?  filterLoss11.reduce((acc, item) => acc + item.prevValue, 0):
                   filterLoss1.reduce((acc, item) => acc + item.prevValue, 0) + filterLoss11.reduce((acc, item) => acc + item.prevValue, 0),
-      icon: filter,
+      
     },
   ];
   
@@ -120,6 +122,9 @@ import ModelMultiSelect from "./ModelMultiSelect";
     return ((value / totalValue) * 100).toFixed(2);
   };
   
+  const handleArrowClick = () => {
+    setShowModel((prevState) => !prevState);
+  };
 
   return (
 <div className="flex w-full">
@@ -138,11 +143,20 @@ import ModelMultiSelect from "./ModelMultiSelect";
             <h2 className="text-lg font-semibold text-gray-800 truncate">
               {val.heading}
             </h2>
-            <img
-              src={val.icon}
-              className="absolute right-1 top-4 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              alt="Filter"
-            />
+           
+
+<span
+  className="text-gray-600 text-2xl transition-transform duration-300"
+  style={{ color: color ? `${color}` : "#4B5563" }}
+>
+  <FilterAltIcon
+    onClick={() => handleArrowClick()}
+    className="absolute right-1 top-4 w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    alt="Filter"
+  />
+</span>
+
+          
             <div className="flex justify-between items-center">
               <p
                 className="text-xl font-bold text-[#CA8A04] mb-1 mt-4"
@@ -227,6 +241,10 @@ import ModelMultiSelect from "./ModelMultiSelect";
     selectedBuyer={selectedBuyer}
     setSelectedBuyer={setSelectedBuyer}
     color={color}
+    showModel = {showModel}
+    setShowModel = {
+      setShowModel
+    }
     selectedState={selectedState}
     setSelectedState={setSelectedState}
   />

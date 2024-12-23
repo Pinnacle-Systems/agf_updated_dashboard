@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import DropdownCom from "../Ui Component/modelParam";
 import { FaUserPlus, FaBriefcase, FaUsers } from "react-icons/fa";
 
-const ModelMultiSelect = ({ selectedBuyer, setSelectedBuyer, color, selectedState, setSelectedState }) => {
-  const [showModel, setShowModel] = useState(false);
-
+const ModelMultiSelect = ({ selectedBuyer, setSelectedBuyer, color, selectedState, setSelectedState,showModel,setShowModel }) => {
+  // const [showModel, setShowModel] = useState(false);
+ console.log(showModel,"showModel")
   const handleButtonClick = (state) => {
     setSelectedState(state);
   };
@@ -17,7 +17,7 @@ const ModelMultiSelect = ({ selectedBuyer, setSelectedBuyer, color, selectedStat
     <div>
       <div>
         {/* Arrow Toggle Button */}
-        <div
+        {/* <div
           className={`arrow-button bg-white border border-gray-200 hover:bg-gray-100 shadow-lg rounded-lg px-3 py-1 flex items-center justify-center transition-all duration-300 ${
             showModel ? "translate-y-[300px]" : "translate-y-0"
           }`}
@@ -37,7 +37,7 @@ const ModelMultiSelect = ({ selectedBuyer, setSelectedBuyer, color, selectedStat
           >
             {showModel ? "▲" : "▼"}
           </span>
-        </div>
+        </div> */}
 
         {/* Slide-Up Model */}
         <div

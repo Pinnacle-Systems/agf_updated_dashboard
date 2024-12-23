@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-const ModelMultiSelect1 = ({ selected, setSelected, color }) => {
-  const [showModel, setShowModel] = useState(false);
+
+const ModelMultiSelect1 = ({ selected, setSelected, showModel, setShowModel }) => {
 const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const option = buyer?.data ? buyer?.data : [];
   const handleArrowClick = () => {
@@ -14,7 +14,7 @@ const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {
     <div>
       <div>
         {/* Arrow Toggle Button */}
-        <div
+        {/* <div
           className={`arrow-button bg-white border border-gray-200 hover:bg-gray-100 shadow-lg rounded-lg px-3 py-1 flex items-center justify-center transition-all duration-300 ${
             showModel ? "translate-y-[300px]" : "translate-y-0"
           }`}
@@ -34,7 +34,7 @@ const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {
           >
             {showModel ? "▲" : "▼"}
           </span>
-        </div>
+        </div> */}
 
         {/* Slide-Up Model */}
         <div
