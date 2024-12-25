@@ -60,7 +60,7 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const dispatch = useDispatch();
   const { data: userData } = useGetUsersQuery();
-  const { color } = useContext(ColorContext); 
+  const { color } = useContext(ColorContext);
 
 
   const toggleSidebar = () => {
@@ -69,7 +69,7 @@ const Sidebar = () => {
 
   return (
     <SidebarContainer isCollapsed={isCollapsed}>
-      <Box
+      {/* <Box
         display="flex"
         alignItems="center"
         justifyContent={isCollapsed ? 'center' : 'space-between'}
@@ -92,24 +92,24 @@ const Sidebar = () => {
                 position: 'absolute',
                 bottom: 0,
                 left: '25%',
-                width: '70%', 
+                width: '70%',
                 height: '2px',
-                backgroundColor: color? color:'#C57B03',
+                backgroundColor: color ? color : '#C57B03',
                 transform: 'translateX(-25%)',
               }}
             ></span>
           </Typography>
         )}
         <IconButton onClick={toggleSidebar}>
-          <MenuIcon sx={{ fontSize: isCollapsed ? '18px' : '24px',paddingLeft:"3px" }} />
+          <MenuIcon sx={{ fontSize: isCollapsed ? '24px' : '24px', paddingLeft: "3px" }} />
         </IconButton>
-      </Box>
+      </Box> */}
 
-      <List>
+      <List className="mt-3">
         <Tooltip title="Dashboard" placement="right" disableHoverListener={!isCollapsed}>
           <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>
             <StyledListItemIcon>
-              <DashboardIcon sx={{ color:color?`${color}`: '#CA8A04', fontSize: '28px', background:"white" }} />
+              <DashboardIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
             </StyledListItemIcon>
             {!isCollapsed && (
               <ListItemText
@@ -127,7 +127,7 @@ const Sidebar = () => {
         <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
           <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>
             <StyledListItemIcon>
-              <PersonIcon sx={{ color:color?`${color}`: '#CA8A04', fontSize: '28px' , background:"white"  }} />
+              <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
             </StyledListItemIcon>
             {!isCollapsed && (
               <ListItemText

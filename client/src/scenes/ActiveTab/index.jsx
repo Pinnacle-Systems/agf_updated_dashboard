@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { push, remove } from "../../redux/features/opentabs";
 
@@ -9,7 +9,10 @@ import PoRegister from "../poRegister";
 import { MisDashboard } from "../../scenes"
 import OrderManagement from "../OrderManagement";
 import OutlinedCard from "../Users/Users";
+import { ColorContext } from "../global/context/ColorContext";
+
 const ActiveTabList = () => {
+    const { color } = useContext(ColorContext);
     const openTabs = useSelector((state) => state.openTabs);
     const dispatch = useDispatch();
     const [showHidden, setShowHidden] = useState(false);
@@ -28,14 +31,18 @@ const ActiveTabList = () => {
     const currentShowingTabs = openTabs.tabs.slice(0, parseInt(itemsToShow));
     const hiddenTabs = openTabs.tabs.slice(parseInt(itemsToShow));
     return (
-        <div className="relative w-full h-full overflow-hidden">
+        <div className="relative w-full h-full">
             <div className="flex justify-between ">
                 <div className="flex gap-2 m-2  ">
                     {currentShowingTabs.map((tab, index) => (
                         <div
                             key={index}
-                            className={`p-1 rounded  subheading-font  text-xs flex justify-center gap-1 ${tab.active ? "tab-color text-white" : "bg-white"
-                                }`}
+                            className={`p-1 rounded subheading-font text-xs flex justify-center gap-1`}
+                            style={
+                                tab.active
+                                    ? { backgroundColor: color, color: "white" }
+                                    : { backgroundColor: "white", color: color }
+                            }
                         >
                             <button
                                 onClick={() => {
@@ -44,7 +51,7 @@ const ActiveTabList = () => {
                             >
                                 {tab.name}
                             </button>
-                            <button className="hover:bg-red-400 px-1 rounded-xs transition"
+                            <button className="px-1 rounded-xs transition"
                                 onClick={() => {
                                     dispatch(remove({ id: tab.id }));
                                 }}
@@ -86,7 +93,7 @@ const ActiveTabList = () => {
                 }
             </div>
             {openTabs.tabs.map((tab, index) => (
-                <div key={index} className={`${tab.active ? "block" : "hidden"} h-[97%] w-full`}>
+                <div key={index} className={`${tab.active ? "block" : "hidden"} w-full`}>
                     {tabs[tab.name]}
                 </div>
             ))}

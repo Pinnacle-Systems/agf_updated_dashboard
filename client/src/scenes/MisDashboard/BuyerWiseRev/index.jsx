@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { HiOutlineRefresh } from "react-icons/hi";
 import { useGetBuyerWiseRevenueQuery } from '../../../redux/service/misDashboardService';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
-import DropdownCom from '../../../Ui Component/modelParam';
+import SelectBuyer from '../../../Ui Component/modelParam';
 import DropdownData from '../../../Ui Component/modelUi';
 
 

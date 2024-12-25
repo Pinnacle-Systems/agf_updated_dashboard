@@ -1,34 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
-import DropdownDt from '../Ui Component/dropDownParam';
 import { ColorContext } from '../scenes/global/context/ColorContext';
 import { useContext } from 'react';
+import CardWrapper from './CardWrapper';
+import BuyerMultiSelect from './ModelMultiSelect1';
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
+    const [showModel, setShowModel] = useState(false);
+
     const truncateText = (text, maxLength) => {
         if (text.length > maxLength) {
             return text.substring(0, maxLength) + '...';
         }
         return text;
     };
-    const {color} = useContext(ColorContext)
+    const { color } = useContext(ColorContext)
     function generateColorArray(color, count = 7) {
         const colorsArray = [];
         let hueShift = 0;
-    
+
         for (let i = 0; i < count; i++) {
-            hueShift = (i * 30) % 360; 
+            hueShift = (i * 30) % 360;
             colorsArray.push(`hsl(${hueShift}, 70%, 50%)`);
         }
-     console.log(colorsArray,"colorsArray")
+        console.log(colorsArray, "colorsArray")
         return colorsArray;
     }
-    
-   
+
+
     const baseColor = 'hsl(0, 70%, 50%)'; // Red base color
     const colorArray = generateColorArray(baseColor);
     console.log(colorArray); // Array of 7 distinct colors
-    
+
 
 
     const [chartOptions, setChartOptions] = useState({
@@ -58,14 +61,14 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 },
             },
         },
-        
+
         colors: ['#525252', '#F7B900', '#1C2937', 'rgb(255, 140, 0)', '#101010'],
         dataLabels: {
             style: {
                 colors: ['#000'],
-                fontSize: '10px', 
+                fontSize: '10px',
                 fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', 
+                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
             },
         },
         tooltip: {
@@ -92,16 +95,26 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     }, [overAllSuppCon]);
 
     return (
-        <div id="chart" className="p-4">
-            <DropdownDt selected={selected} setSelected={setSelected} option={option} />
-            <Chart
-                options={chartOptions}
-                series={chartOptions.series}
-                type="bar"
-                height={320} 
-                className="text-black"
-            />
-        </div>
+        <CardWrapper heading={"Experience Distribution"} onFilterClick={() => { setShowModel(true) }} >
+            <div id="chart" className="p-4">
+                {showModel && (
+                    <BuyerMultiSelect
+                        selected={selected}
+                        setSelected={setSelected}
+                        color={color}
+                        showModel={showModel}
+                        setShowModel={setShowModel}
+                    />
+                )}
+                <Chart
+                    options={chartOptions}
+                    series={chartOptions.series}
+                    type="bar"
+                    height={320}
+                    className="text-black"
+                />
+            </div>
+        </CardWrapper>
     );
 };
 

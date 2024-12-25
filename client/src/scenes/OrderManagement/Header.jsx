@@ -4,7 +4,7 @@ import OrderMgmtNumCard from '../../components/OrderMgmtCard';
 import { useGetOcrPendingQuery, useGetOrdManagementDataQuery, useGetPreBudgetQuery, useGetShippedDataQuery, useGetWIPDataQuery } from '../../redux/service/orderManagement';
 import Scene from '../../components/loader/Loader';
 import { useGetFinYearQuery } from '../../redux/service/commonMasters';
-import DropdownCom from '../../Ui Component/modelParam';
+import SelectBuyer from '../../Ui Component/modelParam';
 import DropdownData from '../../Ui Component/modelUi';
 
 const Header = () => {

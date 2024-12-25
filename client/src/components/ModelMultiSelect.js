@@ -1,6 +1,7 @@
-import React from "react";
-import DropdownCom from "../Ui Component/modelParam";
+import SelectBuyer from "../Ui Component/modelParam";
 import { FaUserPlus, FaBriefcase, FaUsers } from "react-icons/fa";
+import * as React from 'react';
+
 
 const ModelMultiSelect = ({
   selectedBuyer,
@@ -16,10 +17,11 @@ const ModelMultiSelect = ({
   };
 
   return (
-    <div>
+
+    <div >
       {/* Slide-Up Model */}
       <div
-        className={`model-box ${showModel ? "open" : "closed"}`}
+        className={`model-box ${showModel ? "open" : "closed"} transition-shadow delay-500`}
         style={{
           position: "absolute",
           bottom: showModel ? "0" : "-600px", // Adjust height
@@ -30,7 +32,7 @@ const ModelMultiSelect = ({
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",
           borderRadius: "8px 8px 0 0",
-          border:"1px solid gray",
+          border: "1px solid gray",
           zIndex: "20",
           border: "1px solid rgba(0, 0, 0, 0.1)", // Light border
         }}
@@ -53,75 +55,66 @@ const ModelMultiSelect = ({
             </label>
           </div>
           <div className="flex items-center gap-2 mb-2">
-  {/* All Button */}
-  <button
-    onClick={() => handleButtonClick("All")}
-    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
-      selectedState === "All"
-        ? "bg-blue-600 border-blue-600 text-white shadow-xl transform scale-100"
-        : "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-md transform hover:scale-105"
-    } rounded-full`}
-  >
-    <span
-      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
-        selectedState === "All" ? "text-white" : "text-[#3F83F8]"
-      }`}
-    >
-      All
-    </span>
-    <FaUserPlus
-      className={`text-lg transition-all duration-300 transform ${
-        selectedState === "All" ? "scale-110 text-white" : "text-blue-500"
-      }`}
-    />
-  </button>
+            {/* All Button */}
+            <button
+              onClick={() => handleButtonClick("All")}
+              className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${selectedState === "All"
+                ? "bg-blue-600 border-blue-600 text-white shadow-xl transform scale-100"
+                : "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-md transform hover:scale-105"
+                } rounded-full`}
+            >
+              <span
+                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "All" ? "text-white" : "text-[#3F83F8]"
+                  }`}
+              >
+                All
+              </span>
+              <FaUserPlus
+                className={`text-lg transition-all duration-300 transform ${selectedState === "All" ? "scale-110 text-white" : "text-blue-500"
+                  }`}
+              />
+            </button>
 
-  {/* Labour Button */}
-  <button
-    onClick={() => handleButtonClick("Labour")}
-    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
-      selectedState === "Labour"
-        ? "bg-green-600 border-green-600 text-white shadow-xl transform scale-100"
-        : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white shadow-md transform hover:scale-105"
-    } rounded-full`}
-  >
-    <span
-      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
-        selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
-      }`}
-    >
-      Labour
-    </span>
-    <FaBriefcase
-      className={`text-lg transition-all duration-300 transform ${
-        selectedState === "Labour" ? "scale-110 text-white" : "text-green-500"
-      }`}
-    />
-  </button>
+            {/* Labour Button */}
+            <button
+              onClick={() => handleButtonClick("Labour")}
+              className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${selectedState === "Labour"
+                ? "bg-green-600 border-green-600 text-white shadow-xl transform scale-100"
+                : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white shadow-md transform hover:scale-105"
+                } rounded-full`}
+            >
+              <span
+                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
+                  }`}
+              >
+                Labour
+              </span>
+              <FaBriefcase
+                className={`text-lg transition-all duration-300 transform ${selectedState === "Labour" ? "scale-110 text-white" : "text-green-500"
+                  }`}
+              />
+            </button>
 
-  {/* Staff Button */}
-  <button
-    onClick={() => handleButtonClick("Staff")}
-    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
-      selectedState === "Staff"
-        ? "bg-purple-600 border-purple-600 text-white shadow-xl transform scale-100"
-        : "border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white shadow-md transform hover:scale-105"
-    } rounded-full`}
-  >
-    <span
-      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
-        selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
-      }`}
-    >
-      Staff
-    </span>
-    <FaUsers
-      className={`text-lg transition-all duration-300 transform ${
-        selectedState === "Staff" ? "scale-110 text-white" : "text-purple-500"
-      }`}
-    />
-  </button>
-</div>
+            {/* Staff Button */}
+            <button
+              onClick={() => handleButtonClick("Staff")}
+              className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${selectedState === "Staff"
+                ? "bg-purple-600 border-purple-600 text-white shadow-xl transform scale-100"
+                : "border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white shadow-md transform hover:scale-105"
+                } rounded-full`}
+            >
+              <span
+                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
+                  }`}
+              >
+                Staff
+              </span>
+              <FaUsers
+                className={`text-lg transition-all duration-300 transform ${selectedState === "Staff" ? "scale-110 text-white" : "text-purple-500"
+                  }`}
+              />
+            </button>
+          </div>
 
 
 
@@ -133,7 +126,7 @@ const ModelMultiSelect = ({
             Select Company
           </label>
 
-          <DropdownCom
+          <SelectBuyer
             selectedBuyer={selectedBuyer}
             setSelectedBuyer={setSelectedBuyer}
             columnHeaderHeight="20"
@@ -152,6 +145,8 @@ const ModelMultiSelect = ({
         </div>
       </div>
     </div>
+
+
   );
 };
 

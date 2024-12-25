@@ -33,7 +33,6 @@ export default function OutlinedCard() {
     return acc;
   }, {});
 
-  console.log(groupedUsers, 'data');
   const uniqueRoles = [...new Set(userData.map(user => user.role).filter(role => role))];
 
   return (
@@ -77,7 +76,6 @@ export default function OutlinedCard() {
           </table>
         </div>
       </div>
-
       <Modal
         open={open}
         onClose={handleClose}

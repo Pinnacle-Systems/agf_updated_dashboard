@@ -2,24 +2,16 @@ import React, { useState } from "react";
 import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowModel }) => {
-  const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
+const BuyerMultiSelect = ({ selected, setSelected, color, showModel, setShowModel }) => {
+  const { data: buyer, } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
-
-  const handleArrowClick = () => {
-    setShowModel((prevState) => !prevState);
-  };
 
   return (
     <div>
-      {/* Arrow Toggle Button */}
-      
-
-      {/* Slide-Up Model */}
       <div
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
-          position: "absolute",
+          position: "sticky",
           bottom: showModel ? "0" : "-600px", // Adjust height
           left: "0",
           width: "290px",
@@ -28,7 +20,6 @@ const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowMode
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",
           borderRadius: "8px 8px 0 0",
-          border:"1px solid gray",
           zIndex: "20",
           border: "1px solid rgba(0, 0, 0, 0.1)", // Light border
         }}
@@ -58,18 +49,18 @@ const ModelMultiSelect1 = ({ selected, setSelected, color,showModel, setShowMode
             </div>
           </div>
           <button
-  className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
-  style={{
-    backgroundColor: color ? color : 'blue',
-  }}
-  onClick={() => setShowModel(false)}
->
-  Ok
-</button>
+            className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
+            style={{
+              backgroundColor: color ? color : 'blue',
+            }}
+            onClick={() => setShowModel(false)}
+          >
+            Ok
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default ModelMultiSelect1;
+export default BuyerMultiSelect;

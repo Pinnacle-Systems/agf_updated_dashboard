@@ -8,8 +8,6 @@ Highcharts3D(Highcharts);
 
 const BuyerWiseRevenueGen = ({ buyerRev }) => {
     const buyerWiseRev = buyerRev ? buyerRev : [];
-    console.log(buyerRev);
-
     const options = {
         chart: {
             type: 'pie',
@@ -70,12 +68,11 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
     };
 
     return (
-        <div>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
-        </div>
+        <HighchartsReact
+            highcharts={Highcharts}
+            options={options}
+            style={{ width: '200px', height: '100%' }}
+        />
     );
 };
 

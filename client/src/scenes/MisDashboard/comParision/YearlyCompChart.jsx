@@ -3,15 +3,15 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import { useGetYearlyCompQuery } from '../../../redux/service/misDashboardService';
-import { HiOutlineRefresh } from 'react-icons/hi';
 import { ColorContext } from '../../global/context/ColorContext';
 import { useContext } from "react";
+import CardWrapper from '../../../components/CardWrapper';
 
 Highcharts3D(Highcharts);
 
 const YearlyComChart = () => {
-    const { data: comparisionData, refetch } = useGetYearlyCompQuery({ params: {} });
-  const { color } = useContext(ColorContext); 
+    const { data: comparisionData } = useGetYearlyCompQuery({ params: {} });
+    const { color } = useContext(ColorContext);
     const yearlyComparision = comparisionData?.data || [];
 
     const groupedData = yearlyComparision.reduce((acc, curr) => {
@@ -34,7 +34,7 @@ const YearlyComChart = () => {
             }),
             color: color ? color : '#DE9A07',
         },
-        
+
         {
             name: ` Female`,
             data: categories.map(customer => {
@@ -97,8 +97,8 @@ const YearlyComChart = () => {
                 return `
                     <b>Company: ${this.x}</b><br/>
                     ${this.points.map(
-                        point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
-                    ).join('')}
+                    point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
+                ).join('')}
                 `;
             },
         },
@@ -112,16 +112,15 @@ const YearlyComChart = () => {
         },
         series: series,
     };
-    
 
     return (
-        <div>
-                        <HighchartsReact
+        <CardWrapper heading={"Employee Breakup As on Date"} showFilter={false} >
+            <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
-                containerProps={{ style: { minWidth: '100%', minHeight: '400px' } }}
+                containerProps={{ style: { minWidth: '100%', height: "100%" } }}
             />
-        </div>
+        </CardWrapper>
     );
 };
 

@@ -3,7 +3,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useGetPlanedVsActualSalesQuery } from '../../redux/service/orderManagement';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
-import DropdownCom from '../../Ui Component/modelParam';
+import SelectBuyer from '../../Ui Component/modelParam';
 
 const OrderVsShipped = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
@@ -144,7 +144,7 @@ const OrderVsShipped = () => {
                 <div className='flex items-center'>
                     <label className='text-sm text-center '>Select :</label>
                 </div>
-                <DropdownCom
+                <SelectBuyer
                     selectedBuyer={selectedBuyer}
                     setSelectedBuyer={setSelectedBuyer}
                     selectedMonth={selectedMonth}

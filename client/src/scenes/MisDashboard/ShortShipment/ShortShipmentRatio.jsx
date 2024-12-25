@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useGetShortShipmantRatioQuery } from '../../../redux/service/misDashboardService';
 import 'tailwindcss/tailwind.css';
 import { HiOutlineRefresh } from 'react-icons/hi';
-import DropdownCom from '../../../Ui Component/modelParam';
+import SelectBuyer from '../../../Ui Component/modelParam';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
 import { currentDate } from '../../../utils/hleper';
 
