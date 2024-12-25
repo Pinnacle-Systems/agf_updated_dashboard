@@ -58,14 +58,7 @@ const YearlyComChart = () => {
             },
             backgroundColor: '#FFFFFF',
         },
-        title: {
-            text: 'Yearly Employee Distribution',
-            style: {
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#374151',
-            },
-        },
+        title: null, // Remove the title by setting it to null
         xAxis: {
             categories: categories,
             labels: {
@@ -119,16 +112,11 @@ const YearlyComChart = () => {
         },
         series: series,
     };
+    
 
     return (
-        <div className="bg-white rounded-lg shadow-lg p-4">
-            <div className="flex justify-end mb-3">
-                <HiOutlineRefresh
-                    onClick={refetch}
-                    className="text-gray-500 hover:text-blue-500 cursor-pointer text-2xl"
-                />
-            </div>
-            <HighchartsReact
+        <div>
+                        <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
                 containerProps={{ style: { minWidth: '100%', minHeight: '400px' } }}

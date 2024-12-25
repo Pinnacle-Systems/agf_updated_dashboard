@@ -5,7 +5,7 @@ const CardWrapper = ({ heading, children }) => {
     const { color } = useContext(ColorContext); 
 
     return (
-        <div className='w-full h-full text-center border border-gray-300 rounded-lg shadow-lg bg-white'>
+        <div className='w-full h-full text-center border border-gray-300 rounded-lg shadow-lg bg-white h-[450px]'>
             <div className=' text-center rounded-t-lg flex items-center justify-center h-[30px] shadow-md'  style={{
     background: color 
       ? color 
@@ -15,7 +15,7 @@ const CardWrapper = ({ heading, children }) => {
                     {heading}
                 </span>
             </div>
-                <div className='h-[80%] p-4 bg-gradient-to-br from-gray-50 to-gray-200 rounded-b-lg shadow-inner'>
+                <div className='h-[90%] p-4 bg-gradient-to-br from-gray-50 to-gray-200 rounded-b-lg shadow-inner'>
                 {children}
             </div>
         </div>

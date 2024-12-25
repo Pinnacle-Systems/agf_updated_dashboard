@@ -52,47 +52,78 @@ const ModelMultiSelect = ({
               Select Employee Type
             </label>
           </div>
+          <div className="flex items-center gap-2 mb-2">
+  {/* All Button */}
+  <button
+    onClick={() => handleButtonClick("All")}
+    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
+      selectedState === "All"
+        ? "bg-blue-600 border-blue-600 text-white shadow-xl transform scale-100"
+        : "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white shadow-md transform hover:scale-105"
+    } rounded-full`}
+  >
+    <span
+      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
+        selectedState === "All" ? "text-white" : "text-[#3F83F8]"
+      }`}
+    >
+      All
+    </span>
+    <FaUserPlus
+      className={`text-lg transition-all duration-300 transform ${
+        selectedState === "All" ? "scale-110 text-white" : "text-blue-500"
+      }`}
+    />
+  </button>
 
-          <div className="flex items-center gap-4 mb-2">
-            {/* All Button */}
-            <button
-              onClick={() => handleButtonClick("All")}
-              className={`group relative flex items-center justify-center px-3 py-3 text-white rounded-md ${
-                selectedState === "All" ? "bg-blue-600" : "bg-blue-500"
-              } hover:bg-blue-700 shadow-xl transition-all duration-150 transform hover:scale-105`}
-            >
-              <span className="absolute top-[-1.5rem] text-[#3F83F8] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-sm">
-                All
-              </span>
-              <FaUserPlus className="text-xl" />
-            </button>
+  {/* Labour Button */}
+  <button
+    onClick={() => handleButtonClick("Labour")}
+    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
+      selectedState === "Labour"
+        ? "bg-green-600 border-green-600 text-white shadow-xl transform scale-100"
+        : "border-green-500 text-green-500 hover:bg-green-500 hover:text-white shadow-md transform hover:scale-105"
+    } rounded-full`}
+  >
+    <span
+      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
+        selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
+      }`}
+    >
+      Labour
+    </span>
+    <FaBriefcase
+      className={`text-lg transition-all duration-300 transform ${
+        selectedState === "Labour" ? "scale-110 text-white" : "text-green-500"
+      }`}
+    />
+  </button>
 
-            {/* Labour Button */}
-            <button
-              onClick={() => handleButtonClick("Labour")}
-              className={`group relative flex items-center justify-center px-3 py-3 text-white rounded-md ${
-                selectedState === "Labour" ? "bg-green-600" : "bg-green-500"
-              } hover:bg-green-700 shadow-xl transition-all duration-150 transform hover:scale-105`}
-            >
-              <span className="absolute top-[-1.5rem] text-[#0E9F6E] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-sm">
-                Labour
-              </span>
-              <FaBriefcase className="text-xl" />
-            </button>
+  {/* Staff Button */}
+  <button
+    onClick={() => handleButtonClick("Staff")}
+    className={`group relative flex items-center justify-center px-4 py-1 border-2 transition-all duration-300 ease-in-out ${
+      selectedState === "Staff"
+        ? "bg-purple-600 border-purple-600 text-white shadow-xl transform scale-100"
+        : "border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white shadow-md transform hover:scale-105"
+    } rounded-full`}
+  >
+    <span
+      className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${
+        selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
+      }`}
+    >
+      Staff
+    </span>
+    <FaUsers
+      className={`text-lg transition-all duration-300 transform ${
+        selectedState === "Staff" ? "scale-110 text-white" : "text-purple-500"
+      }`}
+    />
+  </button>
+</div>
 
-            {/* Staff Button */}
-            <button
-              onClick={() => handleButtonClick("Staff")}
-              className={`group relative flex items-center justify-center px-3 py-3 text-white rounded-md ${
-                selectedState === "Staff" ? "bg-purple-600" : "bg-purple-500"
-              } hover:bg-purple-700 shadow-xl transition-all duration-150 transform hover:scale-105`}
-            >
-              <span className="absolute top-[-1.5rem] text-[#7E3AF2] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-sm">
-                Staff
-              </span>
-              <FaUsers className="text-xl" />
-            </button>
-          </div>
+
 
           {/* Select Company Section */}
           <label
