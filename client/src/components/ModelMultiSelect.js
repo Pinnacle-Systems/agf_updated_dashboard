@@ -23,7 +23,7 @@ const ModelMultiSelect = ({
       <div
         className={`model-box ${showModel ? "open" : "closed"} transition-shadow delay-500`}
         style={{
-          position: "absolute",
+          position: "fixed",
           bottom: showModel ? "0" : "-600px", // Adjust height
           left: "0",
           width: "290px",
@@ -32,7 +32,6 @@ const ModelMultiSelect = ({
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",
           borderRadius: "8px 8px 0 0",
-          border: "1px solid gray",
           zIndex: "20",
           border: "1px solid rgba(0, 0, 0, 0.1)", // Light border
         }}

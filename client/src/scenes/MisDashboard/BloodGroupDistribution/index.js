@@ -1,18 +1,27 @@
 import React, { useState } from 'react'
 
 import { useGetTopItemsQuery } from '../../../redux/service/poData';
-import DropdownDt from '../../../Ui Component/dropDownParam';
 import SortedBarChart from './SortedBarChart';
+import CardWrapper from '../../../components/CardWrapper';
+import BuyerMultiSelect from '../../../components/ModelMultiSelect1';
 
 const BloodGrp = ({ option }) => {
     const [selected, setSelected] = useState();
+    const [showModal, setShowModal] = useState(false);
     const { data: topItem } = useGetTopItemsQuery({ filterBuyer: selected })
     const topItems = topItem?.data || [];
     return (
-        <div>
-            <DropdownDt selected={selected} setSelected={setSelected} option={option} />
+        <CardWrapper heading={"Blood Group Distribution"} onFilterClick={() => { setShowModal(true) }} >
+            {showModal &&
+                <BuyerMultiSelect
+                    selected={selected}
+                    setSelected={setSelected}
+                    showModel={showModal}
+                    setShowModel={setShowModal}
+                />
+            }
             <SortedBarChart topItems={topItems} />
-        </div>
+        </CardWrapper>
     )
 }
 

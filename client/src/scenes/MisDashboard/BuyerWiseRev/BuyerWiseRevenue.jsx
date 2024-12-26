@@ -71,7 +71,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
         <HighchartsReact
             highcharts={Highcharts}
             options={options}
-            style={{ width: '200px', height: '100%' }}
+            style={{ width: '50px', height: '100%' }}
         />
     );
 };

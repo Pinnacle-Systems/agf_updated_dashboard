@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
+import { ColorContext } from "../scenes/global/context/ColorContext";
 
-const BuyerMultiSelect = ({ selected, setSelected, color, showModel, setShowModel }) => {
+const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) => {
+  const { color } = useContext(ColorContext);
   const { data: buyer, } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
 
@@ -11,11 +13,11 @@ const BuyerMultiSelect = ({ selected, setSelected, color, showModel, setShowMode
       <div
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
-          position: "sticky",
-          bottom: showModel ? "0" : "-600px", // Adjust height
-          left: "0",
-          width: "290px",
-          height: "440px", // Height of the sliding model
+          position: "fixed",
+          bottom: "0", // Adjust height
+          left: "10px",
+          width: "200px",
+          height: "400px", // Height of the sliding model
           backgroundColor: "#F1F3F6",
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",

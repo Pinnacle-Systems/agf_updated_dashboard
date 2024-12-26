@@ -44,7 +44,7 @@ const MisDashboard = () => {
                 refetch={refetch}
                 misData={misData}
             />
-            <div className='grid grid-cols-4 gap-5 mt-1 p-2'>
+            <div className='grid grid-cols-4 gap-1 p-0.5 py-1'>
                 <YearlyComparisionBuyerWise
                     selectedBuyer={selectedBuyer}
                     setSelectedBuyer={setSelectedBuyer}
@@ -58,21 +58,12 @@ const MisDashboard = () => {
                 <ChartTable />
                 < TreeMapChart overAllSuppCon={overAllSuppCon} selected={selected}
                     setSelected={setSelected} option={option} />
-
-                <div className=''>  <CardWrapper heading={"Blood Group Distribution"}>
-                    <div className=''><BloodGrp option={option} />
-
-                    </div>
-                </CardWrapper></div>
-
-                <CardWrapper heading={"Retention Breakup"}>
+                <BloodGrp option={option} />
+                {/* <CardWrapper heading={"Retention Breakup"}>
                     <Retention />
-
-                </CardWrapper>
+                </CardWrapper> */}
                 <div className="col-span-2 ">
-                    <CardWrapper heading={"Event's Breakup Current Month"}>
-                        <ShortShip />
-                    </CardWrapper>
+                    <ShortShip />
                 </div>
             </div>
         </div>

@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useGetShortShipmantRatioQuery } from '../../../redux/service/misDashboardService';
 import 'tailwindcss/tailwind.css';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import SelectBuyer from '../../../Ui Component/modelParam';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
 import { currentDate } from '../../../utils/hleper';
+import CardWrapper from '../../../components/CardWrapper';
+import { ColorContext } from '../../global/context/ColorContext';
 
 const ShortShipmentRatio = () => {
     const [selectedBuyer, setSelectedBuyer] = useState('');
@@ -16,6 +18,9 @@ const ShortShipmentRatio = () => {
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } })
     const { data: year } = useGetFinYearQuery({})
+    const [showModal, setShowModal] = useState(false);
+
+    const { color } = useContext(ColorContext);
 
     useEffect(() => {
         if (buyer?.data || month?.data) {
@@ -48,8 +53,8 @@ const ShortShipmentRatio = () => {
     const todayDate = formatDateForComparison(new Date());
 
     return (
-        <div className='h-[350px] overflow-scroll'>
-            <div className="flex w-[100%] justify-end">
+        <CardWrapper heading={"Event's Breakup Current Month"} showFilter={false} >
+            <div className="flex w-full justify-end">
                 <div className='flex gap-2 items-center justify-center'>
                     <label htmlFor="birthday">Birthday :</label>
                     <input
@@ -60,7 +65,6 @@ const ShortShipmentRatio = () => {
                         checked={category === 'Birthday'}
                         onChange={handleOptionChange}
                     />
-
                     <label htmlFor="anniversary">Work Anniversary:</label>
                     <input
                         type="radio"
@@ -83,49 +87,51 @@ const ShortShipmentRatio = () => {
                     </span>
                 </div>
             </div>
-            <table className="min-w-full bg-white border border-gray-200 h-full">
-                <thead>
-                    <tr>
-                        <th className="py-1 px-2 border font-medium text-sm">S No</th>
-                        <th className="py-1 px-2 border font-medium text-sm">Id Card</th>
-                        <th className="py-1 px-2 border font-medium text-sm">Name</th>
-                        <th className="py-1 px-2 border font-medium text-sm">Company</th>
-                        <th className="py-1 px-2 border font-medium text-sm">DOB</th>
-                        <th className="py-1 px-2 border font-medium text-sm">Age</th>
-                        <th className="py-1 px-2 border font-medium text-sm">DOJ</th>
-                        <th className="py-1 px-2 border font-medium text-sm">Exp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {shipData.map((item, index) => {
-                        const isTodayDOB = todayDate === formatDateForComparison(item.dob);
-                        const isTodayDOJ = todayDate === formatDateForComparison(item.doj);
+            <div className='h-[350px] overflow-scroll'>
+                <table className="min-w-full bg-white border border-gray-200 h-full">
+                    <thead>
+                        <tr>
+                            <th className="py-1 px-2 border font-medium text-sm">S No</th>
+                            <th className="py-1 px-2 border font-medium text-sm">Id Card</th>
+                            <th className="py-1 px-2 border font-medium text-sm">Name</th>
+                            <th className="py-1 px-2 border font-medium text-sm">Company</th>
+                            <th className="py-1 px-2 border font-medium text-sm">DOB</th>
+                            <th className="py-1 px-2 border font-medium text-sm">Age</th>
+                            <th className="py-1 px-2 border font-medium text-sm">DOJ</th>
+                            <th className="py-1 px-2 border font-medium text-sm">Exp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {shipData.map((item, index) => {
+                            const isTodayDOB = todayDate === formatDateForComparison(item.dob);
+                            const isTodayDOJ = todayDate === formatDateForComparison(item.doj);
 
-                        return (
-                            <tr key={index}>
-                                <td className="py-1 px-2 border text-[12px]">{index + 1}</td>
-                                <td className="py-1 px-2 border text-[12px]">{item.idCard}</td>
-                                <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
-                                <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
+                            return (
+                                <tr key={index}>
+                                    <td className="py-1 px-2 border text-[12px]">{index + 1}</td>
+                                    <td className="py-1 px-2 border text-[12px]">{item.idCard}</td>
+                                    <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
+                                    <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
 
-                                <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                    {currentDate(item.dob)}
-                                </td>
-                                <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                    {item.age}
-                                </td>
-                                <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                    {currentDate(item.doj)}
-                                </td>
-                                <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                    {item.exp}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div >
+                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                        {currentDate(item.dob)}
+                                    </td>
+                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                        {item.age}
+                                    </td>
+                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                        {currentDate(item.doj)}
+                                    </td>
+                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                        {item.exp}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div >
+        </CardWrapper>
     );
 };
 

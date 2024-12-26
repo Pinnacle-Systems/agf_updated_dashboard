@@ -22,8 +22,8 @@ const ModelMultiSelectChart2 = ({ color, showModel, setShowModel, selectedYear, 
       <div
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
-          position: "absolute",
-          bottom: showModel ? "0" : "-600px", // Adjust height
+          position: "fixed",
+          bottom: '0', // Adjust height
           left: "0",
           width: "290px",
           height: "440px", // Height of the sliding model
