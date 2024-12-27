@@ -252,3 +252,7 @@ const NumericCard = ({ misData, selectedBuyer,
 };
 
 export default NumericCard;
+
+
+
+

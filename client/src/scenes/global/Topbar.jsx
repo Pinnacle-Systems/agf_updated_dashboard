@@ -1,15 +1,17 @@
 import { useContext, useState, useEffect } from "react";
 import * as React from "react";
+import { useTheme } from "@mui/material";
 import { MdLogout, MdClose } from "react-icons/md";
 import { ChromePicker } from "react-color";
 import { ColorContext } from "./context/ColorContext";
-import logo from "../../assets/pin-logo-black.png";
-import { DEFAULT_COLOR } from "../../constants/contants";
+import logo from "../../assets/l.png";
 
 const Topbar = ({ onLogout }) => {
+  const theme = useTheme();
   const { color, setColor } = useContext(ColorContext);
   const [showPicker, setShowPicker] = useState(false);
 
+  const DEFAULT_COLOR = "#056028"; 
   useEffect(() => {
     const storedColor = localStorage.getItem("themeColor");
     if (storedColor) {
@@ -22,7 +24,7 @@ const Topbar = ({ onLogout }) => {
   const handleColorChange = (newColor) => {
     const selectedColor = newColor.hex;
     setColor(selectedColor);
-    localStorage.setItem("themeColor", selectedColor);
+    localStorage.setItem("themeColor", selectedColor); 
   };
 
   const handleResetColor = () => {
@@ -32,20 +34,20 @@ const Topbar = ({ onLogout }) => {
 
   return (
     <div className="flex h-14">
-      <div className="w-1/2 flex items-center px-4">
+      <div className="bg-[#1F2937] w-1/2 flex items-center px-4">
         <img src={logo} alt="logo" className="w-44 cursor-pointer" />
       </div>
 
       <div
         className="w-1/2 flex justify-between items-center px-4 text-white"
-        style={{ color }}
+        style={{ backgroundColor: color }}
       >
         <div className="text-xl font-semibold">Management Information Dashboard</div>
 
         <div className="flex items-center gap-4">
           <button
             onClick={() => setShowPicker(!showPicker)}
-            className={`text-[${color}] text-sm px-2 py-1 border rounded-lg focus:outline-none`}
+            className="text-white hover:text-gray-300 text-sm px-2 py-1 border rounded-lg"
           >
             Select Theme
           </button>
@@ -55,7 +57,7 @@ const Topbar = ({ onLogout }) => {
               <div className="flex justify-end mb-2">
                 <button
                   onClick={() => setShowPicker(false)}
-                  className="text-red-700 hover:text-red-900"
+                  className="text-gray-700 hover:text-gray-900"
                 >
                   <MdClose size={20} />
                 </button>
@@ -67,7 +69,7 @@ const Topbar = ({ onLogout }) => {
                 disableAlpha={true}
               />
 
-
+             
               <button
                 onClick={handleResetColor}
                 className="mt-2 w-full bg-blue-500 text-white text-sm px-2 py-1 rounded-lg hover:bg-blue-600"
@@ -77,10 +79,10 @@ const Topbar = ({ onLogout }) => {
             </div>
           )}
 
-
+          
           <button
             onClick={onLogout}
-            className="text-red-700 hover:text-red-900 text-2xl focus:outline-none"
+            className="text-white hover:text-gray-300 text-2xl focus:outline-none"
           >
             <MdLogout />
           </button>
