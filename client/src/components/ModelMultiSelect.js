@@ -27,7 +27,7 @@ const ModelMultiSelect = ({
           bottom: showModel ? "0" : "-600px", // Adjust height
           left: "0",
           width: "290px",
-          height: "440px", // Height of the sliding model
+          height: "500px", // Height of the sliding model
           backgroundColor: "#F1F3F6",
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",
@@ -63,7 +63,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "All" ? "text-white" : "text-[#3F83F8]"
+                className={`absolute top-[-1.2rem] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "All" ? "text-white" : "text-[#3F83F8]"
                   }`}
               >
                 All
@@ -83,7 +83,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
+                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
                   }`}
               >
                 Labour
@@ -103,7 +103,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
+                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
                   }`}
               >
                 Staff

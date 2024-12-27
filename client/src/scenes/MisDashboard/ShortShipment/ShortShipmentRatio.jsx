@@ -55,7 +55,7 @@ const ShortShipmentRatio = () => {
     return (
         <CardWrapper heading={"Event's Breakup Current Month"} showFilter={false} >
             <div className="flex w-full justify-end">
-                <div className='flex gap-2 items-center justify-center'>
+                <div className='flex gap-2 items-center justify-center'>    
                     <label htmlFor="birthday">Birthday :</label>
                     <input
                         type="radio"

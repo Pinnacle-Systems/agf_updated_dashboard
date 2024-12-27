@@ -16,8 +16,8 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
           position: "fixed",
           bottom: "0", // Adjust height
           left: "10px",
-          width: "200px",
-          height: "400px", // Height of the sliding model
+          width: "280px",
+          height: "500px", // Height of the sliding model
           backgroundColor: "#F1F3F6",
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",

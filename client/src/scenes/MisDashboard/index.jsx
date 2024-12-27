@@ -59,9 +59,9 @@ const MisDashboard = () => {
                 < TreeMapChart overAllSuppCon={overAllSuppCon} selected={selected}
                     setSelected={setSelected} option={option} />
                 <BloodGrp option={option} />
-                {/* <CardWrapper heading={"Retention Breakup"}>
+                <CardWrapper heading={"Retention Breakup"}>
                     <Retention />
-                </CardWrapper> */}
+                </CardWrapper>
                 <div className="col-span-2 ">
                     <ShortShip />
                 </div>

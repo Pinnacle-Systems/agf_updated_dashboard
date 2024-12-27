@@ -26,7 +26,7 @@ const ModelMultiSelectChart2 = ({ color, showModel, setShowModel, selectedYear, 
           bottom: '0', // Adjust height
           left: "0",
           width: "290px",
-          height: "440px", // Height of the sliding model
+          height: "500px", // Height of the sliding model
           backgroundColor: "#F1F3F6",
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
           transition: "bottom 0.3s ease",
