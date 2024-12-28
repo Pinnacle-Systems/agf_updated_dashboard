@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Chart from 'react-apexcharts';
+import React, { useEffect, useState, useContext } from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import Highcharts3D from 'highcharts/highcharts-3d';
 import { ColorContext } from '../scenes/global/context/ColorContext';
-import { useContext } from 'react';
 import CardWrapper from './CardWrapper';
 import BuyerMultiSelect from './ModelMultiSelect1';
+
+// Initialize Highcharts 3D module
+Highcharts3D(Highcharts);
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [showModel, setShowModel] = useState(false);
@@ -14,88 +18,80 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
         }
         return text;
     };
-    const { color } = useContext(ColorContext)
-    function generateColorArray(color, count = 7) {
-        const colorsArray = [];
-        let hueShift = 0;
 
-        for (let i = 0; i < count; i++) {
-            hueShift = (i * 30) % 360;
-            colorsArray.push(`hsl(${hueShift}, 70%, 50%)`);
-        }
-        console.log(colorsArray, "colorsArray")
-        return colorsArray;
-    }
+    const { color } = useContext(ColorContext);
 
-
-    const baseColor = 'hsl(0, 70%, 50%)'; // Red base color
-    const colorArray = generateColorArray(baseColor);
-    console.log(colorArray); // Array of 7 distinct colors
-
-
+    const colorArray = ['#544FC5', '#19FB8B', '#FF834E', '#056028', '#1F2937'];
 
     const [chartOptions, setChartOptions] = useState({
-        series: [],
         chart: {
-            height: 320, // Reduce overall chart height
-            type: 'bar',
-            toolbar: { show: false },
-            zoom: { enabled: true },
-            offsetX: 10, // Adjust offset for cleaner layout
-            offsetY: 10,
+            type: 'column',
+            height: 350,
+            options3d: {
+                enabled: true,
+                alpha: 15,
+                beta: 15,
+                depth: 50,
+                viewDistance: 25,
+            },
         },
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                borderRadius: 8, // Reduce border radius slightly
-                distributed: true,
-                columnWidth: '70%', // Adjust bar width for better spacing
-                dataLabels: { position: 'top' },
-                shadow: {
-                    enabled: true,
-                    blur: 6, // Reduced shadow blur for subtle effect
-                    opacity: 0.3, // Lower shadow opacity
-                    color: '#000',
-                    x: 3,
-                    y: 3,
+        title: {
+            text: '', // Set the title to an empty string
+        },
+        legend: {
+            enabled: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+        },
+        tooltip: {
+            headerFormat: '<b>{point.key}</b><br/>',
+            pointFormat: '{series.name}: {point.y}',
+        },
+        xAxis: {
+            categories: [],
+            labels: {
+                style: {
+                    fontSize: '10px',
+                    color: '#333',
                 },
             },
         },
-
-        colors: ['#525252', '#F7B900', '#1C2937', 'rgb(255, 140, 0)', '#101010'],
-        dataLabels: {
-            style: {
-                colors: ['#000'],
-                fontSize: '10px',
-                fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
+        yAxis: {
+            title: {
+                text: 'Quantity',
             },
         },
-        tooltip: {
-            custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-                const { fullX, y } = w.config.series[seriesIndex].data[dataPointIndex];
-                return `<div style="padding: 4px; font-size: 10px;">${fullX}: ${y}</div>`;
+        plotOptions: {
+            column: {
+                depth: 25,
+                colorByPoint: true,
             },
         },
+        colors: colorArray,
+        series: [
+            {
+                name: 'Quantity',
+                data: [],
+            },
+        ],
     });
+    
 
     useEffect(() => {
         if (overAllSuppCon && overAllSuppCon.length > 0) {
-            const data = overAllSuppCon.map(item => ({
-                x: truncateText(item.supplier, 10),
-                y: item.poQty,
-                fullX: item.supplier,
-            }));
+            const categories = overAllSuppCon.map(item => truncateText(item.supplier, 10));
+            const data = overAllSuppCon.map(item => item.poQty);
 
             setChartOptions(prevOptions => ({
                 ...prevOptions,
-                series: [{ data }],
+                xAxis: { ...prevOptions.xAxis, categories },
+                series: [{ ...prevOptions.series[0], data }],
             }));
         }
     }, [overAllSuppCon]);
 
     return (
-        <CardWrapper heading={"Experience Distribution"} onFilterClick={() => { setShowModel(true) }} >
+        <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
             <div id="chart" className="p-4">
                 {showModel && (
                     <BuyerMultiSelect
@@ -106,13 +102,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                         setShowModel={setShowModel}
                     />
                 )}
-                <Chart
-                    options={chartOptions}
-                    series={chartOptions.series}
-                    type="bar"
-                    height={320}
-                    className="text-black"
-                />
+                <HighchartsReact highcharts={Highcharts} options={chartOptions} />
             </div>
         </CardWrapper>
     );

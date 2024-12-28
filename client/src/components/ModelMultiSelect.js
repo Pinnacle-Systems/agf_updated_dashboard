@@ -63,7 +63,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "All" ? "text-white" : "text-[#3F83F8]"
+                className={`absolute top-[-1.2rem] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "All" ? "text-blue-800" : "text-[#3F83F8]"
                   }`}
               >
                 All
@@ -83,7 +83,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Labour" ? "text-white" : "text-[#0E9F6E]"
+                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Labour" ? "text-green-800" : "text-[#0E9F6E]"
                   }`}
               >
                 Labour
@@ -103,7 +103,7 @@ const ModelMultiSelect = ({
                 } rounded-full`}
             >
               <span
-                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Staff" ? "text-white" : "text-[#7E3AF2]"
+                className={`absolute top-[-1.2rem]  group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 text-xs ${selectedState === "Staff" ? "text-purple-900" : "text-[#7E3AF2]"
                   }`}
               >
                 Staff

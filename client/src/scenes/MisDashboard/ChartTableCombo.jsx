@@ -125,11 +125,7 @@ const ChartTable = () => {
     return (
         <CardWrapper heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }} >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {showModel &&
-                    <ModelMultiSelectChart2 color={color}
-                        showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
-                        selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
-                }
+            
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
                         <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'>
@@ -144,6 +140,11 @@ const ChartTable = () => {
                 ) : (
                     <div>No Data Available</div>
                 )}
+                    {showModel &&
+                    <ModelMultiSelectChart2 color={color}
+                        showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
+                        selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
+                }
             </div>
         </CardWrapper>
     );

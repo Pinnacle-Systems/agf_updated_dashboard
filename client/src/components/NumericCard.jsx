@@ -5,6 +5,8 @@ import './Model.css';
 import ModelMultiSelect from "./ModelMultiSelect";
 import FilterOptions from "./FilterOptions";
 import Movable from "./Movable";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers, faMale, faFemale } from "@fortawesome/free-solid-svg-icons";
 const NumericCard = ({ misData, selectedBuyer,
   setSelectedBuyer,
 
@@ -51,7 +53,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
   const data = [
     {
-      heading: "Employees on Roll",
+      heading: selectedState == "Labour" ? "Labour on Roll": selectedState == "Staff"? "Staff on Roll": "Overall on Roll",
       borderColor: "#1F588B",
       value: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0)
@@ -62,7 +64,8 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: "Attrition Breakup",
+      heading: selectedState == "Labour" ? "Labour Attrition Breakup": selectedState == "Staff"? "Staff Attrition Breakup": "Overall Attrition Breakup",
+
       borderColor: "#62AAA3",
       value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0)
         : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.currentQty, 0)
@@ -73,7 +76,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: selectedState == "Labour" ? "Last Month Salary" : "Last Month Salary",
+      heading: selectedState == "Labour" ? "Labour Last Month Salary" : selectedState == "Staff"? "Staff Last Month Salary":"Overall Last Month Salary" ,
       borderColor: "#96A669",
       value: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -84,7 +87,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: "Emp. Pf Details",
+      heading: selectedState == "Labour" ? "Labour Pf Details" : selectedState == "Staff"? "Staff Pf Details":"Overall Pf Details" ,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss01.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -95,7 +98,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: "Emp. Esi Details",
+      heading: selectedState == "Labour" ? "Labour Esi Details" : selectedState == "Staff"? "Staff Esi Details":"Overall Esi Details" ,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss11.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -127,24 +130,21 @@ const NumericCard = ({ misData, selectedBuyer,
   const onInfoShowText = selectedState == "All" ? "All Employees" : selectedState;
 
 
-
   return (
     <div className="flex w-full">
-      {showModel &&
-        <Movable divId={'cardMovable'}  >
+      {showModel && (
+        <Movable divId="cardMovable">
           <ModelMultiSelect
             selectedBuyer={selectedBuyer}
             setSelectedBuyer={setSelectedBuyer}
             color={color}
             showModel={showModel}
-            setShowModel={
-              setShowModel
-            }
+            setShowModel={setShowModel}
             selectedState={selectedState}
             setSelectedState={setSelectedState}
           />
         </Movable>
-      }
+      )}
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
         {data.map((val, i) => {
           const totalValue = val.value + val.previousValue;
@@ -156,7 +156,7 @@ const NumericCard = ({ misData, selectedBuyer,
               key={i}
               className="group relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 h-[138px] p-3"
             >
-              <div className="text-center ">
+              <div className="text-center">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold text-gray-800 truncate">
                     {val.heading}
@@ -170,7 +170,7 @@ const NumericCard = ({ misData, selectedBuyer,
                 </div>
                 <div className="flex justify-between items-center">
                   <p
-                    className="text-xl font-bold text-[#CA8A04] mb-1 mt-4"
+                    className="text-lg font-bold text-[#CA8A04] mb-1 mt-4"
                     style={{
                       color: color || "linear-gradient(to top right, #FFD700, #F4A300)",
                     }}
@@ -178,11 +178,33 @@ const NumericCard = ({ misData, selectedBuyer,
                     {activeTabs[i] === "total"
                       ? totalValue.toLocaleString()
                       : activeTabs[i] === "previousValue"
-                        ? val.previousValue.toLocaleString()
-                        : val.value.toLocaleString()}
+                      ? val.previousValue.toLocaleString()
+                      : val.value.toLocaleString()}
                   </p>
+                  <span
+  className="ml-2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 shadow-md hover:bg-gray-300 transition-all duration-200"
+>
+  {activeTabs[i] === "total" && (
+    <FontAwesomeIcon
+      icon={faUsers}
+      className="text-xl text-gray-700 opacity-40 hover:opacity-100 transition-opacity duration-200"
+    />
+  )}
+  {activeTabs[i] === "previousValue" && (
+    <FontAwesomeIcon
+      icon={faMale}
+      className="text-xl text-gray-600 opacity-50 hover:opacity-100 transition-opacity duration-200"
+    />
+  )}
+  {activeTabs[i] !== "total" && activeTabs[i] !== "previousValue" && (
+    <FontAwesomeIcon
+      icon={faFemale}
+      className="text-xl text-pink-600 opacity-40 hover:opacity-100 transition-opacity duration-200"
+    />
+  )}
+</span>
                   <p
-                    className="text-xl font-bold text-gray-800 mt-4"
+                    className="text-lg font-bold text-gray-800 mt-4"
                     style={{
                       color: color || "linear-gradient(to top right, #FFD700, #F4A300)",
                     }}
@@ -190,19 +212,19 @@ const NumericCard = ({ misData, selectedBuyer,
                     {activeTabs[i] === "total"
                       ? "100%"
                       : activeTabs[i] === "previousValue"
-                        ? `${malePercentage}%`
-                        : `${femalePercentage}%`}
+                      ? `${malePercentage}%`
+                      : `${femalePercentage}%`}
                   </p>
                 </div>
               </div>
-
               <div className="flex justify-between mt-3">
                 <button
                   onClick={() => toggleTab(i, "total")}
-                  className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${activeTabs[i] === "total"
-                    ? "text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
+                  className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
+                    activeTabs[i] === "total"
+                      ? "text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+                  }`}
                   style={
                     activeTabs[i] === "total"
                       ? { backgroundColor: color || "#CA8A04" }
@@ -213,10 +235,11 @@ const NumericCard = ({ misData, selectedBuyer,
                 </button>
                 <button
                   onClick={() => toggleTab(i, "previousValue")}
-                  className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${activeTabs[i] === "previousValue"
-                    ? "bg-[#CA8A04] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
+                  className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${
+                    activeTabs[i] === "previousValue"
+                      ? "bg-[#CA8A04] text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+                  }`}
                   style={
                     activeTabs[i] === "previousValue"
                       ? { backgroundColor: color || "#CA8A04" }
@@ -227,10 +250,11 @@ const NumericCard = ({ misData, selectedBuyer,
                 </button>
                 <button
                   onClick={() => toggleTab(i, "value")}
-                  className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${activeTabs[i] === "value"
-                    ? "bg-[#CA8A04] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
+                  className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
+                    activeTabs[i] === "value"
+                      ? "bg-[#CA8A04] text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+                  }`}
                   style={
                     activeTabs[i] === "value"
                       ? { backgroundColor: color || "#CA8A04" }
@@ -244,11 +268,8 @@ const NumericCard = ({ misData, selectedBuyer,
           );
         })}
       </div>
-
     </div>
-
   );
-
 };
 
 export default NumericCard;

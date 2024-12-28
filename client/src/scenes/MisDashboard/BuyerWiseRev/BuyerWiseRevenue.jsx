@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
-
+import { ColorContext } from '../../global/context/ColorContext';
 
 Highcharts3D(Highcharts);
 
 const BuyerWiseRevenueGen = ({ buyerRev }) => {
-    const buyerWiseRev = buyerRev ? buyerRev : [];
+    const { color } = useContext(ColorContext); // Retrieve color from context
+
+    const buyerWiseRev = buyerRev || []; // Default to an empty array if no data is provided
     const options = {
         chart: {
             type: 'pie',
@@ -16,8 +18,8 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
                 alpha: 40
             },
             backgroundColor: '#FFFFFF',
-            width: 320,
-            height: 360
+            width: 350,
+            height: 290
         },
         title: {
             text: '',
@@ -56,10 +58,11 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             }
         },
         series: [{
-            name: '',
-            data: buyerWiseRev.map(item => ({
+            name: 'Revenue',
+            data: buyerWiseRev.map((item, index) => ({
                 name: item.buyer,
-                y: item.value
+                y: item.value,
+                color: index === 0 && color ? color : undefined // Apply selected color only if available
             }))
         }],
         credits: {
@@ -68,11 +71,13 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
     };
 
     return (
-        <HighchartsReact
-            highcharts={Highcharts}
-            options={options}
-            style={{ width: '50px', height: '100%' }}
-        />
+        <div>
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={options}
+                style={{ width: '50px', height: '100%' }}
+            />
+        </div>
     );
 };
 

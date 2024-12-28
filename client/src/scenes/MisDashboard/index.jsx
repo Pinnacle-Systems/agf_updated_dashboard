@@ -12,17 +12,18 @@ import Retention from './BuyerWiseRev';
 import ChartTable from './ChartTableCombo';
 import TreeMapChart from '../../components/TreeChart';
 import BloodGrp from './BloodGroupDistribution';
-import Movable from '../../components/Movable';
-
+import { useContext } from 'react';
+import { ColorContext } from '../global/context/ColorContext';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
+    const {color} = useContext(ColorContext)
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedMonth, setSelectedMonth] = useState();
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
     const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected })
     console.log(selected, 'sel');
-
+    
     const overAllSuppCon = overAllSupData?.data || [];
 
     const { data: misData, refetch } = useGetMisDashboardQuery({
@@ -54,7 +55,7 @@ const MisDashboard = () => {
                     setSelectedBuyer={setSelectedBuyer}
                     setSelectedYear={setSelectedYear}
                     selectedYear={selectedYear}
-                />
+                    color = {color}                />
                 <ChartTable />
                 < TreeMapChart overAllSuppCon={overAllSuppCon} selected={selected}
                     setSelected={setSelected} option={option} />

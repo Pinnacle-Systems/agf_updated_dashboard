@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-
+import {
+    Tooltip,
+  } from '@mui/material';
 import { ColorContext } from '../scenes/global/context/ColorContext';
 
 const FilterOptions = ({ onFilterClick, onInfoShowText, isGroupHover }) => {
@@ -18,11 +20,14 @@ const FilterOptions = ({ onFilterClick, onInfoShowText, isGroupHover }) => {
                 className="flex items-center justify-center w-6 h-6   bg-white rounded-full shadow-md 
                     hover:bg-gray-100 hover:shadow-lg transition-all duration-300 text-sm cursor-pointer"
             >
-                <FilterAltIcon
+                 <Tooltip title="Filter" placement="left">
+                 <FilterAltIcon
                     className="text-gray-700"
                     style={{ fontSize: "20px" }}
                     alt="Filter"
                 />
+                 </Tooltip>
+               
             </div>
 
    

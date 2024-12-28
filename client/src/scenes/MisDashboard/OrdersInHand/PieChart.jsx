@@ -14,6 +14,8 @@ const PieChart = () => {
     return (
         <CardWrapper heading={"Age Distribution"} onFilterClick={() => { setShowModel(true) }}  >
             <div className="w-full h-full flex flex-col items-center justify-between">
+            <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise}  color={color} />
+
                 {showModel && (
                     <BuyerMultiSelect
                         selected={selected}
@@ -23,7 +25,6 @@ const PieChart = () => {
                         setShowModel={setShowModel}
                     />
                 )}
-                <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise} />
             </div>
         </CardWrapper>
     );
