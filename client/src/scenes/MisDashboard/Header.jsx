@@ -2,12 +2,14 @@ import React from 'react';
 import NumericCard from '../../components/NumericCard';
 import './HeaderStyles.css'; 
 import staff from "../../assets/staff.png"
+import TransitionAlerts from '../../components/AnimatedModel';
 const Header = ({
     selectedBuyer,
     setSelectedBuyer,
     refetch,
     misData,
 }) => {
+    console.log(selectedBuyer,"selectedBuyer")
     return (
         <>
        {/* <div className='absolute right-0 top-0' >
@@ -16,6 +18,7 @@ const Header = ({
     style={{ width: '20%', height: 'auto', borderRadius: '8px', zIndex: 10, position: 'relative' }}
   />
       </div> */}
+    
         <NumericCard
             selectedBuyer={selectedBuyer}
             setSelectedBuyer={setSelectedBuyer}

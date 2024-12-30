@@ -7,6 +7,7 @@ import { ColorContext } from '../global/context/ColorContext';
 import { useContext } from "react";
 import ModelMultiSelectChart2 from '../../components/ModelMultiSelectChart2';
 import CardWrapper from '../../components/CardWrapper';
+import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
 
 const ChartTable = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
@@ -36,7 +37,7 @@ const ChartTable = () => {
     const options = {
         chart: {
             type: 'column',
-            height: 350,
+            height: 360,
             options3d: {
                 enabled: true,
                 alpha: 10,
@@ -111,14 +112,16 @@ const ChartTable = () => {
         series: [
             {
                 name: 'Attrition',
-                data: fabPlVsActFullDt.map((order) => ({
+                data: fabPlVsActFullDt.map((order, index) => ({
                     y: order.attrition,
-                    color: color ? color : '#C57B03'
+                    color: Highcharts.getOptions().colors[index % Highcharts.getOptions().colors.length], // Use predefined Highcharts colors cyclically
                 })),
-                color: color ? color : '#C57B03',
+                colorByPoint: true, 
             },
         ],
+        
     };
+    
 
     const [showModel, setShowModel] = useState(false);
 
@@ -141,7 +144,7 @@ const ChartTable = () => {
                     <div>No Data Available</div>
                 )}
                     {showModel &&
-                    <ModelMultiSelectChart2 color={color}
+                    <ModelMultiSelectChart3 color={color}
                         showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                         selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
                 }

@@ -17,7 +17,7 @@ const FilterOptions = ({ onFilterClick, onInfoShowText, isGroupHover }) => {
             {/* Filter Button */}
             <div
                 onClick={onFilterClick}
-                className="flex items-center justify-center w-6 h-6   bg-white rounded-full shadow-md 
+                className="flex items-center justify-center w-6 h-6   bg-gray-300 rounded-full shadow-md 
                     hover:bg-gray-100 hover:shadow-lg transition-all duration-300 text-sm cursor-pointer"
             >
                  <Tooltip title="Filter" placement="left">

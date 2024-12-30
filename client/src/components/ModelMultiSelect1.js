@@ -5,7 +5,7 @@ import { ColorContext } from "../scenes/global/context/ColorContext";
 
 const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) => {
   const { color } = useContext(ColorContext);
-  const { data: buyer, } = useGetBuyerNameQuery({ params: {} });
+  const { data: buyer } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
 
   return (
@@ -14,16 +14,16 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
           position: "fixed",
-          bottom: "0", // Adjust height
+          bottom: showModel ? "0" : "-500px",
           left: "10px",
           width: "280px",
-          height: "500px", // Height of the sliding model
+          height: "500px",
           backgroundColor: "#F1F3F6",
-          boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
-          transition: "bottom 0.3s ease",
+          boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)",
+          transition: "bottom 0.3s ease-in-out",
           borderRadius: "8px 8px 0 0",
-          zIndex: "20",
-          border: "1px solid rgba(0, 0, 0, 0.1)", // Light border
+          zIndex: "800",
+          borderTop: `8px solid ${"#7E09F2" || "#7E3AF2"}`,
         }}
       >
         <div
@@ -36,24 +36,20 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
         >
           <label
             htmlFor="employeeType"
-            className="text-[14px] font-semibold text-gray-700 mb-2 transition-all duration-300 hover:text-gray-800"
+            className="block text-sm font-semibold text-gray-700 mb-3"
           >
             Select Company
           </label>
 
           {/* Dropdown Component */}
-          <div className="flex w-full justify-end">
+          <div className="mb-4">
             <DropdownDt selected={selected} setSelected={setSelected} option={option} />
-            <div className="flex group relative">
-              <span className="group-hover:opacity-100 transition-opacity bg-gray-800 px-1 bottom-6 text-sm text-gray-100 rounded-md -translate-x-1/2 absolute opacity-0 z-40">
-                Refresh
-              </span>
-            </div>
           </div>
+
           <button
-            className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
+            className="absolute right-3 bottom-5 px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl focus:ring-2 focus:ring-blue-300 focus:outline-none"
             style={{
-              backgroundColor: color ? color : 'blue',
+              backgroundColor: color || "#1D4ED8",
             }}
             onClick={() => setShowModel(false)}
           >
@@ -61,6 +57,17 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
           </button>
         </div>
       </div>
+
+      {/* Backdrop */}
+      {showModel && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
+          style={{
+            zIndex: "700", 
+          }}
+          onClick={() => setShowModel(false)}
+        ></div>
+      )}
     </div>
   );
 };

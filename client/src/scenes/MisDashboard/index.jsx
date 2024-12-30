@@ -14,6 +14,7 @@ import TreeMapChart from '../../components/TreeChart';
 import BloodGrp from './BloodGroupDistribution';
 import { useContext } from 'react';
 import { ColorContext } from '../global/context/ColorContext';
+import TransitionAlerts from '../../components/AnimatedModel';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
     const {color} = useContext(ColorContext)
@@ -39,6 +40,10 @@ const MisDashboard = () => {
     const option = buyer?.data || [];
     return (
         <div className='px-1'>
+              {/* <div className='absolute right-0 top-0 width-100px'>
+      <TransitionAlerts />
+
+      </div> */}
             <Header
                 selectedBuyer={selectedBuyer}
                 setSelectedBuyer={setSelectedBuyer}

@@ -144,12 +144,14 @@ const NumericCard = ({ misData, selectedBuyer,
             setSelectedState={setSelectedState}
           />
         </Movable>
-      )}
+      )}  
       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
         {data.map((val, i) => {
+          const totalValueIndex0 = data[0].value + data[0].previousValue;
           const totalValue = val.value + val.previousValue;
-          const malePercentage = calculatePercentage(val.previousValue, totalValue);
-          const femalePercentage = calculatePercentage(val.value, totalValue);
+          const malePercentage = calculatePercentage(val.previousValue,(i === 1) ? totalValueIndex0 : totalValue);
+          const femalePercentage = calculatePercentage(val.value,(i === 1) ? totalValueIndex0 : totalValue);
+
 
           return (
             <div
@@ -158,9 +160,9 @@ const NumericCard = ({ misData, selectedBuyer,
             >
               <div className="text-center">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-800 truncate">
+                  <h4 className="text-lg font-semibold text-gray-800 truncate">
                     {val.heading}
-                  </h2>
+                  </h4>
                   <span
                     className="text-gray-600 text-2xl transition-transform duration-300"
                     style={{ color: color ? `${color}` : "#4B5563" }}

@@ -21,16 +21,16 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
 
     const { color } = useContext(ColorContext);
 
-    const colorArray = ['#544FC5', '#19FB8B', '#FF834E', '#056028', '#1F2937'];
+    const colorArray = ['#8A37DE', '#005E72', '#E5181C', '#056028', '#1F2937'];
 
     const [chartOptions, setChartOptions] = useState({
         chart: {
             type: 'column',
-            height: 350,
+            height: 340,
             options3d: {
                 enabled: true,
-                alpha: 15,
-                beta: 15,
+                alpha: 7,
+                beta: 7,
                 depth: 50,
                 viewDistance: 25,
             },
@@ -58,7 +58,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
         },
         yAxis: {
             title: {
-                text: 'Quantity',
+                text: 'No of Employee',
             },
         },
         plotOptions: {
@@ -70,7 +70,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
         colors: colorArray,
         series: [
             {
-                name: 'Quantity',
+                name: 'Experience ',
                 data: [],
             },
         ],

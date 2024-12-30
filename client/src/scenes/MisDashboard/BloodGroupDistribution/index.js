@@ -12,6 +12,8 @@ const BloodGrp = ({ option }) => {
     const topItems = topItem?.data || [];
     return (
         <CardWrapper heading={"Blood Group Distribution"} onFilterClick={() => { setShowModal(true) }} >
+                        <SortedBarChart topItems={topItems} />
+
             {showModal &&
                 <BuyerMultiSelect
                     selected={selected}
@@ -20,7 +22,6 @@ const BloodGrp = ({ option }) => {
                     setShowModel={setShowModal}
                 />
             }
-            <SortedBarChart topItems={topItems} />
         </CardWrapper>
     )
 }

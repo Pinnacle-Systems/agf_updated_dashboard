@@ -13,8 +13,8 @@ const SortedBarChart = ({ topItems }) => {
         chart.padding(5, 5, 5, 5);
         chart.logo.disabled = true;
 
-        // Set chart background color
-        chart.background.fill = am4core.color("#f7f7f7");
+        // Set chart background color to white
+        chart.background.fill = am4core.color("#ffffff"); // White background
 
         // Create category axis
         let categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());

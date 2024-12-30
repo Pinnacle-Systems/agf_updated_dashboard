@@ -1,10 +1,9 @@
 import React from "react";
-import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 import DropdownData from "../Ui Component/modelUi";
-import SelectBuyer from "../Ui Component/modelParam";
+import SelectBuyer1 from "../Ui Component/modelParams1";
 
-const ModelMultiSelectChart2 = ({
+const ModelMultiSelectChart3 = ({
   color,
   showModel,
   setShowModel,
@@ -58,7 +57,7 @@ const ModelMultiSelectChart2 = ({
               </div>
 
               <div className="flex items-center space-x-3">
-                <SelectBuyer
+                <SelectBuyer1
                   style={{ width: "200px" }}
                   selectedBuyer={selectedBuyer}
                   setSelectedBuyer={setSelectedBuyer}
@@ -95,4 +94,4 @@ const ModelMultiSelectChart2 = ({
   );
 };
 
-export default ModelMultiSelectChart2;
+export default ModelMultiSelectChart3;
