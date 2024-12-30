@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import DropdownDt from "../Ui Component/dropDownParam";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 import { ColorContext } from "../scenes/global/context/ColorContext";
@@ -7,24 +7,62 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
   const { color } = useContext(ColorContext);
   const { data: buyer } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  // Center modal when it opens
+  useEffect(() => {
+    if (showModel) {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      setPosition({ x: centerX, y: centerY });
+    }
+  }, [showModel]);
+
+  const handleMouseDown = (e) => {
+    setDragging(true);
+    setOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (dragging) {
+      setPosition({
+        x: e.clientX - offset.x,
+        y: e.clientY - offset.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
 
   return (
-    <div>
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      className="relative"
+    >
       <div
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
           position: "fixed",
-          bottom: showModel ? "0" : "-500px",
-          left: "10px",
-          width: "280px",
+          top: `${position.y}px`,
+          left: `${position.x}px`,
+          transform: "translate(-50%, -50%)",
+          zIndex: "800",
+          borderRadius: "8px",
+          borderTop: `8px solid ${color || "#3B82F6"}`,
+          
+          width: "300px",
           height: "500px",
           backgroundColor: "#F1F3F6",
-          boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)",
-          transition: "bottom 0.3s ease-in-out",
-          borderRadius: "8px 8px 0 0",
-          zIndex: "800",
-          borderTop: `8px solid ${"#7E09F2" || "#7E3AF2"}`,
         }}
+        onMouseDown={handleMouseDown}
       >
         <div
           className="model-content"
@@ -63,7 +101,7 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
         <div
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
           style={{
-            zIndex: "700", 
+            zIndex: "700",
           }}
           onClick={() => setShowModel(false)}
         ></div>

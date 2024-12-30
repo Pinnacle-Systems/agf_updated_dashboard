@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 import DropdownData from "../Ui Component/modelUi";
 import SelectBuyer1 from "../Ui Component/modelParams1";
@@ -15,6 +15,44 @@ const ModelMultiSelectChart3 = ({
   const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
 
+  const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [dragging, setDragging] = useState(false);
+  const startPosition = useRef(null);
+
+  // Handle mouse down event
+  const handleMouseDown = (e) => {
+    setDragging(true);
+    startPosition.current = { x: e.clientX, y: e.clientY };
+  };
+
+  // Handle mouse move event
+  const handleMouseMove = (e) => {
+    if (dragging) {
+      const dx = e.clientX - startPosition.current.x;
+      const dy = e.clientY - startPosition.current.y;
+
+      setPosition((prevPosition) => ({
+        x: prevPosition.x + dx,
+        y: prevPosition.y + dy
+      }));
+
+      startPosition.current = { x: e.clientX, y: e.clientY };
+    }
+  };
+
+  // Handle mouse up event
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
+  useEffect(() => {
+    // Reset position to center when model is shown
+    if (showModel) {
+      setPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    }
+  }, [showModel]);
+
+  // Toggle the modal's visibility
   const handleArrowClick = () => {
     setShowModel((prevState) => !prevState);
   };
@@ -26,17 +64,23 @@ const ModelMultiSelectChart3 = ({
         className={`model-box ${showModel ? "open" : "closed"}`}
         style={{
           position: "fixed",
-          bottom: showModel ? "0" : "-500px", // Slide-up effect
+          bottom: showModel ? "0" : "-500px",
           left: "0",
           width: "290px",
-          height: "500px", // Height of the sliding model
+          height: "500px",
           backgroundColor: "#F1F3F6",
-          boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)", // Deeper shadow for 3D effect
-          transition: "bottom 0.3s ease-in-out", // Smooth transition for slide-up
+          boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)",
+          transition: "bottom 0.3s ease-in-out",
           borderRadius: "8px 8px 0 0",
-          borderTop: `8px solid ${"#7E09F2" || "#7E3AF2"}`,
-          zIndex: "20"
+          borderTop: `8px solid ${color || "#7E3AF2"}`,
+          zIndex: "20",
+          top: position.y,
+          left: position.x,
+          transform: "translate(-50%, -50%)",
         }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
       >
         <div
           className="model-content"
@@ -71,7 +115,7 @@ const ModelMultiSelectChart3 = ({
           <button
             className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
             style={{
-              backgroundColor: color ? color : 'blue',
+              backgroundColor: color ? color : "blue",
             }}
             onClick={() => setShowModel(false)}
           >
@@ -85,7 +129,7 @@ const ModelMultiSelectChart3 = ({
         <div
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
           style={{
-            zIndex: "10", // Ensures backdrop appears below the model
+            zIndex: "10",
           }}
           onClick={() => setShowModel(false)}
         ></div>
