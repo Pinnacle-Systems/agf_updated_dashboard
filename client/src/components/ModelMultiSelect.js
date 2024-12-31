@@ -49,6 +49,13 @@ const ModelMultiSelect = ({
   const handleMouseUp = () => {
     setDragging(false);
   };
+  const handleOkClick = () => {
+    setSelectedBuyer(tempSelectedBuyer); 
+    setIsOpen(false);
+    setShowModel(false) 
+};
+    const [isOpen, setIsOpen] = useState(false);
+
 
   return (
     <div
@@ -165,10 +172,21 @@ const ModelMultiSelect = ({
               setTempSelectedBuyer = {setTempSelectedBuyer}
               setSelectedBuyer={setSelectedBuyer}
               setShowModel = {setShowModel}
+   isOpen={isOpen} setIsOpen = {setIsOpen}
+
               columnHeaderHeight="20"
             />
          
           </div>
+          <button
+              className="absolute right-3 bottom-5 px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
+              style={{
+                backgroundColor: color || "#1D4ED8",
+              }}
+              onClick={handleOkClick}
+            >
+              Ok
+            </button>
         </div>
       )}
     </div>

@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTempSelectedBuyer,setShowModel }) => {
+const SelectBuyer = ({ selectedBuyer,  tempSelectedBuyer ,setTempSelectedBuyer,isOpen,setIsOpen }) => {
     const [buyerOptions, setBuyerOptions] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
     const dropdownRef = useRef(null);
 
@@ -50,11 +49,7 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTe
         setIsOpen(!isOpen);
     };
 
-    const handleOkClick = () => {
-        setSelectedBuyer(tempSelectedBuyer); 
-        setIsOpen(false);
-        setShowModel(false) 
-    };
+
 
     const isSelectAllChecked = tempSelectedBuyer.length === buyerOptions.length - 1;
 
@@ -88,14 +83,7 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTe
                             </label>
                         ))}
                     </div>
-                    <div className="flex justify-end p-2">
-                        <button
-                            onClick={handleOkClick}
-                            className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600"
-                        >
-                            OK
-                        </button>
-                    </div>
+                   
                 </div>
             )}
         </div>

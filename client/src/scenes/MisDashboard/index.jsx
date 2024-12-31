@@ -65,13 +65,20 @@ const MisDashboard = () => {
                     setSelectedYear={setSelectedYear}
                     selectedYear={selectedYear}
                     color = {color}                />
-                <ChartTable />
                 < TreeMapChart overAllSuppCon={overAllSuppCon} selected={selected}
                     setSelected={setSelected} option={option} />
                 <BloodGrp option={option} />
+                <div className="col-span-2 ">
+                <ChartTable />
+
+                </div>
+                <div className="col-span-2 ">
                 <CardWrapper heading={"Retention Breakup"}>
                     <Retention />
                 </CardWrapper>
+                </div>
+
+              
                 <div className="col-span-2 ">
                     <ShortShip />
                 </div>

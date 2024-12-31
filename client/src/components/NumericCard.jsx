@@ -59,7 +59,7 @@ const NumericCard = ({ misData, selectedBuyer,
   
   const data = [
     {
-      heading: selectedState == "Labour" ? "Labour on Roll" : selectedState == "Staff" ? "Staff on Roll" : "Overall on Roll",
+      heading: `On Roll Overview–${currMonthName}`,
       borderColor: "#1F588B",
       value: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0)
@@ -70,7 +70,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: selectedState == "Labour" ? "Labour Attrition Breakup" : selectedState == "Staff" ? "Staff Attrition Breakup" : "Overall Attrition Breakup",
+      heading:`Attrition Statistics-${prevMonthName}`,
 
       borderColor: "#62AAA3",
       value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0)
@@ -82,7 +82,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: selectedState == "Labour" ? "Labour Last Month Salary" : selectedState == "Staff" ? "Staff Last Month Salary" : "Overall Last Month Salary",
+      heading:`Salary Report-${prevMonthName}`,
       borderColor: "#96A669",
       value: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -93,7 +93,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: selectedState == "Labour" ? "Labour Pf Details" : selectedState == "Staff" ? "Staff Pf Details" : "Overall Pf Details",
+      heading:`PF Insights-${prevMonthName}`,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss01.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -104,7 +104,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading: selectedState == "Labour" ? "Labour Esi Details" : selectedState == "Staff" ? "Staff Esi Details" : "Overall Esi Details",
+      heading:`ESI Insights- ${prevMonthName}`,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss11.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -168,7 +168,7 @@ const NumericCard = ({ misData, selectedBuyer,
             >
               <div className="text-center">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-[18px] font-semibold text-gray-800 truncate">
+                  <h4 className="text-[16px] font-semibold text-gray-800 truncate">
                     {val.heading}
                   </h4>
                   <span
@@ -191,23 +191,23 @@ const NumericCard = ({ misData, selectedBuyer,
                   </p>
 
                   {/* Icon Container */}
-                  <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 shadow-md hover:bg-gray-300 transition-all duration-200">
+                  <div className="ml-2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 shadow-md hover:bg-gray-300 transition-all duration-200">
                     {activeTabs[i] === "total" && (
                       <FontAwesomeIcon
                         icon={faUsers}
-                        className="text-xl text-gray-700 opacity-40 hover:opacity-100 transition-opacity duration-200"
+                        className="text-lg text-gray-700 opacity-40 hover:opacity-100 transition-opacity duration-200"
                       />
                     )}
                     {activeTabs[i] === "previousValue" && (
                       <FontAwesomeIcon
                         icon={faMale}
-                        className="text-xl text-blue-600 opacity-50 hover:opacity-100 transition-opacity duration-200"
+                        className="text-lg text-blue-600 opacity-50 hover:opacity-100 transition-opacity duration-200"
                       />
                     )}
                     {activeTabs[i] !== "total" && activeTabs[i] !== "previousValue" && (
                       <FontAwesomeIcon
                         icon={faFemale}
-                        className="text-xl text-pink-600 opacity-40 hover:opacity-100 transition-opacity duration-200"
+                        className="text-lg text-pink-600 opacity-40 hover:opacity-100 transition-opacity duration-200"
                       />
                     )}
                   </div>

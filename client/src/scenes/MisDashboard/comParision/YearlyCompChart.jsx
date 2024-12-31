@@ -114,7 +114,7 @@ const YearlyComChart = () => {
     };
 
     return (
-        <CardWrapper heading={"Employee Breakup As on Date"} showFilter={false} >
+        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false} >
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
