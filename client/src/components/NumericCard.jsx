@@ -7,6 +7,7 @@ import FilterOptions from "./FilterOptions";
 import Movable from "./Movable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers, faMale, faFemale } from "@fortawesome/free-solid-svg-icons";
+import moment from "moment";
 const NumericCard = ({ misData, selectedBuyer,
   setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer
 
@@ -46,11 +47,16 @@ const NumericCard = ({ misData, selectedBuyer,
   const filterLoss1 = loss1.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-
   const filterLoss11 = loss11.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-
+  var currMonthName  = moment().format('MMMM');
+  var prevMonthName  = moment().subtract(1, "month").format('MMMM');
+  
+  console.log(currMonthName);
+  console.log(prevMonthName);
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  
   const data = [
     {
       heading: selectedState == "Labour" ? "Labour on Roll" : selectedState == "Staff" ? "Staff on Roll" : "Overall on Roll",

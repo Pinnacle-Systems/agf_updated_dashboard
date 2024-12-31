@@ -15,7 +15,7 @@ const ModelMultiSelect = ({
 }) => {
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
-  const startPosition = useRef(null); // To store the starting position when dragging starts
+  const startPosition = useRef(null);
   
 
   // When the modal is shown, position it at the center
@@ -164,6 +164,7 @@ const ModelMultiSelect = ({
               tempSelectedBuyer = {tempSelectedBuyer}
               setTempSelectedBuyer = {setTempSelectedBuyer}
               setSelectedBuyer={setSelectedBuyer}
+              setShowModel = {setShowModel}
               columnHeaderHeight="20"
             />
          

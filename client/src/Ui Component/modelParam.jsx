@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTempSelectedBuyer }) => {
+const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTempSelectedBuyer,setShowModel }) => {
     const [buyerOptions, setBuyerOptions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
@@ -52,7 +52,8 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTe
 
     const handleOkClick = () => {
         setSelectedBuyer(tempSelectedBuyer); 
-        setIsOpen(false); 
+        setIsOpen(false);
+        setShowModel(false) 
     };
 
     const isSelectAllChecked = tempSelectedBuyer.length === buyerOptions.length - 1;
