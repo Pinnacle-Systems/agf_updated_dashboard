@@ -86,24 +86,54 @@ const ModelMultiSelect = ({
               </label>
             </div>
             <div className="flex items-center gap-4 mb-2">
-              {[{ type: "All", icon: <FaUserPlus />, color: "blue" },
-                { type: "Labour", icon: <FaBriefcase />, color: "green" },
-                { type: "Staff", icon: <FaUsers />, color: "purple" }]
-                .map(({ type, icon, color: btnColor }) => (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedState(type)}
-                    className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${selectedState === type
-                      ? `bg-${btnColor}-600 shadow-lg scale-105 text-white`
-                      : `bg-white border-2 border-${btnColor}-500 text-${btnColor}-500 hover:bg-${btnColor}-500 hover:text-white hover:shadow-lg hover:scale-110`
-                      }`}
-                  >
-                    {React.cloneElement(icon, {
-                      className: `text-xl ${selectedState === type ? "text-white" : `text-${btnColor}-500`}`,
-                    })}
-                  </button>
-                ))}
-            </div>
+  {[
+    { type: "All", icon: <FaUsers />, color: "blue" },
+    { type: "Labour", icon: <FaBriefcase />, color: "green" },
+    { type: "Staff", icon:<FaUserPlus /> , color: "purple" },
+  ].map(({ type, icon, color }) => {
+    const isActive = selectedState === type;
+    const bgClass = isActive
+      ? color === "blue"
+        ? "bg-blue-600"
+        : color === "green"
+        ? "bg-green-600"
+        : "bg-purple-600"
+      : "bg-white";
+
+    const textClass = isActive
+      ? "text-white"
+      : color === "blue"
+      ? "text-blue-500"
+      : color === "green"
+      ? "text-green-500"
+      : "text-purple-500";
+
+    const borderClass = isActive
+      ? ""
+      : color === "blue"
+      ? "border-blue-500"
+      : color === "green"
+      ? "border-green-500"
+      : "border-purple-500";
+
+    return (
+      <button
+        key={type}
+        onClick={() => setSelectedState(type)}
+        className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${bgClass} ${textClass} ${borderClass} ${
+          !isActive
+            ? "border-2 hover:shadow-lg hover:scale-110"
+            : "shadow-lg scale-105"
+        }`}
+      >
+        {React.cloneElement(icon, {
+          className: `text-xl ${textClass}`,
+        })}
+      </button>
+    );
+  })}
+</div>
+
 
             <label
               htmlFor="companySelect"

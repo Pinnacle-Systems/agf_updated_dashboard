@@ -1,88 +1,71 @@
-import React, { useEffect, useState } from "react";
-import { Dropdown } from "primereact/dropdown";
+import React, { useState, useEffect } from "react";
 
 export default function DropdownDt({ selected, setSelected, option }) {
-  const [options, setOptions] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [buyerOptions, setBuyerOptions] = useState([]);
+  const [selectedBuyer, setSelectedBuyer] = useState("");
 
   useEffect(() => {
     if (option) {
       const mappedOptions = option.map((item) => ({
-        name: item.buyerName,
+        label: item.buyerName,
         value: item.buyerName,
       }));
-      setOptions(mappedOptions);
+      setBuyerOptions(mappedOptions);
     }
   }, [option]);
 
+  // Toggle dropdown visibility
+  const toggleDropdown = () => setIsOpen((prevState) => !prevState);
+
+  // Handle option selection
+  const handleOptionChange = (value) => {
+    setSelectedBuyer(value);
+    setSelected(value); // Update parent component's state if needed
+    setIsOpen(false); // Close the dropdown after selection
+  };
+
   return (
     <div className="w-full max-w-md mx-auto p-4">
-      <Dropdown
-        id="buyerDropdown"
-        value={selected}
-        onChange={(e) => setSelected(e.value)}
-        options={options}
-        placeholder="Choose a buyer"
-        className="w-full bg-white border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-blue-600 focus:border-blue-600 text-gray-700 transition-all duration-200 hover:shadow-lg"
-        style={{
-          fontSize: "14px",
-          padding: "12px 16px",
-        }}
-        panelClassName="custom-dropdown-panel"
-        optionLabel="name"
-      />
+      <div className="relative w-full">
+        <button
+          onClick={toggleDropdown}
+          className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+          type="button"
+        >
+          <span>{selectedBuyer || 'Select Company'}</span>
+          <svg
+            className="w-4 h-4 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 9.293a1 1 0 011.414 0L10 12.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
 
-      {/* Dropdown Panel Styling */}
-      <style jsx>{`
-        .p-dropdown .p-dropdown-panel {
-          border-radius: 8px;
-          border: 1px solid #d1d5db;
-          background: #ffffff;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-          max-height: 250px;
-          overflow-y: auto;
-          animation: fadeIn 0.3s ease-in-out;
-          z-index: 999;
-        }
-
-        .p-dropdown .p-dropdown-item {
-          padding: 12px 16px;
-          font-size: 14px;
-          color: #374151;
-          transition: background-color 0.3s, color 0.3s;
-          border-radius: 4px;
-        }
-
-        .p-dropdown .p-dropdown-item:hover {
-          background-color: #f0f9ff;
-          color: #0284c7;
-        }
-
-        .p-dropdown .p-dropdown-item.p-highlight {
-          background-color: #e0f2fe;
-          color: #0369a1;
-        }
-
-        .p-dropdown .p-dropdown-item.p-highlight:hover {
-          background-color: #d1e9fe;
-          color: #0369a1;
-        }
-
-        .p-dropdown .p-dropdown-item:focus {
-          background-color: #e0f2fe;
-          color: #0284c7;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+        {/* Dropdown Panel */}
+        {isOpen && (
+          <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+            <div className="py-2">
+              {buyerOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2"
+                  onClick={() => handleOptionChange(option.value)} // Set selectedBuyer on click
+                >
+                  <span className="text-sm text-gray-700">{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
