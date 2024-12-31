@@ -5,7 +5,7 @@ import staff from "../../assets/staff.png"
 import TransitionAlerts from '../../components/AnimatedModel';
 const Header = ({
     selectedBuyer,
-    setSelectedBuyer,
+    setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer,
     refetch,
     misData,
 }) => {
@@ -22,6 +22,8 @@ const Header = ({
         <NumericCard
             selectedBuyer={selectedBuyer}
             setSelectedBuyer={setSelectedBuyer}
+            tempSelectedBuyer = {tempSelectedBuyer}
+            setTempSelectedBuyer = {setTempSelectedBuyer}
             refetch={refetch}
             misData={misData}
         />

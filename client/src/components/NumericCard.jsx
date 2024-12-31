@@ -8,7 +8,7 @@ import Movable from "./Movable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers, faMale, faFemale } from "@fortawesome/free-solid-svg-icons";
 const NumericCard = ({ misData, selectedBuyer,
-  setSelectedBuyer,
+  setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer
 
 }) => {
   const totalTurnOver = misData?.data?.totalTurnOver || [];
@@ -17,7 +17,7 @@ const NumericCard = ({ misData, selectedBuyer,
   const profit1 = misData?.data?.profit1 || [];
   const [selectedState, setSelectedState] = useState("");
   const [showModel, setShowModel] = useState(false);
-
+  
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
   const loss = misData?.data?.loss || [];
@@ -137,6 +137,8 @@ const NumericCard = ({ misData, selectedBuyer,
           <ModelMultiSelect
             selectedBuyer={selectedBuyer}
             setSelectedBuyer={setSelectedBuyer}
+            tempSelectedBuyer = {tempSelectedBuyer}
+            setTempSelectedBuyer = {setTempSelectedBuyer}
             color={color}
             showModel={showModel}
             setShowModel={setShowModel}

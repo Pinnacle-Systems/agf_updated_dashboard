@@ -17,6 +17,8 @@ import { ColorContext } from '../global/context/ColorContext';
 import TransitionAlerts from '../../components/AnimatedModel';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
+    const [tempSelectedBuyer, setTempSelectedBuyer] = useState([]); // Temporary selection
+
     const {color} = useContext(ColorContext)
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedMonth, setSelectedMonth] = useState();
@@ -47,6 +49,8 @@ const MisDashboard = () => {
             <Header
                 selectedBuyer={selectedBuyer}
                 setSelectedBuyer={setSelectedBuyer}
+                tempSelectedBuyer = {tempSelectedBuyer}
+                setTempSelectedBuyer = {setTempSelectedBuyer}
                 refetch={refetch}
                 misData={misData}
             />

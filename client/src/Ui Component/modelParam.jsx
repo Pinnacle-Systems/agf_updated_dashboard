@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-const SelectBuyer = ({ selectedBuyer, setSelectedBuyer }) => {
+const SelectBuyer = ({ selectedBuyer, setSelectedBuyer, tempSelectedBuyer ,setTempSelectedBuyer }) => {
     const [buyerOptions, setBuyerOptions] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
@@ -33,16 +33,16 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer }) => {
     const handleOptionChange = (event) => {
         const value = event.target.value;
         if (value === "select_all") {
-            if (selectedBuyer.length === buyerOptions.length - 1) {
-                setSelectedBuyer([]);
+            if (tempSelectedBuyer.length === buyerOptions.length - 1) {
+                setTempSelectedBuyer([]);
             } else {
-                setSelectedBuyer(buyerOptions.map(option => option.value).filter(val => val !== "select_all"));
+                setTempSelectedBuyer(buyerOptions.map(option => option.value).filter(val => val !== "select_all"));
             }
         } else {
-            const newSelectedBuyer = selectedBuyer.includes(value)
-                ? selectedBuyer.filter(v => v !== value)
-                : [...selectedBuyer, value];
-            setSelectedBuyer(newSelectedBuyer);
+            const newTempSelectedBuyer = tempSelectedBuyer.includes(value)
+                ? tempSelectedBuyer.filter(v => v !== value)
+                : [...tempSelectedBuyer, value];
+            setTempSelectedBuyer(newTempSelectedBuyer);
         }
     };
 
@@ -50,7 +50,12 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer }) => {
         setIsOpen(!isOpen);
     };
 
-    const isSelectAllChecked = selectedBuyer.length === buyerOptions.length - 1;
+    const handleOkClick = () => {
+        setSelectedBuyer(tempSelectedBuyer); 
+        setIsOpen(false); 
+    };
+
+    const isSelectAllChecked = tempSelectedBuyer.length === buyerOptions.length - 1;
 
     return (
         <div ref={dropdownRef} className="relative w-64">
@@ -74,14 +79,21 @@ const SelectBuyer = ({ selectedBuyer, setSelectedBuyer }) => {
                                 <input
                                     type="checkbox"
                                     value={option.value}
-                                    checked={option.value === "select_all" ? isSelectAllChecked : Array.isArray(selectedBuyer) && selectedBuyer.includes(option.value)}
-
+                                    checked={option.value === "select_all" ? isSelectAllChecked : tempSelectedBuyer.includes(option.value)}
                                     onChange={handleOptionChange}
                                     className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded"
                                 />
                                 <span className="ml-3 text-sm text-gray-700">{option.label}</span>
                             </label>
                         ))}
+                    </div>
+                    <div className="flex justify-end p-2">
+                        <button
+                            onClick={handleOkClick}
+                            className="bg-blue-500 text-white px-4 py-1 rounded-md hover:bg-blue-600"
+                        >
+                            OK
+                        </button>
                     </div>
                 </div>
             )}

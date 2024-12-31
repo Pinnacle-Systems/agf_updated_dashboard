@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 const ModelMultiSelect = ({
   selectedBuyer,
   setSelectedBuyer,
+  tempSelectedBuyer,setTempSelectedBuyer,
   color,
   selectedState,
   setSelectedState,
@@ -15,6 +16,7 @@ const ModelMultiSelect = ({
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
   const startPosition = useRef(null); // To store the starting position when dragging starts
+  
 
   // When the modal is shown, position it at the center
   useEffect(() => {
@@ -72,7 +74,7 @@ const ModelMultiSelect = ({
             borderRadius: "8px",
             borderTop: `8px solid ${color || "#3B82F6"}`,
             width: "300px",
-            height: "500px",
+            height: "550px",
           }}
           onMouseDown={handleMouseDown}
         >
@@ -85,78 +87,86 @@ const ModelMultiSelect = ({
                 Select Employee Type
               </label>
             </div>
-            <div className="flex items-center gap-4 mb-2">
-  {[
-    { type: "All", icon: <FaUsers />, color: "blue" },
-    { type: "Labour", icon: <FaBriefcase />, color: "green" },
-    { type: "Staff", icon:<FaUserPlus /> , color: "purple" },
-  ].map(({ type, icon, color }) => {
-    const isActive = selectedState === type;
-    const bgClass = isActive
-      ? color === "blue"
-        ? "bg-blue-600"
+            <div className="flex flex-col items-center gap-4 mb-1">
+  {/* Button Group */}
+  <div className="flex items-center gap-4">
+    {[
+      { type: "All", icon: <FaUsers />, color: "blue" },
+      { type: "Labour", icon: <FaBriefcase />, color: "green" },
+      { type: "Staff", icon: <FaUserPlus />, color: "purple" },
+    ].map(({ type, icon, color }) => {
+      const isActive = selectedState === type;
+      const bgClass = isActive
+        ? color === "blue"
+          ? "bg-blue-600"
+          : color === "green"
+          ? "bg-green-600"
+          : "bg-purple-600"
+        : "bg-white";
+
+      const textClass = isActive
+        ? "text-white"
+        : color === "blue"
+        ? "text-blue-500"
         : color === "green"
-        ? "bg-green-600"
-        : "bg-purple-600"
-      : "bg-white";
+        ? "text-green-500"
+        : "text-purple-500";
 
-    const textClass = isActive
-      ? "text-white"
-      : color === "blue"
-      ? "text-blue-500"
-      : color === "green"
-      ? "text-green-500"
-      : "text-purple-500";
+      const borderClass = isActive
+        ? ""
+        : color === "blue"
+        ? "border-blue-500"
+        : color === "green"
+        ? "border-green-500"
+        : "border-purple-500";
 
-    const borderClass = isActive
-      ? ""
-      : color === "blue"
-      ? "border-blue-500"
-      : color === "green"
-      ? "border-green-500"
-      : "border-purple-500";
+      return (
+        <button
+          key={type}
+          onClick={() => setSelectedState(type)}
+          className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${bgClass} ${textClass} ${borderClass} ${
+            !isActive
+              ? "border-2 hover:shadow-lg hover:scale-110"
+              : "shadow-lg scale-105"
+          }`}
+        >
+          {React.cloneElement(icon, {
+            className: `text-xl ${textClass}`,
+          })}
+        </button>
+      );
+    })}
+  </div>
 
-    return (
-      <button
-        key={type}
-        onClick={() => setSelectedState(type)}
-        className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${bgClass} ${textClass} ${borderClass} ${
-          !isActive
-            ? "border-2 hover:shadow-lg hover:scale-110"
-            : "shadow-lg scale-105"
-        }`}
-      >
-        {React.cloneElement(icon, {
-          className: `text-xl ${textClass}`,
-        })}
-      </button>
-    );
-  })}
+  {/* Selected State Label */}
+  <span
+    className={`text-sm font-semibold ${
+      selectedState === "All"
+        ? "text-blue-500"
+        : selectedState === "Labour"
+        ? "text-green-500"
+        : "text-purple-500"
+    }`}
+  >
+    Selected: {selectedState || "All"}
+  </span>
 </div>
-
 
             <label
               htmlFor="companySelect"
-              className="block text-sm font-semibold text-gray-700 mb-3"
+              className="block text-sm font-semibold text-gray-700 mb-1"
             >
               Select Company
             </label>
 
             <SelectBuyer
               selectedBuyer={selectedBuyer}
+              tempSelectedBuyer = {tempSelectedBuyer}
+              setTempSelectedBuyer = {setTempSelectedBuyer}
               setSelectedBuyer={setSelectedBuyer}
               columnHeaderHeight="20"
             />
-
-            <button
-              className="absolute right-3 bottom-5 px-5 py-2 text-sm font-semibold text-white rounded-lg shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
-              style={{
-                backgroundColor: color || "#1D4ED8",
-              }}
-              onClick={() => setShowModel(false)}
-            >
-              Ok
-            </button>
+         
           </div>
         </div>
       )}
