@@ -6,7 +6,7 @@ const CardWrapper = ({ heading, children, onFilterClick, onInfoShowText, showFil
     const { color } = useContext(ColorContext);
 
     return (
-        <div className="text-center border border-gray-400  rounded-lg shadow-lg bg-gray-100 h-[410px] w-full">
+        <div className="text-center border border-gray-400  rounded-lg shadow-lg bg-gray-700 h-[410px] w-full">
             {/* Header Section */}
             <div
                 className="text-center rounded-t-lg flex items-center justify-between h-[30px] shadow-md px-4"

@@ -36,7 +36,7 @@ const YearlyComChart = () => {
         },
 
         {
-            name: ` Female`,
+            name: 'Female',
             data: categories.map(customer => {
                 const order = groupedData[year].find(o => o.customer === customer);
                 return order ? order.female : 0;
@@ -48,7 +48,7 @@ const YearlyComChart = () => {
     const options = {
         chart: {
             type: 'column',
-            height: 370,
+            height: 360,
             options3d: {
                 enabled: true,
                 alpha: 10,
@@ -61,20 +61,15 @@ const YearlyComChart = () => {
         title: null,
         xAxis: {
             categories: categories,
-            title: {
-                text: 'Branch',
-                style: {
-                    fontSize: '14px',
-                    color: '#374151',
-                    fontWeight: 'bold',
-                },
-            },
             labels: {
+                rotation: 90,
+                align: 'center',
                 style: {
                     fontSize: '12px',
                     color: '#6B7280',
                 },
             },
+            tickLength: 0,
         },
         yAxis: {
             title: {
@@ -95,13 +90,6 @@ const YearlyComChart = () => {
         tooltip: {
             shared: true,
             useHTML: true,
-            backgroundColor: '#FFFFFF',
-            borderColor: '#D1D5DB',
-            shadow: true,
-            style: {
-                color: '#374151',
-                fontSize: '12px',
-            },
             formatter: function () {
                 return `
                     <b>Company: ${this.x}</b><br/>
@@ -118,48 +106,35 @@ const YearlyComChart = () => {
                 borderRadius: 5,
             },
         },
-        legend: {
-            enabled: true,
-            align: 'center', // Center the legend
-            verticalAlign: 'top', // Place the legend at the top of the chart
-            layout: 'horizontal',
-            itemStyle: {
-                fontSize: '12px',
-                color: '#374151',
-                fontWeight: 'bold',
-            },
-            useHTML: true,
-            y: -30, // Adjust this value to move the legend higher or lower
-        },
         series: series,
     };
-    
+
     return (
-        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false}>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-                containerProps={{
-                    style: {
-                        minWidth: '100%',
-                        height: '100%',
-                        padding: '0',  // Remove padding
-                        margin: '0',   // Remove margin
-                        gap: '0',      // Remove gap
-                    }
+        <CardWrapper heading="Branch-wise Employee Overview" showFilter={false}>
+            <div
+                id="chart"
+                className="p-4 pt-2 mt-2 mb-2"
+                style={{
+                    width: '100%', // Ensures full width
+                    height: '360px',
+                    borderRadius: '5px', // Rounded border
+                    backgroundColor: '#fff', // Chart background
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
                 }}
-            />
-        </CardWrapper>
-    );
-    
-    
-    return (
-        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false} >
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-                containerProps={{ style: { minWidth: '100%', height: "100%" } }}
-            />
+            >
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={options}
+                    containerProps={{
+                        style: {
+                            width: '100%', // Stretch container width
+                            height: '350px', // Fixed height
+                            borderRadius: '5px', // Ensures the chart respects border-radius
+                            overflow: 'hidden', // Prevents overflow of child elements
+                        },
+                    }}
+                />
+            </div>
         </CardWrapper>
     );
 };
