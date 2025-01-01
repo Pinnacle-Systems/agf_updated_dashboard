@@ -37,73 +37,78 @@ const ChartTable = () => {
     const options = {
         chart: {
             type: 'column',
-            height: 360,
+            height: 420,  // Increased the height of the chart
             options3d: {
                 enabled: true,
-                alpha: 10,
-                beta: 10,
+                alpha: 7,
+                beta: 7,
                 depth: 40,
                 viewDistance: 25,
             },
             scrollablePlotArea: {
                 minWidth: orderCount < 10 ? 300 : orderCount < 20 ? 500 : orderCount <= 40 ? 1500 : orderCount <= 65 ? 2000 : orderCount < 85 ? 2500 : orderCount < 120 ? 3000 : orderCount < 150 ? 3500 : 300,
-                scrollPositionX: 0
-            }
+                scrollPositionX: 0,
+            },
         },
-        title: {
-            text: ''
-        },
-        subtitle: {
-            text: ''
-        },
+        title: null,  // Removed the chart title
         xAxis: {
-            categories: fabPlVsActFullDt.map((order) => order.payPeriod),
+            title: {
+                text: 'Month',
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                },
+            },
+            categories: fabPlVsActFullDt.map((order) => {
+                const month = new Date(order.payPeriod);
+                const monthAbbr = month.toLocaleString('default', { month: 'short' });  // 3-letter month abbreviation
+                const year = month.getFullYear().toString().slice(-2);  // Last 2 digits of the year
+                return `${monthAbbr} ${year}`;
+            }),
             labels: {
                 rotation: -90,
                 step: 1,
                 style: {
-                    fontSize: '12px'
-                }
+                    fontSize: '12px',
+                },
             },
             scrollbar: {
-                enabled: true
+                enabled: true,
             },
         },
         yAxis: {
             title: {
-                text: 'Attrition',
+                text: 'Number of Employees',
                 style: {
-                    fontSize: '10px',
-                    paddingLeft: '20px'
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    paddingLeft: '20px',
                 },
             },
             labels: {
                 style: {
-                    fontSize: '10px'
+                    fontSize: '12px',
                 },
                 formatter: function () {
                     return this.value.toLocaleString();
-                }
+                },
             },
         },
         plotOptions: {
             column: {
-                depth: 25, // Depth of individual columns
+                depth: 25,
                 pointWidth: 20,
                 stacking: 'normal',
                 states: {
                     hover: {
-                        pointWidth: 20
-                    }
+                        pointWidth: 20,
+                    },
                 },
-                marker: {
-                    enabled: false
-                },
-            }
+            },
         },
         legend: {
             itemStyle: {
-                fontWeight: 'bold'
+                fontWeight: 'bold',
             },
             symbolHeight: 12,
             symbolWidth: 12,
@@ -114,15 +119,14 @@ const ChartTable = () => {
                 name: 'Attrition',
                 data: fabPlVsActFullDt.map((order, index) => ({
                     y: order.attrition,
-                    color: Highcharts.getOptions().colors[index % Highcharts.getOptions().colors.length], // Use predefined Highcharts colors cyclically
+                    color: Highcharts.getOptions().colors[index % Highcharts.getOptions().colors.length],
                 })),
-                colorByPoint: true, 
+                colorByPoint: true,
             },
         ],
-        
     };
     
-
+    
     const [showModel, setShowModel] = useState(false);
 
     return (
@@ -149,7 +153,7 @@ const ChartTable = () => {
                         selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
                 }
             </div>
-        </CardWrapper>
+        </CardWrapper >
     );
 };
 

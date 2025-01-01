@@ -7,9 +7,9 @@ import { ColorContext } from '../../global/context/ColorContext';
 Highcharts3D(Highcharts);
 
 const BuyerWiseRevenueGen = ({ buyerRev }) => {
-    const { color } = useContext(ColorContext); // Retrieve color from context
+    const { color } = useContext(ColorContext);
 
-    const buyerWiseRev = buyerRev || []; // Default to an empty array if no data is provided
+    const buyerWiseRev = buyerRev || []; 
     const options = {
         chart: {
             type: 'pie',
@@ -18,7 +18,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
                 alpha: 40
             },
             backgroundColor: '#FFFFFF',
-            width: 350,
+            width: 375,
             height: 360
         },
         title: {
@@ -58,11 +58,11 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             }
         },
         series: [{
-            name: 'Revenue',
+            name: 'Age',
             data: buyerWiseRev.map((item, index) => ({
                 name: item.buyer,
                 y: item.value,
-                color: index === 0 && color ? color : undefined // Apply selected color only if available
+                color: index === 0 && color ? color : undefined 
             }))
         }],
         credits: {

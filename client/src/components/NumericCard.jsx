@@ -59,7 +59,7 @@ const NumericCard = ({ misData, selectedBuyer,
   
   const data = [
     {
-      heading: `On Roll Overview–${currMonthName}`,
+      heading: `On Roll Insights-${currMonthName}`,
       borderColor: "#1F588B",
       value: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0)
@@ -70,7 +70,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`Attrition Statistics-${prevMonthName}`,
+      heading:`Attrition Insights-${prevMonthName}`,
 
       borderColor: "#62AAA3",
       value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0)
@@ -82,7 +82,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`Salary Report-${prevMonthName}`,
+      heading:`Salary Insights-${prevMonthName}`,
       borderColor: "#96A669",
       value: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.currentValue, 0) :

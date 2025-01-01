@@ -29,54 +29,80 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             height: 340,
             options3d: {
                 enabled: true,
-                alpha: 7,
-                beta: 7,
+                alpha: 12,
+                beta: 12,
                 depth: 50,
                 viewDistance: 25,
             },
+            backgroundColor: '#FFFFFF', // Add background color for better contrast
         },
-        title: {
-            text: '', // Set the title to an empty string
-        },
+        title: null, // Remove the title
         legend: {
-            enabled: true,
-            align: 'center',
-            verticalAlign: 'bottom',
+            enabled: false, // Disable the legend since series name is not needed
         },
         tooltip: {
             headerFormat: '<b>{point.key}</b><br/>',
-            pointFormat: '{series.name}: {point.y}',
+            pointFormat: 'Value: {point.y}', // Update tooltip format to avoid showing series name
+            style: {
+                fontSize: '12px',
+                color: '#374151',
+            },
         },
         xAxis: {
             categories: [],
             labels: {
                 style: {
                     fontSize: '10px',
-                    color: '#333',
+                    color: '#6B7280', // Subtle color for x-axis labels
+                },
+            },
+            title: {
+                text: 'Experience', // Add a title to the x-axis
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    color: '#374151',
                 },
             },
         },
         yAxis: {
             title: {
-                text: 'No of Employee',
+                text: 'No of Employees', // Title for y-axis
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 'bold', // Bold the y-axis title
+                    color: '#374151',
+                },
+            },
+            labels: {
+                style: {
+                    fontSize: '10px',
+                    color: '#6B7280', // Subtle color for y-axis labels
+                },
             },
         },
         plotOptions: {
             column: {
                 depth: 25,
                 colorByPoint: true,
+                borderRadius: 5, // Add rounded corners for a modern look
             },
         },
         colors: colorArray,
         series: [
             {
-                name: 'Experience ',
+                name: '', // Remove series name
                 data: [],
+                dataLabels: {
+                    enabled: true,
+                    style: {
+                        fontSize: '10px',
+                        color: '#333', // Dark color for data labels
+                    },
+                },
             },
         ],
     });
-    
-
     useEffect(() => {
         if (overAllSuppCon && overAllSuppCon.length > 0) {
             const categories = overAllSuppCon.map(item => truncateText(item.supplier, 10));

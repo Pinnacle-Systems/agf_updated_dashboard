@@ -48,7 +48,7 @@ const YearlyComChart = () => {
     const options = {
         chart: {
             type: 'column',
-            height: 360,
+            height: 370,
             options3d: {
                 enabled: true,
                 alpha: 10,
@@ -58,9 +58,17 @@ const YearlyComChart = () => {
             },
             backgroundColor: '#FFFFFF',
         },
-        title: null, // Remove the title by setting it to null
+        title: null,
         xAxis: {
             categories: categories,
+            title: {
+                text: 'Branch',
+                style: {
+                    fontSize: '14px',
+                    color: '#374151',
+                    fontWeight: 'bold',
+                },
+            },
             labels: {
                 style: {
                     fontSize: '12px',
@@ -74,6 +82,7 @@ const YearlyComChart = () => {
                 style: {
                     fontSize: '14px',
                     color: '#374151',
+                    fontWeight: 'bold',
                 },
             },
             labels: {
@@ -97,9 +106,8 @@ const YearlyComChart = () => {
                 return `
                     <b>Company: ${this.x}</b><br/>
                     ${this.points.map(
-                    point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
-                ).join('')}
-                `;
+                        point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
+                    ).join('')}`;
             },
         },
         plotOptions: {
@@ -110,9 +118,41 @@ const YearlyComChart = () => {
                 borderRadius: 5,
             },
         },
+        legend: {
+            enabled: true,
+            align: 'center', // Center the legend
+            verticalAlign: 'top', // Place the legend at the top of the chart
+            layout: 'horizontal',
+            itemStyle: {
+                fontSize: '12px',
+                color: '#374151',
+                fontWeight: 'bold',
+            },
+            useHTML: true,
+            y: -30, // Adjust this value to move the legend higher or lower
+        },
         series: series,
     };
-
+    
+    return (
+        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false}>
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={options}
+                containerProps={{
+                    style: {
+                        minWidth: '100%',
+                        height: '100%',
+                        padding: '0',  // Remove padding
+                        margin: '0',   // Remove margin
+                        gap: '0',      // Remove gap
+                    }
+                }}
+            />
+        </CardWrapper>
+    );
+    
+    
     return (
         <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false} >
             <HighchartsReact

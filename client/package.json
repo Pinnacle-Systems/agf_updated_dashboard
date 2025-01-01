@@ -49,7 +49,7 @@
     "framer-motion": "^4.1.17",
     "fusioncharts": "^3.23.0",
     "gsap": "^3.12.5",
-    "highcharts": "^11.4.3",
+    "highcharts": "^11.4.8",
     "highcharts-react-official": "^3.2.1",
     "igniteui-react-charts": "^6.6.10",
     "moment": "^2.30.1",
