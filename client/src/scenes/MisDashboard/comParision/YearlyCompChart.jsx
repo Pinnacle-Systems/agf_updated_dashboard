@@ -36,7 +36,7 @@ const YearlyComChart = () => {
         },
 
         {
-            name: 'Female',
+            name: ` Female`,
             data: categories.map(customer => {
                 const order = groupedData[year].find(o => o.customer === customer);
                 return order ? order.female : 0;
@@ -44,7 +44,6 @@ const YearlyComChart = () => {
             color: '#1F2937',
         },
     ]);
-
     const options = {
         chart: {
             type: 'column',
@@ -57,19 +56,24 @@ const YearlyComChart = () => {
                 viewDistance: 30,
             },
             backgroundColor: '#FFFFFF',
+            marginBottom: 70, // Add space at the bottom for labels
         },
         title: null,
         xAxis: {
             categories: categories,
+            title: {
+                text: null, // Remove the x-axis title for a cleaner look
+            },
             labels: {
-                rotation: 90,
-                align: 'center',
                 style: {
                     fontSize: '12px',
                     color: '#6B7280',
                 },
+                rotation: 90, // Rotate labels vertically
+                align: 'center',
+                y: 35, // Position labels inside the chart area
             },
-            tickLength: 0,
+            tickLength: 0, // Remove tick marks for a cleaner look
         },
         yAxis: {
             title: {
@@ -90,6 +94,13 @@ const YearlyComChart = () => {
         tooltip: {
             shared: true,
             useHTML: true,
+            backgroundColor: '#FFFFFF',
+            borderColor: '#D1D5DB',
+            shadow: true,
+            style: {
+                color: '#374151',
+                fontSize: '12px',
+            },
             formatter: function () {
                 return `
                     <b>Company: ${this.x}</b><br/>
@@ -106,37 +117,43 @@ const YearlyComChart = () => {
                 borderRadius: 5,
             },
         },
+        legend: {
+            enabled: true,
+            align: 'center',
+            verticalAlign: 'top',
+            layout: 'horizontal',
+            itemStyle: {
+                fontSize: '12px',
+                color: '#374151',
+                fontWeight: 'bold',
+            },
+            useHTML: true,
+            y: -30,
+        },
         series: series,
     };
-
+    
     return (
-        <CardWrapper heading="Branch-wise Employee Overview" showFilter={false}>
-            <div
-                id="chart"
-                className="p-4 pt-2 mt-2 mb-2"
-                style={{
-                    width: '100%', // Ensures full width
-                    height: '360px',
-                    borderRadius: '5px', // Rounded border
-                    backgroundColor: '#fff', // Chart background
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
+        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false}>
+                        <div id="chart" className=" pt-2 rounded">
+
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={options}
+                containerProps={{
+                    style: {
+                        minWidth: '100%',
+                        height: '100%',
+                        padding: '0',  // Remove padding
+                        margin: '0',   // Remove margin
+                        gap: '0',      // Remove gap
+                        borderRadius : "10px"
+                    }
                 }}
-            >
-                <HighchartsReact
-                    highcharts={Highcharts}
-                    options={options}
-                    containerProps={{
-                        style: {
-                            width: '100%', // Stretch container width
-                            height: '350px', // Fixed height
-                            borderRadius: '5px', // Ensures the chart respects border-radius
-                            overflow: 'hidden', // Prevents overflow of child elements
-                        },
-                    }}
-                />
+            />
             </div>
         </CardWrapper>
     );
-};
+ };
 
 export default YearlyComChart;

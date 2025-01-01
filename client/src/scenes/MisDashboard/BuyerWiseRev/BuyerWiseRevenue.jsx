@@ -18,7 +18,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
                 alpha: 40
             },
             backgroundColor: '#FFFFFF',
-            width: 375,
+            width: 320,
             height: 360
         },
         title: {
@@ -75,7 +75,11 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             <HighchartsReact
                 highcharts={Highcharts}
                 options={options}
-                style={{ width: '50px', height: '100%' }}
+                style={{ width: '100%', height: '100%',
+                    borderRadius: '5px', // Ensures the chart respects border-radius
+   
+                 }}
+
             />
         </div>
     );

@@ -13,8 +13,19 @@ const PieChart = () => {
     const { color } = useContext(ColorContext);
     return (
         <CardWrapper heading={"Age Distribution"} onFilterClick={() => { setShowModel(true) }}  >
-            <div className="w-full h-full flex flex-col items-center justify-between">
+            <div
+                id="chart"
+                className="mt-2 mb-2"
+                style={{
+                    width: '100%', 
+                    height: '360px',
+                    borderRadius: '5px',
+                    backgroundColor: '#fff', 
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+                }}
+            >
             <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise}  color={color} />
+            </div>
 
                 {showModel && (
                     <BuyerMultiSelect
@@ -25,7 +36,7 @@ const PieChart = () => {
                         setShowModel={setShowModel}
                     />
                 )}
-            </div>
+            
         </CardWrapper>
     );
 };
