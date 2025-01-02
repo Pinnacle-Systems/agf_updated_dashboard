@@ -5,13 +5,13 @@ import { ColorContext } from "../scenes/global/context/ColorContext";
 
 const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) => {
   const { color } = useContext(ColorContext);
+  const [selectedOption,setSelectedOption ] = useState()
   const { data: buyer } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-
-  // Center modal when it opens
+   // Center modal when it opens
   useEffect(() => {
     if (showModel) {
       const centerX = window.innerWidth / 2;
@@ -41,6 +41,16 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
     setDragging(false);
   };
 
+  const handleOkClick = () => {
+    if (selectedOption) {
+      console.log("Selected Buyer:", selectedOption);
+      setSelected(selectedOption)
+    
+    }
+
+    setShowModel(false);
+  };
+
   return (
     <div
       onMouseMove={handleMouseMove}
@@ -57,7 +67,6 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
           zIndex: "800",
           borderRadius: "8px",
           borderTop: `8px solid ${color || "#3B82F6"}`,
-          
           width: "300px",
           height: "500px",
           backgroundColor: "#F1F3F6",
@@ -81,7 +90,7 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
 
           {/* Dropdown Component */}
           <div className="mb-4">
-            <DropdownDt selected={selected} setSelected={setSelected} option={option} />
+            <DropdownDt selected={selectedOption} setSelected={setSelectedOption} option={option} />
           </div>
 
           <button
@@ -89,7 +98,7 @@ const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) =>
             style={{
               backgroundColor: color || "#1D4ED8",
             }}
-            onClick={() => setShowModel(false)}
+            onClick={handleOkClick} // Handle Ok click
           >
             Ok
           </button>

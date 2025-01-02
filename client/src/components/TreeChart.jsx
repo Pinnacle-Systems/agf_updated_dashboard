@@ -116,6 +116,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             }));
         }
     }, [overAllSuppCon]);
+    console.log(selected,"selected")
 
     return (
         <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
@@ -129,7 +130,8 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                         setShowModel={setShowModel}
                     />
                 )}
-                <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+                     {selected && (
+                <HighchartsReact highcharts={Highcharts} options={chartOptions} />) }
             </div>
         </CardWrapper>
     );

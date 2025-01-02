@@ -24,7 +24,7 @@ const BloodGrp = ({ option }) => {
                 }}
             >
 
-                        <SortedBarChart topItems={topItems} />
+{selected && (   <SortedBarChart topItems={topItems} />)}
             </div>
 
             {showModal &&

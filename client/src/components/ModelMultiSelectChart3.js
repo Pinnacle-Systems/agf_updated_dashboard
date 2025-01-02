@@ -14,7 +14,7 @@ const ModelMultiSelectChart3 = ({
 }) => {
   const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
-
+   const [select,setSelect] = useState()
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
   const startPosition = useRef(null);
@@ -44,6 +44,16 @@ const ModelMultiSelectChart3 = ({
   const handleMouseUp = () => {
     setDragging(false);
   };
+  const handleOkClick = () => {
+    if (select) {
+      console.log("Selected Buyer:", select);
+      setSelectedBuyer(select)
+    
+    }
+
+    setShowModel(false);
+  };
+
 
   useEffect(() => {
     // Reset position to center when model is shown
@@ -103,8 +113,8 @@ const ModelMultiSelectChart3 = ({
               <div className="flex items-center space-x-3">
                 <SelectBuyer1
                   style={{ width: "200px" }}
-                  selectedBuyer={selectedBuyer}
-                  setSelectedBuyer={setSelectedBuyer}
+                  selectedBuyer={select}
+                  setSelectedBuyer={setSelect}
                   columnHeaderHeight={"30"}
                 />
               </div>
@@ -117,7 +127,7 @@ const ModelMultiSelectChart3 = ({
             style={{
               backgroundColor: color ? color : "blue",
             }}
-            onClick={() => setShowModel(false)}
+            onClick={handleOkClick}
           >
             Ok
           </button>
@@ -132,7 +142,7 @@ const ModelMultiSelectChart3 = ({
             zIndex: "10",
           }}
           onClick={() => setShowModel(false)}
-        ></div>
+           ></div>
       )}
     </div>
   );

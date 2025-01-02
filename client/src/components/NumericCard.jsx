@@ -50,16 +50,15 @@ const NumericCard = ({ misData, selectedBuyer,
   const filterLoss11 = loss11.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-  var currMonthName  = moment().format('MMMM');
-  var prevMonthName  = moment().subtract(1, "month").format('MMMM');
-  
+  var currMonthName = moment().format('MMM YY');
+  var prevMonthName = moment().subtract(1, "month").format('MMM YY');
   console.log(currMonthName);
   console.log(prevMonthName);
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
   
   const data = [
     {
-      heading: `On Roll Insights-${currMonthName}`,
+      heading: `On Roll Insights - ${currMonthName}`,
       borderColor: "#1F588B",
       value: selectedState == "Labour" ? filteredTotalTurnOver1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filteredTotalTurnOver.reduce((acc, item) => acc + item.currentValue, 0)
@@ -70,7 +69,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`Attrition Insights-${prevMonthName}`,
+      heading:`Attrition Insights - ${prevMonthName}`,
 
       borderColor: "#62AAA3",
       value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0)
@@ -82,7 +81,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`Salary Insights-${prevMonthName}`,
+      heading:`Salary Insights - ${prevMonthName}`,
       borderColor: "#96A669",
       value: selectedState == "Labour" ? filteredTopCus.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterNewCus.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -93,7 +92,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`PF Insights-${prevMonthName}`,
+      heading:`PF Insights - ${prevMonthName}`,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss01.reduce((acc, item) => acc + item.currentValue, 0) :
@@ -104,7 +103,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
     {
-      heading:`ESI Insights- ${prevMonthName}`,
+      heading:`ESI Insights - ${prevMonthName}`,
       borderColor: "#F4A300",
       value: selectedState == "Labour" ? filterLoss1.reduce((acc, item) => acc + item.currentValue, 0)
         : selectedState == "Staff" ? filterLoss11.reduce((acc, item) => acc + item.currentValue, 0) :

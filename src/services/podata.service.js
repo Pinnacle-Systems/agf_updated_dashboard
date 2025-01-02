@@ -94,6 +94,7 @@ export async function getFinYr(req, res) {
         where rownum <= 3
         order by finyr
      `)
+     console.log(result,"resultforFinYear")
         let resp = result.rows.map(po => ({
             finYr: po[0]
         }))

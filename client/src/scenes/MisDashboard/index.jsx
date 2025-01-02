@@ -24,8 +24,9 @@ const MisDashboard = () => {
     const [selectedMonth, setSelectedMonth] = useState();
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
+    const [selectedPie, setSelectedPie] = useState();
+
     const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected })
-    console.log(selected, 'sel');
     
     const overAllSuppCon = overAllSupData?.data || [];
 
@@ -60,11 +61,7 @@ const MisDashboard = () => {
                     setSelectedBuyer={setSelectedBuyer}
                 />
                 <OrdersInHand
-                    selectedBuyer={selectedBuyer}
-                    setSelectedBuyer={setSelectedBuyer}
-                    setSelectedYear={setSelectedYear}
-                    selectedYear={selectedYear}
-                    color = {color}                />
+                   selectedPie = {selectedPie} setSelectedPie= {setSelectedPie}        />
                 < TreeMapChart overAllSuppCon={overAllSuppCon} selected={selected}
                     setSelected={setSelected} option={option} />
                 <BloodGrp option={option} />

@@ -3,9 +3,9 @@ import React, { useState, useEffect } from "react";
 export default function DropdownDt({ selected, setSelected, option }) {
   const [isOpen, setIsOpen] = useState(false);
   const [buyerOptions, setBuyerOptions] = useState([]);
-  const [selectedBuyer, setSelectedBuyer] = useState("");
+  const [selectedBuyer, setSelectedBuyer] = useState(selected);
 
-  useEffect(() => {
+  useEffect(() => { 
     if (option) {
       const mappedOptions = option.map((item) => ({
         label: item.buyerName,
@@ -20,7 +20,7 @@ export default function DropdownDt({ selected, setSelected, option }) {
 
   // Handle option selection
   const handleOptionChange = (value) => {
-    setSelectedBuyer(value);
+    setSelectedBuyer(value); // Update the selected buyer
     setSelected(value); // Update parent component's state if needed
     setIsOpen(false); // Close the dropdown after selection
   };
@@ -59,6 +59,12 @@ export default function DropdownDt({ selected, setSelected, option }) {
                   className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2"
                   onClick={() => handleOptionChange(option.value)} // Set selectedBuyer on click
                 >
+                  <input
+                    type="checkbox"
+                    checked={selectedBuyer === option.value} // Check if this option is selected
+                    onChange={() => handleOptionChange(option.value)} // Update selectedBuyer when clicked
+                    className="mr-2 border border-gray-300 rounded"
+                  />
                   <span className="text-sm text-gray-700">{option.label}</span>
                 </label>
               ))}
