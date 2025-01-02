@@ -133,7 +133,7 @@ const YearlyComChart = () => {
     
     
     return (
-        <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false}>
+        <CardWrapper heading={"Employee Strength As On Date"} showFilter={false}>
                         <div id="chart" className=" pt-2 rounded">
 
             <HighchartsReact

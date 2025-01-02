@@ -8857,6 +8857,11 @@ hey-listen@^1.0.8:
   resolved "https://registry.npmjs.org/hey-listen/-/hey-listen-1.0.8.tgz"
   integrity sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==
 
+highcharts-3d@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.npmjs.org/highcharts-3d/-/highcharts-3d-0.1.7.tgz"
+  integrity sha512-7rdMe0rUy9df0ePd79sRJNsgm7ZFXRlU2cz7DZHGO49kKFX5JyJTZUAF5olzEy/Ij90XeqGwhwWLPJTt1tTXqQ==
+
 highcharts-react-official@^3.2.1:
   version "3.2.1"
   resolved "https://registry.npmjs.org/highcharts-react-official/-/highcharts-react-official-3.2.1.tgz"

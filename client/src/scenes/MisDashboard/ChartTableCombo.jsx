@@ -37,7 +37,8 @@ const ChartTable = () => {
     const options = {
         chart: {
             type: 'column',
-            height: 420,  // Increased the height of the chart
+            height: 400,
+            borderRadius: "10px", // Increased the height of the chart
             options3d: {
                 enabled: true,
                 alpha: 7,
@@ -57,6 +58,7 @@ const ChartTable = () => {
                 style: {
                     fontSize: '14px',
                     fontWeight: 'bold',
+                    color: '#374151',
                 },
             },
             categories: fabPlVsActFullDt.map((order) => {
@@ -83,6 +85,7 @@ const ChartTable = () => {
                     fontSize: '14px',
                     fontWeight: 'bold',
                     paddingLeft: '20px',
+                    color: '#374151',
                 },
             },
             labels: {
@@ -131,15 +134,16 @@ const ChartTable = () => {
 
     return (
         <CardWrapper heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }} >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column',  }}>
             
                 {orderCount > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'>
+                    <div style={{ display: 'flex', flexDirection: 'row',  }}>
+                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col pt-2 rounded'>
                             <HighchartsReact
                                 highcharts={Highcharts}
                                 options={options}
-                                containerProps={{ style: { minWidth: '70%', height: '350px' } }}
+                                containerProps={{ style: { minWidth: '70%', height: '360px',borderRadius: "10px", 
+                                } }}
                             />
                         </div>
 
