@@ -43,7 +43,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
         },
         tooltip: {
             headerFormat: '<b>{point.key}</b><br/>',
-            pointFormat: 'Value: {point.y}', // Update tooltip format to avoid showing series name
+            pointFormat: 'Employees: {point.y}', // Update tooltip format to avoid showing series name
             style: {
                 fontSize: '12px',
                 color: '#374151',
@@ -53,7 +53,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             categories: [],
             labels: {
                 style: {
-                    fontSize: '10px',
+                    fontSize: '11px',
                     color: '#6B7280', // Subtle color for x-axis labels
                 },
             },
@@ -64,6 +64,8 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                     fontWeight: 'bold',
                     color: '#374151',
                 },
+                marginTop: 20,
+
             },
         },
         yAxis: {
@@ -74,10 +76,12 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                     fontWeight: 'bold', // Bold the y-axis title
                     color: '#374151',
                 },
+                margin: 15,
+
             },
             labels: {
                 style: {
-                    fontSize: '10px',
+                    fontSize: '11px',
                     color: '#6B7280', // Subtle color for y-axis labels
                 },
             },
@@ -120,7 +124,17 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
 
     return (
         <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
-            <div id="chart" className="rounded mt-2">
+            <div
+                id="chart"
+                className="mt-2 mb-2 rounded-lg"
+                style={{
+                    width: '100%', 
+                    height: '360px',
+                    backgroundColor: '#fff', 
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+                    borderRadius: "10px"
+                }}
+            >
                 {showModel && (
                     <BuyerMultiSelect
                         selected={selected}

@@ -51,7 +51,7 @@ export default function DropdownDt({ selected, setSelected, option }) {
 
         {/* Dropdown Panel */}
         {isOpen && (
-          <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+          <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
             <div className="py-2">
               {buyerOptions.map((option) => (
                 <label

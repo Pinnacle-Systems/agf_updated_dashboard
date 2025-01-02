@@ -59,7 +59,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             }
         },
         series: [{
-            name: 'Age',
+            name: 'Employees',
             data: buyerWiseRev.map((item, index) => ({
                 name: item.buyer,
                 y: item.value,

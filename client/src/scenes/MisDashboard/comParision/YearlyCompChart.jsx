@@ -63,10 +63,15 @@ const YearlyComChart = () => {
             categories,
             title: {
                 text: 'Branches',
-                style: { color: '#374151', fontSize: '14px', fontWeight: 'bold' },
+                style: {
+                    color: '#374151',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                },
+                margin: 15, // Adds space between the axis and its title
             },
             labels: {
-                style: { color: '#6B7280', fontSize: '12px' },
+                style: { color: '#6B7280', fontSize: '11px' },
                 rotation: -45, // Rotate labels for better visibility
                 align: 'right', // Align properly
                 overflow: 'justify', // Allow labels to overflow if necessary
@@ -77,6 +82,7 @@ const YearlyComChart = () => {
             max: categories.length - 1, // End at the last category
             categories: categories.length > 10 ? categories.slice(0, 10) : categories, // Limit category count if too many
         },
+        
         yAxis: {
             title: {
                 text: 'Number of Employees',
@@ -84,11 +90,13 @@ const YearlyComChart = () => {
                     fontSize: '14px',
                     color: '#374151',
                     fontWeight: 'bold',
+                    paddingRight : '10px'
                 },
+                margin: 15,
             },
             labels: {
                 style: {
-                    fontSize: '12px',
+                    fontSize: '11px',
                     color: '#9CA3AF',
                 },
             },
@@ -119,8 +127,11 @@ const YearlyComChart = () => {
                 depth: 40,
                 pointWidth: 15,
                 borderRadius: 5,
+                pointPadding: 0.9, 
+                groupPadding: 0.9, 
             },
         },
+        
         legend: {
             align: 'center',
             verticalAlign: 'top',

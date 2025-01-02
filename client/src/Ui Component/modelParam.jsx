@@ -69,9 +69,9 @@ const SelectBuyer = ({ selectedBuyer,  tempSelectedBuyer ,setTempSelectedBuyer,i
             </button>
             {isOpen && (
                 <div className="absolute mt-2 w-full bg-white border border-gray-300 w-48 rounded-md shadow-lg z-50">
-                    <div className="max-h-60 overflow-y-auto py-2">
+                    <div className="max-h-70 overflow-y-auto py-2">
                         {buyerOptions.map(option => (
-                            <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2">
+                            <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-2 py-1">
                                 <input
                                     type="checkbox"
                                     value={option.value}
