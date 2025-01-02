@@ -26,7 +26,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [chartOptions, setChartOptions] = useState({
         chart: {
             type: 'column',
-            height: 340,
+            height: 360,
             options3d: {
                 enabled: true,
                 alpha: 12,
@@ -34,7 +34,8 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 depth: 50,
                 viewDistance: 25,
             },
-            backgroundColor: '#FFFFFF', // Add background color for better contrast
+            backgroundColor: '#FFFFFF',
+            borderRadius: "10px" // Add background color for better contrast
         },
         title: null, // Remove the title
         legend: {
@@ -118,7 +119,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
 
     return (
         <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
-            <div id="chart" className="p-4">
+            <div id="chart" className="rounded mt-2">
                 {showModel && (
                     <BuyerMultiSelect
                         selected={selected}

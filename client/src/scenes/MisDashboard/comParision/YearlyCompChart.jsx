@@ -56,24 +56,26 @@ const YearlyComChart = () => {
                 viewDistance: 30,
             },
             backgroundColor: '#FFFFFF',
-            marginBottom: 70, // Add space at the bottom for labels
+            marginBottom: 100,
         },
         title: null,
         xAxis: {
-            categories: categories,
+            categories,
             title: {
-                text: null, // Remove the x-axis title for a cleaner look
+                text: 'Branches',
+                style: { color: '#374151', fontSize: '14px', fontWeight: 'bold' },
             },
             labels: {
-                style: {
-                    fontSize: '12px',
-                    color: '#6B7280',
-                },
-                rotation: 90, // Rotate labels vertically
-                align: 'center',
-                y: 35, // Position labels inside the chart area
+                style: { color: '#6B7280', fontSize: '12px' },
+                rotation: -45, // Rotate labels for better visibility
+                align: 'right', // Align properly
+                overflow: 'justify', // Allow labels to overflow if necessary
+                step: 1, // Show every label, or adjust if there are too many
             },
-            tickLength: 0, // Remove tick marks for a cleaner look
+            tickInterval: 1, // Show every tick
+            min: 0, // Start from the first category
+            max: categories.length - 1, // End at the last category
+            categories: categories.length > 10 ? categories.slice(0, 10) : categories, // Limit category count if too many
         },
         yAxis: {
             title: {
@@ -103,10 +105,12 @@ const YearlyComChart = () => {
             },
             formatter: function () {
                 return `
-                    <b>Company: ${this.x}</b><br/>
-                    ${this.points.map(
-                        point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
-                    ).join('')}`;
+                    <b>${this.x}</b><br/>
+                    ${this.points
+                        .map(
+                            point => `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y}</b><br/>`
+                        )
+                        .join('')}`;
             },
         },
         plotOptions: {
@@ -118,20 +122,15 @@ const YearlyComChart = () => {
             },
         },
         legend: {
-            enabled: true,
             align: 'center',
             verticalAlign: 'top',
             layout: 'horizontal',
-            itemStyle: {
-                fontSize: '12px',
-                color: '#374151',
-                fontWeight: 'bold',
-            },
-            useHTML: true,
-            y: -30,
+            itemStyle: { color: '#374151', fontSize: '12px', fontWeight: '500' },
         },
-        series: series,
+        series,
     };
+    
+    
     
     return (
         <CardWrapper heading={"Branch-wise Employee Overview"} showFilter={false}>
