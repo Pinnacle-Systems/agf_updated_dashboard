@@ -316,36 +316,60 @@ GROUP BY A.COMPCODE`;
         await connection.close();
     }
 }
-
+//Event Beakup Current Month
 export async function getShortShipmentRatio(req, res) {
     const connection = await getConnection(res)
     try {
-        const { filterCat } = req.query;
+        const { filterCat ,filterBuyer} = req.query; 
+        console.log(filterBuyer,"filterBuyer")
         let sql
-
         if (filterCat === 'Birthday') {
-            sql =
-                `
-     SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
-WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW') AND A.PAYCAT = 'STAFF'
-AND A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) )
-ORDER BY A.DOB desc
- `
+            sql = `
+            SELECT A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER, A.DOB,
+                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AGE,
+                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOJ) / 12) EXP,
+                   A.DOJ
+            FROM MISTABLE A
+            WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW')
+              AND A.PAYCAT = 'STAFF'
+              AND A.COMPCODE ='${filterBuyer}'
+              AND A.DOJ <= (
+                SELECT MIN(AA.STDT) STDT 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+              )
+              AND (A.DOL IS NULL OR A.DOL <= (
+                SELECT MIN(AA.ENDT) STDT 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+              ))
+            ORDER BY A.DOB DESC
+            `;
         } else {
-            sql = `SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
-WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW') AND A.PAYCAT = 'STAFF'
-AND A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) )
-ORDER BY A.DOJ desc
-`
+            sql = `
+            SELECT A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER, A.DOB,
+                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AGE,
+                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOJ) / 12) EXP,
+                   A.DOJ
+            FROM MISTABLE A
+            WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW')
+              AND A.PAYCAT = 'STAFF'
+              AND A.COMPCODE = '${filterBuyer}'
+              AND A.DOJ <= (
+                SELECT MIN(AA.STDT) STDT 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+              )
+              AND (A.DOL IS NULL OR A.DOL <= (
+                SELECT MIN(AA.ENDT) STDT 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+              ))
+            ORDER BY A.DOJ DESC
+            `;
         }
+        
+        console.log(sql,"event Query sql")
 
 
         const result = await connection.execute(sql)

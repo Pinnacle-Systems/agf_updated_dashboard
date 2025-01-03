@@ -7,18 +7,22 @@ import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../.
 import { currentDate } from '../../../utils/hleper';
 import CardWrapper from '../../../components/CardWrapper';
 import { ColorContext } from '../../global/context/ColorContext';
+import BuyerMultiSelect from '../../../components/ModelMultiSelect1';
+import BuyerMultiSelect4 from '../../../components/ModelMultiSelect4';
 
 const ShortShipmentRatio = () => {
     const [selectedBuyer, setSelectedBuyer] = useState('');
+    const  [ selected,setSelected] = useState()
     const [selectedYear, setSelectedYear] = useState('');
     const [category, setCategory] = useState('Birthday');
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
-    const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } })
+    const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selected || '' } })
     const { data: year } = useGetFinYearQuery({})
     const [showModal, setShowModal] = useState(false);
+    const [showModel, setShowModel] = useState(false);
 
     const { color } = useContext(ColorContext);
 
@@ -33,7 +37,7 @@ const ShortShipmentRatio = () => {
         }
     }, [buyer, month, year]);
 
-    const { data: shipmentData, error, isLoading, refetch } = useGetShortShipmantRatioQuery({ params: { filterCat: category } });
+    const { data: shipmentData, error, isLoading, refetch } = useGetShortShipmantRatioQuery({ params: { filterCat: category,filterBuyer: selected } });
     const shipData = shipmentData?.data ? shipmentData.data : [];
 
     if (isLoading) return <div>Loading...</div>;
@@ -53,52 +57,20 @@ const ShortShipmentRatio = () => {
     const todayDate = formatDateForComparison(new Date());
 
     return (
-        <CardWrapper heading={"Event's Breakup Current Month"} showFilter={false} >
-            <div className="flex w-full justify-end">
-                <div className='flex gap-2 items-center justify-center'>    
-                    <label htmlFor="birthday">Birthday :</label>
-                    <input
-                        type="radio"
-                        id="birthday"
-                        name='view'
-                        value='Birthday'
-                        checked={category === 'Birthday'}
-                        onChange={handleOptionChange}
-                    />
-                    <label htmlFor="anniversary">Work Anniversary:</label>
-                    <input
-                        type="radio"
-                        id="anniversary"
-                        name='view'
-                        value='Anniversary'
-                        checked={category === 'Anniversary'}
-                        onChange={handleOptionChange}
-                    />
-                </div>
-                <div className='flex group relative justify-end'>
-                    <button
-                        className='bg-sky-500 rounded-sm p-1 flex items-center justify-center h-[30px] text-center font-normal text-[16px] border-2 border-[#E0E0E0]'
-                        onClick={() => refetch()}
-                    >
-                        <HiOutlineRefresh />
-                    </button>
-                    <span className='group-hover:opacity-100 transition-opacity bg-gray-800 px-1 bottom-5 text-sm text-gray-100 rounded-md -translate-x-1/2 absolute opacity-0'>
-                        Refresh
-                    </span>
-                </div>
-            </div>
-            <div className='h-[350px] overflow-scroll'>
-                <table className="min-w-full bg-white border border-gray-200 h-full">
+        <CardWrapper heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
+            
+            <div className='h-[350px] overflow-scroll mt-2 rounded' style={{ borderRadius: "10px" }}>
+            <table className="min-w-full bg-white border border-gray-200 h-full " style={{ borderRadius: "10px" }}>
                     <thead>
                         <tr>
                             <th className="py-1 px-2 border font-medium text-sm">S No</th>
                             <th className="py-1 px-2 border font-medium text-sm">Id Card</th>
                             <th className="py-1 px-2 border font-medium text-sm">Name</th>
                             <th className="py-1 px-2 border font-medium text-sm">Company</th>
-                            <th className="py-1 px-2 border font-medium text-sm">DOB</th>
-                            <th className="py-1 px-2 border font-medium text-sm">Age</th>
-                            <th className="py-1 px-2 border font-medium text-sm">DOJ</th>
-                            <th className="py-1 px-2 border font-medium text-sm">Exp</th>
+                            {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">DOB</th>} 
+                            {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">Age</th>}
+                            {category === 'Anniversary' &&  <th className="py-1 px-2 border font-medium text-sm">DOJ</th>}
+                             {category === 'Anniversary' && <th className="py-1 px-2 border font-medium text-sm">Exp</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -113,24 +85,36 @@ const ShortShipmentRatio = () => {
                                     <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
                                     <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
 
-                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                    {category === 'Birthday' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
                                         {currentDate(item.dob)}
-                                    </td>
-                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                    </td>}
+                                    {category === 'Birthday' &&<td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
                                         {item.age}
-                                    </td>
-                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                    </td>}
+                                   {category === 'Anniversary' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
                                         {currentDate(item.doj)}
-                                    </td>
-                                    <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                    </td>}
+                                    {category === 'Anniversary' &&  <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
                                         {item.exp}
-                                    </td>
+                                    </td>}
                                 </tr>
                             );
                         })}
                     </tbody>
                 </table>
             </div >
+            {showModel && (
+                    <BuyerMultiSelect4
+                    category={category}
+                    selected = {selected}
+                    setSelected={setSelected}
+                    setCategory={setCategory}
+                        color={color}
+                        showModel={showModel}
+                        setShowModel={setShowModel}
+                        refetch={refetch}
+                    />
+                )}
         </CardWrapper>
     );
 };
