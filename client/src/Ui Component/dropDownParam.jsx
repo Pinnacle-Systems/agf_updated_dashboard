@@ -22,7 +22,6 @@ export default function DropdownDt({ selected, setSelected, option }) {
   const handleOptionChange = (value) => {
     setSelectedBuyer(value); // Update the selected buyer
     setSelected(value); // Update parent component's state if needed
-    setIsOpen(false); // Close the dropdown after selection
   };
 
   return (

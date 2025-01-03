@@ -60,6 +60,7 @@ const ChartTable = () => {
                     fontWeight: 'bold',
                     color: '#374151',
                 },
+                marginTop:15
             },
             categories: fabPlVsActFullDt.map((order) => {
                 const month = new Date(order.payPeriod);

@@ -64,7 +64,7 @@ const SelectBuyer1 = ({ selectedBuyer, setSelectedBuyer }) => {
             </button>
             {isOpen && (
                 <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
-                    <div className="max-h-60 overflow-y-auto py-2">
+                    <div className="max-h-80 overflow-y-auto py-2">
                         {buyerOptions.map((option) => (
                             <div
                                 key={option.value}

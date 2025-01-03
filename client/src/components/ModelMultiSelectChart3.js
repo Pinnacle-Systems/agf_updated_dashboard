@@ -78,7 +78,7 @@ console.log(sety,"sety")
           bottom: showModel ? "0" : "-500px",
           left: "0",
           width: "290px",
-          height: "500px",
+          height: "550px",
           backgroundColor: "#F1F3F6",
           boxShadow: "0px -4px 12px rgba(0, 0, 0, 0.3)",
           transition: "bottom 0.3s ease-in-out",
