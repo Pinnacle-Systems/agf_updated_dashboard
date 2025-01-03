@@ -15,6 +15,7 @@ const ModelMultiSelectChart3 = ({
   const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
    const [select,setSelect] = useState()
+   const [sety,setSety] = useState()
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
   const startPosition = useRef(null);
@@ -45,15 +46,15 @@ const ModelMultiSelectChart3 = ({
     setDragging(false);
   };
   const handleOkClick = () => {
-    if (select) {
+    if (select || sety) {
       console.log("Selected Buyer:", select);
       setSelectedBuyer(select)
-    
+      setSelectedYear(sety)
     }
 
     setShowModel(false);
   };
-
+console.log(sety,"sety")
 
   useEffect(() => {
     // Reset position to center when model is shown
@@ -107,7 +108,7 @@ const ModelMultiSelectChart3 = ({
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <label className="text-sm font-medium text-gray-600">Year:</label>
-                <DropdownData selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
+                <DropdownData selectedYear={sety} setSelectedYear={setSety} />
               </div>
 
               <div className="flex items-center space-x-3">

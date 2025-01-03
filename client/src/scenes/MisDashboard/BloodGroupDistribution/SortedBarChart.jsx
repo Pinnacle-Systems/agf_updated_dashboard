@@ -109,7 +109,7 @@ labelBullet.label.fill = am4core.color("#333");
     return (
         <div id="sidechartdiv" style={{
             width: "100%", 
-            height: "36 0px", 
+            height: "360px", 
             backgroundColor: "#f5f5f5", 
             borderRadius: "12px", 
             padding: "15px", 

@@ -38,7 +38,7 @@ const ChartTable = () => {
         chart: {
             type: 'column',
             height: 400,
-            borderRadius: "10px", // Increased the height of the chart
+            borderRadius: "10px",
             options3d: {
                 enabled: true,
                 alpha: 7,
