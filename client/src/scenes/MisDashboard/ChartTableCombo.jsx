@@ -60,38 +60,40 @@ const ChartTable = () => {
                     fontWeight: 'bold',
                     color: '#374151',
                 },
-                marginTop:15
+                margin: 25, // Increased margin for more gap
             },
             categories: fabPlVsActFullDt.map((order) => {
                 const month = new Date(order.payPeriod);
-                const monthAbbr = month.toLocaleString('default', { month: 'short' });  // 3-letter month abbreviation
-                const year = month.getFullYear().toString().slice(-2);  // Last 2 digits of the year
+                const monthAbbr = month.toLocaleString('default', { month: 'short' }); // 3-letter month abbreviation
+                const year = month.getFullYear().toString().slice(-2); // Last 2 digits of the year
                 return `${monthAbbr} ${year}`;
             }),
             labels: {
                 rotation: -90,
                 step: 1,
                 style: {
-                    fontSize: '12px',
+                    fontSize: '10px',
                 },
             },
             scrollbar: {
                 enabled: true,
             },
         },
+        
         yAxis: {
             title: {
                 text: 'Number of Employees',
                 style: {
                     fontSize: '14px',
                     fontWeight: 'bold',
-                    paddingLeft: '20px',
                     color: '#374151',
                 },
+                margin: 25, // Increased margin for more gap
+
             },
             labels: {
                 style: {
-                    fontSize: '12px',
+                    fontSize: '10px',
                 },
                 formatter: function () {
                     return this.value.toLocaleString();
@@ -139,7 +141,7 @@ const ChartTable = () => {
             
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row',  }}>
-                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col pt-2 rounded'>
+                        <div style={{ flex: '66%', minWidth: '100%' }} className='flex flex-col pt-2 rounded'>
                             <HighchartsReact
                                 highcharts={Highcharts}
                                 options={options}

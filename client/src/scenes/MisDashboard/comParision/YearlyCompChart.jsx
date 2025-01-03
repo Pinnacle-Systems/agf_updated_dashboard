@@ -65,38 +65,40 @@ const YearlyComChart = () => {
                 text: 'Branches',
                 style: {
                     color: '#374151',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: 'bold',
+                    paddingTop: '20px'
                 },
-                margin: 15, // Adds space between the axis and its title
+                margin: 25,
             },
             labels: {
-                style: { color: '#6B7280', fontSize: '11px' },
-                rotation: -45, // Rotate labels for better visibility
-                align: 'right', // Align properly
-                overflow: 'justify', // Allow labels to overflow if necessary
-                step: 1, // Show every label, or adjust if there are too many
+                style: { color: '#6B7280', fontSize: '10px' },
+                rotation: -45,
+                align: 'right', 
+                overflow: 'justify', 
+                step: 1, 
+                padding: 10, 
             },
-            tickInterval: 1, // Show every tick
-            min: 0, // Start from the first category
-            max: categories.length - 1, // End at the last category
-            categories: categories.length > 10 ? categories.slice(0, 10) : categories, // Limit category count if too many
+            tickInterval: 1,
+            min: 0, 
+            max: categories.length - 1, 
+            categories: categories.length > 10 ? categories.slice(0, 10) : categories,
         },
         
         yAxis: {
             title: {
                 text: 'Number of Employees',
                 style: {
-                    fontSize: '14px',
+                    fontSize: '12px',
                     color: '#374151',
                     fontWeight: 'bold',
                     paddingRight : '10px'
                 },
-                margin: 15,
+                margin: 25,
             },
             labels: {
                 style: {
-                    fontSize: '11px',
+                    fontSize: '10px',
                     color: '#9CA3AF',
                 },
             },
@@ -109,7 +111,7 @@ const YearlyComChart = () => {
             shadow: true,
             style: {
                 color: '#374151',
-                fontSize: '12px',
+                fontSize: '10px',
             },
             formatter: function () {
                 return `
@@ -136,7 +138,7 @@ const YearlyComChart = () => {
             align: 'center',
             verticalAlign: 'top',
             layout: 'horizontal',
-            itemStyle: { color: '#374151', fontSize: '12px', fontWeight: '500' },
+            itemStyle: { color: '#374151', fontSize: '10px', fontWeight: '500' },
         },
         series,
     };
@@ -154,9 +156,6 @@ const YearlyComChart = () => {
                     style: {
                         minWidth: '100%',
                         height: '100%',
-                        padding: '0',  // Remove padding
-                        margin: '0',   // Remove margin
-                        gap: '0',      // Remove gap
                         borderRadius : "10px"
                     }
                 }}

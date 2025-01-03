@@ -5,7 +5,7 @@ import { ColorContext } from "../scenes/global/context/ColorContext";
 
 const BuyerMultiSelect = ({ selected, setSelected, showModel, setShowModel }) => {
   const { color } = useContext(ColorContext);
-  const [selectedOption,setSelectedOption ] = useState()
+  const [selectedOption,setSelectedOption ] = useState(selected)
   const { data: buyer } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
   const [position, setPosition] = useState({ x: 0, y: 0 });

@@ -14,7 +14,7 @@ const BuyerMultiSelect4 = ({
   refetch,
 }) => {
   const { color } = useContext(ColorContext);
-  const [selectedOption, setSelectedOption] = useState();
+  const [selectedOption, setSelectedOption] = useState(selected);
   const { data: buyer } = useGetBuyerNameQuery({ params: {} });
   const options = buyer?.data || [];
   const [position, setPosition] = useState({ x: 0, y: 0 });

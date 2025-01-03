@@ -19,7 +19,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             },
             backgroundColor: '#FFFFFF',
             width: 330,
-            height: 340,
+            height: 350,
             borderRadius: "10px"
         },
         title: {
@@ -54,10 +54,18 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             }
         },
         tooltip: {
+            style: {
+                color: '#374151',
+                fontSize: '10px',
+            },
+            headerFormat: '<b>Age: {point.key}</b><br/>',
             pointFormatter: function () {
-                return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${this.y.toLocaleString()}</b><br/>`;
+                return `
+                    <span style="color:${this.color}">\u25CF</span><span style="color: #2d2d2d;"> Employees: <b>${this.y.toLocaleString()}</b></span><br/>
+                `;
             }
         },
+        
         series: [{
             name: 'Employees',
             data: buyerWiseRev.map((item, index) => ({
@@ -70,6 +78,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             enabled: false
         }
     };
+    
 
     return (
         <div>

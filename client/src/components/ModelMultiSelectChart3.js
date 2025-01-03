@@ -14,8 +14,8 @@ const ModelMultiSelectChart3 = ({
 }) => {
   const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
   const option = buyer?.data ? buyer?.data : [];
-   const [select,setSelect] = useState()
-   const [sety,setSety] = useState()
+   const [select,setSelect] = useState(selectedBuyer)
+   const [sety,setSety] = useState(selectedYear)
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
   const startPosition = useRef(null);
@@ -124,9 +124,9 @@ console.log(sety,"sety")
 
           {/* Ok Button */}
           <button
-            className={`absolute right-0 bottom-5 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
+            className={`absolute right-5 bottom-5 hover:bg-blue-600 text-white py-1 px-4 rounded-lg shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none`}
             style={{
-              backgroundColor: color ? color : "blue",
+              backgroundColor: color ? color : "blue", fontSize: '14px',
             }}
             onClick={handleOkClick}
           >

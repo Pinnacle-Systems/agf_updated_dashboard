@@ -26,11 +26,11 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [chartOptions, setChartOptions] = useState({
         chart: {
             type: 'column',
-            height: 360,
+            height: 350,
             options3d: {
                 enabled: true,
-                alpha: 12,
-                beta: 12,
+                alpha: 7,
+                beta: 7,
                 depth: 50,
                 viewDistance: 25,
             },
@@ -42,29 +42,34 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             enabled: false, // Disable the legend since series name is not needed
         },
         tooltip: {
-            headerFormat: '<b>{point.key}</b><br/>',
-            pointFormat: 'Employees: {point.y}', // Update tooltip format to avoid showing series name
+            headerFormat: '<b><span style="color: #2d2d2d;">Experience: {point.key}</span></b><br/>', // Bold and dark color for header
+            pointFormat: `
+                <span style="color: {point.color}; font-size: 12px;">\u25CF</span> 
+                Employees: <span style="color: #2d2d2d;"><b>{point.y}</b></span>`, // Using dynamic color for the point
             style: {
-                fontSize: '12px',
-                color: '#374151',
+                fontSize: '10px',
+                color: 'black', // Default color for the rest of the tooltip text
             },
         },
+        
+        
         xAxis: {
             categories: [],
             labels: {
                 style: {
-                    fontSize: '11px',
+                    fontSize: '10px',
                     color: '#6B7280', // Subtle color for x-axis labels
                 },
             },
             title: {
                 text: 'Experience', // Add a title to the x-axis
                 style: {
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: 'bold',
                     color: '#374151',
+                    paddingTop: "10px"
                 },
-                marginTop: 20,
+                margin: 30,
 
             },
         },
@@ -72,16 +77,16 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             title: {
                 text: 'No of Employees', // Title for y-axis
                 style: {
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: 'bold', // Bold the y-axis title
                     color: '#374151',
                 },
-                margin: 15,
+                margin: 25,
 
             },
             labels: {
                 style: {
-                    fontSize: '11px',
+                    fontSize: '10px',
                     color: '#6B7280', // Subtle color for y-axis labels
                 },
             },

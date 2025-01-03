@@ -332,7 +332,7 @@ export async function getShortShipmentRatio(req, res) {
             FROM MISTABLE A
             WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW')
               AND A.PAYCAT = 'STAFF'
-              AND A.COMPCODE ='${filterBuyer}'
+              ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
               AND A.DOJ <= (
                 SELECT MIN(AA.STDT) STDT 
                 FROM MONTHLYPAYFRQ AA 
@@ -354,7 +354,7 @@ export async function getShortShipmentRatio(req, res) {
             FROM MISTABLE A
             WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW')
               AND A.PAYCAT = 'STAFF'
-              AND A.COMPCODE = '${filterBuyer}'
+              ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
               AND A.DOJ <= (
                 SELECT MIN(AA.STDT) STDT 
                 FROM MONTHLYPAYFRQ AA 

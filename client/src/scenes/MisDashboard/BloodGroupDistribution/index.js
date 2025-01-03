@@ -14,7 +14,7 @@ const BloodGrp = ({ option }) => {
         <CardWrapper heading={"Blood Group Distribution"} onFilterClick={() => { setShowModal(true) }} >
              <div
                 id="chart"
-                className="mt-2 mb-2 rounded-lg"
+                className="mt-2 rounded-lg"
                 style={{
                     width: '100%', 
                     height: '360px',
