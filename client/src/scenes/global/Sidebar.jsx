@@ -20,7 +20,7 @@ import { push } from '../../redux/features/opentabs';
 import { useGetUsersQuery } from '../../redux/service/user';
 import { ColorContext } from './context/ColorContext';
 import { useContext } from "react";
-
+import ActiveTabList from '../ActiveTab';
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: '32px',
   height: '32px',
@@ -69,42 +69,6 @@ const Sidebar = () => {
 
   return (
     <SidebarContainer isCollapsed={isCollapsed}>
-      {/* <Box
-        display="flex"
-        alignItems="center"
-        justifyContent={isCollapsed ? 'center' : 'space-between'}
-        p={1}
-      >
-        {!isCollapsed && (
-          <Typography
-            variant="h6"
-            color="textPrimary"
-            style={{
-              position: 'relative',
-              display: 'inline-block',
-              marginLeft: '10px',
-              fontWeight: '400',
-            }}
-          >
-            BS APPARELS
-            <span
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                left: '25%',
-                width: '70%',
-                height: '2px',
-                backgroundColor: color ? color : '#C57B03',
-                transform: 'translateX(-25%)',
-              }}
-            ></span>
-          </Typography>
-        )}
-        <IconButton onClick={toggleSidebar}>
-          <MenuIcon sx={{ fontSize: isCollapsed ? '24px' : '24px', paddingLeft: "3px" }} />
-        </IconButton>
-      </Box> */}
-
       <List className="mt-3">
         <Tooltip title="Dashboard" placement="right" disableHoverListener={!isCollapsed}>
           <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>

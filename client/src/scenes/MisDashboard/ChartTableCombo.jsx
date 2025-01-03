@@ -56,7 +56,7 @@ const ChartTable = () => {
             title: {
                 text: 'Month',
                 style: {
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: 'bold',
                     color: '#374151',
                 },
@@ -84,7 +84,7 @@ const ChartTable = () => {
             title: {
                 text: 'Number of Employees',
                 style: {
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: 'bold',
                     color: '#374151',
                 },

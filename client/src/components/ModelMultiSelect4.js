@@ -95,8 +95,7 @@ const BuyerMultiSelect4 = ({
             onMouseDown={handleMouseDown}
           >
             <div className="flex justify-between items-center mb-4">
-              {/* Category Selection */}
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <label htmlFor="birthday">Birthday:</label>
                 <input
                   type="radio"
@@ -117,17 +116,16 @@ const BuyerMultiSelect4 = ({
                 />
               </div>
 
-              {/* Refresh Button */}
               <button
                 className="flex items-center justify-center h-8 w-8 bg-sky-500 text-white rounded-sm border border-gray-300 hover:shadow-lg"
                 onClick={refetch}
               >
                 <HiOutlineRefresh />
-              </button>
+              </button> */}
             </div>
 
             {/* Dropdown */}
-            <label className="block text-sm font-semibold mb-3">
+            <label className="block text-sm font-semibold ">
               Select Company
             </label>
             <DropdownDt

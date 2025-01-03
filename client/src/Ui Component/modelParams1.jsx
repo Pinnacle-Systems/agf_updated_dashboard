@@ -71,13 +71,13 @@ const SelectBuyer1 = ({ selectedBuyer, setSelectedBuyer }) => {
                                 className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2"
                                 onClick={() => handleOptionChange(option.value)} // Select the clicked option
                             >
-                                <input
-                                    type="radio" // Use radio buttons for single-select behavior
-                                    value={option.value}
-                                    checked={selectedBuyer === option.value} // Check if the option is selected
-                                    onChange={() => handleOptionChange(option.value)} // Update the state
-                                    className="form-radio h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
-                                />
+                                 <input
+                  type="checkbox"
+                  value={option.value}
+                  checked={selectedBuyer === option.value} 
+                  onChange={() => handleOptionChange(option.value)} 
+                   className="form-radio h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
+                />
                                 <span className="text-sm text-gray-700">{option.label}</span>
                             </div>
                         ))}
