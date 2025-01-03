@@ -52,6 +52,18 @@ const ChartTable = () => {
             },
         },
         title: null,  // Removed the chart title
+        tooltip: {
+            backgroundColor: 'white', // Dark background color
+            borderRadius: 10, // Rounded corners
+            style: {
+                fontSize: '10px', // Font size of the tooltip text
+                fontFamily: 'Arial, sans-serif', // Font family for the tooltip text
+                padding: '10px', // Padding inside the tooltip
+            },
+            borderColor: '#888', // Border color of the tooltip
+            borderWidth: 1, // Border width
+            headerFormat: '<b>Age: {point.key}</b><br/>',
+        },
         xAxis: {
             title: {
                 text: 'Month',
@@ -79,7 +91,6 @@ const ChartTable = () => {
                 enabled: true,
             },
         },
-        
         yAxis: {
             title: {
                 text: 'Number of Employees',
@@ -89,7 +100,6 @@ const ChartTable = () => {
                     color: '#374151',
                 },
                 margin: 25, // Increased margin for more gap
-
             },
             labels: {
                 style: {
@@ -131,7 +141,6 @@ const ChartTable = () => {
             },
         ],
     };
-    
     
     const [showModel, setShowModel] = useState(false);
 

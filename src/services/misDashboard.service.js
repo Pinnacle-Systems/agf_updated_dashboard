@@ -324,49 +324,30 @@ export async function getShortShipmentRatio(req, res) {
         console.log(filterBuyer,"filterBuyer")
         let sql
         if (filterCat === 'Birthday') {
-            sql = `
-            SELECT A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER, A.DOB,
-                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AGE,
-                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOJ) / 12) EXP,
-                   A.DOJ
-            FROM MISTABLE A
-            WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW')
-              AND A.PAYCAT = 'STAFF'
-              ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
-              AND A.DOJ <= (
-                SELECT MIN(AA.STDT) STDT 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-              )
-              AND (A.DOL IS NULL OR A.DOL <= (
-                SELECT MIN(AA.ENDT) STDT 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-              ))
-            ORDER BY A.DOB DESC
-            `;
+            sql =
+                `
+     SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
+WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW') AND A.PAYCAT = 'STAFF'
+ ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
+AND A.DOJ <= (
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) AND (A.DOL IS NULL OR A.DOL <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) )
+ORDER BY TO_CHAR(A.DOB, 'MM-DD')
+
+ `
         } else {
-            sql = `
-            SELECT A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER, A.DOB,
-                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AGE,
-                   TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOJ) / 12) EXP,
-                   A.DOJ
-            FROM MISTABLE A
-            WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW')
-              AND A.PAYCAT = 'STAFF'
-              ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
-              AND A.DOJ <= (
-                SELECT MIN(AA.STDT) STDT 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-              )
-              AND (A.DOL IS NULL OR A.DOL <= (
-                SELECT MIN(AA.ENDT) STDT 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
-              ))
-            ORDER BY A.DOJ DESC
-            `;
+            sql = `SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
+WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW') AND A.PAYCAT = 'STAFF'
+ ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ''}
+AND A.DOJ <= (
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) AND (A.DOL IS NULL OR A.DOL <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) )
+ORDER BY A.DOJ desc
+`
         }
         
         console.log(sql,"event Query sql")

@@ -60,9 +60,9 @@ const ShortShipmentRatio = () => {
         <CardWrapper heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
             
             <div className='h-[350px] overflow-scroll mt-2 rounded' style={{ borderRadius: "10px" }}>
-            <div className="flex w-[100%] justify-end bg-white">
-                <div className='flex gap-2 items-center justify-center'>
-                    <label htmlFor="birthday">Birthday :</label>
+            <div className="flex w-[100%] justify-end bg-white ">
+                <div className='flex gap-2 items-center justify-center mr-5 '>
+                    <label htmlFor="birthday" style={{fontSize:"14px"}}>Birthday :</label>
                     <input
                         type="radio"
                         id="birthday"
@@ -72,7 +72,7 @@ const ShortShipmentRatio = () => {
                         onChange={handleOptionChange}
                     />
 
-                    <label htmlFor="anniversary">Work Anniversary:</label>
+                    <label htmlFor="anniversary" style={{fontSize:"14px"}}>Work Anniversary:</label>
                     <input
                         type="radio"
                         id="anniversary"
@@ -82,17 +82,19 @@ const ShortShipmentRatio = () => {
                         onChange={handleOptionChange}
                     />
                 </div>
-                <div className='flex group relative justify-end'>
-                    <button
-                        className='bg-sky-500 rounded-sm p-1 flex items-center justify-center h-[30px] text-center font-normal text-[16px] border-2 border-[#E0E0E0]'
-                        onClick={() => refetch()}
-                    >
-                        <HiOutlineRefresh />
-                    </button>
-                    <span className='group-hover:opacity-100 transition-opacity bg-gray-800 px-1 bottom-5 text-sm text-gray-100 rounded-md -translate-x-1/2 absolute opacity-0'>
-                        Refresh
-                    </span>
-                </div>
+                <div className="flex group relative justify-end">
+  <button
+    className="bg-blue-500 hover:bg-blue-600 rounded-md p-2 flex items-center justify-center h-8 w-8 text-white font-medium transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+    onClick={() => refetch()}
+    aria-label="Refresh"
+  >
+    <HiOutlineRefresh size={20} />
+  </button>
+  <span className="group-hover:opacity-100 group-hover:translate-y-0 transition-all bg-gray-900 px-2 py-1 text-xs text-gray-100 rounded-md shadow-md absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 opacity-0">
+    Refresh
+  </span>
+</div>
+
             </div>
             <table className="min-w-full bg-white border border-gray-200 h-full " style={{ borderRadius: "10px" }}>
                     <thead>
