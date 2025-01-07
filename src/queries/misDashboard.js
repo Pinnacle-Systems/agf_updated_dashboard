@@ -4,7 +4,7 @@ const d = new Date();
 const monthName = month[d.getMonth()];
 const yearName = d.getFullYear();
 
-const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 2, d.getDate());
+const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate());
 const lastMonthName = month[lastMonthDate.getMonth()];
 const lastMonthYear = lastMonthDate.getFullYear();
 
