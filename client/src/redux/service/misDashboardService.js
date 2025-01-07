@@ -113,7 +113,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-
+        getEsiPf: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/getESIPF",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
     }),
 })
 
@@ -125,7 +137,8 @@ export const {
     useGetYearlyCompQuery,
     useGetBuyerWiseRevenueQuery,
     useGetBudgetVsActualQuery,
-    useGetShortShipmantRatioQuery
+    useGetShortShipmantRatioQuery,
+    useGetEsiPfQuery
 
 } = MisDashboard;
 

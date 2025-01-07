@@ -1,6 +1,6 @@
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
-import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss,getLoss1 ,getEmployees1,getProfit1,getLoss11,getLoss01}
+import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss, getLoss1, getEmployees1, getProfit1, getLoss11, getLoss01 }
     from "../queries/misDashboard.js";
 
 
@@ -23,7 +23,7 @@ export async function get(req, res) {
 
         const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
         const loss11 = await getLoss11(connection, type, filterYear, filterMonth);
-      
+
 
         return res.json({
             statusCode: 0, data: {
@@ -32,7 +32,7 @@ export async function get(req, res) {
                 profit,
                 newCustomers,
                 topCustomers,
-                loss,loss1,profit1,loss11,loss01
+                loss, loss1, profit1, loss11, loss01
             }
         })
     }
@@ -320,8 +320,8 @@ GROUP BY A.COMPCODE`;
 export async function getShortShipmentRatio(req, res) {
     const connection = await getConnection(res)
     try {
-        const { filterCat ,filterBuyer} = req.query; 
-        console.log(filterBuyer,"filterBuyer")
+        const { filterCat, filterBuyer } = req.query;
+        console.log(filterBuyer, "filterBuyer")
         let sql
         if (filterCat === 'Birthday') {
             sql =
@@ -349,8 +349,8 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA
 ORDER BY TO_CHAR(A.DOB, 'MM-DD')
 `
         }
-        
-        console.log(sql,"event Query sql")
+
+        console.log(sql, "event Query sql")
 
 
         const result = await connection.execute(sql)
@@ -376,3 +376,51 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
     }
 }
 
+
+export async function getESIPF(req, res) {
+    const connection = await getConnection(res)
+    try {
+        const { filterCat, filterSupplier, filterYear } = req.query;
+        console.log(filterSupplier, "filterSupplier")
+        let sql
+
+        sql = `
+        SELECT A.COMPCODE,A.PAYPERIOD ,EE.FINYR,SUM(A.ESI) ESI, SUM(A.PF) PF FROM HPAYROLL A
+JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD=A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+where EE.finyr ='${filterYear}'
+AND A.COMPCODE = '${filterSupplier}'
+group by A.COMPCODE,EE.FINYR,A.PAYPERIOD
+        
+        
+        
+        
+        
+        
+ 
+`
+        console.log(sql, "event Query sql")
+
+
+        const result = await connection.execute(sql)
+        let resp = result.rows.map(po => ({
+            customer: po[0],
+            month: po[1],
+            Year: po[2],
+            esi: po[3],
+            pf: po[4]
+
+
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}

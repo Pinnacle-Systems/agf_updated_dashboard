@@ -3,10 +3,16 @@ const month = ["January", "February", "March", "April", "May", "June", "July", "
 const d = new Date();
 const monthName = month[d.getMonth()];
 const yearName = d.getFullYear();
-const lastmonth = month[d.getMonth() - 1]
-const currentDt = [monthName, yearName].join(' ')
-const lstMnth = [lastmonth, yearName].join(' ')
-console.log(lastmonth, 'mnth');
+
+const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 2, d.getDate());
+const lastMonthName = month[lastMonthDate.getMonth()];
+const lastMonthYear = lastMonthDate.getFullYear();
+
+const currentDt = [monthName, yearName].join(' ');
+const lstMnth = [lastMonthName, lastMonthYear].join(' ');
+
+
+
 export async function getEmployees(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
     let result = ''
     if (type === "Value") {
@@ -39,12 +45,11 @@ GROUP BY COMPCODE
 
  
  `
-        console.log(sql, '23');
+
 
 
         result = await connection.execute(sql)
     }
-    console.log(result, 'res');
 
     result = result.rows.map(row => ({
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
@@ -84,12 +89,10 @@ GROUP BY COMPCODE
 
  
  `
-        console.log(sql, 'employeeRole');
 
 
         result = await connection.execute(sql)
     }
-    console.log(result, 'res');
 
     result = result.rows.map(row => ({
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
@@ -115,7 +118,7 @@ GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE,A.GENDER
 GROUP BY A.PAYPERIOD, A.STDT
 ORDER BY 2
 `
-        console.log(sql, 'sql22');
+
 
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
@@ -162,16 +165,14 @@ GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE,A.GENDER
 GROUP BY A.PAYPERIOD, A.STDT
 ORDER BY 2
 `
-        console.log(sql, 'profit2');
 
         result = await connection.execute(sql)
 
-    } 
+    }
     result = result.rows.map(row => ({
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
 
     }))
-    console.log(result," result for profit")    
     return result
 }
 export async function getNewCustomers(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {
@@ -185,7 +186,7 @@ JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
 JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID <> 'STAFF' 
 WHERE A.PAYPERIOD = '${lstMnth}') group by COMPCODE `
-console.log(sql,"sql12")
+        console.log(lstMnth);
 
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
@@ -232,7 +233,7 @@ WHERE A.PAYPERIOD = '${lstMnth}'
 )
 GROUP BY COMPCODE
 `
-        console.log(sql, '168');
+
 
 
         result = await connection.execute(sql)
@@ -283,7 +284,7 @@ JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID <> 'STAFF'
 WHERE A.PAYPERIOD = '${lstMnth}' 
 )
 GROUP BY COMPCODE`
-        console.log(sql, 'lastmonthDetsql');
+        console.log(sql, 'sql125');
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
@@ -310,7 +311,6 @@ from dual) a
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
 
     }))
-    console.log(result,"resultpf")
     return result
 }
 export async function getLoss01(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {
@@ -333,7 +333,6 @@ WHERE A.PAYPERIOD = '${lstMnth}'
 )
 
 GROUP BY COMPCODE`
-        console.log(sql, 'lastmonthDetsql11');
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
@@ -360,7 +359,6 @@ from dual) a
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
 
     }))
-    console.log(result,"result for pfesi")
     return result
 }
 export async function getLoss1(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {
@@ -383,7 +381,6 @@ WHERE A.PAYPERIOD ='${lstMnth}'
 )
 
 GROUP BY COMPCODE`
-        console.log(sql, 'lastmonthDetsql1');
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
@@ -410,7 +407,6 @@ from dual) a
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
 
     }))
-    console.log(result,"result for pfesi")
     return result
 }
 export async function getLoss11(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {
@@ -420,20 +416,15 @@ export async function getLoss11(connection, type = "YEAR", filterYear, filterBuy
             `SELECT SUM(MALE) MALE,SUM(FEMALE) FEMALE,SUM(MALE)+SUM(FEMALE) TOTAL,COMPCODE FROM (
 
 SELECT A.COMPCODE,CASE WHEN AA.GENDER = 'MALE' THEN A.ESI ELSE 0 END MALE,
-
 CASE WHEN AA.GENDER = 'FEMALE' THEN A.ESI ELSE 0 END FEMALE FROM HPAYROLL A
-
 JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
-
 JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID = 'STAFF'
-
 WHERE A.PAYPERIOD ='${lstMnth}'
 )
-
 GROUP BY COMPCODE`
-        console.log(sql, 'lastmonthDetsql1');
+        console.log(sql, 'sql');
+
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
@@ -460,6 +451,5 @@ from dual) a
         prevValue: row[0], currentValue: row[1], currentQty: row[2], comCode: row[3]
 
     }))
-    console.log(result,"result for pfesi")
     return result
 }
