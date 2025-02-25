@@ -121,7 +121,7 @@ const Pf = () => {
         title: null,
         series: [
             {
-                name: 'PF',
+                name: 'ESI',
                 data: esiData,
                 color: '#FF0000',
                 marker: {
