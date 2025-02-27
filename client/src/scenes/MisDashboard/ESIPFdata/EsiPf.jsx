@@ -81,7 +81,10 @@ const Pf = () => {
             scrollablePlotArea: {
                 minWidth: 700,
             },
+            marginTop:10,
             type: 'line',
+            height: 360,  // Set the chart height
+            borderRadius: 10, // Rounded corners
         },
         xAxis: {
             categories: fabPlVsActFullDt.map((order) => {
@@ -132,20 +135,25 @@ const Pf = () => {
             },
         ],
     };
+    console.log(selectedYear,"selectYearfor")
 
     const [showModel, setShowModel] = useState(false);
     return (
         <CardWrapper heading="ESI Breakup" onFilterClick={() => { setShowModel(true) }}>
+              {showModel &&
+                <ModelMultiSelectChart4 color={color}
+                    showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
+                    selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
+            }
+            <div className='mt-2'>
             {orderCount > 0 ? (
                 <HighchartsReact highcharts={Highcharts} options={options} />
             ) : (
                 <div>No Data Available</div>
             )}
-            {showModel &&
-                <ModelMultiSelectChart4 color={color}
-                    showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
-                    selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
-            }
+          
+            </div>
+         
         </CardWrapper>
     );
 };

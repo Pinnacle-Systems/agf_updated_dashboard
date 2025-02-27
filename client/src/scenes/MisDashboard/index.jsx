@@ -68,6 +68,12 @@ const MisDashboard = () => {
                     setSelected={setSelected} option={option} />
                 <BloodGrp option={option} />
                 <div className="col-span-2 ">
+                    <EsiPf />
+                </div>
+                <div className="col-span-2 ">
+                    <PfData />
+                </div>
+                <div className="col-span-2 ">
                     <ChartTable />
 
                 </div>
@@ -81,12 +87,7 @@ const MisDashboard = () => {
                 <div className="col-span-2 ">
                     <ShortShip />
                 </div>
-                <div className="col-span-2 ">
-                    <EsiPf />
-                </div>
-                <div className="col-span-2 ">
-                    <PfData />
-                </div>
+               
             </div>
         </div>
     );

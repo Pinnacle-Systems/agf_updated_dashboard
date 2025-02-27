@@ -9,7 +9,7 @@ import { ColorContext } from '../../global/context/ColorContext';
 import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
 import { useGetEsiPfQuery } from '../../../redux/service/misDashboardService';
 
-const Pf = () => {
+const PfData = () => {
 
     // Add a click event for points
     Highcharts.addEvent(Highcharts.Point, 'click', function () {
@@ -81,7 +81,10 @@ const Pf = () => {
             scrollablePlotArea: {
                 minWidth: 700,
             },
+            marginTop:10,
             type: 'line',
+            height: 360,  // Set the chart height
+            borderRadius: 10, // Rounded corners
         },
         xAxis: {
             categories: fabPlVsActFullDt.map((order) => {
@@ -136,11 +139,14 @@ const Pf = () => {
     const [showModel, setShowModel] = useState(false);
     return (
         <CardWrapper heading="PF Breakup" onFilterClick={() => { setShowModel(true) }}>
+            <div className='mt-2'>
             {orderCount > 0 ? (
                 <HighchartsReact highcharts={Highcharts} options={options} />
             ) : (
                 <div>No Data Available</div>
             )}
+            </div>
+           
             {showModel &&
                 <ModelMultiSelectChart4 color={color}
                     showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
@@ -150,4 +156,4 @@ const Pf = () => {
     );
 };
 
-export default Pf;
+export default PfData;
