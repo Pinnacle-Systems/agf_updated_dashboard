@@ -56,7 +56,6 @@ const Retention = () => {
         },
         xAxis: {
             categories: fabPlVsActFullDt.map((order) => order.payPeriod),
-
             labels: {
                 rotation: -90,
                 step: 1,
@@ -81,9 +80,14 @@ const Retention = () => {
                     fontSize: '10px'
                 },
                 formatter: function () {
-                    return this.value.toLocaleString();
+                    return this.value.toFixed(2).toLocaleString();
                 }
             },
+        },
+        tooltip: {
+            formatter: function () {
+                return `<b>${this.x}</b><br/>Retention: <b>${this.y.toFixed(2)}</b>`;
+            }
         },
         plotOptions: {
             column: {
@@ -111,14 +115,14 @@ const Retention = () => {
             {
                 name: 'Retention',
                 data: fabPlVsActFullDt.map((order) => ({
-                    y: order.retention,
+                    y: parseFloat(order.retention.toFixed(2)), // Ensuring two decimal places
                     color: '#2bc97a'
                 })),
                 color: '#2bc97a',
             },
         ],
     };
-
+    
     const orderDataGridRows = [
         ...fabPlVsActFullDt.map((order, index) => ({
             id: index,

@@ -57,88 +57,7 @@ const ShortShipmentRatio = () => {
     const todayDate = formatDateForComparison(new Date());
 
     return (
-        <CardWrapper heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
-            
-            <div className='h-[350px] overflow-scroll mt-2 rounded' style={{ borderRadius: "10px" }}>
-            <div className="flex w-[100%] justify-end bg-white ">
-                <div className='flex gap-2 items-center justify-center mr-5 '>
-                    <label htmlFor="birthday" style={{fontSize:"14px"}}>Birthday :</label>
-                    <input
-                        type="radio"
-                        id="birthday"
-                        name='view'
-                        value='Birthday'
-                        checked={category === 'Birthday'}
-                        onChange={handleOptionChange}
-                    />
-
-                    <label htmlFor="anniversary" style={{fontSize:"14px"}}>Work Anniversary:</label>
-                    <input
-                        type="radio"
-                        id="anniversary"
-                        name='view'
-                        value='Anniversary'
-                        checked={category === 'Anniversary'}
-                        onChange={handleOptionChange}
-                    />
-                </div>
-                <div className="flex group relative justify-end">
-  <button
-    className="bg-blue-500 hover:bg-blue-600 rounded-md p-2 flex items-center justify-center h-8 w-8 text-white font-medium transition-all duration-300 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-    onClick={() => refetch()}
-    aria-label="Refresh"
-  >
-    <HiOutlineRefresh size={20} />
-  </button>
-  <span className="group-hover:opacity-100 group-hover:translate-y-0 transition-all bg-gray-900 px-2 py-1 text-xs text-gray-100 rounded-md shadow-md absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 opacity-0">
-    Refresh
-  </span>
-</div>
-
-            </div>
-            <table className="min-w-full bg-white border border-gray-200 h-full " style={{ borderRadius: "10px" }}>
-                    <thead>
-                        <tr>
-                            <th className="py-1 px-2 border font-medium text-sm">S No</th>
-                            <th className="py-1 px-2 border font-medium text-sm">Id Card</th>
-                            <th className="py-1 px-2 border font-medium text-sm">Name</th>
-                            <th className="py-1 px-2 border font-medium text-sm">Company</th>
-                            {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">DOB</th>} 
-                            {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">Age</th>}
-                            {category === 'Anniversary' &&  <th className="py-1 px-2 border font-medium text-sm">DOJ</th>}
-                             {category === 'Anniversary' && <th className="py-1 px-2 border font-medium text-sm">Exp</th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {shipData.map((item, index) => {
-                            const isTodayDOB = todayDate === formatDateForComparison(item.dob);
-                            const isTodayDOJ = todayDate === formatDateForComparison(item.doj);
-
-                            return (
-                                <tr key={index}>
-                                    <td className="py-1 px-2 border text-[12px]">{index + 1}</td>
-                                    <td className="py-1 px-2 border text-[12px]">{item.idCard}</td>
-                                    <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
-                                    <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
-
-                                    {category === 'Birthday' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                        {currentDate(item.dob)}
-                                    </td>}
-                                    {category === 'Birthday' &&<td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                        {item.age}
-                                    </td>}
-                                   {category === 'Anniversary' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                        {currentDate(item.doj)}
-                                    </td>}
-                                    {category === 'Anniversary' &&  <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
-                                        {item.exp}
-                                    </td>}
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div >
+        <>
             {showModel && (
                     <BuyerMultiSelect4
                     category={category}
@@ -151,7 +70,84 @@ const ShortShipmentRatio = () => {
                         refetch={refetch}
                     />
                 )}
-        </CardWrapper>
+                    <CardWrapper heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
+                
+                <div className='h-[350px] overflow-scroll mt-2 rounded' style={{ borderRadius: "10px" }}>
+                <div className="flex w-[100%] justify-end bg-white ">
+                    <div className='flex gap-2 items-center justify-center mr-5 '>
+                        <label htmlFor="birthday" style={{fontSize:"14px"}}>Birthday :</label>
+                        <input
+                            type="radio"
+                            id="birthday"
+                            name='view'
+                            value='Birthday'
+                            checked={category === 'Birthday'}
+                            onChange={handleOptionChange}
+                        />
+    
+                        <label htmlFor="anniversary" style={{fontSize:"14px"}}>Work Anniversary:</label>
+                        <input
+                            type="radio"
+                            id="anniversary"
+                            name='view'
+                            value='Anniversary'
+                            checked={category === 'Anniversary'}
+                            onChange={handleOptionChange}
+                        />
+                    </div>
+                    <div className="flex group relative justify-end">
+     
+    </div>
+    
+                </div>
+                <table className="min-w-full bg-white border border-gray-200 h-full " style={{ borderRadius: "10px" }}>
+                        <thead>
+                            <tr>
+                                <th className="py-1 px-2 border font-medium text-sm">S No</th>
+                                <th className="py-1 px-2 border font-medium text-sm">Id Card</th>
+                                <th className="py-1 px-2 border font-medium text-sm">Name</th>
+                                <th className="py-1 px-2 border font-medium text-sm">Company</th>
+                                {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">DOB</th>} 
+                                {category === 'Birthday' && <th className="py-1 px-2 border font-medium text-sm">Age</th>}
+                                {category === 'Anniversary' &&  <th className="py-1 px-2 border font-medium text-sm">DOJ</th>}
+                                 {category === 'Anniversary' && <th className="py-1 px-2 border font-medium text-sm">Exp</th>}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {shipData.map((item, index) => {
+                                const isTodayDOB = todayDate === formatDateForComparison(item.dob);
+                                const isTodayDOJ = todayDate === formatDateForComparison(item.doj);
+    
+                                return (
+                                    <tr key={index}>
+                                        <td className="py-1 px-2 border text-[12px]">{index + 1}</td>
+                                        <td className="py-1 px-2 border text-[12px]">{item.idCard}</td>
+                                        <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
+                                        <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
+    
+                                        {category === 'Birthday' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                            {currentDate(item.dob)}
+                                        </td>}
+                                        {category === 'Birthday' &&<td className={`py-1 px-2 border text-center text-[12px] ${category === 'Birthday' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOB ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                            {item.age}
+                                        </td>}
+                                       {category === 'Anniversary' && <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                            {currentDate(item.doj)}
+                                        </td>}
+                                        {category === 'Anniversary' &&  <td className={`py-1 px-2 border text-center text-[12px] ${category === 'Anniversary' ? 'bg-sky-200 border-white ' : ''} ${isTodayDOJ ? 'bg-sky-200 border-white text-green-500 font-medium' : ''}`}>
+                                            {item.exp}
+                                        </td>}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div >
+        
+            </CardWrapper>
+        </>
+    
+        
     );
 };
 

@@ -425,7 +425,7 @@ JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID = 'STAFF'
 WHERE A.PAYPERIOD ='${lstMnth}'
 )
 GROUP BY COMPCODE`
-        console.log(sql, 'sql');
+        console.log(sql, 'sqlfor esi');
 
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
