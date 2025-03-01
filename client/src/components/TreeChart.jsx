@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
+import html2canvas from 'html2canvas';
+import { IoMdDownload } from "react-icons/io";import { CiMenuKebab } from 'react-icons/ci';
 import { ColorContext } from '../scenes/global/context/ColorContext';
 import CardWrapper from './CardWrapper';
 import BuyerMultiSelect from './ModelMultiSelect1';
@@ -11,17 +13,31 @@ Highcharts3D(Highcharts);
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [showModel, setShowModel] = useState(false);
-
-    const truncateText = (text, maxLength) => {
-        if (text.length > maxLength) {
-            return text.substring(0, maxLength) + '...';
-        }
-        return text;
-    };
-
+    const [showOptions, setShowOptions] = useState(false);
+    const chartRef = useRef(null);
     const { color } = useContext(ColorContext);
 
     const colorArray = ['#8A37DE', '#005E72', '#E5181C', '#056028', '#1F2937'];
+
+    const truncateText = (text, maxLength) => (text.length > maxLength ? text.substring(0, maxLength) + '...' : text);
+
+    const captureScreenshot = async () => {
+        if (chartRef.current) {
+            const chartElement = chartRef.current.container.current;
+            const canvas = await html2canvas(chartElement);
+            const image = canvas.toDataURL('image/png');
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'chart_screenshot.png';
+            link.click();
+        }
+    };
+
+    const toggleOptions = () => {
+        setShowOptions(!showOptions);
+    };
 
     const [chartOptions, setChartOptions] = useState({
         chart: {
@@ -35,84 +51,33 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 viewDistance: 25,
             },
             backgroundColor: '#FFFFFF',
-            borderRadius: "10px" // Add background color for better contrast
+            borderRadius: "10px"
         },
-        title: null, // Remove the title
-        legend: {
-            enabled: false, // Disable the legend since series name is not needed
-        },
+        title: null,
+        legend: { enabled: false },
         tooltip: {
-            headerFormat: '<b><span style="color: #2d2d2d;">Experience: {point.key}</span></b><br/>', // Bold and dark color for header
+            headerFormat: '<b><span style="color: #2d2d2d;">Experience: {point.key}</span></b><br/>',
             pointFormat: `
                 <span style="color: {point.color}; font-size: 12px;">\u25CF</span> 
-                Employees: <span style="color: #2d2d2d;"><b>{point.y}</b></span>`, // Using dynamic color for the point
-            style: {
-                fontSize: '10px',
-                color: 'black', // Default color for the rest of the tooltip text
-            },
+                Employees: <span style="color: #2d2d2d;"><b>{point.y}</b></span>`,
+            style: { fontSize: '10px', color: 'black' },
         },
-        
-        
         xAxis: {
             categories: [],
-            labels: {
-                style: {
-                    fontSize: '10px',
-                    color: '#6B7280', // Subtle color for x-axis labels
-                },
-            },
-            title: {
-                text: 'Experience', // Add a title to the x-axis
-                style: {
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    color: '#374151',
-                    paddingTop: "10px"
-                },
-                margin: 30,
-
-            },
+            labels: { style: { fontSize: '10px', color: '#6B7280' } },
+            title: { text: 'Experience', style: { fontSize: '12px', fontWeight: 'bold', color: '#374151' }, margin: 30 },
         },
         yAxis: {
-            title: {
-                text: 'No of Employees', // Title for y-axis
-                style: {
-                    fontSize: '12px',
-                    fontWeight: 'bold', // Bold the y-axis title
-                    color: '#374151',
-                },
-                margin: 25,
-
-            },
-            labels: {
-                style: {
-                    fontSize: '10px',
-                    color: '#6B7280', // Subtle color for y-axis labels
-                },
-            },
+            title: { text: 'No of Employees', style: { fontSize: '12px', fontWeight: 'bold', color: '#374151' }, margin: 25 },
+            labels: { style: { fontSize: '10px', color: '#6B7280' } },
         },
         plotOptions: {
-            column: {
-                depth: 25,
-                colorByPoint: true,
-                borderRadius: 5, // Add rounded corners for a modern look
-            },
+            column: { depth: 25, colorByPoint: true, borderRadius: 5 },
         },
         colors: colorArray,
-        series: [
-            {
-                name: '', // Remove series name
-                data: [],
-                dataLabels: {
-                    enabled: true,
-                    style: {
-                        fontSize: '10px',
-                        color: '#333', // Dark color for data labels
-                    },
-                },
-            },
-        ],
+        series: [{ name: '', data: [], dataLabels: { enabled: true, style: { fontSize: '10px', color: '#333' } } }],
     });
+
     useEffect(() => {
         if (overAllSuppCon && overAllSuppCon.length > 0) {
             const categories = overAllSuppCon.map(item => truncateText(item.supplier, 10));
@@ -125,19 +90,19 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
             }));
         }
     }, [overAllSuppCon]);
-    console.log(selected,"selected")
 
     return (
         <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
             <div
                 id="chart"
-                className="mt-2 mb-2 rounded-lg"
+                className="relative mt-2 mb-2 rounded-lg"
                 style={{
-                    width: '100%', 
+                    width: '100%',
                     height: '360px',
-                    backgroundColor: '#fff', 
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
-                    borderRadius: "10px"
+                    backgroundColor: '#fff',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    borderRadius: "10px",
+                    position: 'relative',
                 }}
             >
                 {showModel && (
@@ -149,8 +114,31 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                         setShowModel={setShowModel}
                     />
                 )}
-                     {selected && (
-                <HighchartsReact highcharts={Highcharts} options={chartOptions} />) }
+
+                {selected && (
+                    <HighchartsReact ref={chartRef} highcharts={Highcharts} options={chartOptions} />
+                )}
+
+                {/* Toggle Button & Screenshot Capture */}
+                <div className="absolute top-2 right-2 flex flex-col items-center">
+                    <button
+                        onClick={toggleOptions}
+                        className="bg-gray-100 text-black p-2 rounded-lg shadow-md hover:bg-gray-200"
+                    >
+                        <CiMenuKebab />
+                    </button>
+
+                    {showOptions && (
+                        <div className="mt-2 bg-white border rounded-lg shadow-md p-2">
+                            <button
+                                onClick={captureScreenshot}
+                                className="text-sm text-gray-700 hover:text-black"
+                            >
+                               <IoMdDownload  className="text-lg"/>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </CardWrapper>
     );

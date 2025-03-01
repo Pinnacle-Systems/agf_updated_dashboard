@@ -188,15 +188,14 @@ const NumericCard = ({ misData, selectedBuyer,
     let attritionPercentage = null;
     if (i === 1) {
       if (totalValueIndex0 && totalValueIndex0 !== 0) {
-          attritionPercentage = (totalValue * 100) / parseFloat(totalValueIndex0);
-          attritionPercentage = attritionPercentage.toFixed(2); 
-          console.log(`Attrition Percentage: ${attritionPercentage}%`);
+        attritionPercentage = (totalValue * 100) / parseFloat(totalValueIndex0);
+
+        attritionPercentage = attritionPercentage.toFixed(2);         console.log(`Attrition Percentage: ${attritionPercentage}%`);
       } else {
-          console.log('Error: totalValueIndex0 is invalid');
-          attritionPercentage = "0.00"; 
+        console.log('Error: totalValueIndex0 is invalid');
+        attritionPercentage = "0%"; 
       }
-  }
-  
+    }
     
   console.log(attritionPercentage,"attritionPercentage")
     return (
@@ -236,11 +235,10 @@ const NumericCard = ({ misData, selectedBuyer,
     : val.value.toLocaleString('en-IN')}
 </p>
 
-        
             <p className="text-lg font-bold mt-4 flex-1 text-right">
               {activeTabs[i] === "total"
                 ? i === 1
-                  ? `${attritionPercentage}%`
+                  ? `${attritionPercentage}`
                   : "100%"
                 : activeTabs[i] === "previousValue"
                 ? `${malePercentage}%`

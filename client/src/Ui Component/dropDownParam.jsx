@@ -29,12 +29,12 @@ export default function DropdownDt({ selected, setSelected, option }) {
       <div className="relative w-full">
         <button
           onClick={toggleDropdown}
-          className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+          className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm text-left flex items-center justify-between px-4 py-1 text-xs text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
           type="button"
         >
           <span>{selectedBuyer || 'Select Company'}</span>
           <svg
-            className="w-4 h-4 text-gray-500"
+            className="w-3 h-3 text-gray-500"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -55,16 +55,16 @@ export default function DropdownDt({ selected, setSelected, option }) {
               {buyerOptions.map((option) => (
                 <label
                   key={option.value}
-                  className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2"
+                  className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-1"
                   onClick={() => handleOptionChange(option.value)} // Set selectedBuyer on click
                 >
                   <input
                     type="checkbox"
                     checked={selectedBuyer === option.value} // Check if this option is selected
                     onChange={() => handleOptionChange(option.value)} // Update selectedBuyer when clicked
-                    className="mr-2 border border-gray-300 rounded"
+                    className="mr-2 border border-gray-300 rounded w-3 h-3"
                   />
-                  <span className="text-sm text-gray-700">{option.label}</span>
+                  <span className="text-xs text-gray-700">{option.label}</span>
                 </label>
               ))}
             </div>

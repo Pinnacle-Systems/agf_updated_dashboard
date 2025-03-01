@@ -1,15 +1,37 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import { ColorContext } from '../../global/context/ColorContext';
+import html2canvas from 'html2canvas';
+import { IoMdDownload } from "react-icons/io";import { CiMenuKebab } from 'react-icons/ci';
 
 Highcharts3D(Highcharts);
 
 const BuyerWiseRevenueGen = ({ buyerRev }) => {
     const { color } = useContext(ColorContext);
+    const [showOptions, setShowOptions] = useState(false);
+    const chartRef = useRef(null);
 
-    const buyerWiseRev = buyerRev || []; 
+    const captureScreenshot = async () => {
+        if (chartRef.current) {
+            const chartElement = chartRef.current.chart.container;
+            const canvas = await html2canvas(chartElement);
+            const image = canvas.toDataURL('image/png');
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'chart_screenshot.png';
+            link.click();
+        }
+    };
+
+    const toggleOptions = () => {
+        setShowOptions((prev) => !prev);
+    };
+
+    const buyerWiseRev = buyerRev || [];
     const options = {
         chart: {
             type: 'pie',
@@ -20,7 +42,7 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
             backgroundColor: '#FFFFFF',
             width: 330,
             height: 350,
-            borderRadius: "10px"
+            borderRadius: 10
         },
         title: {
             text: '',
@@ -56,41 +78,58 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
         tooltip: {
             style: {
                 color: '#374151',
-                fontSize: '10px',
+                fontSize: '10px'
             },
-            headerFormat: '<b>Age: {point.key}</b><br/>',
+            headerFormat: '<b>Buyer: {point.key}</b><br/>',
             pointFormatter: function () {
                 return `
-                    <span style="color:${this.color}">\u25CF</span><span style="color: #2d2d2d;"> Employees: <b>${this.y.toLocaleString()}</b></span><br/>
+                    <span style="color:${this.color}">\u25CF</span>
+                    <span style="color: #2d2d2d;"> Revenue: <b>${this.y.toLocaleString()}</b></span><br/>
                 `;
             }
         },
-        
-        series: [{
-            name: 'Employees',
-            data: buyerWiseRev.map((item, index) => ({
-                name: item.buyer,
-                y: item.value,
-                color: index === 0 && color ? color : undefined 
-            }))
-        }],
+        series: [
+            {
+                name: 'Revenue',
+                data: buyerWiseRev.map((item, index) => ({
+                    name: item.buyer,
+                    y: item.value,
+                    color: index === 0 && color ? color : undefined
+                }))
+            }
+        ],
         credits: {
             enabled: false
         }
     };
-    
 
     return (
-        <div>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-                style={{ width: '100%', height: '100%',
-                    borderRadius : "10px"
-   
-                 }}
+        <div className="relative">
+            {/* Chart */}
+            <HighchartsReact highcharts={Highcharts} options={options} ref={chartRef} />
 
-            />
+            {/* Options Button */}
+            <div className="absolute top-2 right-2">
+                <button
+                    onClick={toggleOptions}
+                    className="bg-gray-100 text-black p-2 rounded-lg shadow-md hover:bg-gray-200"
+                >
+                    <CiMenuKebab size={18} />
+                </button>
+
+                {/* Options Dropdown */}
+                {showOptions && (
+                    <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-md p-2 z-10">
+                        <button
+                            onClick={captureScreenshot}
+                            className="flex items-center gap-2 text-sm text-gray-700 hover:text-black"
+                        >
+                           <IoMdDownload  className="text-lg"/>
+                          
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

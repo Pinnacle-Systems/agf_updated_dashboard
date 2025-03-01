@@ -31,7 +31,7 @@ const SelectBuyer1 = ({ selectedBuyer, setSelectedBuyer }) => {
     }, []);
 
     const handleOptionChange = (value) => {
-        setSelectedBuyer(value); // Update the selected buyer
+        setSelectedBuyer(value);
     };
 
     const toggleDropdown = () => {
@@ -43,13 +43,13 @@ const SelectBuyer1 = ({ selectedBuyer, setSelectedBuyer }) => {
             <button
                 onClick={toggleDropdown}
                 className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm 
-                           text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700
+                           text-left flex items-center justify-between px-4 py-1 text-xs text-gray-700
                            hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 type="button"
             >
                 <span>{selectedBuyer ? selectedBuyer : "Select Company"}</span>
                 <svg
-                    className="w-4 h-4 text-gray-500"
+                    className="w-3 h-3 text-gray-500"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -69,16 +69,16 @@ const SelectBuyer1 = ({ selectedBuyer, setSelectedBuyer }) => {
                             <div
                                 key={option.value}
                                 className="flex items-center hover:bg-gray-100 cursor-pointer px-4 py-2"
-                                onClick={() => handleOptionChange(option.value)} // Select the clicked option
+                                onClick={() => handleOptionChange(option.value)}
                             >
-                                 <input
-                  type="checkbox"
-                  value={option.value}
-                  checked={selectedBuyer === option.value} 
-                  onChange={() => handleOptionChange(option.value)} 
-                   className="form-radio h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
-                />
-                                <span className="text-sm text-gray-700">{option.label}</span>
+                                <input
+                                    type="checkbox"
+                                    value={option.value}
+                                    checked={selectedBuyer === option.value}
+                                    onChange={() => handleOptionChange(option.value)}
+                                    className="form-checkbox h-3 w-3 text-blue-600 border-gray-300 rounded mr-2"
+                                />
+                                <span className="text-xs text-gray-700">{option.label}</span>
                             </div>
                         ))}
                     </div>

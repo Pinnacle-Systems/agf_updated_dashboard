@@ -64,7 +64,7 @@ const SelectBuyer = ({
     <div ref={dropdownRef} className="relative w-64">
       <button
         onClick={toggleDropdown}
-        className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm text-left flex items-center justify-between px-4 py-1 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+        className="w-full bg-white border border-2 border-gray-800 rounded-md shadow-sm text-left flex items-center justify-between px-4 py-1 text-xs text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
         type="button"
       >
         <span>{selectedBuyer.length > 0 ? selectedBuyer.join(", ") : "Select Company"}</span>
@@ -86,7 +86,7 @@ const SelectBuyer = ({
         <div className="absolute mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
           <div className="max-h-70 overflow-y-auto py-2">
             {buyerOptions.map((option) => (
-              <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-2 py-1">
+              <label key={option.value} className="flex items-center hover:bg-gray-100 cursor-pointer px-2 py-1 text-sm">
                 <input
                   type="checkbox"
                   value={option.value}
@@ -94,9 +94,9 @@ const SelectBuyer = ({
                     option.value === "select_all" ? isSelectAllChecked : tempSelectedBuyer.includes(option.value)
                   }
                   onChange={handleOptionChange}
-                  className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded"
+                  className="form-checkbox h-3 w-3 text-blue-600 border-gray-300 rounded"
                 />
-                <span className="ml-3 text-sm text-gray-700">{option.label}</span>
+                <span className="ml-2 text-xs text-gray-700">{option.label}</span>
               </label>
             ))}
           </div>
