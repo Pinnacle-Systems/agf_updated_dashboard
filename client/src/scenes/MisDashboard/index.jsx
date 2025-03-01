@@ -78,9 +78,8 @@ const MisDashboard = () => {
 
                 </div>
                 <div className="col-span-2 ">
-                    <CardWrapper heading={"Retention Breakup"}>
+                   
                         <Retention />
-                    </CardWrapper>
                 </div>
 
 

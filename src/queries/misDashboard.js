@@ -102,6 +102,7 @@ GROUP BY COMPCODE
 
 export async function getProfit(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {
     let result;
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     if (type === "YEAR") {
 
         const sql = `SELECT A.PAYPERIOD, A.STDT,SUM(A.MALE) MALE,
@@ -110,18 +111,19 @@ SUM(A.FEMALE) FEMALE FROM
 CASE WHEN A.GENDER = 'FEMALE' THEN COUNT(*) ELSE 0 END FEMALE
 FROM MISTABLE A
 JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE
-AND B.PAYPERIOD ='${lstMnth}'AND A.PAYCAT = 'STAFF' 
-AND A.COMPCODE IN '${filterBuyer}'
+AND B.PAYPERIOD ='${lstMnth}'
+AND A.COMPCODE IN (${filterBuyerList}) 
 AND A.DOL BETWEEN B.STDT AND B.ENDT
 GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE,A.GENDER
 ) A
 GROUP BY A.PAYPERIOD, A.STDT
 ORDER BY 2
 `
-
+    console.log(sql,"sqlforAtt")
 
         result = await connection.execute(sql)
-    } else if (type === "MONTH") {
+    }
+     else if (type === "MONTH") {
         result = await connection.execute(`
         select
         COALESCE(ROUND(prevValue), 0) as prevValue,

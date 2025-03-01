@@ -44,6 +44,23 @@ export async function get(req, res) {
         await connection.close()
     }
 }
+export async function executeProcedure(req, res) {
+    const connection = await getConnection(res);
+    try {
+        await connection.execute(`BEGIN MISHR('aa'); END;`); 
+
+        res.json({ success: true, message: "Data refetch executed successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+
+
 
 export async function getOrdersInHand(req, res) {
     const connection = await getConnection(res)
@@ -271,14 +288,14 @@ export async function getActualVsBudget(req, res) {
 SELECT A.COMPCODE,CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
 CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE A.COMPCODE = 'AGF'
 AND A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = 'July 2024' 
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
 ) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = 'July 2024'
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
 ) )
 ) A
 GROUP BY A.COMPCODE`;
             console.log(sql, 'dqw');
-
+            
         } else {
             sql = `
                 SELECT A.FINYR,ORDERNO,A.BUYERCODE,A.TYPENAME,A.YARNCOST,A.FABRICCOST,A.ACCCOST,A.CMTCOST,
@@ -316,12 +333,10 @@ GROUP BY A.COMPCODE`;
         await connection.close();
     }
 }
-//Event Beakup Current Month
 export async function getShortShipmentRatio(req, res) {
     const connection = await getConnection(res)
     try {
         const { filterCat, filterBuyer } = req.query;
-        console.log(filterBuyer, "filterBuyer")
         let sql
         if (filterCat === 'Birthday') {
             sql =
@@ -350,7 +365,6 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
 `
         }
 
-        console.log(sql, "event Query sql")
 
 
         const result = await connection.execute(sql)
@@ -375,8 +389,6 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
         await connection.close()
     }
 }
-
-
 export async function getESIPF(req, res) {
     const connection = await getConnection(res)
     try {

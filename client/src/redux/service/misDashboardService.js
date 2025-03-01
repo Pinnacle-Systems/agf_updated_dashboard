@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL, MIS_DASHBOARD } from "../../constants/apiUrl";
 
 
-const MisDashboard = createApi({
+const MisDashboard = createApi({    
     reducerPath: 'MisDashboard',
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
@@ -74,6 +74,13 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        
+        executeProcedure: builder.mutation({
+                    query: () => ({
+                      url: MIS_DASHBOARD + "/execute-procedure",
+                      method:  "PUT",
+                    }),
+                  }),
         getBuyerWiseRevenue: builder.query({
             query: ({ params }) => {
                 return {
@@ -135,6 +142,7 @@ export const {
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,
     useGetYearlyCompQuery,
+    useExecuteProcedureMutation,
     useGetBuyerWiseRevenueQuery,
     useGetBudgetVsActualQuery,
     useGetShortShipmantRatioQuery,

@@ -8,6 +8,10 @@ import Movable from "./Movable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers, faMale, faFemale } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import { FaSyncAlt } from "react-icons/fa";
+import { useExecuteProcedureMutation } from "../redux/service/misDashboardService";
+
+
 const NumericCard = ({ misData, selectedBuyer,
   setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer
 
@@ -26,6 +30,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
   const loss1 = misData?.data?.loss1 || [];
   const loss11 = misData?.data?.loss11 || [];
+  const [executeProcedure] = useExecuteProcedureMutation();
 
   const { color } = useContext(ColorContext);
 
@@ -50,6 +55,14 @@ const NumericCard = ({ misData, selectedBuyer,
   const filterLoss11 = loss11.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
+  const handleClick = async () => {
+    try {
+      const response = await executeProcedure().unwrap();
+      alert(response.message);
+    } catch (error) {
+      alert("Error: " + error.data?.error || "Failed to execute procedure");
+    }
+  };
   var currMonthName = moment().format('MMM YY');
   var prevMonthName = moment().subtract(1, "month").format('MMM YY');
   console.log(currMonthName);
@@ -152,127 +165,142 @@ const NumericCard = ({ misData, selectedBuyer,
           />
         </Movable>
       )}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
-        {data.map((val, i) => {
-          const totalValueIndex0 = data[0].value + data[0].previousValue;
-          const totalValue = val.value + val.previousValue;
-          const malePercentage = calculatePercentage(val.previousValue, (i === 1) ? totalValueIndex0 : totalValue);
-          const femalePercentage = calculatePercentage(val.value, (i === 1) ? totalValueIndex0 : totalValue);
+    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
+  {/* Refresh Button (Moved Outside the Loop) */}
+  <button
+    className="absolute right-0 top-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-b from-gray-300 to-gray-400 text-gray-800 shadow-[3px_3px_0px_#888] hover:brightness-105 active:shadow-none active:translate-y-1 active:scale-95 transition-all duration-200 group"
+    onClick={handleClick}
+  >
+    <FaSyncAlt className="text-base drop-shadow-sm" />
+    <span className="text-xs font-semibold hidden group-hover:inline-block">
+      Refresh
+    </span>
+  </button>
 
-
-          return (
-            <div
-              key={i}
-              className="group relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 h-[138px] p-3"
+  {/* Data Mapping */}
+  {data.map((val, i) => {
+    const totalValueIndex0 = data[0].value + data[0].previousValue;
+    const totalValue = val.value + val.previousValue;
+    const malePercentage = calculatePercentage(val.previousValue, i === 1 ? totalValueIndex0 : totalValue);
+    const femalePercentage = calculatePercentage(val.value, i === 1 ? totalValueIndex0 : totalValue);
+    
+     console.log(totalValueIndex0,"totalValueIndex0")
+    let attritionPercentage = null;
+    if (i === 1) {
+      if (totalValueIndex0 && totalValueIndex0 !== 0) {
+          attritionPercentage = (totalValue * 100) / parseFloat(totalValueIndex0);
+          attritionPercentage = attritionPercentage.toFixed(2); 
+          console.log(`Attrition Percentage: ${attritionPercentage}%`);
+      } else {
+          console.log('Error: totalValueIndex0 is invalid');
+          attritionPercentage = "0.00"; 
+      }
+  }
+  
+    
+  console.log(attritionPercentage,"attritionPercentage")
+    return (
+      <div
+        key={i} // Key should be on the outermost element
+        className="group relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 h-[138px] p-3"
+      >
+        <div className="text-center">
+          <div className="flex justify-between items-center">
+            <h4 className="text-[16px] font-semibold text-gray-800 truncate">
+              {val.heading}
+            </h4>
+            <span
+              className="text-gray-600 text-2xl transition-transform duration-300"
+              style={{ color: color ? `${color}` : "#4B5563" }}
             >
-              <div className="text-center">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-[16px] font-semibold text-gray-800 truncate">
-                    {val.heading}
-                  </h4>
-                  <span
-                    className="text-gray-600 text-2xl transition-transform duration-300"
-                    style={{ color: color ? `${color}` : "#4B5563" }}
-                  >
-                    <FilterOptions isGroupHover onFilterClick={handleFilterClick} onInfoShowText={onInfoShowText} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  {/* Value Display */}
-                  <p
-                    className="text-lg font-bold mb-1 mt-4 flex-1 text-left"
-                                     >
-                    {activeTabs[i] === "total"
-                      ? totalValue.toLocaleString()
-                      : activeTabs[i] === "previousValue"
-                        ? val.previousValue.toLocaleString()
-                        : val.value.toLocaleString()}
-                  </p>
+              <FilterOptions
+                isGroupHover
+                onFilterClick={handleFilterClick}
+                onInfoShowText={onInfoShowText}
+              />
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            {/* Value Display */}
+            <p className="text-lg font-bold mb-1 mt-4 flex-1 text-left">
+  {activeTabs[i] === "total"
+    ? i >= 2 && i <= 4
+      ? `₹ ${totalValue.toLocaleString('en-IN')}`
+      : totalValue.toLocaleString('en-IN')
+    : activeTabs[i] === "previousValue"
+    ? i >= 2 && i <= 4
+      ? `₹ ${val.previousValue.toLocaleString('en-IN')}`
+      : val.previousValue.toLocaleString('en-IN')
+    : i >= 2 && i <= 4
+    ? `₹ ${val.value.toLocaleString('en-IN')}`
+    : val.value.toLocaleString('en-IN')}
+</p>
 
-                  {/* Icon Container */}
-                  <div className="ml-2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 shadow-md hover:bg-gray-300 transition-all duration-200">
-                    {activeTabs[i] === "total" && (
-                      <FontAwesomeIcon
-                        icon={faUsers}
-                        className="text-lg text-gray-700 opacity-40 hover:opacity-100 transition-opacity duration-200"
-                      />
-                    )}
-                    {activeTabs[i] === "previousValue" && (
-                      <FontAwesomeIcon
-                        icon={faMale}
-                        className="text-lg text-blue-600 opacity-50 hover:opacity-100 transition-opacity duration-200"
-                      />
-                    )}
-                    {activeTabs[i] !== "total" && activeTabs[i] !== "previousValue" && (
-                      <FontAwesomeIcon
-                        icon={faFemale}
-                        className="text-lg text-pink-600 opacity-40 hover:opacity-100 transition-opacity duration-200"
-                      />
-                    )}
-                  </div>
+        
+            <p className="text-lg font-bold mt-4 flex-1 text-right">
+              {activeTabs[i] === "total"
+                ? i === 1
+                  ? `${attritionPercentage}%`
+                  : "100%"
+                : activeTabs[i] === "previousValue"
+                ? `${malePercentage}%`
+                : `${femalePercentage}%`}
+            </p>
+          </div>
+        </div>
 
-                  {/* Percentage Display */}
-                  <p
-                    className="text-lg font-bold mt-4 flex-1 text-right"
-                   
-                  >
-                    {activeTabs[i] === "total"
-                      ? "100%"
-                      : activeTabs[i] === "previousValue"
-                        ? `${malePercentage}%`
-                        : `${femalePercentage}%`}
-                  </p>
-                </div>
-
-              </div>
-              <div className="flex justify-between mt-3">
-                <button
-                  onClick={() => toggleTab(i, "total")}
-                  className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${activeTabs[i] === "total"
-                    ? "text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
-                  style={
-                    activeTabs[i] === "total"
-                      ? { backgroundColor: color || "#CA8A04" }
-                      : {}
-                  }
-                >
-                  Total
-                </button>
-                <button
-                  onClick={() => toggleTab(i, "previousValue")}
-                  className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${activeTabs[i] === "previousValue"
-                    ? "bg-[#CA8A04] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
-                  style={
-                    activeTabs[i] === "previousValue"
-                      ? { backgroundColor: color || "#CA8A04" }
-                      : {}
-                  }
-                >
-                  Male
-                </button>
-                <button
-                  onClick={() => toggleTab(i, "value")}
-                  className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${activeTabs[i] === "value"
-                    ? "bg-[#CA8A04] text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
-                    }`}
-                  style={
-                    activeTabs[i] === "value"
-                      ? { backgroundColor: color || "#CA8A04" }
-                      : {}
-                  }
-                >
-                  Female
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {/* Tab Buttons */}
+        <div className="flex justify-between mt-3">
+          <button
+            onClick={() => toggleTab(i, "total")}
+            className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
+              activeTabs[i] === "total"
+                ? "text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+            }`}
+            style={
+              activeTabs[i] === "total"
+                ? { backgroundColor: color || "#CA8A04" }
+                : {}
+            }
+          >
+            Total
+          </button>
+          <button
+            onClick={() => toggleTab(i, "previousValue")}
+            className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${
+              activeTabs[i] === "previousValue"
+                ? "bg-[#CA8A04] text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+            }`}
+            style={
+              activeTabs[i] === "previousValue"
+                ? { backgroundColor: color || "#CA8A04" }
+                : {}
+            }
+          >
+            Male
+          </button>
+          <button
+            onClick={() => toggleTab(i, "value")}
+            className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
+              activeTabs[i] === "value"
+                ? "bg-[#CA8A04] text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
+            }`}
+            style={
+              activeTabs[i] === "value"
+                ? { backgroundColor: color || "#CA8A04" }
+                : {}
+            }
+          >
+            Female
+          </button>
+        </div>
       </div>
+    );
+  })}
+</div>
     </div>
   );
 };

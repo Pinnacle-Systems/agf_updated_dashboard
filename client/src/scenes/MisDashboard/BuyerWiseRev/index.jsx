@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-
-import { HiOutlineRefresh } from "react-icons/hi";
 import { useGetBuyerWiseRevenueQuery } from '../../../redux/service/misDashboardService';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
-import SelectBuyer from '../../../Ui Component/modelParam';
-import DropdownData from '../../../Ui Component/modelUi';
-
-
+import CardWrapper from '../../../components/CardWrapper';
+import ModelMultiSelectChart3 from '../../../components/ModelMultiSelectChart3 copy';
+import { ColorContext } from '../../global/context/ColorContext';
+import { useContext } from 'react';
 const Retention = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState('');
@@ -19,7 +15,8 @@ const Retention = () => {
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
-
+    const {color} = useContext(ColorContext)
+        const [showModel, setShowModel] = useState(false);
     const { data: fabPlVsActFull, isLoading: isyfActVsPlLoadingFull, refetch } = useGetBuyerWiseRevenueQuery({ params: { filterMonth: selectedMonth || '', filterSupplier: selectedBuyer || '', filterYear: selectedYear || '' } });
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } });
@@ -172,7 +169,12 @@ const Retention = () => {
     };
 
     return (
-        <ThemeProvider theme={theme}>
+        <CardWrapper heading={"Retention Breakup"} onFilterClick={() => { setShowModel(true) }} >
+                {showModel &&
+                                <ModelMultiSelectChart3 color={color}
+                                    showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
+                                    selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
+                            }
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div className="flex justify-end">
 
@@ -199,7 +201,7 @@ const Retention = () => {
                     <div>No Data Available</div>
                 )}
             </div>
-        </ThemeProvider>
+        </CardWrapper>
     );
 };
 
