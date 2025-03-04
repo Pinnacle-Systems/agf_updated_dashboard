@@ -35,25 +35,28 @@ const CardWrapper1 = ({ heading, children, chartRef, onFilterClick, showFilter =
 const closetoggle = async()=>{
   setShowOptions(false)
 }
-  const captureScreenshot = async () => {
-    if (!chartRef?.current) return;
+const captureScreenshot = async () => {
+  if (!chartRef?.current) return;
 
-    try {
-        const canvas = await html2canvas(chartRef.current, {
-            useCORS: true,
-            scale: 2,
-        });
+  try {
+    const canvas = await html2canvas(chartRef.current, {
+      useCORS: true,
+      scale: 2,
+    });
 
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = "chart_screenshot.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error("Screenshot capture failed:", error);
-    }
+    const image = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = image;
+
+    const formattedHeading = heading.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+    link.download = `${formattedHeading || "chart_screenshot"}.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Screenshot capture failed:", error);
+  }
 };
 
 
