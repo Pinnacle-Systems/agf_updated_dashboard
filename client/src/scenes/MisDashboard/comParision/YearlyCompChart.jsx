@@ -15,25 +15,8 @@ const YearlyComChart = () => {
     const { color } = useContext(ColorContext);
     const yearlyComparision = comparisionData?.data || [];
     const chartRef = useRef(null);
-    const [showOptions, setShowOptions] = useState(false);
 
-    const captureScreenshot = async () => {
-        if (chartRef.current) {
-            const chartElement = chartRef.current.container.current;
-            const canvas = await html2canvas(chartElement);
-            const image = canvas.toDataURL('image/png');
-            
-            // Create download link
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = 'chart_screenshot.png';
-            link.click();
-        }
-    };
-
-    const toggleOptions = () => {
-        setShowOptions(!showOptions);
-    };
+   
 
     const groupedData = yearlyComparision.reduce((acc, curr) => {
         if (!acc[curr.year]) {
@@ -148,44 +131,27 @@ const YearlyComChart = () => {
     };
 
     return (
-        <CardWrapper heading={"Employee Strength As On Date"} showFilter={false}>
-            <div id="chart" className="relative pt-2 rounded">
-                {/* Highcharts Graph */}
-                <HighchartsReact
-                    highcharts={Highcharts}
-                    options={options}
-                    ref={chartRef}
-                    containerProps={{
-                        style: {
-                            minWidth: '100%',
-                            height: '100%',
-                            borderRadius: "10px",
-                        }
-                    }}
-                />
+     <CardWrapper heading="Employee Strength As On Date" chartRef={chartRef} showFilter={false} Doption={true}>
+    <div id="chart" className="relative pt-2 rounded">
+    <HighchartsReact
+    highcharts={Highcharts}
+    options={options}
+    ref={(chartComponent) => {
+        if (chartComponent) {
+            chartRef.current = chartComponent.container.current;
+        }
+    }}
+    containerProps={{
+        style: {
+            minWidth: '100%',
+            height: '100%',
+            borderRadius: "10px",
+        }
+    }}
+/>
 
-                <div className="absolute top-5 right-2 flex flex-col items-center">
-                    <button
-                        onClick={toggleOptions}
-                        className="bg-gray-100 text-black p-2 rounded-lg shadow-md hover:bg-gray-200"
-                    >
-                       <CiMenuKebab />
-                    </button>
-
-                    {showOptions && (
-                        <div className="mt-2 bg-white border rounded-lg shadow-md p-2">
-                            <button
-                                onClick={captureScreenshot}
-                                className="text-sm text-gray-700 hover:text-black"
-                                
-                            >
-                                <IoMdDownload  className="text-lg"/>
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </CardWrapper>
+    </div>
+</CardWrapper>
     );
 };
 

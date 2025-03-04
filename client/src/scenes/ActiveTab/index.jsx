@@ -47,7 +47,7 @@ const ActiveTabList = () => {
                             <button
                                 onClick={() => {
                                     dispatch(push({ id: tab.id }));
-                                }} className=""
+                                }} className="" 
                             >
                                 {tab.name}
                             </button>

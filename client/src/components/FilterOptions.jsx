@@ -10,7 +10,7 @@ const FilterOptions = ({ onFilterClick, onInfoShowText, isGroupHover }) => {
 
     return (
         <div
-            className={`flex items-center space-x-4 p-1 rounded-lg transition-all duration-300 
+            className={`flex items-center space-x-4 p-1 pr-7 rounded-lg transition-all duration-300 
                 ${isGroupHover ? "opacity-0 group-hover:opacity-100 hover:cursor-pointer" : ""} 
                 hover:shadow-lg`}
         >

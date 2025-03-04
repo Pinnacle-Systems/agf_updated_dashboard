@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useRef, useContext } from "react";
 import BuyerWiseRevenueGen from "../BuyerWiseRev/BuyerWiseRevenue";
 import { useGetMisDashboardOrdersInHandQuery } from "../../../redux/service/misDashboardService";
 import BuyerMultiSelect from "../../../components/ModelMultiSelect1";
@@ -11,10 +11,14 @@ const PieChart = () => {
     const { data } = useGetMisDashboardOrdersInHandQuery({ params: { filterBuyer: selected } });
     const ordersInHandBuyerWise = data?.data || "";
     const { color } = useContext(ColorContext);
+    const chartRef = useRef(null); // Step 1: Create chartRef
+
     return (
-        <CardWrapper heading={"Age Distribution"} onFilterClick={() => { setShowModel(true) }}  >
+        <CardWrapper heading="Age Distribution" onFilterClick={() => setShowModel(true)} chartRef={chartRef}> 
+            {/* Step 2: Pass chartRef to CardWrapper */}
             <div
                 id="chart"
+                ref={chartRef} // Step 3: Attach ref to the chart div
                 className="mt-2 mb-2 rounded-lg"
                 style={{
                     width: '100%', 
@@ -24,19 +28,18 @@ const PieChart = () => {
                     borderRadius: "10px"
                 }}
             >
-            <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise}  color={color} />
+                <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise} color={color} />
             </div>
 
-                {showModel && (
-                    <BuyerMultiSelect
-                        selected={selected}
-                        setSelected={setSelected}
-                        color={color}
-                        showModel={showModel}
-                        setShowModel={setShowModel}
-                    />
-                )}
-            
+            {showModel && (
+                <BuyerMultiSelect
+                    selected={selected}
+                    setSelected={setSelected}
+                    color={color}
+                    showModel={showModel}
+                    setShowModel={setShowModel}
+                />
+            )}
         </CardWrapper>
     );
 };
