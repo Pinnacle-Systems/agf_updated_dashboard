@@ -5,10 +5,10 @@ import { HiOutlineRefresh } from 'react-icons/hi';
 import SelectBuyer from '../../../Ui Component/modelParam';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
 import { currentDate } from '../../../utils/hleper';
-import CardWrapper from '../../../components/CardWrapper';
 import { ColorContext } from '../../global/context/ColorContext';
 import BuyerMultiSelect from '../../../components/ModelMultiSelect1';
 import BuyerMultiSelect4 from '../../../components/ModelMultiSelect4';
+import CardWrapper1 from '../../../components/CardWrapper';
 
 const ShortShipmentRatio = () => {
     const [selectedBuyer, setSelectedBuyer] = useState('');
@@ -70,7 +70,7 @@ const ShortShipmentRatio = () => {
                         refetch={refetch}
                     />
                 )}
-                    <CardWrapper heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
+                    <CardWrapper1 heading={"Event's Breakup Current Month"} showFilter={true}  onFilterClick={() => { setShowModel(true) }} >
                 
                 <div className='h-[350px] overflow-scroll mt-2 rounded' style={{ borderRadius: "10px" }}>
                 <div className="flex w-[100%] justify-end bg-white ">
@@ -144,7 +144,7 @@ const ShortShipmentRatio = () => {
                     </table>
                 </div >
         
-            </CardWrapper>
+            </CardWrapper1>
         </>
     
         

@@ -397,14 +397,23 @@ export async function getESIPF(req, res) {
         let sql
 
         sql = `
-        SELECT A.COMPCODE,A.PAYPERIOD ,EE.FINYR,SUM(A.ESI) ESI, SUM(A.PF) PF FROM HPAYROLL A
+SELECT 
+    A.COMPCODE,
+    A.PAYPERIOD,
+    EE.FINYR,
+    SUM(A.ESI) AS ESI,
+    SUM(A.PF) AS PF,
+    COUNT(DISTINCT A.EMPID) AS HEADCOUNT,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+FROM HPAYROLL A
 JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
 JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD=A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
-where EE.finyr ='${filterYear}'
+JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+WHERE EE.FINYR = '${filterYear}'
 AND A.COMPCODE = '${filterSupplier}'
-group by A.COMPCODE,EE.FINYR,A.PAYPERIOD
+GROUP BY A.COMPCODE, EE.FINYR,A.PAYPERIOD,EE.STDT
+ORDER BY STDT1,STDT
+
  
 `
         console.log(sql, "event Query sql")
@@ -416,7 +425,8 @@ group by A.COMPCODE,EE.FINYR,A.PAYPERIOD
             month: po[1],
             Year: po[2],
             esi: po[3],
-            pf: po[4]
+            pf: po[4],
+            headCount:  po[5]
 
 
         }))

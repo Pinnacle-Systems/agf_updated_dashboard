@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
@@ -15,6 +15,7 @@ const ChartTable = () => {
     const [selectedYear, setSelectedYear] = useState('');
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
+     const chartRef = useRef()
     const [yearData, setYearData] = useState([]);
     const { color } = useContext(ColorContext);
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
@@ -145,12 +146,13 @@ const ChartTable = () => {
     const [showModel, setShowModel] = useState(false);
 
     return (
-        <CardWrapper heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }} >
+        <CardWrapper heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }}  chartRef={chartRef}  >
             <div style={{ display: 'flex', flexDirection: 'column',  }}>
             
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row',  }}>
-                        <div style={{ flex: '66%', minWidth: '100%' }} className='flex flex-col pt-2 rounded'>
+                        <div style={{ flex: '66%', minWidth: '100%' }} className='flex flex-col pt-2 rounded'
+                        ref = {chartRef}>
                             <HighchartsReact
                                 highcharts={Highcharts}
                                 options={options}

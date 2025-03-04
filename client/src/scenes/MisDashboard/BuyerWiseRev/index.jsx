@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -21,6 +21,7 @@ const Retention = () => {
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } });
     const { data: year } = useGetFinYearQuery({});
+    const chartRef = useRef(null)
 
     useEffect(() => {
         if (buyer?.data || month?.data || year?.data) {
@@ -173,7 +174,8 @@ const Retention = () => {
     };
 
     return (
-        <CardWrapper heading={"Retention Breakup"} onFilterClick={() => { setShowModel(true) }} >
+        <div ref={chartRef}>
+                <CardWrapper heading={"Retention Breakup"} onFilterClick={() => { setShowModel(true) }} chartRef={chartRef} >
                 {showModel &&
                                 <ModelMultiSelectChart3 color={color}
                                     showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
@@ -191,9 +193,9 @@ const Retention = () => {
                 </div>
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'>
+                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'  >
                             <HighchartsReact
-                                highcharts={Highcharts}
+                                highcharts={Highcharts} 
                                 options={options}
                                 containerProps={{ style: { minWidth: '70%', height: '350px' } }}
                             />
@@ -206,6 +208,8 @@ const Retention = () => {
                 )}
             </div>
         </CardWrapper>
+        </div>
+    
     );
 };
 

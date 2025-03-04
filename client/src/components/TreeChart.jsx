@@ -13,32 +13,16 @@ Highcharts3D(Highcharts);
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [showModel, setShowModel] = useState(false);
-    const [showOptions, setShowOptions] = useState(false);
-    const chartRef = useRef(null);
+
     const { color } = useContext(ColorContext);
+        const chartRef = useRef(null); // Step 1: Create chartRef
+    
 
     const colorArray = ['#8A37DE', '#005E72', '#E5181C', '#056028', '#1F2937'];
 
     const truncateText = (text, maxLength) => (text.length > maxLength ? text.substring(0, maxLength) + '...' : text);
 
-    const captureScreenshot = async () => {
-        if (chartRef.current) {
-            const chartElement = chartRef.current.container.current;
-            const canvas = await html2canvas(chartElement);
-            const image = canvas.toDataURL('image/png');
-
-            // Create download link
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = 'chart_screenshot.png';
-            link.click();
-        }
-    };
-
-    const toggleOptions = () => {
-        setShowOptions(!showOptions);
-    };
-
+  
     const [chartOptions, setChartOptions] = useState({
         chart: {
             type: 'column',
@@ -92,10 +76,11 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     }, [overAllSuppCon]);
 
     return (
-        <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}>
+        <CardWrapper heading="Experience Distribution" onFilterClick={() => setShowModel(true)}  chartRef={chartRef} >
             <div
                 id="chart"
                 className="relative mt-2 mb-2 rounded-lg"
+                ref={chartRef} 
                 style={{
                     width: '100%',
                     height: '360px',
@@ -116,29 +101,11 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 )}
 
                 {selected && (
-                    <HighchartsReact ref={chartRef} highcharts={Highcharts} options={chartOptions} />
+                    <HighchartsReact  highcharts={Highcharts} options={chartOptions} />
                 )}
 
                 {/* Toggle Button & Screenshot Capture */}
-                <div className="absolute top-2 right-2 flex flex-col items-center">
-                    <button
-                        onClick={toggleOptions}
-                        className="bg-gray-100 text-black p-2 rounded-lg shadow-md hover:bg-gray-200"
-                    >
-                        <CiMenuKebab />
-                    </button>
-
-                    {showOptions && (
-                        <div className="mt-2 bg-white border rounded-lg shadow-md p-2">
-                            <button
-                                onClick={captureScreenshot}
-                                className="text-sm text-gray-700 hover:text-black"
-                            >
-                               <IoMdDownload  className="text-lg"/>
-                            </button>
-                        </div>
-                    )}
-                </div>
+                
             </div>
         </CardWrapper>
     );

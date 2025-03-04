@@ -10,8 +10,8 @@ import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
 import { useGetEsiPfQuery } from '../../../redux/service/misDashboardService';
 
 const Pf = () => {
+     const chartRef = useRef(null)
 
-    // Add a click event for points
     Highcharts.addEvent(Highcharts.Point, 'click', function () {
         if (this.series.options.className?.includes('popup-on-click')) {
             const chart = this.series.chart;
@@ -46,7 +46,6 @@ const Pf = () => {
         }
     });
 
-    // Highcharts options
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
@@ -76,76 +75,101 @@ const Pf = () => {
     const esiData = fabPlVsActFullDt.map((item) => item.esi);
     const pfData = fabPlVsActFullDt.map((item) => item.pf);
 
+    const headCount = fabPlVsActFullDt.map((item) => item.headCount); 
+
     const options = {
         chart: {
             scrollablePlotArea: {
                 minWidth: 700,
             },
-            marginTop:10,
+            marginTop: 10,
             type: 'line',
-            height: 360,  // Set the chart height
-            borderRadius: 10, // Rounded corners
+            height: 360, 
+            borderRadius: 10, 
         },
         xAxis: {
             categories: fabPlVsActFullDt.map((order) => {
                 const month = new Date(order.month);
-                const monthAbbr = month.toLocaleString('default', { month: 'short' }); // 3-letter month abbreviation
-                const year = month.getFullYear().toString().slice(-2); // Last 2 digits of the year
+                const monthAbbr = month.toLocaleString('default', { month: 'short' }); 
+                const year = month.getFullYear().toString().slice(-2); 
                 return `${monthAbbr} ${year}`;
             }),
             title: {
                 text: 'Month',
+                style: { fontSize: '12px' }
             },
+            labels: {
+                style: { fontSize: '10px' }
+            }
         },
         yAxis: {
             min: 0,
             title: {
-                text: 'Amount',
+                text: 'ESI Amount',
+                style: { fontSize: '12px' }
             },
             labels: {
-                formatter: function () {
-                    return this.value; // Display raw values without formatting to millions
-                },
-            },
+                style: { fontSize: '10px' }
+            }
         },
         tooltip: {
             shared: true,
-            pointFormat: '<b>{series.name}</b>: {point.y:,.0f}<br/>',
+            style: { fontSize: '10px' },
+            formatter: function () {
+                let tooltip = `<b>${this.x}</b><br/>`;
+                this.points.forEach(point => {
+                    if (point.series.name === 'ESI') {
+                        tooltip += `<b>${point.series.name}</b>: ${point.y}<br/>`;
+                    }
+                });
+                const index = this.points[0].point.index;
+                tooltip += `<b>Headcount</b>: ${headCount[index]}`;
+                return tooltip;
+            }
+        },
+        legend: {
+            itemStyle: {
+                fontSize: '10px'
+            }
         },
         plotOptions: {
             series: {
                 marker: {
-                    enabled: true, // Enable markers by default
-                    radius: 4, // Marker size
-                    symbol: 'circle', // Marker shape
-                },
-            },
+                    enabled: true,
+                    radius: 4,
+                    symbol: 'circle',
+                }
+            }
         },
         title: null,
         series: [
             {
                 name: 'ESI',
                 data: esiData,
-                color: '#FF0000',
+                color: '#FF0000', 
                 marker: {
-                    fillColor: '#FF0000', // Marker color for this series
-                    lineWidth: 2, // Outline width
-                    lineColor: '#000000', // Outline color
-                },
-            },
-        ],
+                    fillColor: '#FF0000',
+                    lineWidth: 2,
+                    lineColor: '#000000',
+                }
+            }
+        ]
     };
+    
+    
+    
     console.log(selectedYear,"selectYearfor")
 
     const [showModel, setShowModel] = useState(false);
     return (
-        <CardWrapper heading="ESI Breakup" onFilterClick={() => { setShowModel(true) }}>
+        <CardWrapper heading="ESI Breakup" onFilterClick={() => { setShowModel(true) }} chartRef = { chartRef} >
               {showModel &&
                 <ModelMultiSelectChart4 color={color}
                     showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                     selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
             }
-            <div className='mt-2'>
+            <div className='mt-2'
+            ref = {chartRef} >
             {orderCount > 0 ? (
                 <HighchartsReact highcharts={Highcharts} options={options} />
             ) : (
