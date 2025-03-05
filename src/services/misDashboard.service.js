@@ -1,6 +1,7 @@
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
-import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss, getLoss1, getEmployees1, getProfit1, getLoss11, getLoss01 }
+import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss, getLoss1, getEmployees1,
+     getProfit1, getLoss11, getLoss01,getEmployeesDetail, getStaffDetail}
     from "../queries/misDashboard.js";
 
 
@@ -23,6 +24,8 @@ export async function get(req, res) {
 
         const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
         const loss11 = await getLoss11(connection, type, filterYear, filterMonth);
+        const empDet = await getEmployeesDetail(connection, type, filterYear, filterBuyer, filterMonth);
+        const staffDet = await getStaffDetail(connection, type, filterYear, filterBuyer, filterMonth);
 
 
         return res.json({
@@ -32,7 +35,7 @@ export async function get(req, res) {
                 profit,
                 newCustomers,
                 topCustomers,
-                loss, loss1, profit1, loss11, loss01
+                loss, loss1, profit1, loss11, loss01, empDet,staffDet
             }
         })
     }

@@ -221,7 +221,7 @@ const NumericCard = ({ misData, selectedBuyer,
           </div>
           <div className="flex justify-between items-center">
             {/* Value Display */}
-            <p className="text-lg font-bold mb-1 mt-4 flex-1 text-left">
+            <p className="text-lg font-bold mb-1 mt-4 flex-1 text-left cursor-pointer ">
   {activeTabs[i] === "total"
     ? i >= 2 && i <= 4
       ? `₹ ${totalValue.toLocaleString('en-IN')}`

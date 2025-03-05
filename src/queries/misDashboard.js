@@ -53,6 +53,87 @@ GROUP BY COMPCODE
     return result
 }
 
+export async function getStaffDetail(connection, type = 'Value',  currentDt = 'February 2025') {
+    if (!currentDt) {
+        throw new Error("currentDt is required");
+    }
+
+    let result = [];
+
+    if (type === "Value") {
+        const sql = `
+            SELECT FNAME,GENDER,DOJ,DEPARTMENT
+            FROM MISTABLE A  
+            WHERE 
+                A.PAYCAT = 'STAFF' 
+                AND A.DOJ <= (
+                    SELECT MIN(AA.STDT) 
+                    FROM MONTHLYPAYFRQ AA 
+                    WHERE AA.PAYPERIOD = :currentDt
+                ) 
+                AND (A.DOL IS NULL OR A.DOL <= (
+                    SELECT MIN(AA.ENDT) 
+                    FROM MONTHLYPAYFRQ AA 
+                    WHERE AA.PAYPERIOD = :currentDt
+                ))
+        `;
+
+        console.log(sql, "SQL for Employee total");
+
+        const queryResult = await connection.execute(sql, { currentDt });
+
+        result = queryResult.rows.map(row => {
+            return queryResult.metaData.reduce((acc, column, index) => {
+                acc[column.name] = row[index];
+                return acc;
+            }, {});
+        });
+    }
+
+    return result;
+}
+
+export async function getEmployeesDetail(connection, type = 'Value',  currentDt = 'February 2025') {
+    if (!currentDt) {
+        throw new Error("currentDt is required");
+    }
+
+    let result = [];
+
+    if (type === "Value") {
+        const sql = `
+            SELECT FNAME,GENDER,DOJ,DEPARTMENT
+            FROM MISTABLE A  
+            WHERE 
+                A.PAYCAT <> 'STAFF' 
+                AND A.DOJ <= (
+                    SELECT MIN(AA.STDT) 
+                    FROM MONTHLYPAYFRQ AA 
+                    WHERE AA.PAYPERIOD = :currentDt
+                ) 
+                AND (A.DOL IS NULL OR A.DOL <= (
+                    SELECT MIN(AA.ENDT) 
+                    FROM MONTHLYPAYFRQ AA 
+                    WHERE AA.PAYPERIOD = :currentDt
+                ))
+        `;
+
+        console.log(sql, "SQL for Employee total");
+
+        const queryResult = await connection.execute(sql, { currentDt });
+
+        result = queryResult.rows.map(row => {
+            return queryResult.metaData.reduce((acc, column, index) => {
+                acc[column.name] = row[index];
+                return acc;
+            }, {});
+        });
+    }
+
+    return result;
+}
+
+
 export async function getEmployees1(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
     let result = ''
     if (type === "Value") {

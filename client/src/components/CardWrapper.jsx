@@ -14,7 +14,7 @@ const DropdownOptions = ({ onDownload, onClose }) => (
       </button>
     </div>
 
-    <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
+    {/* <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
       <MdVisibility className="text-lg text-gray-600" /> View
     </button>
     <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
@@ -22,7 +22,7 @@ const DropdownOptions = ({ onDownload, onClose }) => (
     </button>
     <button className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
       <MdDelete className="text-lg text-red-600" /> Delete
-    </button>
+    </button> */}
     <button onClick={onDownload} className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
       <IoMdDownload className="text-lg text-green-600" /> Download
     </button>
