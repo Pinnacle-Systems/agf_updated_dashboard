@@ -7,7 +7,7 @@ const Header = ({
     selectedBuyer,
     setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer,
     refetch,
-    misData,
+    misData,search,setSearch
 }) => {
     console.log(selectedBuyer,"selectedBuyer")
     return (
@@ -26,6 +26,8 @@ const Header = ({
             setTempSelectedBuyer = {setTempSelectedBuyer}
             refetch={refetch}
             misData={misData}
+            setSearch = {setSearch}
+            search =  {search}
         />
         </>
       

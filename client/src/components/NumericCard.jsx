@@ -10,9 +10,10 @@ import { faUsers, faMale, faFemale } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import { FaSyncAlt } from "react-icons/fa";
 import { useExecuteProcedureMutation } from "../redux/service/misDashboardService";
+import DataDetailTable from "./DataDetailTable";
 
 
-const NumericCard = ({ misData, selectedBuyer,
+const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer
 
 }) => {
@@ -20,8 +21,11 @@ const NumericCard = ({ misData, selectedBuyer,
   const totalTurnOver1 = misData?.data?.totalTurnOver1 || [];
   const profit = misData?.data?.profit || [];
   const profit1 = misData?.data?.profit1 || [];
+  const employeeDet = misData?.data?.empDet || [];
   const [selectedState, setSelectedState] = useState("");
   const [showModel, setShowModel] = useState(false);
+  const [selectedIndex,setSelectedIndex] = useState(null) 
+  const [showTable,setShowTable] = useState(false) 
   
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
@@ -127,7 +131,7 @@ const NumericCard = ({ misData, selectedBuyer,
 
     },
   ];
-
+ 
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {
@@ -135,7 +139,8 @@ const NumericCard = ({ misData, selectedBuyer,
     newTabs[index] = tab;
     setActiveTabs(newTabs);
   };
-  console.log()
+  console.log(showTable,"showTable")
+ 
   const calculatePercentage = (value, totalValue) => {
     if (totalValue === 0) return 0;
     return ((value / totalValue) * 100).toFixed(2);
@@ -150,6 +155,9 @@ const NumericCard = ({ misData, selectedBuyer,
 
   return (
     <div className="flex w-full">
+            {showTable && <DataDetailTable selectedIndex = {selectedIndex} closeTable={()=> setShowTable(false)} employeeDet = {employeeDet}  setSearch = {setSearch}
+                search =  {search} />}
+
       {showModel && (
         <Movable divId="cardMovable">
           <ModelMultiSelect
@@ -221,7 +229,13 @@ const NumericCard = ({ misData, selectedBuyer,
           </div>
           <div className="flex justify-between items-center">
             {/* Value Display */}
-            <p className="text-lg font-bold mb-1 mt-4 flex-1 text-left cursor-pointer ">
+            <p
+  className="text-lg font-bold mb-1 mt-4 flex-1 text-left cursor-pointer hover:text-blue-600 transition"
+  onClick={() => {
+    setSelectedIndex(i);
+    setShowTable(true);
+  }}
+>
   {activeTabs[i] === "total"
     ? i >= 2 && i <= 4
       ? `₹ ${totalValue.toLocaleString('en-IN')}`
@@ -234,6 +248,7 @@ const NumericCard = ({ misData, selectedBuyer,
     ? `₹ ${val.value.toLocaleString('en-IN')}`
     : val.value.toLocaleString('en-IN')}
 </p>
+
 
             <p className="text-lg font-bold mt-4 flex-1 text-right">
               {activeTabs[i] === "total"

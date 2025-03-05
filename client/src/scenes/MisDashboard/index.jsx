@@ -27,8 +27,14 @@ const MisDashboard = () => {
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
     const [selectedPie, setSelectedPie] = useState();
-
-    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected })
+    const [search, setSearch] = useState({
+        FNAME: "",
+        GENDER: "",
+        DOJ: "",
+        DEPARTMENT: "",
+        COMPCODE: "",
+      });
+    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected,search })
 
     const overAllSuppCon = overAllSupData?.data || [];
 
@@ -40,6 +46,7 @@ const MisDashboard = () => {
             filterMonth: selectedMonth
         }
     });
+    console.log(search,"search")
 
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
     const option = buyer?.data || [];
@@ -55,6 +62,8 @@ const MisDashboard = () => {
                 tempSelectedBuyer={tempSelectedBuyer}
                 setTempSelectedBuyer={setTempSelectedBuyer}
                 refetch={refetch}
+                setSearch = {setSearch}
+                search =  {search}
                 misData={misData}
             />
             <div className='grid grid-cols-4 gap-1 p-0.5 py-1 '>

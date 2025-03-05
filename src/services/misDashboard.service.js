@@ -8,7 +8,7 @@ import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss, get
 export async function get(req, res) {
     const connection = await getConnection(res)
     try {
-        const { type, filterYear, filterBuyer, filterMonth } = req.query
+        const { type, filterYear, filterBuyer, filterMonth,search } = req.query
 
         const totalTurnOver = await getEmployees(connection, type, filterYear, filterBuyer, filterMonth);
         const totalTurnOver1 = await getEmployees1(connection, type, filterYear, filterBuyer, filterMonth);
@@ -24,8 +24,8 @@ export async function get(req, res) {
 
         const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
         const loss11 = await getLoss11(connection, type, filterYear, filterMonth);
-        const empDet = await getEmployeesDetail(connection, type, filterYear, filterBuyer, filterMonth);
-        const staffDet = await getStaffDetail(connection, type, filterYear, filterBuyer, filterMonth);
+        const empDet = await getEmployeesDetail(connection, type, filterYear, filterBuyer, filterMonth,search);
+        const staffDet = await getStaffDetail(connection, type, filterYear, filterBuyer, filterMonth,search);
 
 
         return res.json({

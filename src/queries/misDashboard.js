@@ -53,85 +53,101 @@ GROUP BY COMPCODE
     return result
 }
 
-export async function getStaffDetail(connection, type = 'Value',  currentDt = 'February 2025') {
-    if (!currentDt) {
-        throw new Error("currentDt is required");
-    }
+export async function getStaffDetail(connection, type = "Value", search = {}, filterBuyer) {
+  let result = [];
+  const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
+  if (type === "Value") {
+    let whereClause = `
+      A.PAYCAT = 'STAFF' AND 
+      A.COMPCODE =  ${filterBuyerList}
+      AND A.DOJ <= (
+        SELECT MIN(AA.STDT) 
+        FROM MONTHLYPAYFRQ AA 
+        WHERE AA.PAYPERIOD = '${currentDt}'
+      ) 
+      AND (A.DOL IS NULL OR A.DOL <= (
+        SELECT MIN(AA.ENDT) 
+        FROM MONTHLYPAYFRQ AA 
+        WHERE AA.PAYPERIOD = '${currentDt}'
+      ))
+    `;
 
-    let result = [];
+    
+    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER ( A.GENDER) LIKE LOWER( '${search.GENDER}%')`;
+    if (search.DOJ) whereClause += ` AND TO_CHAR(A.DOJ, 'YYYY-MM-DD') = '${search.DOJ}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
-    if (type === "Value") {
-        const sql = `
-            SELECT FNAME,GENDER,DOJ,DEPARTMENT
-            FROM MISTABLE A  
-            WHERE 
-                A.PAYCAT = 'STAFF' 
-                AND A.DOJ <= (
-                    SELECT MIN(AA.STDT) 
-                    FROM MONTHLYPAYFRQ AA 
-                    WHERE AA.PAYPERIOD = :currentDt
-                ) 
-                AND (A.DOL IS NULL OR A.DOL <= (
-                    SELECT MIN(AA.ENDT) 
-                    FROM MONTHLYPAYFRQ AA 
-                    WHERE AA.PAYPERIOD = :currentDt
-                ))
-        `;
+    const sql = `
+      SELECT FNAME, GENDER, DOJ, DEPARTMENT, COMPCODE
+      FROM MISTABLE A  
+      WHERE ${whereClause}
+    `;
 
-        console.log(sql, "SQL for Employee total");
+    console.log(sql, "SQL for Staff Detail");
 
-        const queryResult = await connection.execute(sql, { currentDt });
+    const queryResult = await connection.execute(sql);
 
-        result = queryResult.rows.map(row => {
-            return queryResult.metaData.reduce((acc, column, index) => {
-                acc[column.name] = row[index];
-                return acc;
-            }, {});
-        });
-    }
+    result = queryResult.rows.map((row) => {
+      return queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {});
+    });
+  }
 
-    return result;
+  return result;
 }
 
-export async function getEmployeesDetail(connection, type = 'Value',  currentDt = 'February 2025') {
-    if (!currentDt) {
-        throw new Error("currentDt is required");
-    }
+export async function getEmployeesDetail(connection, type = "Value", search = {},filterBuyer) {
+  let result = [];
+  const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
 
-    let result = [];
+  if (type === "Value") {
+    let whereClause = `
+      A.PAYCAT <> 'STAFF' AND
+      A.COMPCODE =  ${filterBuyerList}
+      AND A.DOJ <= (    
+        SELECT MIN(AA.STDT) 
+        FROM MONTHLYPAYFRQ AA 
+        WHERE AA.PAYPERIOD = '${currentDt}'
+      ) 
+      AND (A.DOL IS NULL OR A.DOL <= (
+        SELECT MIN(AA.ENDT) 
+        FROM MONTHLYPAYFRQ AA 
+        WHERE AA.PAYPERIOD = '${currentDt}'
+      ))
+    `;
 
-    if (type === "Value") {
-        const sql = `
-            SELECT FNAME,GENDER,DOJ,DEPARTMENT
-            FROM MISTABLE A  
-            WHERE 
-                A.PAYCAT <> 'STAFF' 
-                AND A.DOJ <= (
-                    SELECT MIN(AA.STDT) 
-                    FROM MONTHLYPAYFRQ AA 
-                    WHERE AA.PAYPERIOD = :currentDt
-                ) 
-                AND (A.DOL IS NULL OR A.DOL <= (
-                    SELECT MIN(AA.ENDT) 
-                    FROM MONTHLYPAYFRQ AA 
-                    WHERE AA.PAYPERIOD = :currentDt
-                ))
-        `;
+    // Apply search filters dynamically
+    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(TRIM(A.GENDER)) = LOWER(TRIM('${search.GENDER}'))`;
+    if (search.DOJ) whereClause += ` AND TO_CHAR(A.DOJ, 'YYYY-MM-DD') = '${search.DOJ}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
-        console.log(sql, "SQL for Employee total");
+    const sql = `
+      SELECT FNAME, GENDER, DOJ, DEPARTMENT, COMPCODE
+      FROM MISTABLE A  
+      WHERE ${whereClause}
+    `;
 
-        const queryResult = await connection.execute(sql, { currentDt });
+    console.log(sql, "SQL for Employee Detail");
 
-        result = queryResult.rows.map(row => {
-            return queryResult.metaData.reduce((acc, column, index) => {
-                acc[column.name] = row[index];
-                return acc;
-            }, {});
-        });
-    }
+    const queryResult = await connection.execute(sql);
 
-    return result;
+    result = queryResult.rows.map((row) => {
+      return queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {});
+    });
+  }
+
+  return result;
 }
+
 
 
 export async function getEmployees1(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
@@ -164,6 +180,7 @@ FROM (
 GROUP BY COMPCODE
 
  `
+ console.log(sql,"sql for empDet")
         result = await connection.execute(sql)
     }
 
