@@ -10,14 +10,14 @@ const ModelMultiSelect = ({
   color,
   selectedState,
   setSelectedState,
-  showModel,
+  showModel,payCat,setPayCat,
   setShowModel,
 }) => {
   const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [dragging, setDragging] = useState(false);
-  const startPosition = useRef(null);
+   const startPosition = useRef(null);
   
-
+console.log(payCat,selectedState,"payCat")
   // When the modal is shown, position it at the center
   useEffect(() => {
     if (showModel) {
@@ -130,8 +130,11 @@ const ModelMultiSelect = ({
       return (
         <button
           key={type}
-          onClick={() => setSelectedState(type)}
-          className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${bgClass} ${textClass} ${borderClass} ${
+          onClick={() => {
+            setSelectedState(type);
+            setPayCat(type);
+          }}
+                    className={`group relative flex items-center justify-center w-10 h-10 transition-all duration-300 rounded-full ${bgClass} ${textClass} ${borderClass} ${
             !isActive
               ? "border-2 hover:shadow-lg hover:scale-110"
               : "shadow-lg scale-105"

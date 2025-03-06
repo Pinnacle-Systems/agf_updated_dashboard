@@ -59,7 +59,7 @@ export async function getStaffDetail(connection, type = "Value", search = {}, fi
   if (type === "Value") {
     let whereClause = `
       A.PAYCAT = 'STAFF' AND 
-      A.COMPCODE =  ${filterBuyerList}
+      A.COMPCODE IN (${filterBuyerList})
       AND A.DOJ <= (
         SELECT MIN(AA.STDT) 
         FROM MONTHLYPAYFRQ AA 
@@ -100,55 +100,62 @@ export async function getStaffDetail(connection, type = "Value", search = {}, fi
   return result;
 }
 
-export async function getEmployeesDetail(connection, type = "Value", search = {},filterBuyer) {
-  let result = [];
-  const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
-
-  if (type === "Value") {
-    let whereClause = `
-      A.PAYCAT <> 'STAFF' AND
-      A.COMPCODE =  ${filterBuyerList}
-      AND A.DOJ <= (    
-        SELECT MIN(AA.STDT) 
-        FROM MONTHLYPAYFRQ AA 
-        WHERE AA.PAYPERIOD = '${currentDt}'
-      ) 
-      AND (A.DOL IS NULL OR A.DOL <= (
-        SELECT MIN(AA.ENDT) 
-        FROM MONTHLYPAYFRQ AA 
-        WHERE AA.PAYPERIOD = '${currentDt}'
-      ))
-    `;
-
-    // Apply search filters dynamically
-    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
-    if (search.GENDER) whereClause += ` AND LOWER(TRIM(A.GENDER)) = LOWER(TRIM('${search.GENDER}'))`;
-    if (search.DOJ) whereClause += ` AND TO_CHAR(A.DOJ, 'YYYY-MM-DD') = '${search.DOJ}'`;
-    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
-    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
-
-    const sql = `
-      SELECT FNAME, GENDER, DOJ, DEPARTMENT, COMPCODE
-      FROM MISTABLE A  
-      WHERE ${whereClause}
-    `;
-
-    console.log(sql, "SQL for Employee Detail");
-
-    const queryResult = await connection.execute(sql);
-
-    result = queryResult.rows.map((row) => {
-      return queryResult.metaData.reduce((acc, column, index) => {
-        acc[column.name] = row[index];
-        return acc;
-      }, {});
-    });
+export async function getEmployeesDetail(connection, type = "Value", search = {}, filterBuyer, payCat) {
+    let result = [];
+    console.log(payCat,search, "payCat for Employee");
+  
+    const filterBuyerList = filterBuyer
+      .split(',')
+      .map(buyer => `'${buyer.trim()}'`)
+      .join(',');
+  
+    if (type === "Value") {
+      let whereClause = `
+      
+         A.COMPCODE IN (${filterBuyerList})
+        AND A.DOJ <= (    
+          SELECT MIN(AA.STDT) 
+          FROM MONTHLYPAYFRQ AA 
+          WHERE AA.PAYPERIOD = '${currentDt}'
+        ) 
+        AND (A.DOL IS NULL OR A.DOL <= (
+          SELECT MIN(AA.ENDT) 
+          FROM MONTHLYPAYFRQ AA 
+          WHERE AA.PAYPERIOD = '${currentDt}'
+        ))
+      `;
+  
+      if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+      if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) LIKE LOWER('${search.GENDER}%')`;
+      if (search.MIDCARD) whereClause += ` AND A.MIDCARD LIKE '${search.MIDCARD}'`;
+      if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+      if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+  
+      const sql = `
+        SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE,PAYCAT
+        FROM MISTABLE A  
+        WHERE ${whereClause}
+      `;
+  
+      console.log(sql, "SQL for Employee Detail");
+  
+      try {
+        const queryResult = await connection.execute(sql);
+  
+        result = queryResult.rows.map((row) => {
+          return queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+          }, {});
+        });
+      } catch (error) {
+        console.error("Error executing query:", error);
+      }
+    }
+  
+    return result;
   }
-
-  return result;
-}
-
-
+  
 
 export async function getEmployees1(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
     let result = ''

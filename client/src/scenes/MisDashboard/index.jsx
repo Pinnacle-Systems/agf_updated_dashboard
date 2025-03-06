@@ -27,14 +27,15 @@ const MisDashboard = () => {
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
     const [selectedPie, setSelectedPie] = useState();
+    const [payCat,setPayCat] = useState ('')
     const [search, setSearch] = useState({
         FNAME: "",
         GENDER: "",
-        DOJ: "",
+        MIDCARD: "",
         DEPARTMENT: "",
         COMPCODE: "",
       });
-    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected,search })
+    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected,search, })
 
     const overAllSuppCon = overAllSupData?.data || [];
 
@@ -43,7 +44,7 @@ const MisDashboard = () => {
             filterYear: selectedYear,
             previousYear,
             filterBuyer: selectedBuyer,
-            filterMonth: selectedMonth
+            filterMonth: selectedMonth,payCat,search
         }
     });
     console.log(search,"search")
@@ -61,10 +62,12 @@ const MisDashboard = () => {
                 setSelectedBuyer={setSelectedBuyer}
                 tempSelectedBuyer={tempSelectedBuyer}
                 setTempSelectedBuyer={setTempSelectedBuyer}
-                refetch={refetch}
+                refetch={refetch}   
                 setSearch = {setSearch}
                 search =  {search}
                 misData={misData}
+                payCat = {payCat}
+                setPayCat = {setPayCat}
             />
             <div className='grid grid-cols-4 gap-1 p-0.5 py-1 '>
                 <YearlyComparisionBuyerWise

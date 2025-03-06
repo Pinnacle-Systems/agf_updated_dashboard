@@ -14,7 +14,7 @@ import DataDetailTable from "./DataDetailTable";
 
 
 const NumericCard = ({ misData, selectedBuyer,search,setSearch,
-  setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer
+  setSelectedBuyer,tempSelectedBuyer,setTempSelectedBuyer,payCat,setPayCat
 
 }) => {
   const totalTurnOver = misData?.data?.totalTurnOver || [];
@@ -22,6 +22,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const profit = misData?.data?.profit || [];
   const profit1 = misData?.data?.profit1 || [];
   const employeeDet = misData?.data?.empDet || [];
+  const staffDet  =  misData?.data ?.staffDet ||[];
   const [selectedState, setSelectedState] = useState("");
   const [showModel, setShowModel] = useState(false);
   const [selectedIndex,setSelectedIndex] = useState(null) 
@@ -155,7 +156,8 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
   return (
     <div className="flex w-full">
-            {showTable && <DataDetailTable selectedIndex = {selectedIndex} closeTable={()=> setShowTable(false)} employeeDet = {employeeDet}  setSearch = {setSearch}
+            {showTable && <DataDetailTable selectedIndex = {selectedIndex} closeTable={()=> setShowTable(false)}
+             employeeDet = {employeeDet}  setSearch = {setSearch} selectedState= {selectedState} setSelectedState = {setSelectedState}
                 search =  {search} />}
 
       {showModel && (
@@ -170,6 +172,8 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
             setShowModel={setShowModel}
             selectedState={selectedState}
             setSelectedState={setSelectedState}
+            payCat = {payCat}
+            setPayCat  = {setPayCat}
           />
         </Movable>
       )}
