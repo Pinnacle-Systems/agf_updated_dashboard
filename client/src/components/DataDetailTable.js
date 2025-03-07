@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { FaTimes, FaChevronLeft, FaChevronRight, FaStepBackward, FaStepForward, FaSearch, FaUserTie, FaUsers } from "react-icons/fa";
+import {
+  FaTimes, FaChevronLeft, FaChevronRight, FaStepBackward, FaStepForward, FaSearch,
+  FaUserTie, FaUsers, FaMars, FaVenus 
+} from "react-icons/fa";
+import { IoMaleFemale } from "react-icons/io5";
 
-const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelectedState }) => {
+const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedState,setSelectedState ,selectedGender,setSelectedGender, color}) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [filterType, setFilterType] = useState("all"); // 'all', 'employee', 'staff'
   const recordsPerPage = 20;
 
   useEffect(() => {
@@ -11,9 +14,12 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
   }, [employeeDet]);
 
   const handleFilterClick = (type) => {
-    setFilterType(type);
+    setSelectedState(type)
   };
-
+  console.log(selectedState,"selectedState")
+  const handleGenderFilter = (gender) => {
+    setSelectedGender(gender);
+  };
   const filteredData = employeeDet
     .filter((row) =>
       Object.keys(search).every((key) =>
@@ -21,10 +27,14 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
       )
     )
     .filter((row) => {
-      if (filterType === "employee") return row.PAYCAT !== "STAFF";
-      if (filterType === "staff") return row.PAYCAT === "STAFF";
-      return true; // Show all if no filter applied
-    });
+      if (selectedState === "Labour") return row.PAYCAT !== "STAFF";
+      if (selectedState === "Staff") return row.PAYCAT === "STAFF";
+      return true;
+    }).filter((row) => {
+      if (selectedGender === "Male") return row.GENDER !== "FEMALE";
+      if (selectedGender === "Female") return row.GENDER === "FEMALE";
+      return true;
+    })
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
@@ -38,7 +48,6 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-6 rounded-lg shadow-2xl w-5/6 relative">
 
-        {/* Close Button */}
         <button
           onClick={closeTable}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -46,42 +55,66 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
           <FaTimes size={20} />
         </button>
 
-        {/* Header */}
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">On Roll Insights</h2>
           <p className="text-sm text-gray-500 font-medium mt-1">Total Records: {totalRecords}</p>
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex justify-center gap-4 mb-3">
+        <div className="flex justify-center gap-2 mb-4">
+  <button
+    onClick={() => handleFilterClick("Labour")}
+    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${selectedState === "Labour" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+      focus:outline-none focus:ring-2 focus:ring-blue-400`}
+  >
+    <FaUserTie size={16} /> Employees
+  </button>
+
+  <button
+    onClick={() => handleFilterClick("Staff")}
+    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${selectedState === "Staff" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+      focus:outline-none focus:ring-2 focus:ring-blue-400`}
+  >
+    <FaUsers size={16} /> Staff
+  </button>
+
+  <button
+    onClick={() => handleFilterClick("all")}
+    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${selectedState === "All" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+      focus:outline-none focus:ring-2 focus:ring-blue-400`}
+  >
+    All
+  </button>
           <button
-            onClick={() => handleFilterClick("Labour") && setSelectedState("Labour")}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all 
-              ${filterType === "employee" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            onClick={() => handleGenderFilter("Male")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+              ${selectedGender === "Male" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
           >
-            <FaUserTie size={16} /> Employees
+            <FaMars size={16} className="text-blue-500" /> Male
           </button>
 
           <button
-            onClick={() => handleFilterClick("Staff") && setSelectedState("Staff")}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all 
-              ${filterType === "staff" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            onClick={() => handleGenderFilter("Female")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+              ${selectedGender === "Female" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
           >
-            <FaUsers size={16} /> Staff
+            <FaVenus size={16} className="text-pink-500" /> Female
           </button>
-
           <button
-            onClick={() => handleFilterClick("all")}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-md transition-all 
-              ${filterType === "all" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            onClick={() => handleGenderFilter("All")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+              ${selectedGender === "Both" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
           >
-            All
+            <IoMaleFemale  size={16} className="text-green-500" /> Both
           </button>
-        </div>
 
-        {/* Search Inputs */}
+         
+</div>
+
         <div className="grid grid-cols-5 gap-2 mb-3">
-          {["MIDCARD", "FNAME", "GENDER", "DEPARTMENT", "COMPCODE"].map((key) => (
+          {["MIDCARD", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
             <div key={key} className="relative">
               <input
                 type="text"
@@ -95,12 +128,10 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
           ))}
         </div>
 
-        {/* Two Tables Side by Side */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Left Table - First 10 Records */}
           <div className="overflow-x-auto max-h-[450px]">
             <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead className="bg-blue-600 text-white sticky top-0">
+              <thead className="bg-blue-600 text-white sticky top-0 tracking-wider">
                 <tr>
                   <th className="border p-2 text-left">ID Card</th>
                   <th className="border p-2 text-left">Name</th>
@@ -111,7 +142,7 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
               </thead>
               <tbody className="text-xs">
                 {currentRecords.slice(0, 10).map((row, index) => (
-                  <tr key={index} className="text-gray-700 bg-white even:bg-gray-100">
+                  <tr key={index} className="text-gray-700 bg-white even:bg-gray-100 ">
                     <td className="border p-2">{row.MIDCARD}</td>
                     <td className="border p-2">{row.FNAME}</td>
                     <td className="border p-2">{row.GENDER}</td>
@@ -123,10 +154,9 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
             </table>
           </div>
 
-          {/* Right Table - Next 10 Records */}
           <div className="overflow-x-auto max-h-[450px]">
             <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead className="bg-blue-600 text-white sticky top-0">
+              <thead className="bg-blue-600 text-white sticky top-0 tracking-wider">
                 <tr>
                   <th className="border p-2 text-left">ID Card</th>
                   <th className="border p-2 text-left">Name</th>
@@ -152,12 +182,45 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,setSelecte
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-4 space-x-2 text-sm">
-            <span className="text-sm font-semibold px-3">
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
-        )}
+  <div className="flex justify-center items-center mt-4 space-x-2 text-sm">
+    <button
+      onClick={() => setCurrentPage(1)}
+      disabled={currentPage === 1}
+      className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
+    >
+      <FaStepBackward size={16} />
+    </button>
+
+    <button
+      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+      disabled={currentPage === 1}
+      className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
+    >
+      <FaChevronLeft size={16} />
+    </button>
+
+    <span className="text-sm font-semibold px-3">
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <button
+      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className={`p-2 rounded-md ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
+    >
+      <FaChevronRight size={16} />
+    </button>
+
+    <button
+      onClick={() => setCurrentPage(totalPages)}
+      disabled={currentPage === totalPages}
+      className={`p-2 rounded-md ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
+    >
+      <FaStepForward size={16} />
+    </button>
+  </div>
+)}
+
       </div>
     </div>
   );

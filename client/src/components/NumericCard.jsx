@@ -27,6 +27,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const [showModel, setShowModel] = useState(false);
   const [selectedIndex,setSelectedIndex] = useState(null) 
   const [showTable,setShowTable] = useState(false) 
+    const [selectedGender, setSelectedGender] = useState("All");
   
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
@@ -156,11 +157,21 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
   return (
     <div className="flex w-full">
-            {showTable && <DataDetailTable selectedIndex = {selectedIndex} closeTable={()=> setShowTable(false)}
-             employeeDet = {employeeDet}  setSearch = {setSearch} selectedState= {selectedState} setSelectedState = {setSelectedState}
-                search =  {search} />}
-
-      {showModel && (
+          {showTable && (
+  <DataDetailTable
+    selectedIndex={selectedIndex}
+    closeTable={() => setShowTable(false)}
+     employeeDet={employeeDet}
+    setSearch={setSearch}
+    selectedState={selectedState}
+    setSelectedState={setSelectedState}
+    search={search}
+    selectedGender={selectedGender} 
+    setSelectedGender={setSelectedGender} 
+    color= {color}
+  />
+)}
+     {showModel && (
         <Movable divId="cardMovable">
           <ModelMultiSelect
             selectedBuyer={selectedBuyer}
@@ -240,7 +251,15 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
     setShowTable(true);
   }}
 >
-  {activeTabs[i] === "total"
+{ i === 0 
+    ? selectedGender === "All"
+      ? totalValue.toLocaleString('en-IN') // Show totalValue when "All" is selected
+      : selectedGender === "Male"
+      ? val.previousValue.toLocaleString('en-IN') // Show previousValue when "Male" is selected
+      : selectedGender === "Female"
+      ? val.value.toLocaleString('en-IN') // Show value when "Female" is selected
+      : null
+    : activeTabs[i] === "total"
     ? i >= 2 && i <= 4
       ? `₹ ${totalValue.toLocaleString('en-IN')}`
       : totalValue.toLocaleString('en-IN')
@@ -250,7 +269,9 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
       : val.previousValue.toLocaleString('en-IN')
     : i >= 2 && i <= 4
     ? `₹ ${val.value.toLocaleString('en-IN')}`
-    : val.value.toLocaleString('en-IN')}
+    : val.value.toLocaleString('en-IN') 
+}
+
 </p>
 
 
@@ -269,7 +290,10 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
         {/* Tab Buttons */}
         <div className="flex justify-between mt-3">
           <button
-            onClick={() => toggleTab(i, "total")}
+           onClick={() => {
+            toggleTab(i, "total");setSelectedGender("ALL");
+          }}
+          
             className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
               activeTabs[i] === "total"
                 ? "text-white"
@@ -284,7 +308,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
             Total
           </button>
           <button
-            onClick={() => toggleTab(i, "previousValue")}
+            onClick={() => {toggleTab(i, "previousValue"); setSelectedGender('Male')}}
             className={`w-1/3 px-1 py-1 text-xs font-medium shadow-md transition ${
               activeTabs[i] === "previousValue"
                 ? "bg-[#CA8A04] text-white"
@@ -299,7 +323,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
             Male
           </button>
           <button
-            onClick={() => toggleTab(i, "value")}
+            onClick={() => {toggleTab(i, "value"); setSelectedGender("Female")}}
             className={`w-1/3 px-1 py-1 rounded-r-full text-xs font-medium shadow-md transition ${
               activeTabs[i] === "value"
                 ? "bg-[#CA8A04] text-white"
