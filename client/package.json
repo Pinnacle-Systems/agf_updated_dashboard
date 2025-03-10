@@ -77,6 +77,7 @@
     "redux": "^5.0.1",
     "victory": "^37.0.2",
     "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5",
     "yup": "^1.0.0",
     "zingchart": "^2.9.13",
     "zingchart-react": "^3.2.0"

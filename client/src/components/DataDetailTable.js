@@ -4,6 +4,9 @@ import {
   FaUserTie, FaUsers, FaMars, FaVenus 
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
+import * as XLSX from "xlsx";
+import { FaFileExcel } from "react-icons/fa";
+
 
 const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedState,setSelectedState ,selectedGender,setSelectedGender, color}) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,12 +23,53 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const filteredData = employeeDet
-    .filter((row) =>
-      Object.keys(search).every((key) =>
-        row[key]?.toString().toLowerCase().includes(search[key]?.toLowerCase() || "")
-      )
-    )
+  const downloadExcel = () => {
+    if (filteredData.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+  
+    const headers = [["ID Card", "Name", "Gender", "Department", "Company"]];
+  
+    const data = filteredData.map((row) => [
+      row.MIDCARD,
+      row.FNAME,
+      row.GENDER,
+      row.DEPARTMENT,
+      row.COMPCODE,
+    ]);
+  
+    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+  
+    // Apply style to header row
+    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[cell_address]) continue;
+      
+      ws[cell_address].s = {
+        fill: { fgColor: { rgb: "FFFF00" } }, 
+        font: { bold: true, color: { rgb: "000000" } }, 
+        alignment: { horizontal: "center", vertical: "center" }, 
+      };
+    }
+  
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+  
+    XLSX.writeFile(wb, "Employee_Details.xlsx");
+  };
+  
+  
+  const filteredData = employeeDet.employees
+  .filter((row) =>
+    Object.keys(search).every((key) => {
+      const rowValue = row[key]?.toString().toLowerCase() || "";
+      const searchValue = search[key]?.toString().toLowerCase() || "";
+      return rowValue.includes(searchValue);
+    })
+  )
+  
     .filter((row) => {
       if (selectedState === "Labour") return row.PAYCAT !== "STAFF";
       if (selectedState === "Staff") return row.PAYCAT === "STAFF";
@@ -109,7 +153,12 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
           >
             <IoMaleFemale  size={16} className="text-green-500" /> Both
           </button>
-
+ <button
+          onClick={downloadExcel}
+          className="absolute top-21 right-40 bg-green-200 rounded text-green-600 hover:text-green-800 p-2 rounded-full transition-all"
+        >
+          <FaFileExcel size={22} /> 
+        </button>
          
 </div>
 
@@ -131,7 +180,7 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
             <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead className="bg-blue-600 text-white sticky top-0 tracking-wider">
+              <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
                   <th className="border p-2 text-left">ID Card</th>
                   <th className="border p-2 text-left">Name</th>
@@ -156,7 +205,7 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
 
           <div className="overflow-x-auto max-h-[450px]">
             <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead className="bg-blue-600 text-white sticky top-0 tracking-wider">
+              <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
                   <th className="border p-2 text-left">ID Card</th>
                   <th className="border p-2 text-left">Name</th>
