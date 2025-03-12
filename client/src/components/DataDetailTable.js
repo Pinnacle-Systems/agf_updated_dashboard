@@ -153,13 +153,18 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
           >
             <IoMaleFemale  size={16} className="text-green-500" /> Both
           </button>
- <button
-          onClick={downloadExcel}
-          className="absolute top-21 right-40 bg-green-200 rounded text-green-600 hover:text-green-800 p-2 rounded-full transition-all"
-        >
-          <FaFileExcel size={22} /> 
-        </button>
-         
+          <button
+  onClick={downloadExcel}
+  className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
+  title="Download Excel"
+>
+  <img
+    src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
+    alt="Download Excel"
+    className="w-8 h-8 rounded-lg"
+  />
+</button>
+
 </div>
 
         <div className="grid grid-cols-5 gap-2 mb-3">

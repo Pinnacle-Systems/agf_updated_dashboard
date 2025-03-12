@@ -50,10 +50,11 @@ console.log(payCat,selectedState,"payCat")
     setDragging(false);
   };
   const handleOkClick = () => {
-    setSelectedBuyer(tempSelectedBuyer); 
+    setSelectedBuyer([...tempSelectedBuyer]);
     setIsOpen(false);
-    setShowModel(false) 
+    setShowModel(false);
 };
+
     const [isOpen, setIsOpen] = useState(false);
 
 

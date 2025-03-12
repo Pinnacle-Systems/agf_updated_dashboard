@@ -11,6 +11,7 @@ import moment from "moment";
 import { FaSyncAlt } from "react-icons/fa";
 import { useExecuteProcedureMutation } from "../redux/service/misDashboardService";
 import DataDetailTable from "./DataDetailTable";
+import SalaryDetail from "./SalaryDet";
 
 
 const NumericCard = ({ misData, selectedBuyer,search,setSearch,
@@ -22,7 +23,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const profit = misData?.data?.profit || [];
   const profit1 = misData?.data?.profit1 || [];
   const employeeDet = misData?.data?.empDet || [];
-  const staffDet  =  misData?.data ?.staffDet ||[];
+  const salaryDet  =  misData?.data ?.salaryDet ||[];
   const [selectedState, setSelectedState] = useState("");
   const [showModel, setShowModel] = useState(false);
   const [selectedIndex,setSelectedIndex] = useState(null) 
@@ -52,6 +53,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const filteredTopCus = topCustomers.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
+  console.log(salaryDet,"salaryDet")
 
   const filterLoss = loss.filter((item) => selectedBuyer.includes(item.comCode));
   const filterLoss01 = loss01.filter((item) => selectedBuyer.includes(item.comCode));
@@ -153,11 +155,11 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   };
 
   const onInfoShowText = selectedState == "All" ? "All Employees" : selectedState;
-
+console.log(typeof(selectedIndex),"selectIndex")
 
   return (
     <div className="flex w-full">
-          {showTable && (
+          {showTable && selectedIndex=== 0 &&(
   <DataDetailTable
     selectedIndex={selectedIndex}
     closeTable={() => setShowTable(false)}
@@ -170,6 +172,21 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
     setSelectedGender={setSelectedGender} 
     color= {color}
   />
+)}
+{showTable  && selectedIndex=== 2 && (
+   <SalaryDetail
+   
+   selectedIndex={selectedIndex}
+   closeTable={() => setShowTable(false)}
+    salaryDet={salaryDet}
+   setSearch={setSearch}
+   selectedState={selectedState}
+   setSelectedState={setSelectedState}
+   search={search}
+   selectedGender={selectedGender} 
+   setSelectedGender={setSelectedGender} 
+   color= {color}
+ />
 )}
      {showModel && (
         <Movable divId="cardMovable">
