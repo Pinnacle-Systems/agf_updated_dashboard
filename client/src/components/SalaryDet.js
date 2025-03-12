@@ -85,6 +85,14 @@ const SalaryDetail = ({
   };
 
   const filteredData = salaryDet
+  .filter((row) =>
+    Object.keys(search).every((key) => {
+      const rowValue = row[key]?.toString().toLowerCase() || "";
+      const searchValue = search[key]?.toString().toLowerCase() || "";
+      return rowValue.includes(searchValue);
+    })
+  )
+  
     .filter((row) => {
       if (selectedState === "Labour") return row.PAYCAT !== "STAFF";
       if (selectedState === "Staff") return row.PAYCAT === "STAFF";
@@ -116,7 +124,7 @@ const SalaryDetail = ({
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-            On Roll Insights
+          Salary Insights
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}

@@ -54,39 +54,47 @@ GROUP BY COMPCODE
 }
 
 export async function getSalarydet(connection, type = "Value", search = {}, filterBuyer) {
-  let result = [];
-  const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
-  if (type === "Value") {
-   
-    const sql = `
-     SELECT * FROM 
-(SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,NVL(SUM(A.NETPAY),0) NETPAY
-FROM MISTABLE  DD
-LEFT JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
+    console.log(search,"searchSalaryDet")
+    let result = [];
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',');
+  
+    if (type === "Value") {
+       
+      if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+      if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+      if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+      if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+      if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+  
+      const sql = `
+        SELECT * FROM (
+SELECT
+DD.IDCARD EMPID,DD.FNAME FNAME,DD.GENDER GENDER,DD.DOJ DOJ,DD.DEPARTMENT,NVL(SUM(A.NETPAY), 0) AS NETPAY,DD.PAYCAT,DD.COMPCODE
+FROM MISTABLE DD
+LEFT JOIN HPAYROLL A ON A.EMPID = DD.IDCARD AND A.PCTYPE = 'ACTUAL' AND A.PAYPERIOD = '${lstMnth}'
 LEFT JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
 LEFT JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-LEFT JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID <> 'STAFF' 
-WHERE A.PCTYPE = 'ACTUAL' AND  A.PAYPERIOD = '${lstMnth}'
-GROUP BY A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT
+LEFT JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+GROUP BY DD.IDCARD,DD.FNAME,DD.GENDER,DD.DOJ,DD.DEPARTMENT,DD.PAYCAT,DD.COMPCODE
 ) A
 ORDER BY A.EMPID
-    `;
-
-    console.log(sql, "SQL for Staff Detail");
-
-    const queryResult = await connection.execute(sql);
-
-    result = queryResult.rows.map((row) => {
-      return queryResult.metaData.reduce((acc, column, index) => {
-        acc[column.name] = row[index];
-        return acc;
-      }, {});
-    });
+      `;
+  
+      console.log(sql, "SQL for Staffss Detail");
+  
+      const queryResult = await connection.execute(sql);
+  
+      result = queryResult.rows.map((row) => {
+        return queryResult.metaData.reduce((acc, column, index) => {
+          acc[column.name] = row[index];
+          return acc;
+        }, {});
+      });
+    }
+  
+    return result;
   }
-
-  return result;
-}
-
+  
 export async function getEmployeesDetail(connection, type = "Value", search = {}, filterBuyer, payCat) {
     let result = [];
     let totalCount = 0;

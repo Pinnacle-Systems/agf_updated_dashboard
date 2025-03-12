@@ -124,7 +124,7 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
   </button>
 
   <button
-    onClick={() => handleFilterClick("all")}
+    onClick={() => handleFilterClick("All")}
     className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
       ${selectedState === "All" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
       focus:outline-none focus:ring-2 focus:ring-blue-400`}

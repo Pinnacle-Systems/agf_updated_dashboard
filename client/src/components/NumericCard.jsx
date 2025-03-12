@@ -270,11 +270,11 @@ console.log(typeof(selectedIndex),"selectIndex")
 >
 { i === 0 
     ? selectedGender === "All"
-      ? totalValue.toLocaleString('en-IN') // Show totalValue when "All" is selected
+      ? totalValue.toLocaleString('en-IN') 
       : selectedGender === "Male"
-      ? val.previousValue.toLocaleString('en-IN') // Show previousValue when "Male" is selected
+      ? val.previousValue.toLocaleString('en-IN') 
       : selectedGender === "Female"
-      ? val.value.toLocaleString('en-IN') // Show value when "Female" is selected
+      ? val.value.toLocaleString('en-IN') 
       : null
     : activeTabs[i] === "total"
     ? i >= 2 && i <= 4
