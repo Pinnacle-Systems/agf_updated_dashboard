@@ -5,14 +5,19 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { FaFileExcel } from "react-icons/fa";
+import { useGetMisDashboardEmployeeDetQuery } from "../redux/service/misDashboardService";
 
 
-const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedState,setSelectedState ,selectedGender,setSelectedGender, color}) => {
+const DataDetailTable = ({ closeTable, search, setSearch,selectedState,setSelectedState,
+  selectedBuyer ,selectedGender,setSelectedGender, color, payCat}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
-
-  useEffect(() => {
+  const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetQuery({
+    params: {
+        filterBuyer: selectedBuyer,
+        search,payCat
+    }
+});  useEffect(() => {
     setCurrentPage(1);
   }, [employeeDet]);
 
@@ -61,24 +66,27 @@ const DataDetailTable = ({ closeTable, employeeDet, search, setSearch,selectedSt
   };
   
   
-  const filteredData = employeeDet.employees
-  .filter((row) =>
-    Object.keys(search).every((key) => {
-      const rowValue = row[key]?.toString().toLowerCase() || "";
-      const searchValue = search[key]?.toString().toLowerCase() || "";
-      return rowValue.includes(searchValue);
-    })
-  )
-  
-    .filter((row) => {
-      if (selectedState === "Labour") return row.PAYCAT !== "STAFF";
-      if (selectedState === "Staff") return row.PAYCAT === "STAFF";
-      return true;
-    }).filter((row) => {
-      if (selectedGender === "Male") return row.GENDER !== "FEMALE";
-      if (selectedGender === "Female") return row.GENDER === "FEMALE";
-      return true;
-    })
+  const filteredData = Array.isArray(employeeDet?.data)
+  ? employeeDet.data
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+  : [];
+
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;

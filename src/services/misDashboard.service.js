@@ -1,14 +1,25 @@
 import { getConnection } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
 import { getTopCustomers, getProfit, getEmployees, getNewCustomers, getLoss, getLoss1, getEmployees1,
-     getProfit1, getLoss11, getLoss01,getEmployeesDetail, getSalarydet}
+     getProfit1, getLoss11, getLoss01}
     from "../queries/misDashboard.js";
+    const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const d = new Date();
+const monthName = month[d.getMonth()];
+const yearName = d.getFullYear();
 
+const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate());
+const lastMonthName = month[lastMonthDate.getMonth()];
+const lastMonthYear = lastMonthDate.getFullYear();
+
+const currentDt = [monthName, yearName].join(' ');
+const lstMnth = [lastMonthName, lastMonthYear].join(' ');
 
 export async function get(req, res) {
     const connection = await getConnection(res)
     try {
         const { type, filterYear, filterBuyer, filterMonth,search ,payCat} = req.query
+        console.log(search,filterBuyer,"filterBuyer for mis")
 
         const totalTurnOver = await getEmployees(connection, type, filterYear, filterBuyer, filterMonth);
         const totalTurnOver1 = await getEmployees1(connection, type, filterYear, filterBuyer, filterMonth);
@@ -24,9 +35,7 @@ export async function get(req, res) {
 
         const loss1 = await getLoss1(connection, type, filterYear, filterMonth);
         const loss11 = await getLoss11(connection, type, filterYear, filterMonth);
-        const empDet = await getEmployeesDetail(connection, type, filterYear, filterBuyer, filterMonth,search,payCat);
-        const salaryDet = await getSalarydet(connection, type, filterYear, filterBuyer, filterMonth,search);
-
+    
 
         return res.json({
             statusCode: 0, data: {
@@ -35,7 +44,7 @@ export async function get(req, res) {
                 profit,
                 newCustomers,
                 topCustomers,
-                loss, loss1, profit1, loss11, loss01, empDet,salaryDet
+                loss, loss1, profit1, loss11, loss01,
             }
         })
     }
@@ -60,6 +69,127 @@ export async function executeProcedure(req, res) {
             await connection.close();
         }
     }
+}
+export async function getSalarydet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search ={}  } = req.query;
+    let result = [];
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
+    console.log(filterBuyerList ,"filterBuyerList");
+
+    let whereClause = `A.COMPCODE IN (${filterBuyerList})`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+        SELECT * FROM (
+            SELECT
+                DD.IDCARD EMPID, DD.FNAME FNAME, DD.GENDER GENDER, DD.DOJ DOJ, 
+                DD.DEPARTMENT, NVL(SUM(A.NETPAY), 0) AS NETPAY, DD.PAYCAT, DD.COMPCODE  
+            FROM MISTABLE DD
+            LEFT JOIN HPAYROLL A ON A.EMPID = DD.IDCARD 
+                AND A.PCTYPE = 'ACTUAL' 
+                AND A.PAYPERIOD = '${lstMnth}'
+            LEFT JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+            LEFT JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+            LEFT JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+            WHERE ${whereClause}
+            AND DD.DOJ <= (
+                SELECT MIN(AA.STDT) 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE AA.PAYPERIOD = '${lstMnth}'
+            ) 
+            AND (DD.DOL IS NULL OR DD.DOL <= (
+                SELECT MIN(AA.ENDT) 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE AA.PAYPERIOD = '${lstMnth}'
+            ))
+            GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ, 
+                     DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
+        ) A
+        ORDER BY A.EMPID`;
+
+    console.log(sql, "SQL for Staffs Detail");
+
+    const queryResult = await connection.execute(sql);
+
+    result = queryResult.rows.map(row =>
+        queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+        }, {})
+    );
+     console.log(result,"result for salaryDet")
+
+   res.status(200).json({ success: true, data: result });
+}
+  
+export async function getEmployeesDetail(req,res) {
+    const connection = await getConnection(res);
+    const { filterBuyer,search={}} = req.query
+    let result = [];
+    let totalCount = 0;
+  
+
+    const filterBuyerList = filterBuyer
+        .split(',')
+        .map(buyer => `'${buyer.trim()}'`)
+        .join(',');
+
+        let whereClause = `
+            A.COMPCODE IN (${filterBuyerList})
+            AND A.DOJ <= (    
+                SELECT MIN(AA.STDT) 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE AA.PAYPERIOD = '${currentDt}'
+            ) 
+            AND (A.DOL IS NULL OR A.DOL <= (
+                SELECT MIN(AA.ENDT) 
+                FROM MONTHLYPAYFRQ AA 
+                WHERE AA.PAYPERIOD = '${currentDt}'
+            ))
+        `;
+
+        if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+        if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) LIKE LOWER('${search.GENDER}%')`;
+        if (search.MIDCARD) whereClause += ` AND A.MIDCARD LIKE '${search.MIDCARD}'`;
+        if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+        if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+        const sql = `
+            SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE, PAYCAT
+            FROM MISTABLE A  
+            WHERE ${whereClause} ORDER BY TO_NUMBER(A.MIDCARD) ASC
+        `;
+        const countSql = `
+            SELECT COUNT(*) AS TOTAL_COUNT
+            FROM MISTABLE A  
+            WHERE ${whereClause}
+        `;
+
+        console.log(sql, "SQL for Employee Detail");
+        console.log(countSql, "SQL for Employee Count");
+
+        try {
+            const queryResult = await connection.execute(sql);
+            result = queryResult.rows.map((row) => {
+                return queryResult.metaData.reduce((acc, column, index) => {
+                    acc[column.name] = row[index];
+                    return acc;
+                }, {});
+            });
+             console.log(result,"employeeDetail")
+            const countResult = await connection.execute(countSql);
+            totalCount = countResult.rows[0][0]; 
+        } catch (error) {
+            console.error("Error executing query:", error);
+        }
+
+    return res.status(200).json({ success: true, data: result });
 }
 
 

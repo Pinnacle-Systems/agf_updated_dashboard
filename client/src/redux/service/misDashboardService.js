@@ -22,6 +22,32 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardEmployeeDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/employeeDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardSalaryDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/salaryDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -138,6 +164,8 @@ const MisDashboard = createApi({
 
 export const {
     useGetMisDashboardQuery,
+    useGetMisDashboardEmployeeDetQuery,
+    useGetMisDashboardSalaryDetQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

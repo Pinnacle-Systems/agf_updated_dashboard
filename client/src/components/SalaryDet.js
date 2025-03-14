@@ -15,24 +15,37 @@ import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { FaFileDownload } from "react-icons/fa";
 import PriceFilterModal from "./PriceFilter";
+import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
 
 const SalaryDetail = ({
   closeTable,
-  salaryDet,
   search,
   setSearch,
   selectedState,
   setSelectedState,
+  selectedBuyer,
   selectedGender,
   setSelectedGender,
   color,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
+  console.log(selectedBuyer,"selectedBuyer for salary")
 
+
+  const { data: salaryDetData  } = useGetMisDashboardSalaryDetQuery({
+    params: {
+        filterBuyer: selectedBuyer ||[] ,  
+        search: search || {}               
+    }
+});
+
+const salaryDet = salaryDetData?.data || []
+  console.log(salaryDet,"salaryDet inside")
   useEffect(() => {
     setCurrentPage(1);
   }, [salaryDet]);
+
   const [filteredPrice, setFilteredPrice] = useState({ min: 100, max: 1000 });
 
   const handlePriceChange = (min, max) => {
@@ -84,25 +97,27 @@ const SalaryDetail = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = salaryDet
-  .filter((row) =>
-    Object.keys(search).every((key) => {
-      const rowValue = row[key]?.toString().toLowerCase() || "";
-      const searchValue = search[key]?.toString().toLowerCase() || "";
-      return rowValue.includes(searchValue);
-    })
-  )
-  
-    .filter((row) => {
-      if (selectedState === "Labour") return row.PAYCAT !== "STAFF";
-      if (selectedState === "Staff") return row.PAYCAT === "STAFF";
-      return true;
-    })
-    .filter((row) => {
-      if (selectedGender === "Male") return row.GENDER !== "FEMALE";
-      if (selectedGender === "Female") return row.GENDER === "FEMALE";
-      return true;
-    });
+  const filteredData = Array.isArray(salaryDet) 
+  ? salaryDet
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+  : [];
+
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
@@ -209,7 +224,7 @@ const SalaryDetail = ({
 </div>
 <button
   onClick={downloadExcel}
-  className="absolute top-23 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
+  className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
   title="Download Excel"
 >
   <img

@@ -22,8 +22,6 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const totalTurnOver1 = misData?.data?.totalTurnOver1 || [];
   const profit = misData?.data?.profit || [];
   const profit1 = misData?.data?.profit1 || [];
-  const employeeDet = misData?.data?.empDet || [];
-  const salaryDet  =  misData?.data ?.salaryDet ||[];
   const [selectedState, setSelectedState] = useState("");
   const [showModel, setShowModel] = useState(false);
   const [selectedIndex,setSelectedIndex] = useState(null) 
@@ -53,7 +51,6 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const filteredTopCus = topCustomers.filter((item) =>
     selectedBuyer.includes(item.comCode)
   );
-  console.log(salaryDet,"salaryDet")
 
   const filterLoss = loss.filter((item) => selectedBuyer.includes(item.comCode));
   const filterLoss01 = loss01.filter((item) => selectedBuyer.includes(item.comCode));
@@ -162,8 +159,8 @@ console.log(typeof(selectedIndex),"selectIndex")
           {showTable && selectedIndex=== 0 &&(
   <DataDetailTable
     selectedIndex={selectedIndex}
+    selectedBuyer={selectedBuyer}
     closeTable={() => setShowTable(false)}
-     employeeDet={employeeDet}
     setSearch={setSearch}
     selectedState={selectedState}
     setSelectedState={setSelectedState}
@@ -171,14 +168,14 @@ console.log(typeof(selectedIndex),"selectIndex")
     selectedGender={selectedGender} 
     setSelectedGender={setSelectedGender} 
     color= {color}
+    payCat = {payCat}
   />
 )}
 {showTable  && selectedIndex=== 2 && (
    <SalaryDetail
-   
+   selectedBuyer={selectedBuyer}
    selectedIndex={selectedIndex}
    closeTable={() => setShowTable(false)}
-    salaryDet={salaryDet}
    setSearch={setSearch}
    selectedState={selectedState}
    setSelectedState={setSelectedState}
