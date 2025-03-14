@@ -132,7 +132,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
     },
   ];
- 
+  console.log(selectedState,"selectedStateIndex")
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {
@@ -203,7 +203,6 @@ console.log(typeof(selectedIndex),"selectIndex")
         </Movable>
       )}
     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
-  {/* Refresh Button (Moved Outside the Loop) */}
   <button
     className="absolute right-0 top-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-b from-gray-300 to-gray-400 text-gray-800 shadow-[3px_3px_0px_#888] hover:brightness-105 active:shadow-none active:translate-y-1 active:scale-95 transition-all duration-200 group"
     onClick={handleClick}
@@ -214,7 +213,7 @@ console.log(typeof(selectedIndex),"selectIndex")
     </span>
   </button>
 
-  {/* Data Mapping */}
+ 
   {data.map((val, i) => {
     const totalValueIndex0 = data[0].value + data[0].previousValue;
     const totalValue = val.value + val.previousValue;
@@ -237,7 +236,7 @@ console.log(typeof(selectedIndex),"selectIndex")
   console.log(attritionPercentage,"attritionPercentage")
     return (
       <div
-        key={i} // Key should be on the outermost element
+        key={i} 
         className="group relative rounded-lg shadow-md bg-gradient-to-tr from-white to-gray-100 transform hover:scale-105 hover:shadow-lg transition-all duration-300 h-[138px] p-3"
       >
         <div className="text-center">

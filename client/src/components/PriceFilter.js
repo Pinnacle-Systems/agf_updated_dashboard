@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { FaFilter } from "react-icons/fa";
 
 const PriceFilter = ({ minPrice, maxPrice, onFilterChange }) => {
-  const [priceRange, setPriceRange] = useState({ min: minPrice, max: maxPrice });
+  const [priceRange, setPriceRange] = useState({
+    min: minPrice,
+    max: maxPrice,
+  });
 
   const handleSliderChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +37,9 @@ const PriceFilter = ({ minPrice, maxPrice, onFilterChange }) => {
         <div
           className="absolute h-2 bg-blue-500 rounded-lg"
           style={{
-            left: `${((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100}%`,
+            left: `${
+              ((priceRange.min - minPrice) / (maxPrice - minPrice)) * 100
+            }%`,
             width: `${
               ((priceRange.max - priceRange.min) / (maxPrice - minPrice)) * 100
             }%`,
@@ -111,9 +116,9 @@ const PriceFilterModal = ({ minPrice, maxPrice, onFilterChange }) => {
     <div>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+        className="flex items-center space-x-2 bg-gray-200 font-semibold text-gray-700 px-4 py-2 rounded-2xl transition"
       >
-        <FaFilter />
+        <FaFilter className="text-gray-500 hover:text-blue-600 transition-all duration-300" />
         <span className="text-sm">Price Filter</span>
       </button>
 

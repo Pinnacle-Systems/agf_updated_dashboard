@@ -77,7 +77,7 @@ export async function getSalarydet(req, res) {
     const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     console.log(filterBuyerList ,"filterBuyerList");
 
-    let whereClause = `A.COMPCODE IN (${filterBuyerList})`;
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList})`;
 
     if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
@@ -123,7 +123,6 @@ export async function getSalarydet(req, res) {
             return acc;
         }, {})
     );
-     console.log(result,"result for salaryDet")
 
    res.status(200).json({ success: true, data: result });
 }

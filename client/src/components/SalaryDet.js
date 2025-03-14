@@ -174,7 +174,7 @@ const salaryDet = salaryDetData?.data || []
           </button>
 
           <button
-            onClick={() => handleFilterClick("all")}
+            onClick={() => handleFilterClick("All")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
       ${
         selectedState === "All"
