@@ -132,7 +132,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
     },
   ];
-  console.log(selectedState,"selectedStateIndex")
+  console.log(selectedGender,"selectedGenderIndex")
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {
@@ -226,10 +226,10 @@ console.log(typeof(selectedIndex),"selectIndex")
       if (totalValueIndex0 && totalValueIndex0 !== 0) {
         attritionPercentage = (totalValue * 100) / parseFloat(totalValueIndex0);
 
-        attritionPercentage = attritionPercentage.toFixed(2);         console.log(`Attrition Percentage: ${attritionPercentage}%`);
+        attritionPercentage = attritionPercentage.toFixed(2);         
       } else {
         console.log('Error: totalValueIndex0 is invalid');
-        attritionPercentage = "0%"; 
+        attritionPercentage = "0"; 
       }
     }
     
@@ -291,7 +291,7 @@ console.log(typeof(selectedIndex),"selectIndex")
             <p className="text-lg font-bold mt-4 flex-1 text-right">
               {activeTabs[i] === "total"
                 ? i === 1
-                  ? `${attritionPercentage}`
+                  ? `${attritionPercentage}%`
                   : "100%"
                 : activeTabs[i] === "previousValue"
                 ? `${malePercentage}%`
@@ -304,7 +304,7 @@ console.log(typeof(selectedIndex),"selectIndex")
         <div className="flex justify-between mt-3">
           <button
            onClick={() => {
-            toggleTab(i, "total");setSelectedGender("ALL");
+            toggleTab(i, "total");setSelectedGender("All");
           }}
           
             className={`w-1/3 px-1 py-1 rounded-l-full text-xs font-medium shadow-md transition ${
