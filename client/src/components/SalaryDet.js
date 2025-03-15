@@ -117,7 +117,7 @@ const salaryDet = salaryDetData?.data || []
         return true;
       })
   : [];
-
+ 
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
@@ -126,10 +126,21 @@ const salaryDet = salaryDetData?.data || []
     (currentPage - 1) * recordsPerPage,
     currentPage * recordsPerPage
   );
-
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.NETPAY),
+      maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  
+  console.log(minNetPay, "minNetPay");
+  console.log(maxNetPay, "maxNetPay");
+  
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-7/8 relative">
+  <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
+
         <button
           onClick={closeTable}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -220,7 +231,7 @@ const salaryDet = salaryDetData?.data || []
             <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
           <div>
-  <PriceFilterModal minPrice={100} maxPrice={1000} onFilterChange={handlePriceChange} />
+  <PriceFilterModal minPrice={minNetPay} maxPrice={maxNetPay} onFilterChange={handlePriceChange} />
 </div>
 <button
   onClick={downloadExcel}

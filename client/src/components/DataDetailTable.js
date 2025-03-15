@@ -98,7 +98,7 @@ const DataDetailTable = ({ closeTable, search, setSearch,selectedState,setSelect
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-5/6 relative">
+  <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px]  relative">
 
         <button
           onClick={closeTable}
