@@ -13,8 +13,6 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { FaFileDownload } from "react-icons/fa";
-import PriceFilterModal from "./PriceFilter";
 import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
 
 const SalaryDetail = ({
@@ -31,7 +29,7 @@ const SalaryDetail = ({
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
   console.log(selectedBuyer,"selectedBuyer for salary")
-
+ 
 
   const { data: salaryDetData  } = useGetMisDashboardSalaryDetQuery({
     params: {
@@ -117,7 +115,13 @@ const salaryDet = salaryDetData?.data || []
         return true;
       })
   : [];
- 
+  const { minNetPay, maxNetPay } = filteredData.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.NETPAY),
+      maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
@@ -126,13 +130,7 @@ const salaryDet = salaryDetData?.data || []
     (currentPage - 1) * recordsPerPage,
     currentPage * recordsPerPage
   );
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.NETPAY),
-      maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
+
   
   console.log(minNetPay, "minNetPay");
   console.log(maxNetPay, "maxNetPay");
@@ -231,7 +229,7 @@ const salaryDet = salaryDetData?.data || []
             <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
           <div>
-  <PriceFilterModal minPrice={minNetPay} maxPrice={maxNetPay} onFilterChange={handlePriceChange} />
+  
 </div>
 <button
   onClick={downloadExcel}
