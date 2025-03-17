@@ -12,6 +12,9 @@ import { FaSyncAlt } from "react-icons/fa";
 import { useExecuteProcedureMutation } from "../redux/service/misDashboardService";
 import DataDetailTable from "./DataDetailTable";
 import SalaryDetail from "./SalaryDet";
+import PfDetail from "./PfDet";
+import EsiDetail from "./EsiDet";
+import AttritionDet from "./AttDet";
 
 
 const NumericCard = ({ misData, selectedBuyer,search,setSearch,
@@ -173,6 +176,48 @@ console.log(typeof(selectedIndex),"selectIndex")
 )}
 {showTable  && selectedIndex=== 2 && (
    <SalaryDetail
+   selectedBuyer={selectedBuyer}
+   selectedIndex={selectedIndex}
+   closeTable={() => setShowTable(false)}
+   setSearch={setSearch}
+   selectedState={selectedState}
+   setSelectedState={setSelectedState}
+   search={search}
+   selectedGender={selectedGender} 
+   setSelectedGender={setSelectedGender} 
+   color= {color}
+ />
+)}
+{showTable  && selectedIndex=== 1 && (
+   <AttritionDet
+   selectedBuyer={selectedBuyer}
+   selectedIndex={selectedIndex}
+   closeTable={() => setShowTable(false)}
+   setSearch={setSearch}
+   selectedState={selectedState}
+   setSelectedState={setSelectedState}
+   search={search}
+   selectedGender={selectedGender} 
+   setSelectedGender={setSelectedGender} 
+   color= {color}
+ />
+)}
+{showTable  && selectedIndex=== 3 && (
+   <PfDetail
+   selectedBuyer={selectedBuyer}
+   selectedIndex={selectedIndex}
+   closeTable={() => setShowTable(false)}
+   setSearch={setSearch}
+   selectedState={selectedState}
+   setSelectedState={setSelectedState}
+   search={search}
+   selectedGender={selectedGender} 
+   setSelectedGender={setSelectedGender} 
+   color= {color}
+ />
+)}
+{showTable  && selectedIndex=== 4 && (
+   <EsiDetail
    selectedBuyer={selectedBuyer}
    selectedIndex={selectedIndex}
    closeTable={() => setShowTable(false)}

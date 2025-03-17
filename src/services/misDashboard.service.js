@@ -111,7 +111,7 @@ export async function getSalarydet(req, res) {
             GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ, 
                      DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
         ) A
-        ORDER BY A.EMPID`;
+        ORDER BY A.EMPID`
 
     console.log(sql, "SQL for Staffs Detail");
 
@@ -126,7 +126,148 @@ export async function getSalarydet(req, res) {
 
    res.status(200).json({ success: true, data: result });
 }
-  
+export async function getpfdet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search ={}  } = req.query;
+    let result = [];
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
+    console.log(filterBuyerList ,"filterBuyerList");
+
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}'
+    AND DD.DOJ <= (
+                SELECT MIN(AA.STDT)
+                FROM MONTHLYPAYFRQ AA
+                WHERE AA.PAYPERIOD = 'February 2025'
+            )
+            AND (DD.DOL IS NULL OR DD.DOL <= (
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
+                WHERE AA.PAYPERIOD = 'February 2025'
+            ))`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.PF AS NETPAY, DD.PAYCAT, DD.COMPCODE 
+FROM HPAYROLL A
+JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND 
+  WHERE ${whereClause}
+ ORDER BY A.EMPID`;
+
+    console.log(sql, "SQL for pf Detail");
+
+    const queryResult = await connection.execute(sql);
+
+    result = queryResult.rows.map(row =>
+        queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+        }, {})
+    );
+
+   res.status(200).json({ success: true, data: result });
+}
+export async function getesidet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search ={}  } = req.query;
+    let result = [];
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
+    console.log(filterBuyerList ,"filterBuyerList");
+
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}'
+    AND DD.DOJ <= (
+                SELECT MIN(AA.STDT)
+                FROM MONTHLYPAYFRQ AA
+                WHERE AA.PAYPERIOD = 'February 2025'
+            )
+            AND (DD.DOL IS NULL OR DD.DOL <= (
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
+                WHERE AA.PAYPERIOD = 'February 2025'
+            ))`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE 
+FROM HPAYROLL A
+JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND 
+  WHERE ${whereClause}
+ ORDER BY A.EMPID`;
+
+    console.log(sql, "SQL for ESI Detail");
+
+    const queryResult = await connection.execute(sql);
+
+    result = queryResult.rows.map(row =>
+        queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+        }, {})
+    );
+
+   res.status(200).json({ success: true, data: result });
+}
+export async function getattdet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search = {} } = req.query;
+    let result = [];
+    
+    const filterBuyerList = filterBuyer
+        .split(',')
+        .map(buyer => `'${buyer.trim()}'`)
+        .join(',');
+
+    console.log(filterBuyerList, "filterBuyerList");
+
+    let whereClause = `A.COMPCODE IN (${filterBuyerList}) AND B.PAYPERIOD = '${lstMnth}'`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+    SELECT A.IDCARD, A.FNAME, A.GENDER, A.DOJ, A.DEPARTMENT, 
+           C.REMARKS AS REASON, A.COMPCODE
+    FROM MISTABLE A
+    JOIN MONTHLYPAYFRQ B 
+        ON B.COMPCODE = A.COMPCODE 
+        AND (A.DOL IS NULL OR A.DOL BETWEEN B.STDT AND B.ENDT)
+    LEFT JOIN EMPDESGENTRY C 
+        ON A.IDCARD = C.IDCARDNO
+    WHERE ${whereClause}
+    ORDER BY A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER`;
+
+    console.log(sql, "SQL for pf Detail");
+
+    const queryResult = await connection.execute(sql);
+
+    result = queryResult.rows.map(row =>
+        queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+        }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
+}
+
 export async function getEmployeesDetail(req,res) {
     const connection = await getConnection(res);
     const { filterBuyer,search={}} = req.query

@@ -48,6 +48,45 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardPfDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/pfDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardEsiDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/esiDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardAttDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/AttDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -166,6 +205,9 @@ export const {
     useGetMisDashboardQuery,
     useGetMisDashboardEmployeeDetQuery,
     useGetMisDashboardSalaryDetQuery,
+    useGetMisDashboardPfDetQuery,
+    useGetMisDashboardEsiDetQuery,
+    useGetMisDashboardAttDetQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

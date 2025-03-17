@@ -8,10 +8,12 @@ import * as XLSX from "xlsx";
 import { useGetMisDashboardEmployeeDetQuery } from "../redux/service/misDashboardService";
 
 
-const DataDetailTable = ({ closeTable, search, setSearch,selectedState,setSelectedState,
-  selectedBuyer ,selectedGender,setSelectedGender, color, payCat}) => {
+const DataDetailTable = ({ closeTable, search, setSearch,
+  selectedBuyer, color, payCat}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
+   const [selectedState,setSelectedState] = useState('')
+   const [selectedGender,setSelectedGender] = useState('')
   const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetQuery({
     params: {
         filterBuyer: selectedBuyer,
