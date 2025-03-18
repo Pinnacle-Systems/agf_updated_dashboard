@@ -93,12 +93,12 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
       heading:`Attrition Insights - ${prevMonthName}`,
 
       borderColor: "#62AAA3",
-      value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentQty, 0)
-        : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.currentQty, 0)
-          : profit1.reduce((acc, item) => acc + item.currentQty, 0) + profit1.reduce((acc, item) => acc + item.currentQty, 0),
-      previousValue: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.comCode, 0)
-        : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.comCode, 0) :
-          profit1.reduce((acc, item) => acc + item.comCode, 0) + profit.reduce((acc, item) => acc + item.comCode, 0),
+      value: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.currentValue, 0)
+        : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.currentValue, 0)
+          : profit.reduce((acc, item) => acc + item.currentValue, 0) + profit1.reduce((acc, item) => acc + item.currentValue, 0),
+      previousValue: selectedState == "Labour" ? profit1.reduce((acc, item) => acc + item.prevValue, 0)
+        : selectedState == "Staff" ? profit.reduce((acc, item) => acc + item.prevValue, 0) :
+          profit1.reduce((acc, item) => acc + item.prevValue, 0) + profit.reduce((acc, item) => acc + item.prevValue, 0),
 
     },
     {
@@ -309,15 +309,7 @@ console.log(typeof(selectedIndex),"selectIndex")
     setShowTable(true);
   }}
 >
-{ i === 0 
-    ? selectedGender === "All"
-      ? totalValue.toLocaleString('en-IN') 
-      : selectedGender === "Male"
-      ? val.previousValue.toLocaleString('en-IN') 
-      : selectedGender === "Female"
-      ? val.value.toLocaleString('en-IN') 
-      : null
-    : activeTabs[i] === "total"
+{activeTabs[i] === "total"
     ? i >= 2 && i <= 4
       ? `₹ ${totalValue.toLocaleString('en-IN')}`
       : totalValue.toLocaleString('en-IN')
@@ -327,10 +319,9 @@ console.log(typeof(selectedIndex),"selectIndex")
       : val.previousValue.toLocaleString('en-IN')
     : i >= 2 && i <= 4
     ? `₹ ${val.value.toLocaleString('en-IN')}`
-    : val.value.toLocaleString('en-IN') 
-}
-
+    : val.value.toLocaleString('en-IN')}
 </p>
+
 
 
             <p className="text-lg font-bold mt-4 flex-1 text-right">
@@ -372,7 +363,7 @@ console.log(typeof(selectedIndex),"selectIndex")
                 ? "bg-[#CA8A04] text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-[#232E3F] hover:text-white"
             }`}
-            style={
+            style={ 
               activeTabs[i] === "previousValue"
                 ? { backgroundColor: color || "#CA8A04" }
                 : {}

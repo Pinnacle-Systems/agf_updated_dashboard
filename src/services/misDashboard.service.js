@@ -83,7 +83,7 @@ export async function getSalarydet(req, res) {
     if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
     if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
     if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
-    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
         SELECT * FROM (
@@ -133,7 +133,7 @@ export async function getpfdet(req, res) {
     const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     console.log(filterBuyerList ,"filterBuyerList");
 
-    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}'
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}' AND A.PF> 0
     AND DD.DOJ <= (
                 SELECT MIN(AA.STDT)
                 FROM MONTHLYPAYFRQ AA
@@ -181,7 +181,7 @@ export async function getesidet(req, res) {
     const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     console.log(filterBuyerList ,"filterBuyerList");
 
-    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}'
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
     AND DD.DOJ <= (
                 SELECT MIN(AA.STDT)
                 FROM MONTHLYPAYFRQ AA
@@ -226,35 +226,40 @@ export async function getattdet(req, res) {
     const connection = await getConnection(res);
     const { filterBuyer, search = {} } = req.query;
     let result = [];
-    
-    const filterBuyerList = filterBuyer
-        .split(',')
-        .map(buyer => `'${buyer.trim()}'`)
-        .join(',');
-
+       console.log(search,"search  for attdet")
+    const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',');
     console.log(filterBuyerList, "filterBuyerList");
 
-    let whereClause = `A.COMPCODE IN (${filterBuyerList}) AND B.PAYPERIOD = '${lstMnth}'`;
+    let whereClause = `A.COMPCODE IN (${filterBuyerList}) 
+                       AND B.PAYPERIOD = '${lstMnth}'`;
 
-    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
-    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
-    if (search.DEPARTMENT) whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
-    if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`; 
+    if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-    SELECT A.IDCARD, A.FNAME, A.GENDER, A.DOJ, A.DEPARTMENT, 
-           C.REMARKS AS REASON, A.COMPCODE
+    SELECT 
+        A.IDCARD EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.DOJ,
+        A.DEPARTMENT,
+        (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
+         FROM EMPDESGENTRY C 
+         WHERE C.IDCARDNO = A.IDCARD 
+         AND C.LWORKDAY = A.DOL) AS REASON,
+        A.COMPCODE,
+        A.DOL
     FROM MISTABLE A
-    JOIN MONTHLYPAYFRQ B 
-        ON B.COMPCODE = A.COMPCODE 
-        AND (A.DOL IS NULL OR A.DOL BETWEEN B.STDT AND B.ENDT)
-    LEFT JOIN EMPDESGENTRY C 
-        ON A.IDCARD = C.IDCARDNO
+    JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
+        AND A.DOL BETWEEN B.STDT AND B.ENDT
     WHERE ${whereClause}
-    ORDER BY A.COMPCODE, A.IDCARD, A.FNAME, A.GENDER`;
+    ORDER BY A.COMPCODE, 1, 2, 3`;
 
-    console.log(sql, "SQL for pf Detail");
+    console.log(sql, "SQL for att Detail");
 
     const queryResult = await connection.execute(sql);
 
