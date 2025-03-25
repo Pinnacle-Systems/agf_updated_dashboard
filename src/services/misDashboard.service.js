@@ -87,31 +87,31 @@ export async function getSalarydet(req, res) {
 
     const sql = `
         SELECT * FROM (
-            SELECT
-                DD.IDCARD EMPID, DD.FNAME FNAME, DD.GENDER GENDER, DD.DOJ DOJ, 
-                DD.DEPARTMENT, NVL(SUM(A.NETPAY), 0) AS NETPAY, DD.PAYCAT, DD.COMPCODE  
-            FROM MISTABLE DD
-             JOIN HPAYROLL A ON A.EMPID = DD.IDCARD 
-                AND A.PCTYPE = 'ACTUAL' 
-                AND A.PAYPERIOD = '${lstMnth}'
-             JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
-             JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-             JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-            WHERE ${whereClause}
-            AND DD.DOJ <= (
-                SELECT MIN(AA.STDT) 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE AA.PAYPERIOD = '${lstMnth}'
-            ) 
-            AND (DD.DOL IS NULL OR DD.DOL <= (
-                SELECT MIN(AA.ENDT) 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE AA.PAYPERIOD = '${lstMnth}'
-            ))
-            GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ, 
-                     DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
-        ) A
-        ORDER BY A.EMPID`
+SELECT
+DD.IDCARD EMPID, DD.FNAME FNAME, DD.GENDER GENDER, DD.DOJ DOJ,
+DD.DEPARTMENT, NVL(SUM(A.NETPAY), 0) AS NETPAY, DD.PAYCAT, DD.COMPCODE
+FROM MISTABLE DD
+JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
+AND A.PCTYPE = 'ACTUAL'
+AND A.PAYPERIOD = '${lstMnth}'
+JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+WHERE ${whereClause}
+AND DD.DOJ <= (
+SELECT MIN(AA.STDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${lstMnth}'
+)
+AND (DD.DOL IS NULL OR DD.DOL <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${lstMnth}'
+))
+GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
+DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
+) A
+ORDER BY A.EMPID`
 
     console.log(sql, "SQL for Staffs Detail");
 
@@ -133,17 +133,8 @@ export async function getpfdet(req, res) {
     const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     console.log(filterBuyerList ,"filterBuyerList");
 
-    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}' AND A.PF> 0
-    AND DD.DOJ <= (
-                SELECT MIN(AA.STDT)
-                FROM MONTHLYPAYFRQ AA
-                WHERE AA.PAYPERIOD = 'February 2025'
-            )
-            AND (DD.DOL IS NULL OR DD.DOL <= (
-                SELECT MIN(AA.ENDT)
-                FROM MONTHLYPAYFRQ AA
-                WHERE AA.PAYPERIOD = 'February 2025'
-            ))`;
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' and A.PAYPERIOD = '${lstMnth}' AND A.PF> 0
+    `;
 
     if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
@@ -152,14 +143,43 @@ export async function getpfdet(req, res) {
     if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.PF AS NETPAY, DD.PAYCAT, DD.COMPCODE 
+      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.PF AS NETPAY, DD.PAYCAT, DD.COMPCODE
+
 FROM HPAYROLL A
-JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
-JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+
+JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+
+JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+
 JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND 
-  WHERE ${whereClause}
- ORDER BY A.EMPID`;
+
+WHERE ${whereClause}
+
+AND DD.DOJ <= (
+
+SELECT MIN(AA.STDT)
+
+FROM MONTHLYPAYFRQ AA
+
+WHERE AA.PAYPERIOD = 'February 2025'
+
+)
+
+AND (DD.DOL IS NULL OR DD.DOL <= (
+
+SELECT MIN(AA.ENDT)
+
+FROM MONTHLYPAYFRQ AA
+
+WHERE AA.PAYPERIOD = 'February 2025'
+
+))
+
+ORDER BY A.EMPID
+
+ `;
 
     console.log(sql, "SQL for pf Detail");
 
@@ -181,17 +201,17 @@ export async function getesidet(req, res) {
     const filterBuyerList = filterBuyer.split(',').map(buyer => `'${buyer.trim()}'`).join(',')
     console.log(filterBuyerList ,"filterBuyerList");
 
-    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'ACTUAL' and A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
-    AND DD.DOJ <= (
-                SELECT MIN(AA.STDT)
-                FROM MONTHLYPAYFRQ AA
-                WHERE AA.PAYPERIOD = 'February 2025'
-            )
-            AND (DD.DOL IS NULL OR DD.DOL <= (
-                SELECT MIN(AA.ENDT)
-                FROM MONTHLYPAYFRQ AA
-                WHERE AA.PAYPERIOD = 'February 2025'
-            ))`;
+    let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' AND A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
+AND DD.DOJ <= (
+SELECT MIN(AA.STDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${lstMnth}'
+)
+AND (DD.DOL IS NULL OR DD.DOL <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${lstMnth}'
+))`;
 
     if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
@@ -200,14 +220,14 @@ export async function getesidet(req, res) {
     if (search.COMPCODE) whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE 
+    SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE ,DD.PAYCAT     
 FROM HPAYROLL A
-JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
-JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
 JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND 
-  WHERE ${whereClause}
- ORDER BY A.EMPID`;
+WHERE ${whereClause}
+ORDER BY A.EMPID`;
 
     console.log(sql, "SQL for ESI Detail");
 
@@ -316,7 +336,7 @@ export async function getEmployeesDetail(req,res) {
             WHERE ${whereClause}
         `;
 
-        console.log(sql, "SQL for Employee Detail");
+        console.log(sql, "SQL for Employee Details");
         console.log(countSql, "SQL for Employee Count");
 
         try {
