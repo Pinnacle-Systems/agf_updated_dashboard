@@ -292,6 +292,54 @@ export async function getattdet(req, res) {
 
     res.status(200).json({ success: true, data: result });
 }
+export async function getagedet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search = {} } = req.query;
+    let result = [];
+  
+
+    let whereClause = `A.COMPCODE IN (${filterBuyer}) 
+                       AND B.PAYPERIOD = '${lstMnth}'`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`; 
+    if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+    SELECT 
+        A.IDCARD EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.DOJ,
+        A.DEPARTMENT,
+        (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
+         FROM EMPDESGENTRY C 
+         WHERE C.IDCARDNO = A.IDCARD 
+         AND C.LWORKDAY = A.DOL) AS REASON,
+        A.COMPCODE,
+        A.DOL
+    FROM MISTABLE A
+    JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
+        AND A.DOL BETWEEN B.STDT AND B.ENDT
+    WHERE ${whereClause}
+    ORDER BY A.COMPCODE, 1, 2, 3`;
+
+    console.log(sql, "SQL for Age Detail");
+
+    const queryResult = await connection.execute(sql);
+
+    result = queryResult.rows.map(row =>
+        queryResult.metaData.reduce((acc, column, index) => {
+            acc[column.name] = row[index];
+            return acc;
+        }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
+}
 
 export async function getEmployeesDetail(req,res) {
     const connection = await getConnection(res);

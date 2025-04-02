@@ -4,22 +4,25 @@ import { useGetMisDashboardOrdersInHandQuery } from "../../../redux/service/misD
 import BuyerMultiSelect from "../../../components/ModelMultiSelect1";
 import { ColorContext } from "../../global/context/ColorContext";
 import CardWrapper from "../../../components/CardWrapper";
-
+import AgeDet from "../../../components/AgePopup";
 const PieChart = () => {
     const [selected, setSelected] = useState();
     const [showModel, setShowModel] = useState(false);
+    const [openpopup,setOpenpopup] = useState(false)
     const { data } = useGetMisDashboardOrdersInHandQuery({ params: { filterBuyer: selected } });
     const ordersInHandBuyerWise = data?.data || "";
     const { color } = useContext(ColorContext);
     const chartRef = useRef(null); // Step 1: Create chartRef
 
     return (
+        
         <CardWrapper heading="Age Distribution" onFilterClick={() => setShowModel(true)} chartRef={chartRef}> 
             {/* Step 2: Pass chartRef to CardWrapper */}
             <div
                 id="chart"
                 ref={chartRef} // Step 3: Attach ref to the chart div
                 className="mt-2 mb-2 rounded-lg"
+                 onClick={()=>setOpenpopup(true)}
                 style={{
                     width: '100%', 
                     height: '360px',
@@ -30,7 +33,7 @@ const PieChart = () => {
             >
                 <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise} color={color} />
             </div>
-
+        {openpopup && (<AgeDet selectedBuyer={selected} />)}
             {showModel && (
                 <BuyerMultiSelect
                     selected={selected}
@@ -40,6 +43,7 @@ const PieChart = () => {
                     setShowModel={setShowModel}
                 />
             )}
+         
         </CardWrapper>
     );
 };

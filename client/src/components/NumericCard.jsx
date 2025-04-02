@@ -30,7 +30,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   const [selectedIndex,setSelectedIndex] = useState(null) 
   const [showTable,setShowTable] = useState(false) 
     const [selectedGender, setSelectedGender] = useState("All");
-  
+    const [loading, setLoading] = useState(false);
   const newCustomers = misData?.data?.newCustomers || [];
   const topCustomers = misData?.data?.topCustomers || [];
   const loss = misData?.data?.loss || [];
@@ -64,11 +64,14 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
     selectedBuyer.includes(item.comCode)
   );
   const handleClick = async () => {
+    setLoading(true);
     try {
       const response = await executeProcedure().unwrap();
       alert(response.message);
     } catch (error) {
-      alert("Error: " + error.data?.error || "Failed to execute procedure");
+      alert("Error: " + (error.data?.error || "Failed to execute procedure"));
+    } finally {
+      setLoading(false);
     }
   };
   var currMonthName = moment().format('MMM YY');
@@ -248,7 +251,7 @@ console.log(typeof(selectedIndex),"selectIndex")
         </Movable>
       )}
     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 p-2 bg-gray-200">
-  <button
+<button
     className="absolute right-0 top-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-b from-gray-300 to-gray-400 text-gray-800 shadow-[3px_3px_0px_#888] hover:brightness-105 active:shadow-none active:translate-y-1 active:scale-95 transition-all duration-200 group"
     onClick={handleClick}
   >
@@ -256,9 +259,18 @@ console.log(typeof(selectedIndex),"selectIndex")
     <span className="text-xs font-semibold hidden group-hover:inline-block">
       Refresh
     </span>
+   
   </button>
 
- 
+  {loading && (
+  <div className="absolute top-0 right-24 flex items-center gap-2 bg-white shadow-md px-3 py-2 rounded-lg border border-gray-200">
+    <div className="animate-spin">
+      <FaSyncAlt className="text-lg" style={{color: color}} />
+    </div>
+    <span className="text-sm font-semibold text-gray-700">Loading...</span>
+  </div>
+)}
+
   {data.map((val, i) => {
     const totalValueIndex0 = data[0].value + data[0].previousValue;
     const totalValue = val.value + val.previousValue;

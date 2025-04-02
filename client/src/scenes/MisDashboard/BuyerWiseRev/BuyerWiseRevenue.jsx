@@ -60,17 +60,17 @@ const BuyerWiseRevenueGen = ({ buyerRev }) => {
                 color: '#374151',
                 fontSize: '10px'
             },
-            headerFormat: '<b>Buyer: {point.key}</b><br/>',
+            headerFormat: '<b>Age: {point.key}</b><br/>',
             pointFormatter: function () {
                 return `
                     <span style="color:${this.color}">\u25CF</span>
-                    <span style="color: #2d2d2d;"> Revenue: <b>${this.y.toLocaleString()}</b></span><br/>
+                    <span style="color: #2d2d2d;"> Employees: <b>${this.y.toLocaleString()}</b></span><br/>
                 `;
             }
         },
         series: [
             {
-                name: 'Revenue',
+                name: 'Employees',
                 data: buyerWiseRev.map((item, index) => ({
                     name: item.buyer,
                     y: item.value,

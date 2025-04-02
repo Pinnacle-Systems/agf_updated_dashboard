@@ -7,19 +7,16 @@ import { IoMdDownload } from "react-icons/io";
 import { CiMenuKebab } from "react-icons/ci";
 import { IoClose } from "react-icons/io5"; 
 
-const DropdownOptions = ({ onDownload, onClose }) => (
-  <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-300 rounded-lg shadow-lg p-2 z-10 animate-scale-in origin-top-right">
-    <div className="absolute right-0">
-      <button onClick={onClose} className="text-gray-500 hover:text-red-800 text-red-700 text-lg p-1 transition">
-        <IoClose />
-      </button>
-    </div>
-    <button onClick={onDownload} className="flex items-center gap-2 text-sm text-gray-700 hover:text-black w-full px-3 py-2 hover:bg-gray-100 rounded-md transition">
-      <IoMdDownload className="text-lg text-green-600" /> Download
+const DropdownOptions = ({ onDownload }) => (
+  <div className="absolute right-0 mt-2 w-12 bg-white border border-gray-300 rounded-md shadow-md p-1 z-10 animate-scale-in origin-top-right">
+    <button 
+      onClick={onDownload} 
+      className="flex items-center justify-center text-xs text-gray-700 hover:text-white bg-gray-100 hover:bg-green-600 w-full px-2 py-1 rounded-md transition"
+    >
+      <IoMdDownload className="text-base" />
     </button>
   </div>
 );
-
 const CardWrapper1 = ({ heading, children,onFilterClick, showFilter = true, Doption = true }) => {
   const { color } = useContext(ColorContext);
   const [showOptions, setShowOptions] = useState(false);

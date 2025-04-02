@@ -13,9 +13,9 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardAgeDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardPfDetQuery } from "../redux/service/misDashboardService";
 
-const PfDetail = ({
+const AgeDetail = ({
   closeTable,
   search,
   setSearch,
@@ -37,7 +37,7 @@ const PfDetail = ({
 
   const { data: salaryDetData  } = useGetMisDashboardPfDetQuery({
     params: {
-        filterBuyer: selectedBuyer ||[] ,  
+        filterBuyer: selectedBuyer ,  
         search: search || {}               
     }
 });
@@ -150,7 +150,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Pf Insights - <span className="text-blue-600">{selectedBuyer.join(", ")}</span>
+          Pf Insights - <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -421,4 +421,4 @@ const salaryDet = salaryDetData?.data || []
   );
 };
 
-export default PfDetail;
+export default AgeDetail;
