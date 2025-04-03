@@ -13,13 +13,12 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardPfDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardAgeDetQuery } from "../redux/service/misDashboardService";
 
 const AgeDetail = ({
-  closeTable,
   search,
   setSearch,
-  
+  setOpenpopup,openpopup,
   selectedBuyer,
 
   color,
@@ -32,12 +31,12 @@ const AgeDetail = ({
     max:Infinity
    })
   const recordsPerPage = 20;
-  console.log(selectedBuyer,"selectedBuyer for salary")
+  console.log(openpopup,"openpopup")
  
 
-  const { data: salaryDetData  } = useGetMisDashboardPfDetQuery({
+  const { data: salaryDetData  } = useGetMisDashboardAgeDetQuery({
     params: {
-        filterBuyer: selectedBuyer ,  
+        filterBuyer: selectedBuyer ||[] ,  
         search: search || {}               
     }
 });
@@ -63,7 +62,7 @@ const salaryDet = salaryDetData?.data || []
       return;
     }
 
-    const headers = [["ID Card", "Name", "Gender", "Department", "Company","Netpay"]];
+    const headers = [["ID Card", "Name", "Gender", "Department", "Company","Date of Left","Reason"]];
 
     const data = filteredData.map((row) => [
       row.EMPID,
@@ -71,7 +70,8 @@ const salaryDet = salaryDetData?.data || []
       row.GENDER,
       row.DEPARTMENT,
       row.COMPCODE,
-      row.NETPAY
+      row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-',
+      row.REASON
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -114,10 +114,7 @@ const salaryDet = salaryDetData?.data || []
         if (selectedGender === "Female") return row?.GENDER === "FEMALE";
         return true;
       })
-      .filter((row) => {
-        const netpay = Number(row?.NETPAY) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
+     
   : [];
 
   
@@ -129,20 +126,15 @@ const salaryDet = salaryDetData?.data || []
     currentPage * recordsPerPage
   );
 
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.NETPAY),
-      maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  
+ 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
   <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
-
         <button
-          onClick={closeTable}
+          onClick={() => setOpenpopup(false)}
+
+
+
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
         >
           <FaTimes size={20} />
@@ -150,7 +142,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Pf Insights - <span className="text-blue-600">{selectedBuyer}</span>
+          Attrition Insights -  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -230,28 +222,7 @@ const salaryDet = salaryDetData?.data || []
           >
             <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
-          <div className="flex items-center gap-4">
-  <div className="flex items-center gap-2">
-    <span className="text-gray-500">Min Pf Amt:</span>
-    <input
-      type="number"
-      value={netpayRange.min}
-      onChange={(e) => setNetpayRange({ ...netpayRange, min: Number(e.target.value) })}
-      className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    />
-  </div>
-
-  <div className="flex items-center gap-2">
-    <span className="text-gray-500">Max Pf Amt:</span>
-    <input
-      type="number"
-      value={netpayRange.max === Infinity ? "" : netpayRange.max}
-      onChange={(e) => setNetpayRange({ ...netpayRange, max: Number(e.target.value) })}
-      className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    />
-  </div>
-</div>
-
+      
           <div>
   
 </div>
@@ -269,22 +240,7 @@ const salaryDet = salaryDetData?.data || []
 
         </div>
 
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
-            <div key={key} className="relative">
-              <input
-                type="text"
-                placeholder={`Search ${key}...`}
-                value={search[key] || ""}
-                onChange={(e) =>
-                  setSearch({ ...search, [key]: e.target.value })
-                }
-                className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
-              />
-              <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
-            </div>
-          ))}
-        </div>
+       
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
@@ -296,7 +252,8 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Netpay</th>
+                  <th className="border p-2 text-left">Age</th>
+
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -310,12 +267,10 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.GENDER}</td>
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
-                    <td className="border p-2 text-sky-700 text-right text-end">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.NETPAY)}
-                    </td>
+                    <td className="border p-2">
+  {row.AGEMON}
+</td>
+                    
                   </tr>
                 ))}
               </tbody>
@@ -331,7 +286,8 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Netpay</th>
+                  <th className="border p-2 text-left">Age</th>
+
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -345,12 +301,10 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.GENDER}</td>
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
-                    <td className="border p-2 text-sky-700 text-right text-end">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.NETPAY)}
-                    </td>
+                    <td className="border p-2">
+  {row.AGEMON}
+</td>
+                    
                   </tr>
                 ))}
               </tbody>

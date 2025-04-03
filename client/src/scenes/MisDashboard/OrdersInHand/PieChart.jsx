@@ -4,11 +4,9 @@ import { useGetMisDashboardOrdersInHandQuery } from "../../../redux/service/misD
 import BuyerMultiSelect from "../../../components/ModelMultiSelect1";
 import { ColorContext } from "../../global/context/ColorContext";
 import CardWrapper from "../../../components/CardWrapper";
-import AgeDet from "../../../components/AgePopup";
-const PieChart = () => {
-    const [selected, setSelected] = useState();
+const PieChart = ({setOpenpopup,openpopup,selected,setSelected}) => {
     const [showModel, setShowModel] = useState(false);
-    const [openpopup,setOpenpopup] = useState(false)
+  
     const { data } = useGetMisDashboardOrdersInHandQuery({ params: { filterBuyer: selected } });
     const ordersInHandBuyerWise = data?.data || "";
     const { color } = useContext(ColorContext);
@@ -33,7 +31,7 @@ const PieChart = () => {
             >
                 <BuyerWiseRevenueGen buyerRev={ordersInHandBuyerWise} color={color} />
             </div>
-        {openpopup && (<AgeDet selectedBuyer={selected} />)}
+      
             {showModel && (
                 <BuyerMultiSelect
                     selected={selected}

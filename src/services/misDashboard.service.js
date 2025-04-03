@@ -298,8 +298,8 @@ export async function getagedet(req, res) {
     let result = [];
   
 
-    let whereClause = `A.COMPCODE IN (${filterBuyer}) 
-                       AND B.PAYPERIOD = '${lstMnth}'`;
+    let whereClause = `AA.COMPCODE IN '${filterBuyer}'
+                       `;
 
     if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`; 
@@ -308,24 +308,11 @@ export async function getagedet(req, res) {
     if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-    SELECT 
-        A.IDCARD EMPID,
-        A.PAYCAT,
-        A.FNAME,
-        A.GENDER,
-        A.DOJ,
-        A.DEPARTMENT,
-        (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
-         FROM EMPDESGENTRY C 
-         WHERE C.IDCARDNO = A.IDCARD 
-         AND C.LWORKDAY = A.DOL) AS REASON,
-        A.COMPCODE,
-        A.DOL
-    FROM MISTABLE A
-    JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
-        AND A.DOL BETWEEN B.STDT AND B.ENDT
-    WHERE ${whereClause}
-    ORDER BY A.COMPCODE, 1, 2, 3`;
+    SELECT AA.IDCARD AS EMPID,AA.FNAME,AA.PAYCAT,CC.AGEMON,AA.COMPCODE,AA.DEPARTMENT,AA.GENDER
+FROM MISTABLE AA
+JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
+JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+WHERE ${whereClause}`;
 
     console.log(sql, "SQL for Age Detail");
 
