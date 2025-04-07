@@ -296,36 +296,48 @@ export async function getagedet(req, res) {
     const connection = await getConnection(res);
     const { filterBuyer, search = {} } = req.query;
     let result = [];
-  
 
-    let whereClause = `AA.COMPCODE IN '${filterBuyer}'
-                       `;
+    // Prepare initial WHERE clause
+    let whereClause = `AA.COMPCODE IN ('${filterBuyer}')`;
 
-    if (search.FNAME) whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
-    if (search.GENDER) whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`; 
-    if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
-    if (search.DEPARTMENT) whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
-    if (search.COMPCODE) whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) = LOWER('${search.GENDER}')`; 
+    if (search.MIDCARD) whereClause += ` AND AA.IDCARD LIKE '%${search.MIDCARD}%'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(AA.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-    SELECT AA.IDCARD AS EMPID,AA.FNAME,AA.PAYCAT,CC.AGEMON,AA.COMPCODE,AA.DEPARTMENT,AA.GENDER
-FROM MISTABLE AA
-JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
-JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
-WHERE ${whereClause}`;
+        SELECT 
+            AA.IDCARD AS EMPID,
+            AA.FNAME,
+            AA.PAYCAT,
+            (EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM AA.DOB)) AS AGEMON,
+            AA.COMPCODE,
+            AA.DEPARTMENT,
+            AA.GENDER
+        FROM MISTABLE AA
+        JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
+        JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+        WHERE ${whereClause}
+    `;
 
     console.log(sql, "SQL for Age Detail");
 
-    const queryResult = await connection.execute(sql);
+    try {
+        const queryResult = await connection.execute(sql);
 
-    result = queryResult.rows.map(row =>
-        queryResult.metaData.reduce((acc, column, index) => {
-            acc[column.name] = row[index];
-            return acc;
-        }, {})
-    );
+        result = queryResult.rows.map(row =>
+            queryResult.metaData.reduce((acc, column, index) => {
+                acc[column.name] = row[index];
+                return acc;
+            }, {})
+        );
 
-    res.status(200).json({ success: true, data: result });
+        res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error("Error executing query:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 }
 
 export async function getEmployeesDetail(req,res) {

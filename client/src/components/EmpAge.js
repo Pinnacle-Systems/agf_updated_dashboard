@@ -25,6 +25,7 @@ const AgeDetail = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
+     const [ageRange, setAgeRange] = useState({ min: 19, max: 70 });
      const [selectedGender,setSelectedGender] = useState('')
     const [netpayRange,setNetpayRange] = useState({
     min:0,
@@ -47,7 +48,13 @@ const salaryDet = salaryDetData?.data || []
     setCurrentPage(1);
   }, [salaryDet]);
 
-  
+  const handleAgeChange = (e) => {
+    const { name, value } = e.target;
+    setAgeRange((prev) => ({
+      ...prev,
+      [name]: value === '' ? '' : parseInt(value),
+    }));
+  };
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -113,6 +120,9 @@ const salaryDet = salaryDetData?.data || []
         if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
         if (selectedGender === "Female") return row?.GENDER === "FEMALE";
         return true;
+      }).filter((row) => {
+        const age = parseInt(row?.AGEMON || 0);
+        return age >= (ageRange.min || 19) && age <= (ageRange.max || 100);
       })
      
   : [];
@@ -142,7 +152,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Attrition Insights -  <span className="text-blue-600">{selectedBuyer}</span>
+          Age Distribution -  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -226,6 +236,27 @@ const salaryDet = salaryDetData?.data || []
           <div>
   
 </div>
+<div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Min Age:</label>
+            <input
+              type="number"
+              name="min"
+              value={ageRange.min}
+              onChange={handleAgeChange}
+              className="border rounded px-2 py-1 w-16 text-sm"
+              placeholder="Min"
+            />
+            <label className="text-sm font-medium text-gray-700">Max Age:</label>
+            <input
+              type="number"
+              name="max"
+              value={ageRange.max}
+              onChange={handleAgeChange}
+              className="border rounded px-2 py-1 w-16 text-sm"
+              placeholder="Max"
+            />
+          </div>
+
 <button
   onClick={downloadExcel}
   className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
