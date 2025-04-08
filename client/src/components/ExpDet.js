@@ -13,9 +13,9 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardAgeDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardExpDetQuery } from "../redux/service/misDashboardService";
 
-const AgeDetail = ({
+const ExpDetail = ({
   search,
   setSearch,
   setOpenpopup,openpopup,
@@ -25,17 +25,14 @@ const AgeDetail = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
-     const [ageRange, setAgeRange] = useState({ min: 19, max: 70 });
+     const [ageRange, setAgeRange] = useState({ min: -Infinity, max: Infinity });
      const [selectedGender,setSelectedGender] = useState('')
-    const [netpayRange,setNetpayRange] = useState({
-    min:0,
-    max:Infinity
-   })
+
   const recordsPerPage = 20;
   console.log(openpopup,"openpopup")
  
 
-  const { data: salaryDetData  } = useGetMisDashboardAgeDetQuery({
+  const { data: salaryDetData  } = useGetMisDashboardExpDetQuery({
     params: {
         filterBuyer: selectedBuyer ||[] ,  
         search: search || {}               
@@ -120,13 +117,12 @@ const salaryDet = salaryDetData?.data || []
         if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
         if (selectedGender === "Female") return row?.GENDER === "FEMALE";
         return true;
-      })
-      .filter((row) => {
-        const age = parseFloat(row?.AGEMON || 0);
+      }).filter((row) => {
+        const age = parseInt(row?.EXPMON || 0);
         return age >= (ageRange.min || 19) && age <= (ageRange.max || 100);
       })
+     
   : [];
-
 
   
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
@@ -153,7 +149,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Age Distribution -  <span className="text-blue-600">{selectedBuyer}</span>
+          Experience Distribution -  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -238,7 +234,7 @@ const salaryDet = salaryDetData?.data || []
   
 </div>
 <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Min Age:</label>
+            <label className="text-sm font-medium text-gray-700">Min Experience:</label>
             <input
               type="number"
               name="min"
@@ -247,7 +243,7 @@ const salaryDet = salaryDetData?.data || []
               className="border rounded px-2 py-1 w-16 text-sm"
               placeholder="Min"
             />
-            <label className="text-sm font-medium text-gray-700">Max Age:</label>
+            <label className="text-sm font-medium text-gray-700">Max Experience:</label>
             <input
               type="number"
               name="max"
@@ -284,7 +280,7 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Age</th>
+                  <th className="border p-2 text-left">Experience</th>
 
                 </tr>
               </thead>
@@ -300,7 +296,7 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.AGEMON.toFixed(1)}
+  {row.EXPMON}
 </td>
                     
                   </tr>
@@ -318,7 +314,7 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Age</th>
+                  <th className="border p-2 text-left">Experience</th>
 
                 </tr>
               </thead>
@@ -334,7 +330,7 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.AGEMON.toFixed(1)}
+  {row.EXPMON}
 </td>
                     
                   </tr>
@@ -407,4 +403,4 @@ const salaryDet = salaryDetData?.data || []
   );
 };
 
-export default AgeDetail;
+export default ExpDetail;

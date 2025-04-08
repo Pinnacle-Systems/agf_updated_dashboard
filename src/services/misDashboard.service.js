@@ -296,9 +296,12 @@ export async function getagedet(req, res) {
     const connection = await getConnection(res);
     const { filterBuyer, search = {} } = req.query;
     let result = [];
-
-    // Prepare initial WHERE clause
-    let whereClause = `AA.COMPCODE IN ('${filterBuyer}')`;
+    let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
+  AND AA.DOB <= (
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) AND (AA.DOL IS NULL OR AA.DOL <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) )`;
 
     if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) = LOWER('${search.GENDER}')`; 
@@ -307,18 +310,18 @@ export async function getagedet(req, res) {
     if (search.COMPCODE) whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
     const sql = `
-        SELECT 
-            AA.IDCARD AS EMPID,
-            AA.FNAME,
-            AA.PAYCAT,
-            (EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM AA.DOB)) AS AGEMON,
-            AA.COMPCODE,
-            AA.DEPARTMENT,
-            AA.GENDER
-        FROM MISTABLE AA
-        JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
-        JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
-        WHERE ${whereClause}
+      SELECT 
+AA.IDCARD AS EMPID,
+AA.FNAME,
+AA.PAYCAT,
+MONTHS_BETWEEN(TRUNC(SYSDATE),AA.DOB)/12 AS AGEMON,
+AA.COMPCODE,
+AA.DEPARTMENT,
+AA.GENDER
+FROM MISTABLE AA
+JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
+JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+WHERE ${whereClause}
     `;
 
     console.log(sql, "SQL for Age Detail");
@@ -339,7 +342,58 @@ export async function getagedet(req, res) {
         res.status(500).json({ success: false, error: error.message });
     }
 }
+export async function getexpdet(req, res) {
+    const connection = await getConnection(res);
+    const { filterBuyer, search = {} } = req.query;
+    console.log(filterBuyer,"filterBuyer")
+    let result = [];
 
+    let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
+  AND AA.DOJ <= (
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) AND (AA.DOL IS NULL OR AA.DOL <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+) )`;
+
+    if (search.FNAME) whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER) whereClause += ` AND LOWER(AA.GENDER) = LOWER('${search.GENDER}')`; 
+    if (search.MIDCARD) whereClause += ` AND AA.IDCARD LIKE '%${search.MIDCARD}%'`;
+    if (search.DEPARTMENT) whereClause += ` AND LOWER(AA.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE) whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+    const sql = `
+        SELECT 
+AA.IDCARD AS EMPID,
+AA.FNAME,
+AA.PAYCAT,
+MONTHS_BETWEEN(TRUNC(SYSDATE),AA.DOJ)/12 AS EXPMON,
+AA.COMPCODE,
+AA.DEPARTMENT,
+AA.GENDER
+FROM MISTABLE AA
+JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
+JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
+WHERE ${whereClause}
+    `;
+
+    console.log(sql, "SQL for Age Detail");
+
+    try {
+        const queryResult = await connection.execute(sql);
+
+        result = queryResult.rows.map(row =>
+            queryResult.metaData.reduce((acc, column, index) => {
+                acc[column.name] = row[index];
+                return acc;
+            }, {})
+        );
+
+        res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error("Error executing query:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+}
 export async function getEmployeesDetail(req,res) {
     const connection = await getConnection(res);
     const { filterBuyer,search={}} = req.query

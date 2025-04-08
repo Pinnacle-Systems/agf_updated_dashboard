@@ -7,13 +7,13 @@ import { IoMdDownload } from "react-icons/io";import { CiMenuKebab } from 'react
 import { ColorContext } from '../scenes/global/context/ColorContext';
 import CardWrapper from './CardWrapper';
 import BuyerMultiSelect from './ModelMultiSelect1';
+import ExpDetail from './ExpDet';
 
-// Initialize Highcharts 3D module
 Highcharts3D(Highcharts);
 
 const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
     const [showModel, setShowModel] = useState(false);
-
+  const [openpopup,setOpenpopup] = useState(false)
     const { color } = useContext(ColorContext);
         const chartRef = useRef(null); // Step 1: Create chartRef
     
@@ -90,6 +90,7 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                     position: 'relative',
                 }}
             >
+                 {openpopup && (<ExpDetail selectedBuyer={selected} setOpenpopup ={setOpenpopup} openpopup={openpopup}  />)}
                 {showModel && (
                     <BuyerMultiSelect
                         selected={selected}
@@ -101,7 +102,10 @@ const Bar3DChart = ({ overAllSuppCon, selected, setSelected, option }) => {
                 )}
 
                 {selected && (
-                    <HighchartsReact  highcharts={Highcharts} options={chartOptions} />
+                    <div onClick={()=>setOpenpopup(true)}>
+                    <HighchartsReact  highcharts={Highcharts} options={chartOptions}  />
+
+                    </div>
                 )}
 
                 {/* Toggle Button & Screenshot Capture */}
