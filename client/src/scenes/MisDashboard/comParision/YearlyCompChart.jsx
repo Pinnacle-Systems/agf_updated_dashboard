@@ -7,18 +7,18 @@ import { IoMdDownload } from "react-icons/io";import { useGetYearlyCompQuery } f
 import { ColorContext } from '../../global/context/ColorContext';
 import CardWrapper from '../../../components/CardWrapper';
 import { CiMenuKebab } from "react-icons/ci";
+import DataDetailTable from '../../../components/DataDetailTable1';
 
 Highcharts3D(Highcharts);
 
 const YearlyComChart = () => {
     const { data: comparisionData } = useGetYearlyCompQuery({ params: {} });
     const { color } = useContext(ColorContext);
+     const [openpopup,setOpenpopup] = useState(false)
     const yearlyComparision = comparisionData?.data || [];
     const chartRef = useRef(null);
-
-   
-
-    const groupedData = yearlyComparision.reduce((acc, curr) => {
+ console.log(openpopup,"openpopup")
+      const groupedData = yearlyComparision.reduce((acc, curr) => {
         if (!acc[curr.year]) {
             acc[curr.year] = [];
         }
@@ -132,7 +132,9 @@ const YearlyComChart = () => {
 
     return (
      <CardWrapper heading="Employee Strength As On Date" chartRef={chartRef} showFilter={false} Doption={true}>
-    <div id="chart" className="relative pt-2 rounded">
+   {openpopup && <DataDetailTable graph = {true} />}
+
+    <div id="chart" className="relative pt-2 rounded" onClick={()=>setOpenpopup(true)}>
     <HighchartsReact
     highcharts={Highcharts}
     options={options}
@@ -152,6 +154,7 @@ const YearlyComChart = () => {
 
     </div>
 </CardWrapper>
+
     );
 };
 

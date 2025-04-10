@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue, getESIPF,executeProcedure, getOrdersInHand,getEmployeesDetail,
     getSalarydet,  getOrdersInHandMonthWise, getShortShipmentRatio, getYearlyComp, 
-    getpfdet,getesidet,getattdet,getagedet,getexpdet} from '../services/misDashboard.service.js';
+    getpfdet,getesidet,getattdet,getagedet,getexpdet,getbgdet,getEmployeesDetail1} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -11,6 +11,9 @@ router.get('/', get);
 router.get('/ordersInHand', getOrdersInHand);
 
 router.get('/employeeDet',getEmployeesDetail);
+
+router.get('/employeeDetail',getEmployeesDetail1);
+
 
 router.get ('/salaryDet',getSalarydet)
 
@@ -23,6 +26,8 @@ router.get ('/AttDet', getattdet )
 router.get ('/AgeDet', getagedet )
 
 router.get ('/ExpDet', getexpdet )
+
+router.get ('/BgDet', getbgdet )
 
 
 router.get('/ordersInHandMonthWise', getOrdersInHandMonthWise);

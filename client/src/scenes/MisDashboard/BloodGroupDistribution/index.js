@@ -6,10 +6,12 @@ import { useGetTopItemsQuery } from '../../../redux/service/poData';
 import SortedBarChart from './SortedBarChart';
 import CardWrapper from '../../../components/CardWrapper';
 import BuyerMultiSelect from '../../../components/ModelMultiSelect1';
+import BgDetail from '../../../components/BgDet';
 
 const BloodGrp = ({ option }) => {
     const [selected, setSelected] = useState();
     const [showModal, setShowModal] = useState(false);
+    const [openpopup,setOpenpopup] = useState(false)
     const { data: topItem } = useGetTopItemsQuery({ filterBuyer: selected });
     const topItems = topItem?.data || [];
 
@@ -34,7 +36,11 @@ const BloodGrp = ({ option }) => {
                     borderRadius: "10px"
                 }}
             >
-                {selected && <SortedBarChart topItems={topItems} />}
+                {selected &&
+                <div onClick={()=>setOpenpopup(true)}> <SortedBarChart topItems={topItems} />
+                </div>}
+                {openpopup && (<BgDetail selectedBuyer={selected} setOpenpopup ={setOpenpopup} openpopup={openpopup}  />)}
+                
             
             </div>
 

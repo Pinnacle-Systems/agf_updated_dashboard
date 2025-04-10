@@ -35,6 +35,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardEmployeeDetail: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/employeeDetail",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardSalaryDet: builder.query({
             query: ({ params }) => {
                 return {
@@ -104,6 +117,19 @@ const MisDashboard = createApi({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/ExpDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardBgDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/BgDet",
                     method: 'GET',
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
@@ -230,12 +256,14 @@ const MisDashboard = createApi({
 export const {
     useGetMisDashboardQuery,
     useGetMisDashboardEmployeeDetQuery,
+    useGetMisDashboardEmployeeDetailQuery,
     useGetMisDashboardSalaryDetQuery,
     useGetMisDashboardPfDetQuery,
     useGetMisDashboardEsiDetQuery,
     useGetMisDashboardAttDetQuery,
     useGetMisDashboardAgeDetQuery,
     useGetMisDashboardExpDetQuery,
+    useGetMisDashboardBgDetQuery,
 
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,

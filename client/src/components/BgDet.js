@@ -13,9 +13,9 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardExpDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardBgDetQuery } from "../redux/service/misDashboardService";
 
-const ExpDetail = ({
+const BgDetail = ({
   search,
   setSearch,
   setOpenpopup,openpopup,
@@ -25,14 +25,21 @@ const ExpDetail = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
-     const [ageRange, setAgeRange] = useState({ min: -Infinity, max: Infinity });
+     const [bloodGroup, setBloodGroup] = useState('');
+     const [formData, setFormData] = useState({
+      bloodGroup: '',
+    });
+    
      const [selectedGender,setSelectedGender] = useState('')
 
   const recordsPerPage = 20;
   console.log(openpopup,"openpopup")
- 
+  useEffect(() => {
+    setBloodGroup(formData.bloodGroup.toLowerCase());
+  }, [formData.bloodGroup]);
+  
 
-  const { data: salaryDetData  } = useGetMisDashboardExpDetQuery({
+  const { data: salaryDetData  } = useGetMisDashboardBgDetQuery({
     params: {
         filterBuyer: selectedBuyer ||[] ,  
         search: search || {}               
@@ -45,13 +52,7 @@ const salaryDet = salaryDetData?.data || []
     setCurrentPage(1);
   }, [salaryDet]);
 
-  const handleAgeChange = (e) => {
-    const { name, value } = e.target;
-    setAgeRange((prev) => ({
-      ...prev,
-      [name]: value === '' ? '' : parseInt(value),
-    }));
-  };
+
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -98,6 +99,7 @@ const salaryDet = salaryDetData?.data || []
 
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
+   console.log(bloodGroup,"bloodGroup")
 
   const filteredData = Array.isArray(salaryDet)
   ? salaryDet
@@ -118,9 +120,10 @@ const salaryDet = salaryDetData?.data || []
         if (selectedGender === "Female") return row?.GENDER === "FEMALE";
         return true;
       }).filter((row) => {
-        const age = parseFloat(row?.EXPMON || 0);
-        return age >= (ageRange.min ||0) && age <= (ageRange.max || 50);
+        if (!bloodGroup) return true;
+        return row?.BLOODGROUP?.toLowerCase() === bloodGroup.toLowerCase();
       })
+      
      
   : [];
 
@@ -132,7 +135,13 @@ const salaryDet = salaryDetData?.data || []
     (currentPage - 1) * recordsPerPage,
     currentPage * recordsPerPage
   );
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({  
+      ...prev,
+      [name]: value,
+    }));
+  };
  
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -234,25 +243,28 @@ const salaryDet = salaryDetData?.data || []
   
 </div>
 <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Min Experience:</label>
-            <input
-              type="number"
-              name="min"
-              value={ageRange.min}
-              onChange={handleAgeChange}
-              className="border rounded px-2 py-1 w-16 text-sm"
-              placeholder="Min"
-            />
-            <label className="text-sm font-medium text-gray-700">Max Experience:</label>
-            <input
-              type="number"
-              name="max"
-              value={ageRange.max}
-              onChange={handleAgeChange}
-              className="border rounded px-2 py-1 w-16 text-sm"
-              placeholder="Max"
-            />
-          </div>
+  <label className="text-sm font-medium text-gray-700">Blood Group</label>
+  <select
+    name="bloodGroup"
+    value={formData.bloodGroup}
+    onChange={handleInputChange}
+    className="border rounded px-2 py-1 w-24 text-sm"
+  >
+    <option value="">Select</option>
+    <option value="A+ve">A+ve</option>
+    <option value="A1+ve">A1+ve</option>
+    <option value="A1B+ve">A1B+ve</option>
+    <option value="A2B+ve">A2B+ve</option>
+    <option value="A-ve">A-ve</option>
+    <option value="B+ve">B+ve</option>
+    <option value="B-ve">B-ve</option>
+    <option value="AB+ve">AB+ve</option>
+    <option value="AB-ve">AB-ve</option>
+    <option value="O+ve">O+ve</option>
+    <option value="O-ve">O-ve</option>
+  </select>
+</div>
+
 
 <button
   onClick={downloadExcel}
@@ -296,7 +308,7 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.EXPMON.toFixed(1)}
+  {row.BLOODGROUP}
 </td>
                     
                   </tr>
@@ -330,7 +342,7 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-                    {row.EXPMON.toFixed(1)}
+                    {row.BLOODGROUP}
 
 </td>
                     
@@ -404,4 +416,4 @@ const salaryDet = salaryDetData?.data || []
   );
 };
 
-export default ExpDetail;
+export default BgDetail;

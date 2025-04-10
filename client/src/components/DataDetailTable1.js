@@ -5,21 +5,20 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardEmployeeDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardEmployeeDetailQuery } from "../redux/service/misDashboardService";
 
 
-const DataDetailTable = ({ closeTable, search, setSearch, selectedBuyer, color, payCat}) => {
+const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
    const [selectedState,setSelectedState] = useState('')
    const [selectedGender,setSelectedGender] = useState('')
-   const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetQuery({
-    params: {
-        filterBuyer: selectedBuyer,
-        search,payCat
-    }
-})
-   useEffect(() => {
+  const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetailQuery({
+     params: {
+         search,payCat
+     }
+ })
+ useEffect(() => {
     setCurrentPage(1);
   }, [employeeDet]);  
 
@@ -111,7 +110,7 @@ const DataDetailTable = ({ closeTable, search, setSearch, selectedBuyer, color, 
         </button>
 
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 uppercase">On Roll Insights - <span className="text-blue-600">{selectedBuyer.join(", ")}</span></h2>
+          <h2 className="text-2xl font-bold text-gray-800 uppercase">On Roll Insights </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">Total Records: {totalRecords}</p>
         </div>
 
@@ -178,20 +177,7 @@ const DataDetailTable = ({ closeTable, search, setSearch, selectedBuyer, color, 
 
 </div>
 
-        <div className="grid grid-cols-5 gap-2 mb-3">
-          {["MIDCARD", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
-            <div key={key} className="relative">
-              <input
-                type="text"
-                placeholder={`Search ${key}...`}
-                value={search[key] || ""}
-                onChange={(e) => setSearch({ ...search, [key]: e.target.value })}
-                className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
-              />
-              <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
-            </div>
-          ))}
-        </div>
+       
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
