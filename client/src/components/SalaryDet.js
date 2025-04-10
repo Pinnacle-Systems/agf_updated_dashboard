@@ -148,12 +148,25 @@ const SalaryDetail = ({
         </button>
 
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 uppercase">
+          <h2 className="text-2xl font-bold text-gray-800 uppercase ">
             Salary Insights -  <span className="text-blue-600">{selectedBuyer.join(", ")}</span>
           </h2>
-          <p className="text-sm text-gray-500 font-medium mt-1">
-            Total Records: {totalRecords}
-          </p>
+          <div className="flex items-center justify-center mb-4">
+  {/* Left: Total Records */}
+  <p className="text-sm text-gray-500 font-medium">
+    Total Records: {totalRecords}
+  </p>
+
+  {/* Right: Total Netpay */}
+  <div className="text-right ml-5">
+    <p className="text-sm text-gray-500 font-semibold">
+      Total Netpay: <span className="text-sky-700 pl-2">  ₹{totalNetPay.toLocaleString("en-IN")}</span>
+    </p>
+    
+
+  </div>
+</div>
+
         </div>
 
         <div className="flex justify-center gap-2 mb-4">

@@ -1,31 +1,50 @@
 import { useEffect, useState } from "react";
 import {
-  FaTimes, FaChevronLeft, FaChevronRight, FaStepBackward, FaStepForward, FaSearch,
-  FaUserTie, FaUsers, FaMars, FaVenus 
+  FaTimes,
+  FaChevronLeft,
+  FaChevronRight,
+  FaStepBackward,
+  FaStepForward,
+  FaSearch,
+  FaUserTie,
+  FaUsers,
+  FaMars,
+  FaVenus,
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetMisDashboardEmployeeDetailQuery } from "../redux/service/misDashboardService";
+import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
-
-const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
+const DataDetailTable = ({
+  closeTable,
+  search,
+  setOpenpopup,
+  setSearch,
+  color,
+  payCat,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 20;
-   const [selectedState,setSelectedState] = useState('')
-   const [selectedGender,setSelectedGender] = useState('')
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedBuyer, setSelectedBuyer] = useState("");
+
   const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetailQuery({
-     params: {
-         search,payCat
-     }
- })
- useEffect(() => {
+    params: {
+      search,
+      payCat,
+    },
+  });
+  const { data: buyerList } = useGetBuyerNameQuery({ params: {} });
+  useEffect(() => {
     setCurrentPage(1);
-  }, [employeeDet]);  
+  }, [employeeDet]);
 
   const handleFilterClick = (type) => {
-    setSelectedState(type)
+    setSelectedState(type);
   };
-  console.log(selectedState,"selectedState")
+  console.log(selectedState, "selectedState");
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -34,9 +53,9 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
       alert("No data to export!");
       return;
     }
-  
+
     const headers = [["ID Card", "Name", "Gender", "Department", "Company"]];
-  
+
     const data = filteredData.map((row) => [
       row.MIDCARD,
       row.FNAME,
@@ -44,52 +63,56 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
       row.DEPARTMENT,
       row.COMPCODE,
     ]);
-  
+
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
-  
+
     // Apply style to header row
     const headerRange = XLSX.utils.decode_range(ws["!ref"]);
     for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
       const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
       if (!ws[cell_address]) continue;
-      
+
       ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } }, 
-        font: { bold: true, color: { rgb: "000000" } }, 
-        alignment: { horizontal: "center", vertical: "center" }, 
+        fill: { fgColor: { rgb: "FFFF00" } },
+        font: { bold: true, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" },
       };
     }
-  
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
-  
+
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
-  
-  
-  const filteredData = Array.isArray(employeeDet?.data)
-  ? employeeDet.data
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row?.[key]?.toString().toLowerCase() || "";
-          const searchValue = search?.[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-  : [];
-  
- 
 
+  const filteredData = Array.isArray(employeeDet?.data)
+    ? employeeDet.data
+        .filter((row) =>
+          Object.keys(search || {}).every((key) => {
+            const rowValue = row?.[key]?.toString().toLowerCase() || "";
+            const searchValue = search?.[key]?.toString().toLowerCase() || "";
+            return rowValue.includes(searchValue);
+          })
+        )
+        .filter((row) => {
+          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+          return true;
+        })
+        .filter((row) => {
+          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+          return true;
+        })
+        .filter((row) => {
+          if (selectedBuyer) {
+            return (
+              row?.COMPCODE?.toLowerCase() === selectedBuyer?.toLowerCase()
+            );
+          }
+          return true;
+        })
+    : [];
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
 
@@ -100,51 +123,70 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-  <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px]  relative">
-
+      <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px]  relative">
         <button
-          onClick={closeTable}
+          onClick={() => setOpenpopup(false)}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
         >
           <FaTimes size={20} />
         </button>
 
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 uppercase">On Roll Insights </h2>
-          <p className="text-sm text-gray-500 font-medium mt-1">Total Records: {totalRecords}</p>
+          <h2 className="text-2xl font-bold text-gray-800 uppercase">
+            On Roll Insights{" "}
+          </h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">
+            Total Records: {totalRecords}
+          </p>
         </div>
 
         <div className="flex justify-center gap-2 mb-4">
-  <button
-    onClick={() => handleFilterClick("Labour")}
-    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "Labour" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+          <button
+            onClick={() => handleFilterClick("Labour")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${
+        selectedState === "Labour"
+          ? "bg-blue-600 text-white scale-105"
+          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+      }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
-  >
-    <FaUserTie size={16} /> Employees
-  </button>
+          >
+            <FaUserTie size={16} /> Employees
+          </button>
 
-  <button
-    onClick={() => handleFilterClick("Staff")}
-    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "Staff" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+          <button
+            onClick={() => handleFilterClick("Staff")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${
+        selectedState === "Staff"
+          ? "bg-blue-600 text-white scale-105"
+          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+      }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
-  >
-    <FaUsers size={16} /> Staff
-  </button>
+          >
+            <FaUsers size={16} /> Staff
+          </button>
 
-  <button
-    onClick={() => handleFilterClick("All")}
-    className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "All" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}
+          <button
+            onClick={() => handleFilterClick("All")}
+            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+      ${
+        selectedState === "All"
+          ? "bg-blue-600 text-white scale-105"
+          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+      }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
-  >
-    All
-  </button>
+          >
+            All
+          </button>
           <button
             onClick={() => handleGenderFilter("Male")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Male" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              ${
+                selectedGender === "Male"
+                  ? "bg-blue-600 text-white scale-105"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
             <FaMars size={16} className="text-blue-500" /> Male
           </button>
@@ -152,32 +194,52 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
           <button
             onClick={() => handleGenderFilter("Female")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Female" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              ${
+                selectedGender === "Female"
+                  ? "bg-blue-600 text-white scale-105"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
             <FaVenus size={16} className="text-pink-500" /> Female
           </button>
           <button
             onClick={() => handleGenderFilter("All")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Both" ? "bg-blue-600 text-white scale-105" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              ${
+                selectedGender === "Both"
+                  ? "bg-blue-600 text-white scale-105"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
-            <IoMaleFemale  size={16} className="text-green-500" /> Both
+            <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
+          <select
+            className="border rounded p-2 text-xs text-gray-700"
+            value={selectedBuyer}
+            onChange={(e) => setSelectedBuyer(e.target.value)}
+          >
+            <option value="" disabled>
+              Selected Divisions
+            </option>
+            {buyerList?.data?.map((item, index) => (
+              <option key={index} value={item.buyerName} className="text-xs">
+                {item.buyerName}
+              </option>
+            ))}
+          </select>
+
           <button
-  onClick={downloadExcel}
-  className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
-  title="Download Excel"
->
-  <img
-    src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
-    alt="Download Excel"
-    className="w-8 h-8 rounded-lg"
-  />
-</button>
-
-</div>
-
-       
+            onClick={downloadExcel}
+            className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
+            title="Download Excel"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
+              alt="Download Excel"
+              className="w-8 h-8 rounded-lg"
+            />
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
@@ -193,7 +255,10 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
               </thead>
               <tbody className="text-xs">
                 {currentRecords.slice(0, 10).map((row, index) => (
-                  <tr key={index} className="text-gray-700 bg-white even:bg-gray-100 ">
+                  <tr
+                    key={index}
+                    className="text-gray-700 bg-white even:bg-gray-100 "
+                  >
                     <td className="border p-2">{row.MIDCARD}</td>
                     <td className="border p-2">{row.FNAME}</td>
                     <td className="border p-2">{row.GENDER}</td>
@@ -218,7 +283,10 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
               </thead>
               <tbody className="text-xs">
                 {currentRecords.slice(10, 20).map((row, index) => (
-                  <tr key={index} className="text-gray-700 bg-white even:bg-gray-100">
+                  <tr
+                    key={index}
+                    className="text-gray-700 bg-white even:bg-gray-100"
+                  >
                     <td className="border p-2">{row.MIDCARD}</td>
                     <td className="border p-2">{row.FNAME}</td>
                     <td className="border p-2">{row.GENDER}</td>
@@ -233,45 +301,62 @@ const DataDetailTable = ({ closeTable, search, setSearch,  color, payCat}) => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-  <div className="flex justify-center items-center mt-4 space-x-2 text-sm">
-    <button
-      onClick={() => setCurrentPage(1)}
-      disabled={currentPage === 1}
-      className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
-    >
-      <FaStepBackward size={16} />
-    </button>
+          <div className="flex justify-center items-center mt-4 space-x-2 text-sm">
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+              }`}
+            >
+              <FaStepBackward size={16} />
+            </button>
 
-    <button
-      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-      disabled={currentPage === 1}
-      className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
-    >
-      <FaChevronLeft size={16} />
-    </button>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-md ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+              }`}
+            >
+              <FaChevronLeft size={16} />
+            </button>
 
-    <span className="text-sm font-semibold px-3">
-      Page {currentPage} of {totalPages}
-    </span>
+            <span className="text-sm font-semibold px-3">
+              Page {currentPage} of {totalPages}
+            </span>
 
-    <button
-      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-      disabled={currentPage === totalPages}
-      className={`p-2 rounded-md ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
-    >
-      <FaChevronRight size={16} />
-    </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+              }`}
+            >
+              <FaChevronRight size={16} />
+            </button>
 
-    <button
-      onClick={() => setCurrentPage(totalPages)}
-      disabled={currentPage === totalPages}
-      className={`p-2 rounded-md ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-gray-200"}`}
-    >
-      <FaStepForward size={16} />
-    </button>
-  </div>
-)}
-
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-md ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+              }`}
+            >
+              <FaStepForward size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

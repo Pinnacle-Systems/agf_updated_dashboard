@@ -158,7 +158,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Experience Distribution -  <span className="text-blue-600">{selectedBuyer}</span>
+          Blood Group Distribution-  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}

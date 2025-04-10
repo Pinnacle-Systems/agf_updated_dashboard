@@ -66,7 +66,7 @@ const YearlyComChart = () => {
         xAxis: {
             categories,
             title: {
-                text: 'Branches',
+                text: 'Divisions',
                 style: {
                     color: '#374151',
                     fontSize: '12px',
@@ -132,7 +132,7 @@ const YearlyComChart = () => {
 
     return (
      <CardWrapper heading="Employee Strength As On Date" chartRef={chartRef} showFilter={false} Doption={true}>
-   {openpopup && <DataDetailTable graph = {true} />}
+   {openpopup && <DataDetailTable graph = {true} setOpenpopup={setOpenpopup} />}
 
     <div id="chart" className="relative pt-2 rounded" onClick={()=>setOpenpopup(true)}>
     <HighchartsReact
