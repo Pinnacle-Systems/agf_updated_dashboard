@@ -53,7 +53,7 @@ const PfData = () => {
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
-
+    const [openPopup, setOpenPopup] = useState(false)
     const { color } = useContext(ColorContext);
 
     const { data: buyer } = useGetBuyerNameQuery({});
@@ -165,7 +165,7 @@ const PfData = () => {
                     <div>No Data Available</div>
                 )}
             </div>
-
+      {openPopup && <PfDetail  />}
             {showModel && (
                 <ModelMultiSelectChart4
                     color={color}
