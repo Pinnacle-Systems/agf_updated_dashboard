@@ -13,36 +13,37 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardBgDetQuery } from "../redux/service/misDashboardService";
-
+import { useGetMisDashboardPfDataDetQuery } from "../redux/service/misDashboardService"
+import FinYear from "./FinYear";
 const PfDetail = ({
-  search,
-  setSearch,
-  setOpenpopup,openpopup,
-  selectedBuyer,
-
-  color,
+  selectedBuyer,  selectedYear ,
+ color,setOpenpopup,
+ 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
-     const [bloodGroup, setBloodGroup] = useState('');
-     const [formData, setFormData] = useState({
-      bloodGroup: '',
-    });
-    
      const [selectedGender,setSelectedGender] = useState('')
+     const [selectmonths, setSelectmonths] = useState("");
 
+    const [netpayRange,setNetpayRange] = useState({
+    min:0,
+    max:Infinity
+   })
+    const [search, setSearch] = useState({
+           FNAME: "",
+           GENDER: "",
+           MIDCARD: "",
+           DEPARTMENT: "",
+           COMPCODE: "",
+         });
   const recordsPerPage = 20;
-  console.log(openpopup,"openpopup")
-  useEffect(() => {
-    setBloodGroup(formData.bloodGroup.toLowerCase());
-  }, [formData.bloodGroup]);
-  
+  console.log(selectedBuyer,"selectedBuyer for salary")
+ 
 
-  const { data: salaryDetData  } = useGetMisDashboardBgDetQuery({
+  const { data: salaryDetData  } = useGetMisDashboardPfDataDetQuery({
     params: {
-        filterBuyer: selectedBuyer ||[] ,  
-        search: search || {}               
+        filterBuyer: selectedBuyer ||[] ,     search: search || {},       
+         selectedYear ,             
     }
 });
 
@@ -52,7 +53,7 @@ const salaryDet = salaryDetData?.data || []
     setCurrentPage(1);
   }, [salaryDet]);
 
-
+  
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -67,7 +68,7 @@ const salaryDet = salaryDetData?.data || []
       return;
     }
 
-    const headers = [["ID Card", "Name", "Gender", "Department", "Company","Date of Left","Reason"]];
+    const headers = [["ID Card", "Name", "Gender", "Department", "Company","Netpay"]];
 
     const data = filteredData.map((row) => [
       row.EMPID,
@@ -75,8 +76,7 @@ const salaryDet = salaryDetData?.data || []
       row.GENDER,
       row.DEPARTMENT,
       row.COMPCODE,
-      row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-',
-      row.REASON
+      row.NETPAY
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -99,18 +99,17 @@ const salaryDet = salaryDetData?.data || []
 
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
-   console.log(bloodGroup,"bloodGroup")
 
   const filteredData = Array.isArray(salaryDet)
   ? salaryDet
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row?.[key]?.toString().toLowerCase() || "";
-          const searchValue = search?.[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
+  .filter((row) =>
+    Object.keys(search || {}).every((key) => {
+      const rowValue = row?.[key]?.toString().toLowerCase() || "";
+      const searchValue = search?.[key]?.toString().toLowerCase() || "";
+      return rowValue.includes(searchValue);
+    })
+  )
+        .filter((row) => {
         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
@@ -119,15 +118,17 @@ const salaryDet = salaryDetData?.data || []
         if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
         if (selectedGender === "Female") return row?.GENDER === "FEMALE";
         return true;
-      }).filter((row) => {
-        if (!bloodGroup) return true;
-        return row?.BLOODGROUP?.toLowerCase() === bloodGroup.toLowerCase();
       })
-      
-     
+      .filter((row) => {
+        const netpay = Number(row?.NETPAY) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      }).filter ((row)=>{
+        if(!selectmonths) return true;
+        return row?.PAYPERIOD === selectmonths
+      })
   : [];
 
-  
+  const totalNetPay = filteredData.reduce((sum, row) => sum + (Number(row.NETPAY) || 0), 0);
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
 
@@ -135,22 +136,21 @@ const salaryDet = salaryDetData?.data || []
     (currentPage - 1) * recordsPerPage,
     currentPage * recordsPerPage
   );
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({  
-      ...prev,
-      [name]: value,
-    }));
-  };
- 
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.NETPAY),
+      maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
   <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
+
         <button
-          onClick={() => setOpenpopup(false)}
-
-
-
+          onClick={()=> setOpenpopup(false)}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
         >
           <FaTimes size={20} />
@@ -158,11 +158,23 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Blood Group Distribution-  <span className="text-blue-600">{selectedBuyer}</span>
+          Pf Insights - <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
-          <p className="text-sm text-gray-500 font-medium mt-1">
-            Total Records: {totalRecords}
-          </p>
+          <div className="flex items-center justify-center mb-4">
+  {/* Left: Total Records */}
+  <p className="text-sm text-gray-500 font-medium">
+    Total Records: {totalRecords}
+  </p>
+
+  {/* Right: Total Netpay */}
+  <div className="text-right ml-5">
+    <p className="text-sm text-gray-500 font-semibold">
+      Total Netpay: <span className="text-sky-700 pl-2">  ₹{totalNetPay.toLocaleString("en-IN")}</span>
+    </p>
+    
+
+  </div>
+</div>
         </div>
 
         <div className="flex justify-center gap-2 mb-4">
@@ -238,34 +250,31 @@ const salaryDet = salaryDetData?.data || []
           >
             <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
-      
+          <div className="flex items-center gap-4">
+  <div className="flex items-center gap-2">
+    <span className="text-gray-500">Min Pf Amt:</span>
+    <input
+      type="number"
+      value={netpayRange.min}
+      onChange={(e) => setNetpayRange({ ...netpayRange, min: Number(e.target.value) })}
+      className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="text-gray-500">Max Pf Amt:</span>
+    <input
+      type="number"
+      value={netpayRange.max === Infinity ? "" : netpayRange.max}
+      onChange={(e) => setNetpayRange({ ...netpayRange, max: Number(e.target.value) })}
+      className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+  </div>
+</div>
+
           <div>
   
 </div>
-<div className="flex items-center gap-2">
-  <label className="text-sm font-medium text-gray-700">Blood Group</label>
-  <select
-    name="bloodGroup"
-    value={formData.bloodGroup}
-    onChange={handleInputChange}
-    className="border rounded px-2 py-1 w-24 text-sm"
-  >
-    <option value="">Select</option>
-    <option value="A+ve">A+ve</option>
-    <option value="A1+ve">A1+ve</option>
-    <option value="A1B+ve">A1B+ve</option>
-    <option value="A2B+ve">A2B+ve</option>
-    <option value="A-ve">A-ve</option>
-    <option value="B+ve">B+ve</option>
-    <option value="B-ve">B-ve</option>
-    <option value="AB+ve">AB+ve</option>
-    <option value="AB-ve">AB-ve</option>
-    <option value="O+ve">O+ve</option>
-    <option value="O-ve">O-ve</option>
-  </select>
-</div>
-
-
 <button
   onClick={downloadExcel}
   className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
@@ -280,8 +289,25 @@ const salaryDet = salaryDetData?.data || []
 
         </div>
 
-       
+          <div className="grid grid-cols-5 gap-2 mb-3">
+                 {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+                   <div key={key} className="relative">
+                     <input
+                       type="text"
+                       placeholder={`Search ${key}...`}
+                       value={search[key] || ""}
+                       onChange={(e) =>
+                         setSearch({ ...search, [key]: e.target.value })
+                       }
+                       className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                     />
+                     <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
+                   </div>
+                 ))}
+                   <FinYear selectedYear=  {selectedYear} selectmonths= {selectmonths} setSelectmonths={ setSelectmonths} />
 
+               </div>
+              
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
             <table className="w-full border-collapse border border-gray-300 text-sm">
@@ -292,8 +318,9 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Experience</th>
+                  <th className="border p-2 text-left">PayPeriod</th>
 
+                  <th className="border p-2 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -308,9 +335,15 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.BLOODGROUP}
-</td>
-                    
+                {row.PAYPERIOD}
+                    </td>
+                    <td className="border p-2 text-sky-700 text-right text-end">
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(row.NETPAY)}
+                    </td>
+                  
                   </tr>
                 ))}
               </tbody>
@@ -326,8 +359,9 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Experience</th>
+                  <th className="border p-2 text-left">PayPeriod</th>
 
+                  <th className="border p-2 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -341,11 +375,13 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.GENDER}</td>
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
-                    <td className="border p-2">
-                    {row.BLOODGROUP}
-
-</td>
-                    
+                    <td className="border p-2">{row.PAYPERIOD}</td>
+                    <td className="border p-2 text-sky-700 text-right text-end">
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(row.NETPAY)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

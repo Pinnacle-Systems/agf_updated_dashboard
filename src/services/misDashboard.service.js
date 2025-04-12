@@ -510,7 +510,92 @@ WHERE ${whereClause}
     res.status(500).json({ success: false, error: error.message });
   }
 }
+ export async function getPfDataDet(req,res) {
+  const connection = await getConnection(res);
+  const { filterBuyer, search = {}, selectedYear } = req.query;
+  let result = [];
+  let whereClause = `DD.COMPCODE IN ('${filterBuyer}') AND A.PCTYPE = 'BUYER' and EE.FINYR  = '${selectedYear}' AND A.PF> 0
+    `;
 
+  if (search.FNAME)
+    whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+  const sql = `
+      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.PF AS NETPAY, DD.PAYCAT, DD.COMPCODE,A.PAYPERIOD,TO_CHAR(EE.STDT,'MM') DAY,TO_CHAR(EE.STDT,'YYYY') YEAR
+FROM HPAYROLL A
+JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
+JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+
+WHERE ${whereClause}
+ORDER BY A.EMPID,YEAR,DAY
+ `;
+
+  console.log(sql, "SQL for pf Detail");
+
+  const queryResult = await connection.execute(sql);
+
+  result = queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+
+  res.status(200).json({ success: true, data: result });
+}
+export async function getEsiDataDet(req,res) {
+  const connection = await getConnection(res);
+  const { filterBuyer, search = {}, selectedYear } = req.query;
+  let result = [];
+  let whereClause = `DD.COMPCODE IN ('${filterBuyer}') AND A.PCTYPE = 'BUYER' and EE.FINYR  = '${selectedYear}' AND A.ESI> 0
+    `;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+  const sql = `
+      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE,A.PAYPERIOD,TO_CHAR(EE.STDT,'MM') DAY,TO_CHAR(EE.STDT,'YYYY') YEAR
+FROM HPAYROLL A
+JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
+JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+
+WHERE ${whereClause}
+ORDER BY A.EMPID,YEAR,DAY
+ `;
+
+  console.log(sql, "SQL for esi Detail");
+
+  const queryResult = await connection.execute(sql);
+
+  result = queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+
+  res.status(200).json({ success: true, data: result });
+}
 export async function getEmployeesDetail(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
@@ -990,13 +1075,14 @@ JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
 JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
 WHERE EE.FINYR = '${filterYear}'
-AND A.COMPCODE = '${filterSupplier}'
+AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' 
 GROUP BY A.COMPCODE, EE.FINYR,A.PAYPERIOD,EE.STDT
+HAVING SUM(A.PF) > 0
 ORDER BY STDT1,STDT
 
  
 `;
-    console.log(sql, "event Query sql");
+    console.log(sql, "event pfDetail");
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({

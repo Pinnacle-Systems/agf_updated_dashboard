@@ -8,6 +8,7 @@ import { useGetYFActVsPlnQuery } from '../../../redux/service/orderManagement';
 import { ColorContext } from '../../global/context/ColorContext';
 import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
 import { useGetEsiPfQuery } from '../../../redux/service/misDashboardService';
+import EsiDetail from '../../../components/EsiDetailTable';
 
 const Pf = () => {
      const chartRef = useRef(null)
@@ -50,6 +51,7 @@ const Pf = () => {
     const [selectedBuyer, setSelectedBuyer] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [buyerNm, setBuyerNm] = useState([]);
+    const [openPopup, setOpenPopup] = useState(false)
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
     const { color } = useContext(ColorContext);
@@ -168,7 +170,9 @@ const Pf = () => {
                     showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                     selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
             }
-            <div className='mt-2'
+                  {openPopup && <EsiDetail selectedBuyer = {selectedBuyer} selectedYear= {selectedYear} setOpenpopup={setOpenPopup} />}
+            
+            <div className='mt-2' onClick={()=>setOpenPopup(true)}
             ref = {chartRef} >
             {orderCount > 0 ? (
                 <HighchartsReact highcharts={Highcharts} options={options} />

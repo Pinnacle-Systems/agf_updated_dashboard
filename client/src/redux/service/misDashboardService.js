@@ -139,6 +139,32 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardPfDataDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/PfDataDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardEsiDataDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/EsiDataDet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -264,7 +290,8 @@ export const {
     useGetMisDashboardAgeDetQuery,
     useGetMisDashboardExpDetQuery,
     useGetMisDashboardBgDetQuery,
-
+    useGetMisDashboardPfDataDetQuery,
+    useGetMisDashboardEsiDataDetQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

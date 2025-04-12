@@ -155,10 +155,7 @@ const EsiDetail = ({
             <span className="text-blue-600">{selectedBuyer.join(", ")}</span>
           </h2>
           <div className="text-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-800 uppercase">
-              Pf Insights -{" "}
-              <span className="text-blue-600">{selectedBuyer.join(", ")}</span>
-            </h2>
+          
             <div className="flex items-center justify-center mb-4">
               {/* Left: Total Records */}
               <p className="text-sm text-gray-500 font-medium">

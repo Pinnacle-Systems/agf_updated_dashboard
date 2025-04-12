@@ -7,6 +7,7 @@ import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../.
 import { useGetEsiPfQuery } from '../../../redux/service/misDashboardService';
 import { ColorContext } from '../../global/context/ColorContext';
 import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
+import PfDetail from '../../../components/PfDetailTable';
 
 const PfData = () => {
     const chartRef = useRef(null);
@@ -119,7 +120,7 @@ const PfData = () => {
                 let index = this.points[0].point.index;
                 let headCountValue = headCount[index];
                 let pf = pfData[index];
-                let monthName = this.x; // Get formatted month from x-axis
+                let monthName = this.x; 
     
                 return `<b>Month:</b> ${monthName} <br/>
                         <b>PF Value:</b> ${pf} <br/>
@@ -158,14 +159,14 @@ const PfData = () => {
 
     return (
         <CardWrapper heading="PF Breakup" onFilterClick={() => setShowModel(true)} chartRef={chartRef}>
-            <div className="mt-2" ref={chartRef}>
+            <div className="mt-2" ref={chartRef} onClick={()=>setOpenPopup(true)}>
                 {orderCount > 0 ? (
                     <HighchartsReact highcharts={Highcharts} options={options} />
                 ) : (
                     <div>No Data Available</div>
                 )}
             </div>
-      {openPopup && <PfDetail  />}
+      {openPopup && <PfDetail selectedBuyer = {selectedBuyer} selectedYear= {selectedYear} setOpenpopup={setOpenPopup} />}
             {showModel && (
                 <ModelMultiSelectChart4
                     color={color}
