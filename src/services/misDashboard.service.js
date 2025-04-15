@@ -341,6 +341,57 @@ export async function getattdet(req, res) {
 
   res.status(200).json({ success: true, data: result });
 }
+export async function getattdetTable(req, res) {
+  const connection = await getConnection(res);
+  const { filterBuyer, search = {}, filterYear} = req.query;
+  let result = [];
+ 
+  let whereClause = `C.IDCARDNO = A.IDCARD 
+         AND C.LWORKDAY = A.DOL) AS REASON,
+        A.COMPCODE,
+        A.DOL
+            FROM MISTABLE A
+            JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
+            AND B.FINYR = '${filterYear}' 
+            AND A.COMPCODE IN '${filterBuyer}'
+            AND A.DOL BETWEEN B.STDT AND B.ENDT'`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`;
+  if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+  const sql = `
+   SELECT B.PAYPERIOD, B.STDT ,B.PAYPERIOD,
+  A.IDCARD EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.DOJ,
+        A.DEPARTMENT,
+        (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
+         FROM EMPDESGENTRY C 
+    WHERE ${whereClause}
+    ORDER BY A.COMPCODE, 1, 2, 3`;
+
+  console.log(sql, "SQL for att Detail");
+
+  const queryResult = await connection.execute(sql);
+
+  result = queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+
+  res.status(200).json({ success: true, data: result });
+}
 export async function getagedet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
@@ -1062,21 +1113,30 @@ export async function getESIPF(req, res) {
     let sql;
 
     sql = `
-SELECT 
-    A.COMPCODE,
-    A.PAYPERIOD,
-    EE.FINYR,
-    SUM(A.ESI) AS ESI,
-    SUM(A.PF) AS PF,
-    COUNT(DISTINCT A.EMPID) AS HEADCOUNT,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+SELECT
+A.COMPCODE,
+A.PAYPERIOD,
+A.FINYR,
+ SUM(A.ESI) AS ESI,
+SUM(A.PF) AS PF,
+COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
+FROM
+(SELECT
+A.COMPCODE,
+A.PAYPERIOD,
+EE.FINYR,
+A.ESI,
+A.PF AS PF,
+A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
 FROM HPAYROLL A
 JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
 JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
 JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
 WHERE EE.FINYR = '${filterYear}'
-AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' 
-GROUP BY A.COMPCODE, EE.FINYR,A.PAYPERIOD,EE.STDT
+AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.PF>0
+) A
+GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
 HAVING SUM(A.PF) > 0
 ORDER BY STDT1,STDT
 
@@ -1092,6 +1152,59 @@ ORDER BY STDT1,STDT
       esi: po[3],
       pf: po[4],
       headCount: po[5],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getESIPF1(req, res) {
+  const connection = await getConnection(res);
+  try {
+    const { filterCat, filterSupplier, filterYear } = req.query;
+    console.log(filterSupplier, "filterSupplier");
+    let sql;
+
+    sql = `
+SELECT
+A.COMPCODE,
+A.PAYPERIOD,
+A.FINYR,
+ SUM(A.ESI) AS ESI,
+COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
+FROM
+(SELECT
+A.COMPCODE,
+A.PAYPERIOD,
+EE.FINYR,
+A.ESI,
+A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+FROM HPAYROLL A
+JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+WHERE EE.FINYR = '${filterYear}'
+AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
+) A
+GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
+ORDER BY STDT1,STDT
+
+ 
+`;
+    console.log(sql, "event pfDetail");
+
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      customer: po[0],
+      month: po[1],
+      Year: po[2],
+      esi: po[3],
+     headCount: po[4],
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {

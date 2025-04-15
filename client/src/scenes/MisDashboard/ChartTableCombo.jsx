@@ -5,9 +5,9 @@ import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
 import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
 import { ColorContext } from '../global/context/ColorContext';
 import { useContext } from "react";
-import ModelMultiSelectChart2 from '../../components/ModelMultiSelectChart2';
 import CardWrapper from '../../components/CardWrapper';
 import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
+import AttritionDetTable from '../../components/AttDetTable';
 
 const ChartTable = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
@@ -17,6 +17,7 @@ const ChartTable = () => {
     const [monthData, setMonthData] = useState([]);
      const chartRef = useRef()
     const [yearData, setYearData] = useState([]);
+    const [openpopup,setOpenpopup] = useState(false)
     const { color } = useContext(ColorContext);
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } });
@@ -151,7 +152,7 @@ const ChartTable = () => {
             
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row',  }}>
-                        <div style={{ flex: '66%', minWidth: '100%' }} className='flex flex-col pt-2 rounded'
+                        <div style={{ flex: '66%', minWidth: '100%' }} onClick={()=>setOpenpopup(true)} className='flex flex-col pt-2 rounded'
                         ref = {chartRef}>
                             <HighchartsReact
                                 highcharts={Highcharts}
@@ -165,6 +166,7 @@ const ChartTable = () => {
                 ) : (
                     <div>No Data Available</div>
                 )}
+                {openpopup && <AttritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup = {setOpenpopup}  />}
                     {showModel &&
                     <ModelMultiSelectChart3 color={color}
                         showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}

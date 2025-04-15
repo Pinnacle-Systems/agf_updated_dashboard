@@ -7,7 +7,7 @@ import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../.
 import { useGetYFActVsPlnQuery } from '../../../redux/service/orderManagement';
 import { ColorContext } from '../../global/context/ColorContext';
 import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
-import { useGetEsiPfQuery } from '../../../redux/service/misDashboardService';
+import { useGetEsiPf1Query } from '../../../redux/service/misDashboardService';
 import EsiDetail from '../../../components/EsiDetailTable';
 
 const Pf = () => {
@@ -58,7 +58,7 @@ const Pf = () => {
     const { data: buyer } = useGetBuyerNameQuery({});
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear, filterBuyer: selectedBuyer } });
     const { data: year } = useGetFinYearQuery({});
-    const { data: fabPlVsActFull } = useGetEsiPfQuery({
+    const { data: fabPlVsActFull } = useGetEsiPf1Query({
         params: { filterMonth: selectedMonth, filterSupplier: selectedBuyer, filterYear: selectedYear },
     });
 
@@ -75,7 +75,6 @@ const Pf = () => {
 
 
     const esiData = fabPlVsActFullDt.map((item) => item.esi);
-    const pfData = fabPlVsActFullDt.map((item) => item.pf);
 
     const headCount = fabPlVsActFullDt.map((item) => item.headCount); 
 
@@ -159,7 +158,8 @@ const Pf = () => {
     };
     
     
-    
+    console.log(headCount,"headCount")
+ 
     console.log(selectedYear,"selectYearfor")
 
     const [showModel, setShowModel] = useState(false);
