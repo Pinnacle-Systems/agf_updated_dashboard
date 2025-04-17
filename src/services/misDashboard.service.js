@@ -354,7 +354,7 @@ export async function getattdetTable(req, res) {
             JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
             AND B.FINYR = '${filterYear}' 
             AND A.COMPCODE IN '${filterBuyer}'
-            AND A.DOL BETWEEN B.STDT AND B.ENDT'`;
+            AND A.DOL BETWEEN B.STDT AND B.ENDT`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -377,7 +377,7 @@ export async function getattdetTable(req, res) {
         (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
          FROM EMPDESGENTRY C 
     WHERE ${whereClause}
-    ORDER BY A.COMPCODE, 1, 2, 3`;
+   `;
 
   console.log(sql, "SQL for att Detail");
 
@@ -392,16 +392,71 @@ export async function getattdetTable(req, res) {
 
   res.status(200).json({ success: true, data: result });
 }
+export async function getretdetTable(req, res) {
+  const connection = await getConnection(res);
+  const { filterBuyer, search = {}, filterYear} = req.query;
+  let result = [];
+ 
+  let whereClause = `A.COMPCODE IN '${filterBuyer}' AND B.FINYR='${filterYear}' AND A.DOL >= (SELECT AA.ENDT FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN '${filterBuyer}' AND AA.PAYPERIOD = B.PAYPERIOD AND AA.FINYR = '${filterYear}' )
+         AND A.DOJ <= (SELECT AA.ENDT FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN '${filterBuyer}' AND AA.PAYPERIOD = B.PAYPERIOD AND AA.FINYR = '${filterYear}' ) `;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`;
+  if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+  const sql = `
+ SELECT  A.IDCARD EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.COMPCODE,
+        A.DOJ,
+        A.DEPARTMENT,B.PAYPERIOD FROM MISTABLE A
+         JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+         WHERE ${whereClause}
+   `;
+
+  console.log(sql, "SQL for ret Detail");
+
+  const queryResult = await connection.execute(sql);
+
+  result = queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+
+  res.status(200).json({ success: true, data: result });
+}
+
 export async function getagedet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
   let result = [];
-  let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
-  AND AA.DOB <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) AND (AA.DOL IS NULL OR AA.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) )`;
+  let whereClause = `
+  A.COMPCODE IN (${buyerInClause})
+  AND A.DOJ <= (
+    SELECT MAX(AA.ENDT) 
+    FROM MONTHLYPAYFRQ AA 
+    WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}'
+  )
+  AND A.IDCARD NOT IN (
+    SELECT AA.IDCARD 
+    FROM MISTABLE AA 
+    WHERE AA.COMPCODE IN (${buyerInClause})
+    AND AA.DOL BETWEEN 
+      (SELECT MIN(AA.STDT) FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}')
+      AND 
+      (SELECT MAX(AA.ENDT) FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}')
+  )
+`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -822,7 +877,7 @@ export async function getOrdersInHandMonthWise(req, res) {
     const monthArr = `
         SELECT B.PAYPERIOD,B.STDT,A.COMPCODE,COUNT(*) ATTRITION FROM MISTABLE A
 JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
-AND B.FINYR = :FINYEAR AND A.COMPCODE = :COMPCODE
+AND B.FINYR = :FINYEAR AND A.COMPCODE IN '${filterBuyer}'
 AND A.DOL BETWEEN B.STDT AND B.ENDT
 GROUP BY B.PAYPERIOD,B.STDT,A.COMPCODE
 ORDER BY 2

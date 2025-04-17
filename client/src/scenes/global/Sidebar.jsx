@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { styled } from '@mui/material/styles';
+import { FaDatabase, FaMoneyBill } from "react-icons/fa";
 import {
   Box,
   Typography,
@@ -70,7 +71,7 @@ const Sidebar = () => {
   return (
     <SidebarContainer isCollapsed={isCollapsed}>
       <List className="mt-3">
-        <Tooltip title="Dashboard" placement="right" disableHoverListener={!isCollapsed}>
+        <Tooltip title="PayRoll" placement="right" disableHoverListener={!isCollapsed}>
           <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>
             <StyledListItemIcon>
               <DashboardIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
@@ -87,6 +88,29 @@ const Sidebar = () => {
             )}
           </StyledListItemButton>
         </Tooltip>
+        <Tooltip title="ERP" placement="right" disableHoverListener={!isCollapsed}>
+  <StyledListItemButton onClick={() => dispatch(push({ id: 2, name: 'ERP' }))}>
+    <StyledListItemIcon>
+      <FaDatabase
+        style={{
+          color: color || '#CA8A04',
+          fontSize: '24px',
+          background: 'white',
+        }}
+      />
+    </StyledListItemIcon>
+    {!isCollapsed && (
+      <ListItemText
+        primary="ERP"
+        primaryTypographyProps={{
+          fontSize: '0.875rem',
+          fontWeight: 500,
+        }}
+        sx={{ ml: 1 }}
+      />
+    )}
+  </StyledListItemButton>
+</Tooltip>
 
         <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
           <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>

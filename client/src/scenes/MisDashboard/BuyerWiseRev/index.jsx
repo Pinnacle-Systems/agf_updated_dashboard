@@ -8,10 +8,12 @@ import CardWrapper from '../../../components/CardWrapper';
 import ModelMultiSelectChart3 from '../../../components/ModelMultiSelectChart3 copy';
 import { ColorContext } from '../../global/context/ColorContext';
 import { useContext } from 'react';
+import RetritionDetTable from '../../../components/RetDetTable';
 const Retention = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
+    const [openpopup, setOpenpopup] = useState(false)
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
     const [yearData, setYearData] = useState([]);
@@ -181,6 +183,7 @@ const Retention = () => {
                                     showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                                     selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
                             }
+                            {openpopup && <RetritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup={setOpenpopup} />}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div className="flex justify-end">
 
@@ -193,7 +196,7 @@ const Retention = () => {
                 </div>
                 {orderCount > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col'  >
+                        <div style={{ flex: '66%', minWidth: '66%' }} className='flex flex-col' onClick={()=>setOpenpopup(true)} >
                             <HighchartsReact
                                 highcharts={Highcharts} 
                                 options={options}

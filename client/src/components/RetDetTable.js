@@ -13,10 +13,10 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardAttDetTableQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardRetDetTableQuery } from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
 
-const AttritionDetTable = ({
+const RetritionDetTable = ({
    setOpenpopup,
   selectedBuyer,
   selectedYear
@@ -37,7 +37,7 @@ const AttritionDetTable = ({
   console.log(selectedBuyer,"selectedBuyer for salary")
  
 
-  const { data: salaryDetData  } = useGetMisDashboardAttDetTableQuery({
+  const { data: salaryDetData  } = useGetMisDashboardRetDetTableQuery({
     params: {
         filterBuyer: selectedBuyer ||[] ,  
         search: search || {}   ,
@@ -147,7 +147,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Attrition Breakup -  <span className="text-blue-600">{selectedBuyer}</span>
+          Retention Breakup -  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -273,8 +273,7 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Date of Left</th>
-                  <th className="border p-2 text-left">Reason</th>
+                  <th className="border p-2 text-left">PayPeriod</th>
 
                 </tr>
               </thead>
@@ -290,11 +289,9 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-'}
+ {row.PAYPERIOD}
 </td>
-                    <td className="border p-2 text-red-500 font-semibold">
-                    {row.REASON || "N/A"} 
-                  </td>
+                   
                   </tr>
                 ))}
               </tbody>
@@ -310,8 +307,7 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Gender</th>
                   <th className="border p-2 text-left">Department</th>
                   <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Date of Left</th>
-                  <th className="border p-2 text-left">Reason</th>
+                  <th className="border p-2 text-left">PayPeriod</th>
 
                 </tr>
               </thead>
@@ -327,11 +323,9 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-'}
+ {row.PAYPERIOD}
 </td>
-                    <td className="border p-2 text-red-500 font-semibold">
-                    {row.REASON || "N/A"} 
-                  </td>
+                    
                   </tr>
                 ))}
               </tbody>
@@ -402,4 +396,4 @@ const salaryDet = salaryDetData?.data || []
   );
 };
 
-export default AttritionDetTable;
+export default RetritionDetTable;

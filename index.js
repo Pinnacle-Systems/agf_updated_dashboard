@@ -15,6 +15,7 @@ import {
   poData,
   misDashboard,
   ordManagement,
+  misDashboardERP,
   user
 } from "./src/routes/index.js"
 
@@ -47,6 +48,8 @@ app.use('/supplier', supplier)
 app.use('/poData', poData)
 
 app.use('/misDashboard', misDashboard)
+
+app.use('/misDashboardERP', misDashboardERP)
 
 app.use('/ordManagement', ordManagement)
 

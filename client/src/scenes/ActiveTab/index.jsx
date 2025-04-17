@@ -7,6 +7,7 @@ import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
 import { MisDashboard } from "../../scenes"
+import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
 import OutlinedCard from "../Users/Users";
 import { ColorContext } from "../global/context/ColorContext";
@@ -21,6 +22,7 @@ const ActiveTabList = () => {
 
     const tabs = {
         "DASHBOARD": <MisDashboard />,
+        "ERP": <MisDashboardERP />,
         "Employees Detail": <PoRegister />,
         'Order Status': <OrderManagement />,
         "User": <OutlinedCard />,

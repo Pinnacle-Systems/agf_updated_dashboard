@@ -454,7 +454,7 @@ export async function getFabStsData(req, res) {
 export async function getYFActVsPln(req, res) {
     const connection = await getConnection(res);
     try {
-        const { filterMonth, filterSupplier, filterYear } = req.query;
+        const {filterSupplier, filterYear } = req.query;
         console.log(filterSupplier, 'fil');
 
         // Split the filterSupplier string into an array

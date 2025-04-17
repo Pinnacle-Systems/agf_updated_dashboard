@@ -113,6 +113,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardRetDetTable: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/RetDetTable",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardAgeDet: builder.query({
             query: ({ params }) => {
                 return {
@@ -314,7 +327,7 @@ export const {
     useGetMisDashboardEsiDetQuery,
     useGetMisDashboardAttDetQuery,
     useGetMisDashboardAttDetTableQuery,
-
+    useGetMisDashboardRetDetTableQuery,
     useGetMisDashboardAgeDetQuery,
     useGetMisDashboardExpDetQuery,
     useGetMisDashboardBgDetQuery,
