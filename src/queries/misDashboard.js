@@ -16,31 +16,31 @@ const lstMnth = [lastMonthName, lastMonthYear].join(' ');
 export async function getEmployees(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
     let result = ''
     if (type === "Value") {
-        const sql = `SELECT  
-    SUM(MALE) AS MALE,
-    SUM(FEMALE) AS FEMALE,
-    SUM(MALE) + SUM(FEMALE) AS TOTAL,
-    COMPCODE
+        const sql = `SELECT 
+SUM(MALE) AS MALE,
+SUM(FEMALE) AS FEMALE,
+SUM(MALE) + SUM(FEMALE) AS TOTAL,
+COMPCODE
 FROM (
-    SELECT 
-        CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END AS MALE,
-        CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END AS FEMALE,
-        A.COMPCODE
-    FROM MISTABLE A  
-    WHERE 
-        1=1 
-        AND A.PAYCAT = 'STAFF' 
-        AND A.DOJ <= (
-            SELECT MIN(AA.STDT) 
-            FROM MONTHLYPAYFRQ AA 
-            WHERE AA.PAYPERIOD =  '${currentDt}'
-        ) 
-        AND (A.DOL IS NULL OR A.DOL <= (
-            SELECT MIN(AA.ENDT) 
-            FROM MONTHLYPAYFRQ AA 
-           WHERE AA.PAYPERIOD =  '${currentDt}'
-        ))
-) A 
+SELECT
+CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END AS MALE,
+CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END AS FEMALE,
+A.COMPCODE
+FROM MISTABLE A 
+WHERE
+1=1
+AND A.PAYCAT = 'STAFF' 
+AND A.DOJ <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${currentDt}'
+)
+AND (A.DOL IS NULL OR A.DOL <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${currentDt}'
+))
+) A
 GROUP BY COMPCODE
  `
   console.log(sql,"sql for Employee total")
@@ -57,29 +57,30 @@ GROUP BY COMPCODE
 export async function getEmployees1(connection, type = 'Value', filterYear, filterBuyer, lstMnth) {
     let result = ''
     if (type === "Value") {
-        const sql = `SELECT  
-    SUM(MALE) AS MALE,
-    SUM(FEMALE) AS FEMALE,
-    SUM(MALE) + SUM(FEMALE) AS TOTAL,
-    COMPCODE
+        const sql = `SELECT 
+SUM(MALE) AS MALE,
+SUM(FEMALE) AS FEMALE,
+SUM(MALE) + SUM(FEMALE) AS TOTAL,
+COMPCODE
 FROM (
-    SELECT
-        CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END AS MALE,
-        CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END AS FEMALE,
-        A.COMPCODE
-    FROM MISTABLE A
-    WHERE
-        A.PAYCAT <> 'STAFF'
-        AND A.DOJ <= (
-            SELECT MIN(AA.STDT)
-            FROM MONTHLYPAYFRQ AA
-            WHERE AA.PAYPERIOD =  '${currentDt}'
-        )
-        AND (A.DOL IS NULL OR A.DOL <= (
-            SELECT MIN(AA.ENDT)
-            FROM MONTHLYPAYFRQ AA
-            WHERE AA.PAYPERIOD =  '${currentDt}'
-        ))
+SELECT
+CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END AS MALE,
+CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END AS FEMALE,
+A.COMPCODE
+FROM MISTABLE A 
+WHERE
+1=1
+AND A.PAYCAT <> 'STAFF' 
+AND A.DOJ <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${currentDt}'
+)
+AND (A.DOL IS NULL OR A.DOL <= (
+SELECT MIN(AA.ENDT)
+FROM MONTHLYPAYFRQ AA
+WHERE AA.PAYPERIOD = '${currentDt}'
+))
 ) A
 GROUP BY COMPCODE
 
