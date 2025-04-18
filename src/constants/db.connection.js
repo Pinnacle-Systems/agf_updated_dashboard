@@ -28,6 +28,11 @@ const dbConfig = {
       password: "PSSPAYROLL_OCT2024",
       connectString: "103.125.155.220:1555/AN01P",
 };
+const dbConfigERP = {
+      user: "TIPLAGF",
+      password: "TIPLAGF555",
+      connectString: "103.125.155.219:1555/AN01P",
+};
 
 
 export async function getConnection(res) {
@@ -37,6 +42,19 @@ export async function getConnection(res) {
                   user: dbConfig.user,
                   password: dbConfig.password,
                   connectString: dbConfig.connectString
+            });
+            return connection
+      } catch (err) {
+            return res.json({ statusCode: 1, message: "Database Connection Failed" })
+      }
+}
+export async function getConnectionERP(res) {
+      let connection;
+      try {
+            connection = await oracledb.getConnection({
+                  user: dbConfigERP.user,
+                  password: dbConfigERP.password,
+                  connectString: dbConfigERP.connectString
             });
             return connection
       } catch (err) {

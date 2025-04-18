@@ -1,10 +1,10 @@
-import { getConnection } from "../constants/db.connection.js";
+import { getConnection, getConnectionERP } from "../constants/db.connection.js";
 import { IN_HAND } from "../constants/dbConstants.js";
 import { getTopCustomers, getProfit, getTurnOver, getNewCustomers, getLoss } from "../queries/misDashboardERP.js";
 
 
 export async function get(req, res) {
-    const connection = await getConnection(res)
+    const connection = await getConnectionERP(res)
     try {
         const { type, filterYear, previousYear } = req.query
 

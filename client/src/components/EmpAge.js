@@ -27,10 +27,7 @@ const AgeDetail = ({
      const [selectedState,setSelectedState] = useState('')
      const [ageRange, setAgeRange] = useState({ min: 0, max: Infinity });
      const [selectedGender,setSelectedGender] = useState('')
-    const [netpayRange,setNetpayRange] = useState({
-    min:0,
-    max:Infinity
-   })
+ 
   const recordsPerPage = 20;
   console.log(openpopup,"openpopup")
  
@@ -38,7 +35,7 @@ const AgeDetail = ({
   const { data: salaryDetData  } = useGetMisDashboardAgeDetQuery({
     params: {
         filterBuyer: selectedBuyer ||[] ,  
-        search: search || {}               
+        search: search || {},
     }
 });
 

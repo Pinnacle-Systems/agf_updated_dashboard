@@ -1,56 +1,70 @@
 export async function getTurnOver(connection, type = 'Value', filterYear, previousYear) {
-    let result;
-     console.log(previousYear,filterYear,"type")
+    let sql = '';
+    
+    console.log(previousYear, filterYear, "type");
+
     if (type === "Value") {
-        result = await connection.execute(`
-        SELECT 
-        COALESCE(ROUND(prevValue), 0) AS prevValue,
-        COALESCE(ROUND(currentValue), 0) AS currentValue,
-         COALESCE(ROUND(prevShipQty), 0) AS prevQty,
-        COALESCE(ROUND(currentShipQty), 0) AS currentQty
-    FROM (
-        SELECT 
-        (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevValue,
-            (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentValue,
-             (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevShipQty,
-            (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentShipQty
-        FROM dual
-    )
-     `)
+        sql = `
+            SELECT 
+                COALESCE(ROUND(prevValue), 0) AS prevValue,
+                COALESCE(ROUND(currentValue), 0) AS currentValue,
+                COALESCE(ROUND(prevShipQty), 0) AS prevQty,
+                COALESCE(ROUND(currentShipQty), 0) AS currentQty
+            FROM (
+                SELECT 
+                    (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevValue,
+                    (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentValue,
+                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevShipQty,
+                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentShipQty
+                FROM dual
+            )
+        `;
     } else if (type === "MONTH") {
-        result = await connection.execute(`
-        select 
-COALESCE(ROUND(prevValue),0) as prevValue,
-COALESCE(ROUND(currentValue),0) as currentValue
-from (
-select 
-(select sum(actsalval) 
-from MISORDSALESVAL
-where extract(YEAR from bpodate) = extract(YEAR from CURRENT_DATE)
-    and extract(MONTH from bpodate) = extract(MONTH from CURRENT_DATE)
-) as currentValue,
-(select sum(actsalval) 
-from MISORDSALESVAL
-where extract(YEAR from bpodate) = extract(YEAR from ADD_MONTHS(CURRENT_DATE, -1))
-    and extract(MONTH from bpodate) = extract(MONTH from ADD_MONTHS(CURRENT_DATE, -1))
-) as prevValue
-from dual)
-     `)
-    } else if (type === 'Quantity') {
-        result = await connection.execute(`SELECT 
-        COALESCE(ROUND(prevShipQty), 0) AS prevValue,
-        COALESCE(ROUND(currentShipQty), 0) AS currentValue
-    FROM (
-        SELECT 
-        (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevShipQty,
-            (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentShipQty
-        FROM dual
-    )`)
+        sql = `
+            SELECT 
+                COALESCE(ROUND(prevValue), 0) AS prevValue,
+                COALESCE(ROUND(currentValue), 0) AS currentValue
+            FROM (
+                SELECT 
+                    (SELECT SUM(actsalval) 
+                     FROM MISORDSALESVAL
+                     WHERE EXTRACT(YEAR FROM bpodate) = EXTRACT(YEAR FROM CURRENT_DATE)
+                       AND EXTRACT(MONTH FROM bpodate) = EXTRACT(MONTH FROM CURRENT_DATE)
+                    ) AS currentValue,
+                    (SELECT SUM(actsalval) 
+                     FROM MISORDSALESVAL
+                     WHERE EXTRACT(YEAR FROM bpodate) = EXTRACT(YEAR FROM ADD_MONTHS(CURRENT_DATE, -1))
+                       AND EXTRACT(MONTH FROM bpodate) = EXTRACT(MONTH FROM ADD_MONTHS(CURRENT_DATE, -1))
+                    ) AS prevValue
+                FROM dual
+            )
+        `;
+    } else if (type === "Quantity") {
+        sql = `
+            SELECT 
+                COALESCE(ROUND(prevShipQty), 0) AS prevValue,
+                COALESCE(ROUND(currentShipQty), 0) AS currentValue
+            FROM (
+                SELECT 
+                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevShipQty,
+                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentShipQty
+                FROM dual
+            )
+        `;
     }
-    result = result.rows.map(row => ({
-        prevValue: row[0], currentValue: row[1], prevQty: row[2], currentQty: row[3]
-    }))
-    return result[0]
+
+    console.log("Generated SQL:", sql);
+
+    const queryResult = await connection.execute(sql);
+
+    const result = queryResult.rows.map(row => ({
+        prevValue: row[0],
+        currentValue: row[1],
+        prevQty: row[2] ?? null,
+        currentQty: row[3] ?? null
+    }));
+
+    return result[0];
 }
 
 export async function getProfit(connection, type = "YEAR", filterYear, previousYear) {

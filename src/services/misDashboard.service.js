@@ -394,69 +394,119 @@ export async function getattdetTable(req, res) {
 }
 export async function getretdetTable(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer, search = {}, filterYear} = req.query;
+  const { filterBuyer, search = {}, filterYear } = req.query;
   let result = [];
- 
-  let whereClause = `A.COMPCODE IN '${filterBuyer}' AND B.FINYR='${filterYear}' AND A.DOL >= (SELECT AA.ENDT FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN '${filterBuyer}' AND AA.PAYPERIOD = B.PAYPERIOD AND AA.FINYR = '${filterYear}' )
-         AND A.DOJ <= (SELECT AA.ENDT FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN '${filterBuyer}' AND AA.PAYPERIOD = B.PAYPERIOD AND AA.FINYR = '${filterYear}' ) `;
 
+  // Initialize whereClause
+  let whereClause = '';
+
+  // Add filters dynamically
   if (search.FNAME)
     whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
   if (search.GENDER)
     whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`;
-  if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.MIDCARD)
+    whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
   if (search.DEPARTMENT)
     whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
     whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
+  // Build final SQL query
   const sql = `
- SELECT  A.IDCARD EMPID,
+    SELECT * FROM (
+      SELECT
+        A.IDCARD AS EMPID,
         A.PAYCAT,
         A.FNAME,
         A.GENDER,
-        A.COMPCODE,
         A.DOJ,
-        A.DEPARTMENT,B.PAYPERIOD FROM MISTABLE A
-         JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
-         WHERE ${whereClause}
-   `;
+        A.DEPARTMENT,
+        B.PAYPERIOD,
+        B.STDT,
+        A.COMPCODE
+      FROM MISTABLE A
+      JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+      WHERE A.COMPCODE = '${filterBuyer}'
+        AND B.FINYR = '${filterYear}'
+        AND A.DOJ < B.STDT
+        AND (A.DOL <= B.ENDT OR A.DOL IS NULL)
+        AND NOT EXISTS (
+          SELECT 'X' FROM (
+            SELECT AA.IDCARD, AB.PAYPERIOD, AB.COMPCODE
+            FROM MISTABLE AA
+            JOIN MONTHLYPAYFRQ AB ON AA.COMPCODE = AB.COMPCODE AND AB.FINYR = '${filterYear}'
+            WHERE AA.DOL BETWEEN AB.STDT AND AB.ENDT
+          ) ZA
+          WHERE ZA.IDCARD = A.IDCARD AND ZA.PAYPERIOD = B.PAYPERIOD AND A.COMPCODE = ZA.COMPCODE
+        )
+
+      UNION
+
+      SELECT
+        A.IDCARD AS EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.DOJ,
+        A.DEPARTMENT,
+        B.PAYPERIOD,
+        B.STDT,
+        A.COMPCODE
+      FROM MISTABLE A
+      JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE AND B.FINYR = '${filterYear}'
+      WHERE A.COMPCODE = '${filterBuyer}'
+        AND EXISTS (
+          SELECT 'X' FROM (
+            SELECT AA.IDCARD, AB.PAYPERIOD, AB.COMPCODE
+            FROM MISTABLE AA
+            JOIN MONTHLYPAYFRQ AB ON AA.COMPCODE = AB.COMPCODE AND AB.FINYR = '${filterYear}'
+            WHERE AA.DOJ BETWEEN AB.STDT AND AB.ENDT
+          ) ZA
+          WHERE ZA.IDCARD = A.IDCARD AND ZA.PAYPERIOD = B.PAYPERIOD AND A.COMPCODE = ZA.COMPCODE
+        )
+        AND NOT EXISTS (
+          SELECT 'X' FROM (
+            SELECT AA.IDCARD, AB.PAYPERIOD, AB.COMPCODE
+            FROM MISTABLE AA
+            JOIN MONTHLYPAYFRQ AB ON AA.COMPCODE = AB.COMPCODE AND AB.FINYR = '${filterYear}'
+            WHERE AA.DOL BETWEEN AB.STDT AND AB.ENDT
+          ) ZA
+          WHERE ZA.IDCARD = A.IDCARD AND ZA.PAYPERIOD = B.PAYPERIOD AND A.COMPCODE = ZA.COMPCODE
+        )
+    ) A
+    WHERE 1=1 ${whereClause}
+    ORDER BY EMPID, STDT
+  `;
 
   console.log(sql, "SQL for ret Detail");
 
-  const queryResult = await connection.execute(sql);
+  try {
+    const queryResult = await connection.execute(sql);
 
-  result = queryResult.rows.map((row) =>
-    queryResult.metaData.reduce((acc, column, index) => {
-      acc[column.name] = row[index];
-      return acc;
-    }, {})
-  );
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
 
-  res.status(200).json({ success: true, data: result });
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error('Error executing SQL:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 }
-
 export async function getagedet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
   let result = [];
-  let whereClause = `
-  A.COMPCODE IN (${buyerInClause})
-  AND A.DOJ <= (
-    SELECT MAX(AA.ENDT) 
-    FROM MONTHLYPAYFRQ AA 
-    WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}'
-  )
-  AND A.IDCARD NOT IN (
-    SELECT AA.IDCARD 
-    FROM MISTABLE AA 
-    WHERE AA.COMPCODE IN (${buyerInClause})
-    AND AA.DOL BETWEEN 
-      (SELECT MIN(AA.STDT) FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}')
-      AND 
-      (SELECT MAX(AA.ENDT) FROM MONTHLYPAYFRQ AA WHERE AA.COMPCODE IN (${buyerInClause}) AND AA.FINYR = '${filterYear}')
-  )
-`;
+  let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
+  AND AA.DOB <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+) AND (AA.DOL IS NULL OR AA.DOL <= (
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+) )`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -470,15 +520,8 @@ export async function getagedet(req, res) {
     whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-      SELECT 
-AA.IDCARD AS EMPID,
-AA.FNAME,
-AA.PAYCAT,
-MONTHS_BETWEEN(TRUNC(SYSDATE),AA.DOB)/12 AS AGEMON,
-AA.COMPCODE,
-AA.DEPARTMENT,
-AA.GENDER
-FROM MISTABLE AA
+    SELECT AA.IDCARD AS EMPID,AA.FNAME,AA.PAYCAT,MONTHS_BETWEEN(TRUNC(SYSDATE),AA.DOB)/12 AS AGEMON,
+AA.COMPCODE,AA.DEPARTMENT,AA.GENDER FROM MISTABLE AA
 JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
 JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
 WHERE ${whereClause}
@@ -714,15 +757,11 @@ export async function getEmployeesDetail(req, res) {
     .join(",");
 
   let whereClause = `
-            A.COMPCODE IN (${filterBuyerList})
-            AND A.DOJ <= (    
-                SELECT MIN(AA.STDT) 
-                FROM MONTHLYPAYFRQ AA 
-                WHERE AA.PAYPERIOD = '${currentDt}'
-            ) 
+          AA.PAYPERIOD = '${currentDt}'
+            )
             AND (A.DOL IS NULL OR A.DOL <= (
-                SELECT MIN(AA.ENDT) 
-                FROM MONTHLYPAYFRQ AA 
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
                 WHERE AA.PAYPERIOD = '${currentDt}'
             ))
         `;
@@ -738,9 +777,15 @@ export async function getEmployeesDetail(req, res) {
     whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-            SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE, PAYCAT
-            FROM MISTABLE A  
-            WHERE ${whereClause} ORDER BY TO_NUMBER(A.MIDCARD) ASC
+           SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE, PAYCAT
+            FROM MISTABLE A
+            WHERE
+            A.COMPCODE IN  (${filterBuyerList}) 
+            AND A.DOJ <= (
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
+                WHERE 
+       ${whereClause} ORDER BY TO_NUMBER(A.MIDCARD) ASC
         `;
   const countSql = `
             SELECT COUNT(*) AS TOTAL_COUNT
@@ -835,15 +880,15 @@ export async function getOrdersInHand(req, res) {
     const sql = ` 
 SELECT X.SLAP,COUNT(X.SLAP) VAL FROM (
 SELECT CASE WHEN X.AGE BETWEEN 18 AND 25 THEN '18 - 25'
-WHEN X.AGE BETWEEN 25 AND 35 THEN '25 - 35' 
-WHEN X.AGE BETWEEN 35 AND 45 THEN '35 - 45' 
+WHEN X.AGE BETWEEN 25 AND 35 THEN '25 - 35'
+WHEN X.AGE BETWEEN 35 AND 45 THEN '35 - 45'
 WHEN X.AGE BETWEEN 45 AND 65 THEN '45 - 60'
 WHEN X.AGE > 60 THEN '60 Above'  END SLAP FROM (
 SELECT MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12 AGE FROM MISTABLE A WHERE A.COMPCODE = '${filterBuyer}'
 AND A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) )
 ) X
 ) X
@@ -1008,23 +1053,23 @@ export async function getBuyerWiseRevenue(req, res) {
       .map((supplier) => `'${supplier}'`)
       .join(",");
     const sql = `
-         SELECT A.PAYPERIOD,A.STDT,ROUND(A.CLOSING/A.OPENING*100,2) RETENTIONPER FROM (
+         SELECT A.PAYPERIOD,A.STDT,ROUND(A.CLOSING/A.OPENING*100,2) RETENTIONPER,A.CLOSING,A.OPENING FROM (
 SELECT A.PAYPERIOD,A.STDT,SUM(A.OPENING) OPENING,SUM(A.ATTRITION) ATTRITION,SUM(A.OPENING) - SUM(A.ATTRITION) + SUM(A.JOINERS) CLOSING FROM (
 SELECT B.PAYPERIOD,B.STDT,0 OPENING,COUNT(*) ATTRITION,0 JOINERS FROM MISTABLE A
-JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
-AND B.FINYR = '${filterYear}' AND A.COMPCODE IN (${supplierList})
+JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+AND B.FINYR ='${filterYear}' AND A.COMPCODE IN '${filterSupplier}'
 AND A.DOL BETWEEN B.STDT AND B.ENDT
 GROUP BY B.PAYPERIOD,B.STDT,A.COMPCODE
 UNION ALL
 SELECT B.PAYPERIOD,B.STDT,0 OPENING,0 ATTRITION,COUNT(*) JOINERS FROM MISTABLE A
-JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
-AND B.FINYR = '${filterYear}' AND A.COMPCODE  IN (${supplierList})
+JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+AND B.FINYR ='${filterYear}' AND A.COMPCODE  IN '${filterSupplier}'
 AND A.DOJ BETWEEN B.STDT AND B.ENDT
 GROUP BY B.PAYPERIOD,B.STDT,A.COMPCODE
 UNION ALL
 SELECT B.PAYPERIOD,B.STDT,COUNT(*) OPENING,0 ATTRITION,0 JOINERS FROM MISTABLE A
-JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
-AND B.FINYR = '${filterYear}' AND A.COMPCODE  IN (${supplierList})
+JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+AND B.FINYR ='${filterYear}' AND A.COMPCODE  IN '${filterSupplier}'
 AND A.DOJ < B.STDT
 GROUP BY B.PAYPERIOD,B.STDT
 ) A
@@ -1065,7 +1110,7 @@ export async function getActualVsBudget(req, res) {
       sql = `
               SELECT A.COMPCODE,SUM(MALE) MALE,SUM(FEMALE) FEMALE,SUM(MALE)+SUM(FEMALE) TOTAL FROM (
 SELECT A.COMPCODE,CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
-CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE A.COMPCODE = 'AGF'
+CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE A.COMPCODE = '${filterBuyer}'
 AND A.DOJ <= (
 SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
 ) AND (A.DOL IS NULL OR A.DOL <= (

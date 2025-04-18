@@ -28,7 +28,7 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#FFFFFF',
+  backgroundColor: '#E5E7EB', // <-- updated color here
   borderRadius: '50%',
   transition: 'transform 0.2s ease',
   '&:hover': {
@@ -36,6 +36,7 @@ const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
     backgroundColor: theme.palette.action.hover,
   },
 }));
+
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   display: 'flex',
@@ -64,10 +65,6 @@ const Sidebar = () => {
   const { color } = useContext(ColorContext);
 
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
   return (
     <SidebarContainer isCollapsed={isCollapsed}>
       <List className="mt-3">
@@ -94,7 +91,7 @@ const Sidebar = () => {
       <FaDatabase
         style={{
           color: color || '#CA8A04',
-          fontSize: '24px',
+          fontSize: '20px',
           background: 'white',
         }}
       />
