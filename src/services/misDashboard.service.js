@@ -816,6 +816,7 @@ export async function getEmployeesDetail(req, res) {
 export async function getEmployeesDetail1(req, res) {
   const connection = await getConnection(res);
   const { search = {} } = req.query;
+   console.log(search,"searchforEmpDet")
   let result = [];
   let whereClause = `
           

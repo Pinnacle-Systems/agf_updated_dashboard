@@ -16,8 +16,6 @@ import * as XLSX from "xlsx";
 import { useGetMisDashboardBgDetQuery } from "../redux/service/misDashboardService";
 
 const BgDetail = ({
-  search,
-  setSearch,
   setOpenpopup,openpopup,
   selectedBuyer,
 
@@ -26,6 +24,13 @@ const BgDetail = ({
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
      const [bloodGroup, setBloodGroup] = useState('');
+       const [search, setSearch] = useState({
+           FNAME: "",
+           GENDER: "",
+           MIDCARD: "",
+           DEPARTMENT: "",
+           COMPCODE: "",
+         });
      const [formData, setFormData] = useState({
       bloodGroup: '',
     });
@@ -240,8 +245,10 @@ const salaryDet = salaryDetData?.data || []
           </button>
       
           <div>
+         
   
 </div>
+
 <div className="flex items-center gap-2">
   <label className="text-sm font-medium text-gray-700">Blood Group</label>
   <select
@@ -266,6 +273,7 @@ const salaryDet = salaryDetData?.data || []
 </div>
 
 
+
 <button
   onClick={downloadExcel}
   className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
@@ -279,7 +287,23 @@ const salaryDet = salaryDetData?.data || []
 </button>
 
         </div>
-
+        <div className="grid grid-cols-5 gap-2 mb-3">
+                                     {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+                                       <div key={key} className="relative">
+                                         <input
+                                           type="text"
+                                           placeholder={`Search ${key}...`}
+                                           value={search[key] || ""}
+                                           onChange={(e) =>
+                                             setSearch({ ...search, [key]: e.target.value })
+                                           }
+                                           className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                                         />
+                                         <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
+                                       </div>
+                                     ))}
+                    
+                                   </div>
        
 
         <div className="grid grid-cols-2 gap-4">

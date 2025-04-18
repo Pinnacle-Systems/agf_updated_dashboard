@@ -18,9 +18,7 @@ import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 
 const DataDetailTable = ({
   closeTable,
-  search,
   setOpenpopup,
-  setSearch,
   color,
   payCat,
 }) => {
@@ -29,7 +27,13 @@ const DataDetailTable = ({
   const [selectedState, setSelectedState] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [selectedBuyer, setSelectedBuyer] = useState("");
-
+  const [search, setSearch] = useState({
+    FNAME: "",
+    GENDER: "",
+    MIDCARD: "",
+    DEPARTMENT: "",
+    COMPCODE: "",
+  });
   const { data: employeeDet, refetch } = useGetMisDashboardEmployeeDetailQuery({
     params: {
       search,
@@ -240,6 +244,23 @@ const DataDetailTable = ({
             />
           </button>
         </div>
+             <div className="grid grid-cols-5 gap-2 mb-3">
+                         {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+                           <div key={key} className="relative">
+                             <input
+                               type="text"
+                               placeholder={`Search ${key}...`}
+                               value={search[key] || ""}
+                               onChange={(e) =>
+                                 setSearch({ ...search, [key]: e.target.value })
+                               }
+                               className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                             />
+                             <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
+                           </div>
+                         ))}
+        
+                       </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
