@@ -553,10 +553,10 @@ export async function getexpdet(req, res) {
 
   let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
 AND AA.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) AND (AA.DOL IS NULL OR AA.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
-) ) ORDER BY EXPMON ASC`;
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+) ) ORDER BY EXPMON ASC `;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -570,10 +570,7 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA
     whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-       SELECT 
-AA.IDCARD AS EMPID,
-AA.FNAME,
-AA.PAYCAT,
+        SELECT AA.IDCARD AS EMPID,AA.FNAME,AA.PAYCAT,
 MONTHS_BETWEEN(TRUNC(SYSDATE),AA.DOJ)/12 AS EXPMON,
 AA.COMPCODE,
 AA.DEPARTMENT,
@@ -581,7 +578,8 @@ AA.GENDER
 FROM MISTABLE AA
 JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
 JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
-WHERE ${whereClause}
+WHERE 
+${whereClause}
     `;
 
   console.log(sql, "SQL for Age Detail");
@@ -610,9 +608,9 @@ export async function getbgdet(req, res) {
 
   let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
 AND AA.BGF IS NOT NULL AND AA.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) AND (AA.DOL IS NULL OR AA.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT 
+SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) )
 ORDER BY 2 DESC,1`;
 
@@ -628,17 +626,11 @@ ORDER BY 2 DESC,1`;
     whereClause += ` AND LOWER(AA.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-      SELECT 
-AA.IDCARD AS EMPID,
-AA.FNAME,
-AA.PAYCAT,
-AA.COMPCODE,
-AA.DEPARTMENT,
-AA.GENDER,CC.BGF AS BLOODGROUP
+   SELECT AA.IDCARD AS EMPID,AA.FNAME,AA.PAYCAT,AA.COMPCODE,AA.DEPARTMENT,AA.GENDER,CC.BGF AS BLOODGROUP
 FROM MISTABLE AA
 JOIN HREMPLOYMAST bb on AA.IDCARD = BB.IDCARDNO
-JOIN HRBGMAST CC ON BB.BG = CC.HRBGMASTID 
-WHERE ${whereClause}
+JOIN HRBGMAST CC ON BB.BG = CC.HRBGMASTID
+WHERE  ${whereClause}
     `;
 
   console.log(sql, "SQL for Age Detail");
@@ -819,15 +811,14 @@ export async function getEmployeesDetail1(req, res) {
    console.log(search,"searchforEmpDet")
   let result = [];
   let whereClause = `
-          
-            A.DOJ <= (    
-                SELECT MIN(AA.STDT) 
-                FROM MONTHLYPAYFRQ AA 
+            A.DOJ <= (
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
                 WHERE AA.PAYPERIOD = '${currentDt}'
-            ) 
+            )
             AND (A.DOL IS NULL OR A.DOL <= (
-                SELECT MIN(AA.ENDT) 
-                FROM MONTHLYPAYFRQ AA 
+                SELECT MIN(AA.ENDT)
+                FROM MONTHLYPAYFRQ AA
                 WHERE AA.PAYPERIOD = '${currentDt}'
             ))
         `;
@@ -843,9 +834,10 @@ export async function getEmployeesDetail1(req, res) {
     whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-            SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE, PAYCAT
-            FROM MISTABLE A  
-            WHERE ${whereClause} ORDER BY TO_NUMBER(A.MIDCARD) ASC
+           SELECT FNAME, GENDER, MIDCARD, DEPARTMENT, COMPCODE, PAYCAT
+            FROM MISTABLE A
+            WHERE
+         ${whereClause}  ORDER BY TO_NUMBER(A.MIDCARD) ASC
         `;
   const countSql = `
             SELECT COUNT(*) AS TOTAL_COUNT
@@ -864,7 +856,6 @@ export async function getEmployeesDetail1(req, res) {
         return acc;
       }, {});
     });
-    console.log(result, "employeeDetail");
     const countResult = await connection.execute(countSql);
     totalCount = countResult.rows[0][0];
   } catch (error) {
