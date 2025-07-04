@@ -1154,7 +1154,7 @@ export async function getShortShipmentRatio(req, res) {
     let sql;
     if (filterCat === "Birthday") {
       sql = `
-     SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
+     SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ,A.MIDCARD FROM MISTABLE A 
 WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOB, 'WW') 
  ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ""}
 AND A.DOJ <= (
@@ -1166,7 +1166,7 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
 
  `;
     } else {
-      sql = `SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ FROM MISTABLE A 
+      sql = `SELECT A.COMPCODE,A.IDCARD,A.FNAME,A.GENDER,A.DOB,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) EXP ,A.DOJ,A.MIDCARD FROM MISTABLE A 
 WHERE TO_CHAR(SYSDATE, 'WW') = TO_CHAR(A.DOJ, 'WW') 
  ${filterBuyer ? `AND A.COMPCODE = '${filterBuyer}'` : ""}
 AND A.DOJ <= (
@@ -1177,6 +1177,7 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA
 ORDER BY TO_CHAR(A.DOB, 'MM-DD')
 `;
     }
+    console.log(sql,"sql for event")
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1188,6 +1189,7 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
       age: po[5],
       exp: po[6],
       doj: po[7],
+      mid: po[8]
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {

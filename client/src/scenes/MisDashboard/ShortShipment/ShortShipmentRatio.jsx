@@ -121,7 +121,7 @@ const ShortShipmentRatio = () => {
                                 return (
                                     <tr key={index}>
                                         <td className="py-1 px-2 border text-[12px]">{index + 1}</td>
-                                        <td className="py-1 px-2 border text-[12px]">{item.idCard}</td>
+                                        <td className="py-1 px-2 border text-[12px]">{item.mid}</td>
                                         <td className="py-1 px-2 border text-left text-[12px]">{item.name}</td>
                                         <td className="py-1 px-2 border text-center text-[12px]">{item.customer}</td>
     
