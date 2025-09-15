@@ -26,7 +26,6 @@ const DataDetailTable = ({ closeTable, search, setSearch, selectedBuyer, color, 
   const handleFilterClick = (type) => {
     setSelectedState(type)
   };
-  console.log(selectedState,"selectedState")
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
