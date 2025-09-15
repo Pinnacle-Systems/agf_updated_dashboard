@@ -315,6 +315,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+         getLeaveAvb: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/leaveAvailable",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
     }),
 })
 
@@ -342,7 +355,8 @@ export const {
     useGetBudgetVsActualQuery,
     useGetShortShipmantRatioQuery,
     useGetEsiPfQuery,
-    useGetEsiPf1Query
+    useGetEsiPf1Query,
+    useGetLeaveAvbQuery
 
 
 } = MisDashboard;

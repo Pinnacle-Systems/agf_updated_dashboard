@@ -17,6 +17,7 @@ import { ColorContext } from '../global/context/ColorContext';
 import TransitionAlerts from '../../components/AnimatedModel';
 import EsiPf from './ESIPFdata/EsiPf';
 import PfData from './PfData';
+import LeaveAvailable from './LeaveAvailable';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
     const [tempSelectedBuyer, setTempSelectedBuyer] = useState([]); // Temporary selection
@@ -98,6 +99,9 @@ const MisDashboard = () => {
 
                 <div className="col-span-2 ">
                     <ShortShip />
+                </div>
+                <div className='col-span-2'>
+                    <LeaveAvailable />
                 </div>
                
             </div>

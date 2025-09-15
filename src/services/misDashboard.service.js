@@ -42,7 +42,6 @@ export async function get(req, res) {
   try {
     const { type, filterYear, filterBuyer, filterMonth, search, payCat } =
       req.query;
-    console.log(search, filterBuyer, "filterBuyer for mis");
 
     const totalTurnOver = await getEmployees(
       connection,
@@ -139,7 +138,6 @@ export async function getSalarydet(req, res) {
     .split(",")
     .map((buyer) => `'${buyer.trim()}'`)
     .join(",");
-  console.log(filterBuyerList, "filterBuyerList");
 
   let whereClause = `DD.COMPCODE IN (${filterBuyerList})`;
 
@@ -171,7 +169,6 @@ DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
 ) A
 ORDER BY A.EMPID`;
 
-  console.log(sql, "SQL for Staffs Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -192,7 +189,6 @@ export async function getpfdet(req, res) {
     .split(",")
     .map((buyer) => `'${buyer.trim()}'`)
     .join(",");
-  console.log(filterBuyerList, "filterBuyerList");
 
   let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' and A.PAYPERIOD = '${lstMnth}' AND A.PF> 0
     `;
@@ -225,7 +221,6 @@ ORDER BY A.EMPID
 
  `;
 
-  console.log(sql, "SQL for pf Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -246,7 +241,6 @@ export async function getesidet(req, res) {
     .split(",")
     .map((buyer) => `'${buyer.trim()}'`)
     .join(",");
-  console.log(filterBuyerList, "filterBuyerList");
 
   let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' AND A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
 `;
@@ -271,7 +265,6 @@ JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
 WHERE ${whereClause}
 ORDER BY A.EMPID`;
 
-  console.log(sql, "SQL for ESI Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -288,12 +281,10 @@ export async function getattdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
   let result = [];
-  console.log(search, "search  for attdet");
   const filterBuyerList = filterBuyer
     .split(",")
     .map((buyer) => `'${buyer.trim()}'`)
     .join(",");
-  console.log(filterBuyerList, "filterBuyerList");
 
   let whereClause = `A.COMPCODE IN (${filterBuyerList}) 
                        AND B.PAYPERIOD = '${lstMnth}'`;
@@ -328,7 +319,6 @@ export async function getattdet(req, res) {
     WHERE ${whereClause}
     ORDER BY A.COMPCODE, 1, 2, 3`;
 
-  console.log(sql, "SQL for att Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -379,7 +369,6 @@ export async function getattdetTable(req, res) {
     WHERE ${whereClause}
    `;
 
-  console.log(sql, "SQL for att Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -479,7 +468,6 @@ export async function getretdetTable(req, res) {
     ORDER BY EMPID, STDT
   `;
 
-  console.log(sql, "SQL for ret Detail");
 
   try {
     const queryResult = await connection.execute(sql);
@@ -527,7 +515,6 @@ JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
 WHERE ${whereClause}
     `;
 
-  console.log(sql, "SQL for Age Detail");
 
   try {
     const queryResult = await connection.execute(sql);
@@ -548,7 +535,6 @@ WHERE ${whereClause}
 export async function getexpdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
-  console.log(filterBuyer, "filterBuyer");
   let result = [];
 
   let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
@@ -582,7 +568,6 @@ WHERE
 ${whereClause}
     `;
 
-  console.log(sql, "SQL for Age Detail");
 
   try {
     const queryResult = await connection.execute(sql);
@@ -603,7 +588,6 @@ ${whereClause}
 export async function getbgdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
-  console.log(filterBuyer, "filterBuyer");
   let result = [];
 
   let whereClause = `AA.COMPCODE IN ('${filterBuyer}')
@@ -633,7 +617,6 @@ JOIN HRBGMAST CC ON BB.BG = CC.HRBGMASTID
 WHERE  ${whereClause}
     `;
 
-  console.log(sql, "SQL for Age Detail");
 
   try {
     const queryResult = await connection.execute(sql);
@@ -681,7 +664,6 @@ WHERE ${whereClause}
 ORDER BY A.EMPID,YEAR,DAY
  `;
 
-  console.log(sql, "SQL for pf Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -724,7 +706,6 @@ WHERE ${whereClause}
 ORDER BY A.EMPID,YEAR,DAY
  `;
 
-  console.log(sql, "SQL for esi Detail");
 
   const queryResult = await connection.execute(sql);
 
@@ -785,8 +766,7 @@ export async function getEmployeesDetail(req, res) {
             WHERE ${whereClause}
         `;
 
-  console.log(sql, "SQL for Employee Details");
-  console.log(countSql, "SQL for Employee Count");
+
 
   try {
     const queryResult = await connection.execute(sql);
@@ -796,7 +776,6 @@ export async function getEmployeesDetail(req, res) {
         return acc;
       }, {});
     });
-    console.log(result, "employeeDetail");
     const countResult = await connection.execute(countSql);
     totalCount = countResult.rows[0][0];
   } catch (error) {
@@ -808,7 +787,6 @@ export async function getEmployeesDetail(req, res) {
 export async function getEmployeesDetail1(req, res) {
   const connection = await getConnection(res);
   const { search = {} } = req.query;
-   console.log(search,"searchforEmpDet")
   let result = [];
   let whereClause = `
             A.DOJ <= (
@@ -845,8 +823,7 @@ export async function getEmployeesDetail1(req, res) {
             WHERE ${whereClause}
         `;
 
-  console.log(sql, "SQL for Employee Details");
-  console.log(countSql, "SQL for Employee Count");
+
 
   try {
     const queryResult = await connection.execute(sql);
@@ -888,7 +865,6 @@ WHERE X.SLAP IS NOT NULL
 GROUP BY X.SLAP
 ORDER BY 1
 `;
-    console.log(sql, "sql60");
     let result = await connection.execute(sql);
     result = result.rows.map((row) => ({
       buyer: row[0],
@@ -963,7 +939,6 @@ export async function getActualVsBudgetValueMonthWise(req, res) {
         `
     );
     const sql = monthArr.join("union");
-    console.log(sql, "sql133");
     let result = await connection.execute(
       `select * from (${sql}) order by yearOnly,monthOnly`
     );
@@ -1069,7 +1044,6 @@ GROUP BY A.PAYPERIOD,A.STDT
 ) A
 ORDER BY 2
      `;
-    console.log(sql, "215");
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1110,7 +1084,6 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt
 ) )
 ) A
 GROUP BY A.COMPCODE`;
-      console.log(sql, "dqw");
     } else {
       sql = `
                 SELECT A.FINYR,ORDERNO,A.BUYERCODE,A.TYPENAME,A.YARNCOST,A.FABRICCOST,A.ACCCOST,A.CMTCOST,
@@ -1177,7 +1150,6 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA
 ORDER BY TO_CHAR(A.DOB, 'MM-DD')
 `;
     }
-    console.log(sql,"sql for event")
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1203,7 +1175,6 @@ export async function getESIPF(req, res) {
   const connection = await getConnection(res);
   try {
     const { filterCat, filterSupplier, filterYear } = req.query;
-    console.log(filterSupplier, "filterSupplier");
     let sql;
 
     sql = `
@@ -1236,7 +1207,6 @@ ORDER BY STDT1,STDT
 
  
 `;
-    console.log(sql, "event pfDetail");
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1260,7 +1230,6 @@ export async function getESIPF1(req, res) {
   const connection = await getConnection(res);
   try {
     const { filterCat, filterSupplier, filterYear } = req.query;
-    console.log(filterSupplier, "filterSupplier");
     let sql;
 
     sql = `
@@ -1290,7 +1259,6 @@ ORDER BY STDT1,STDT
 
  
 `;
-    console.log(sql, "event pfDetail");
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1305,6 +1273,74 @@ ORDER BY STDT1,STDT
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
+    await connection.close();
+  }
+}
+
+export async function getLeaveAvailable(req,res) {
+   const connection = await getConnection(res);
+   console.log("leave Available")
+  try {
+     const { compCode, filterYear } = req.query;
+     console.log(compCode,filterYear,"leave Available params")
+    const sql = `
+  SELECT IDCARD,MIDCARD,FNAME,PAYCAT,LCODE,LDESC,SUM(LCOUNT) AVL,SUM(LT) LT,SUM(LCOUNT)-SUM(LT) LBAL 
+FROM (SELECT A.FINYEAR FINYR,A.LCODE, A.LDESC,D.IDCARD,D.MIDCARD,DD.FNAME,B.LDAYS AVL,0 LT,B.LDAYS LCOUNT,C.BANDID PAYCAT FROM HRLEAVEMAST A
+JOIN HRLEAVEDEPTDET B ON A.HRLEAVEMASTID = B.HRLEAVEMASTID
+JOIN HRBANDMAST C ON C.HRBANDMASTID = A.PAYCAT
+JOIN HREMPLOYDETAILS D ON D.IDACTIVE = 'YES' AND D.DOJ < A.STDT
+JOIN HREMPLOYMAST DD ON D.HREMPLOYMASTID = DD.HREMPLOYMASTID  
+JOIN HRBANDMAST E ON D.BAND = E.HRBANDMASTID AND E.BANDID = C.BANDID  
+JOIN GTDEPTDESGMAST F ON F.GTDEPTDESGMASTID = D.DEPTNAME AND ( F.MNAME = B.DEPT OR 'All' = B.DEPT) AND DD.COMPCODE = F.COMPCODE
+JOIN GTCOMPMAST G ON G.GTCOMPMASTID = F.COMPCODE AND B.COMPCODE1 = G.COMPCODE  
+WHERE A.FINYEAR ='${filterYear}' AND B.COMPCODE1 = '${compCode}'
+UNION ALL
+SELECT A.FINYEAR FINYR,B.LCODE,B.LDESC,D.IDCARD,D.MIDCARD,C.FNAME, CASE WHEN A.LTYPE IN 'OPB' THEN A.OPBAL ELSE 0 END AVL,
+CASE WHEN A.LTYPE NOT IN 'OPB' THEN CASE WHEN A.LTYPE NOT IN 'LRQ' THEN (0-A.OPBAL) ELSE A.OPBAL END ELSE 0 END LT,
+ CASE WHEN A.LTYPE IN 'OPB' THEN A.OPBAL ELSE 0 END  LCOUNT,A.PAYCAT
+FROM HRLEAVEREGMAST A,HRLEAVECODEMAST B,HREMPLOYMAST C,HREMPLOYDETAILS D
+WHERE A.LEAVETYPE=B.LCODE AND C.HREMPLOYMASTID=D.HREMPLOYMASTID AND A.IDCARD=C.HREMPLOYMASTID
+AND A.FINYEAR= '${filterYear}' AND A.COMPCODE ='${compCode}' AND D.IDACTIVE = 'YES'
+UNION ALL
+SELECT A.FINYEAR FINYR,A.LCODE, A.LDESC,D.IDCARD,D.MIDCARD,DD.FNAME,
+((12-TO_NUMBER(TO_CHAR(ADD_MONTHS((LAST_DAY(TO_DATE(D.DOJ))+1),-1),'mm')))*B.FRM1)+
+CASE WHEN TO_NUMBER(TO_CHAR(D.DOJ,'dd'))<16 THEN B.FRM1 ELSE B.FRM2 END  AVL,0 LT,
+((12-TO_NUMBER(TO_CHAR(ADD_MONTHS((LAST_DAY(TO_DATE(D.DOJ))+1),-1),'mm')))*B.FRM1)+
+CASE WHEN TO_NUMBER(TO_CHAR(D.DOJ,'dd'))<16 THEN B.FRM1 ELSE B.FRM2 END LCOUNT,C.BANDID PAYCAT FROM HRLEAVEMAST A
+JOIN HRLEAVEDEPTDET B ON A.HRLEAVEMASTID = B.HRLEAVEMASTID
+JOIN HRBANDMAST C ON C.HRBANDMASTID = A.PAYCAT
+JOIN HREMPLOYDETAILS D ON D.IDACTIVE = 'YES' AND D.DOJ BETWEEN A.STDT AND A.ENDT
+JOIN HREMPLOYMAST DD ON D.HREMPLOYMASTID = DD.HREMPLOYMASTID AND D.BAND = A.PAYCAT   
+JOIN GTDEPTDESGMAST F ON F.GTDEPTDESGMASTID = D.DEPTNAME AND ( F.MNAME = B.DEPT OR 'All' = B.DEPT)
+JOIN GTCOMPMAST G ON G.GTCOMPMASTID = A.COMPCODE AND B.COMPCODE1 = G.COMPCODE 
+WHERE A.FINYEAR ='${filterYear}' AND B.COMPCODE1 = '${compCode}' AND B.FRM1 > 0
+)
+GROUP BY LCODE,LDESC,IDCARD,MIDCARD,FNAME,PAYCAT
+ORDER BY TO_NUMBER(IDCARD),LCODE
+    `;
+     console.log(sql,"leave Available sql")
+ 
+
+   const result = await connection.execute(sql);
+       let resp = result.rows.map((po) => ({
+      id: po[0],
+      mid: po[1],
+      fname: po[2],
+      paycat: po[3],
+     lcode: po[4],
+     ldesc: po[5],
+     Avl: po[6],
+     lt: po[7],
+     lbal: po[8]
+    }));
+   console.log(result.rows,"leave availble result")
+     return res.json({ statusCode: 0, data: resp });
+
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  }
+  finally {
     await connection.close();
   }
 }
