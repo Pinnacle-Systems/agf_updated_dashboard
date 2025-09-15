@@ -328,6 +328,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+          getlongAbsent: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/longAbsent",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
     }),
 })
 
@@ -356,7 +369,8 @@ export const {
     useGetShortShipmantRatioQuery,
     useGetEsiPfQuery,
     useGetEsiPf1Query,
-    useGetLeaveAvbQuery
+    useGetLeaveAvbQuery,
+    useGetlongAbsentQuery
 
 
 } = MisDashboard;

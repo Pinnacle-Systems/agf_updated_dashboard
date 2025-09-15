@@ -18,6 +18,7 @@ import TransitionAlerts from '../../components/AnimatedModel';
 import EsiPf from './ESIPFdata/EsiPf';
 import PfData from './PfData';
 import LeaveAvailable from './LeaveAvailable';
+import LongAbsent from './LongAbsent';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
     const [tempSelectedBuyer, setTempSelectedBuyer] = useState([]); // Temporary selection
@@ -102,6 +103,9 @@ const MisDashboard = () => {
                 </div>
                 <div className='col-span-2'>
                     <LeaveAvailable />
+                </div>
+                   <div className='col-span-2'>
+                    <LongAbsent />
                 </div>
                
             </div>

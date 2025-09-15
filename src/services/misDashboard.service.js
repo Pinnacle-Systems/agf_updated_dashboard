@@ -1279,7 +1279,6 @@ ORDER BY STDT1,STDT
 
 export async function getLeaveAvailable(req,res) {
    const connection = await getConnection(res);
-   console.log("leave Available")
   try {
      const { compCode, filterYear } = req.query;
      console.log(compCode,filterYear,"leave Available params")
@@ -1318,7 +1317,6 @@ WHERE A.FINYEAR ='${filterYear}' AND B.COMPCODE1 = '${compCode}' AND B.FRM1 > 0
 GROUP BY LCODE,LDESC,IDCARD,MIDCARD,FNAME,PAYCAT
 ORDER BY TO_NUMBER(IDCARD),LCODE
     `;
-     console.log(sql,"leave Available sql")
  
 
    const result = await connection.execute(sql);
@@ -1332,6 +1330,79 @@ ORDER BY TO_NUMBER(IDCARD),LCODE
      Avl: po[6],
      lt: po[7],
      lbal: po[8]
+    }));
+     return res.json({ statusCode: 0, data: resp });
+
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  }
+  finally {
+    await connection.close();
+  }
+}
+export async function getlongAbsent(req,res) {
+   const connection = await getConnection(res);
+  try {
+     const { compCode, docdate,docdate1,payCat } = req.query;
+        console.log(compCode,docdate,docdate1,payCat,"long Adsent")
+
+    const sql = `
+  SELECT DENSE_RANK() OVER (ORDER BY TO_NUMBER(C.IDCARD)) SNO,E.COMPCODE COMPCODE1,
+D.BANDID,G.MNNAME1 DEPARTMENT,H.DESIGNATION,
+TO_NUMBER(C.IDCARD) IDCARD,C.MIDCARD MIDCARD,B.FNAME EMPNAME,C.DOJ,
+(
+SELECT Z.CONTACTNO FROM HRECONTACTDETAILS Z WHERE Z.HREMPLOYMASTID = B.HREMPLOYMASTID ) CONNO,
+(SELECT MAX(Z.ATTDATE) DATEE FROM ( SELECT DISTINCT AA.IDCARD,AA.ATTDATE FROM 
+AGFATT AA WHERE AA.ATTDATE <= TO_DATE('${docdate}','DD/MM/YYYY') ) Z WHERE Z.IDCARD = C.IDCARD AND Z.ATTDATE <= TO_DATE('${docdate}','DD/MM/YYYY')  ) LWDA 
+FROM HREMPLOYMAST B,HREMPLOYDETAILS C,HRBANDMAST D,GTCOMPMAST E,GTDEPTDESGMAST G,GTDESIGNATIONMAST  H
+WHERE B.HREMPLOYMASTID = C.HREMPLOYMASTID AND C.BAND = D.HRBANDMASTID AND B.COMPCODE = E.GTCOMPMASTID 
+AND C.IDACTIVE = 'YES' AND C.DEPTNAME = G.GTDEPTDESGMASTID 
+AND H.GTDESIGNATIONMASTID = C.DESIGNATION AND E.COMPCODE = '${compCode}'
+AND ( D.BANDID =' ${payCat}' OR 'ALL' = '${payCat}' ) 
+AND C.DOJ <= TO_DATE('${docdate1}','DD/MM/YYYY')  
+AND C.IDCARD NOT IN
+(
+SELECT DISTINCT AA.IDCARD FROM (
+SELECT DISTINCT A.IDCARD,B.FNAME,A.ATTDATE 
+FROM AGFATT A,HREMPLOYMAST B,HREMPLOYDETAILS C,HRBANDMAST D,GTDEPTDESGMAST E,GTDESIGNATIONMAST F
+WHERE A.HREMPLOYMASTID = B.HREMPLOYMASTID AND C.HREMPLOYMASTID = B.HREMPLOYMASTID AND C.PAYCAT = D.HRBANDMASTID
+AND C.DEPTNAME = E.GTDEPTDESGMASTID AND F.GTDESIGNATIONMASTID = C.DESIGNATION  
+AND A.COMPCODE = '${compCode}' AND A.ATTDATE BETWEEN TO_DATE('${docdate}','DD/MM/YYYY')  AND TO_DATE('${docdate1}','DD/MM/YYYY') 
+AND A.PMNO IN ( SELECT B.MACNO FROM HRMACIPENTRY A JOIN HRMACIPENTRYDET B ON A.HRMACIPENTRYID = B.HRMACIPENTRYID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE AND C.COMPCODE = '${compCode}' AND B.MTYPE IN ('IN','IN/OUT'))
+) AA
+UNION 
+SELECT BB.IDCARDNO IDCARD 
+FROM HRONDUTY AAA, HRONDUTYDET AA,HREMPLOYMAST BB,GTCOMPMAST C
+WHERE AAA.HRONDUTYID=AA.HRONDUTYID AND C.GTCOMPMASTID = AAA.COMPCODE AND C.COMPCODE = '${compCode}'
+AND AA.ODATE BETWEEN TO_DATE('${docdate}','DD/MM/YYYY')  AND TO_DATE('${docdate1}','DD/MM/YYYY') 
+UNION
+SELECT A.IDCARD FROM ( 
+SELECT A.IDCARD,SUM(A.STKOPBAL) STOCK,A.LRDATE  
+FROM HRLEAVEREGMAST A WHERE A.LRDATE BETWEEN TO_DATE('${docdate}','DD/MM/YYYY')  AND TO_DATE('${docdate1}','DD/MM/YYYY')  AND A.COMPCODE = '${compCode}'
+GROUP BY A.IDCARD,A.LRDATE) A
+)
+ORDER BY 1
+
+    `;
+     console.log(sql,"long Absent sql")
+ 
+
+   const result = await connection.execute(sql);
+       let resp = result.rows.map((po) => ({
+      sno: po[0],
+      company: po[1],
+      fname: po[2],
+      department: po[3],
+     designation: po[4],
+     idCard: po[5],
+     midCard: po[6],
+     empName: po[7],
+     doj: po[8],
+     contactNumber: po[9],
+     lwda: po[10]
+
     }));
    console.log(result.rows,"leave availble result")
      return res.json({ statusCode: 0, data: resp });

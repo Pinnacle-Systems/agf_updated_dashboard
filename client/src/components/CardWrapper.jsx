@@ -20,7 +20,7 @@ const DropdownOptions = ({ onDownload }) => (
 const CardWrapper1 = ({ heading, children,onFilterClick, showFilter = true, Doption = true }) => {
   const { color } = useContext(ColorContext);
   const [showOptions, setShowOptions] = useState(false);
-  const cardRef = useRef(null); // Reference to the entire CardWrapper1
+  const cardRef = useRef(null); 
 
   const captureScreenshot = async () => {
     if (!cardRef.current) return;
@@ -47,7 +47,7 @@ const CardWrapper1 = ({ heading, children,onFilterClick, showFilter = true, Dopt
   };
 
   return (
-    <div ref={cardRef} className="text-center border border-gray-300 rounded-lg shadow-lg bg-gray-200 h-[420px] w-full relative">
+    <div ref={cardRef} className="text-center border z-999 border-gray-300 rounded-lg shadow-lg bg-gray-200 h-[420px] w-full relative">
       {/* Header Section */}
       <div className="flex items-center justify-between h-[40px] px-4 rounded-t-lg shadow-md" style={{ background: color || "#E5E7EB" }}>
         <div className="text-[15px] text-white font-medium tracking-wider">{heading}</div>
