@@ -317,3 +317,5 @@ export async function getShortShipmentRatio(req, res) {
         await connection.close()
     }
 }
+
+

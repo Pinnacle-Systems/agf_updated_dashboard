@@ -1,56 +1,40 @@
 import React, { useState, useCallback } from 'react';
-import { useGetlongAbsentQuery } from '../../redux/service/misDashboardService';
+import { useGetFullPrasentQuery } from '../../redux/service/misDashboardService';
+import { useGetFinYearQuery } from '../../redux/service/misDashboardService';
+import { useGetPayPeriodQuery } from '../../redux/service/misDashboardService';
 import 'tailwindcss/tailwind.css';
 import CardWrapper from '../../components/CardWrapper';
 import BuyerMultiSelect4 from '../../components/ModelMultiSelect4';
 
 const LongAbsent = () => {
-  // Function to format date as DD/MM/YYYY for API
-  const formatToDDMMYYYY = useCallback((date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
-  }, []);
-
-  // Function to format date for display
-  const formatDisplayDate = useCallback((dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
-  }, []);
-
-  // Function to get January 1st of current year in YYYY-MM-DD format
-  const getJanFirst = useCallback(() => {
-    const currentYear = new Date().getFullYear();
-    return `${currentYear}-01-01`;
-  }, []);
-
-  // Function to get today's date in YYYY-MM-DD format
-  const getToday = useCallback(() => {
-    return new Date().toISOString().split('T')[0];
-  }, []);
+ 
 
   const [selected, setSelected] = useState();
-  const [fromDate, setFromDate] = useState(getJanFirst());
-  const [toDate, setToDate] = useState(getToday());
-  const [paycat, setPaycat] = useState('ALL');
+  const [fYear,setFYear] = useState()
+  const [payPeriod,setPayperiod] = useState()
+  const [paycat, setPaycat] = useState('STAFF');
   const [showModel, setShowModel] = useState(false);
 
   // Build query parameters
   const queryParams = {
     compCode: selected || "AGF",
-    docdate: formatToDDMMYYYY(fromDate),
-    docdate1: formatToDDMMYYYY(toDate),
-    payCat: paycat
+     payCat: paycat,
+     payPeriod:payPeriod
+
   };
 
-  const { data: longAbsentData, error, isLoading } = useGetlongAbsentQuery({
+  const { data: fullPrasend, error, isLoading } = useGetFullPrasentQuery({
     params: queryParams
-  });
+  },{skip:!payPeriod});
+ console.log(fullPrasend,"fullparsend")
+  const {data:finYear} =  useGetFinYearQuery()
+const { data: payPeriodData } = useGetPayPeriodQuery(
+  { params: { finYear: fYear } },
+  { skip: !fYear }
+);
+console.log(payPeriod,"payPeriod")
 
+   console.log(finYear, "finYear")
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   const requestSort = (key) => {
@@ -63,9 +47,9 @@ const LongAbsent = () => {
 
   // Sort data if needed
   const sortedData = React.useMemo(() => {
-    if (!longAbsentData?.data) return [];
+    if (!fullPrasend?.data) return [];
 
-    let sortableItems = [...longAbsentData.data];
+    let sortableItems = [...fullPrasend.data];
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
         // Handle numeric sorting for idCard and sno
@@ -86,14 +70,14 @@ const LongAbsent = () => {
       });
     }
     return sortableItems;
-  }, [longAbsentData, sortConfig]);
+  }, [fullPrasend, sortConfig]);
 
   if (isLoading) return <div className="flex justify-center items-center h-64">Loading...</div>;
   if (error) return <div className="text-red-500 p-4">Error: {error.message}</div>;
 
   return (
     <>
-      <CardWrapper heading={"Long Absent Employees"} showFilter={true} onFilterClick={() => setShowModel(true)}>
+      <CardWrapper heading={"Full Prasent"} showFilter={true} onFilterClick={() => setShowModel(true)}>
         {showModel && (
           <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-end z-50">
             <div className="w-full sm:w-[500px] bg-white rounded-t-2xl shadow-lg p-4 animate-slide-up">
@@ -109,38 +93,51 @@ const LongAbsent = () => {
 
         {/* Date and Pay Category Filters */}
         <div className="flex flex-wrap gap-4 mb-4 p-2 bg-gray-50 rounded-md">
-          <div className="flex flex-col">
-            <label className="text-xs font-medium mb-1">From Date</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded-md text-xs p-1"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-medium mb-1">To Date</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border rounded-md text-xs p-1"
-            />
-          </div>
-
-          <div className="flex flex-col">
+                  <div className="flex flex-col">
             <label className="text-xs font-medium mb-1">Pay Category</label>
-            <select
+              <select
               value={paycat}
               onChange={(e) => setPaycat(e.target.value)}
               className="border rounded-md text-xs p-1"
             >
-              <option value="ALL">ALL</option>
               <option value="STAFF">STAFF</option>
+           <option value="MLABOUR">MLABOUR</option>
+              {/* <option value="SECURITY">SECURITY</option> */}
+              <option value="WLABOUR">WLABOUR</option>
 
             </select>
           </div>
+           <div className="flex flex-col">
+            <label className="text-xs font-medium mb-1">FinYear</label>
+              <select
+              value={fYear}
+              onChange={(e) => setFYear(e.target.value)}
+              className="border rounded-md text-xs p-1"
+            >{finYear?.data?.map((option)=>{
+              return <option key ={option.finYear} value={option.finYear}>{option.finYear}</option>
+            })
+            }
+            </select>
+          </div>
+          {fYear &&
+          <div className="flex flex-col">
+  <label className="text-xs font-medium mb-1">PayPeriod</label>
+  <select
+    value={payPeriod}
+    onChange={(e) => setPayperiod(e.target.value)}
+    className="border rounded-md text-xs p-1"
+  >
+    <option value="">Select Pay Period</option>
+    {payPeriodData?.data?.map((option) => (
+      <option key={option.payperiod} value={option.payperiod}>
+        {option.payperiod}
+      </option>
+    ))}
+  </select>
+</div>
+
+          }
+           
         </div>
 
         <div className="h-[350px] bg-white rounded-lg shadow-md mt-2 p-1">
@@ -178,18 +175,7 @@ const LongAbsent = () => {
                   >
                     Designation {sortConfig.key === 'designation' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                   </th>
-                  <th
-                    className="py-1 px-2 border text-left font-medium text-black uppercase tracking-wider cursor-pointer"
-                    onClick={() => requestSort('lwda')}
-                  >
-                    Last Working Date {sortConfig.key === 'lwda' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
-                  <th
-                    className="py-1 px-2 border text-left font-medium text-black uppercase tracking-wider cursor-pointer"
-                    onClick={() => requestSort('fname')}
-                  >
-                    Pay Category {sortConfig.key === 'fname' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
+                              
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -200,8 +186,6 @@ const LongAbsent = () => {
                     <td className="py-1 px-2 border font-medium text-gray-700">{item.empName}</td>
                     <td className="py-1 px-2 border text-gray-700">{item.department}</td>
                     <td className="py-1 px-2 border text-gray-700">{item.designation}</td>
-                    <td className="py-1 px-2 border text-gray-700">{formatDisplayDate(item.lwda)}</td>
-                    <td className="py-1 px-2 border text-gray-700">{item.fname}</td>
                   </tr>
                 ))}
               </tbody>

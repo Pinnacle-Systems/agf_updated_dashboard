@@ -19,6 +19,7 @@ import EsiPf from './ESIPFdata/EsiPf';
 import PfData from './PfData';
 import LeaveAvailable from './LeaveAvailable';
 import LongAbsent from './LongAbsent';
+import FullPrasent from './FullPrasent';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
     const [tempSelectedBuyer, setTempSelectedBuyer] = useState([]); // Temporary selection
@@ -29,16 +30,16 @@ const MisDashboard = () => {
     const [previousYear, setPreviousYear] = useState(null);
     const [selected, setSelected] = useState();
     const [selectedPie, setSelectedPie] = useState();
-    
-    const [payCat,setPayCat] = useState ('')
+
+    const [payCat, setPayCat] = useState('')
     const [search, setSearch] = useState({
         FNAME: "",
         GENDER: "",
         MIDCARD: "",
         DEPARTMENT: "",
         COMPCODE: "",
-      });
-    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected,search, })
+    });
+    const { data: overAllSupData } = useGetOverAllSupplierContributionQuery({ filterBuyer: selected, search, })
 
     const overAllSuppCon = overAllSupData?.data || [];
 
@@ -47,10 +48,10 @@ const MisDashboard = () => {
             filterYear: selectedYear,
             previousYear,
             filterBuyer: selectedBuyer,
-            filterMonth: selectedMonth,payCat,search
+            filterMonth: selectedMonth, payCat, search
         }
     });
-    console.log(search,"search")
+    console.log(search, "search")
 
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
     const option = buyer?.data || [];
@@ -65,12 +66,12 @@ const MisDashboard = () => {
                 setSelectedBuyer={setSelectedBuyer}
                 tempSelectedBuyer={tempSelectedBuyer}
                 setTempSelectedBuyer={setTempSelectedBuyer}
-                refetch={refetch}   
-                setSearch = {setSearch}
-                search =  {search}
+                refetch={refetch}
+                setSearch={setSearch}
+                search={search}
                 misData={misData}
-                payCat = {payCat}
-                setPayCat = {setPayCat}
+                payCat={payCat}
+                setPayCat={setPayCat}
             />
             <div className='grid grid-cols-4 gap-1 p-0.5 py-1 '>
                 <YearlyComparisionBuyerWise
@@ -93,8 +94,8 @@ const MisDashboard = () => {
 
                 </div>
                 <div className="col-span-2 ">
-                   
-                        <Retention />
+
+                    <Retention />
                 </div>
 
 
@@ -104,10 +105,12 @@ const MisDashboard = () => {
                 <div className='col-span-2'>
                     <LeaveAvailable />
                 </div>
-                   <div className='col-span-2'>
+                <div className='col-span-2'>
                     <LongAbsent />
                 </div>
-               
+                <div className='col-span-2'>
+                    <FullPrasent />
+                </div>
             </div>
         </div>
     );

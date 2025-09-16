@@ -328,19 +328,58 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-          getlongAbsent: builder.query({
-            query: ({ params }) => {
-                return {
-                    url: MIS_DASHBOARD + "/longAbsent",
-                    method: 'GET',
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    },
-                    params
-                }
-            },
-            providesTags: ['MisDashboard'],
-        }),
+      getlongAbsent: builder.query({
+  query: ({ params }) => {
+    return {
+      url: MIS_DASHBOARD + "/LongAbsent",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      params
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
+  getFullPrasent: builder.query({
+  query: ({ params }) => {
+    return {
+      url: MIS_DASHBOARD + "/FullPrasent",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      params
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
+  getPayPeriod: builder.query({
+  query: ({ params }) => {
+    return {
+      url: MIS_DASHBOARD + "/PayPeriod",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      params
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
+  getFinYear: builder.query({
+  query: () => {
+    return {
+      url: MIS_DASHBOARD + "/finYear",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      }
+      
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
     }),
 })
 
@@ -370,9 +409,10 @@ export const {
     useGetEsiPfQuery,
     useGetEsiPf1Query,
     useGetLeaveAvbQuery,
-    useGetlongAbsentQuery
-
-
-} = MisDashboard;
+    useGetlongAbsentQuery,
+    useGetFullPrasentQuery,
+    useGetPayPeriodQuery,
+    useGetFinYearQuery
+    } = MisDashboard;
 
 export default MisDashboard;

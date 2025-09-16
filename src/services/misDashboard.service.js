@@ -1281,7 +1281,6 @@ export async function getLeaveAvailable(req,res) {
    const connection = await getConnection(res);
   try {
      const { compCode, filterYear } = req.query;
-     console.log(compCode,filterYear,"leave Available params")
     const sql = `
   SELECT IDCARD,MIDCARD,FNAME,PAYCAT,LCODE,LDESC,SUM(LCOUNT) AVL,SUM(LT) LT,SUM(LCOUNT)-SUM(LT) LBAL 
 FROM (SELECT A.FINYEAR FINYR,A.LCODE, A.LDESC,D.IDCARD,D.MIDCARD,DD.FNAME,B.LDAYS AVL,0 LT,B.LDAYS LCOUNT,C.BANDID PAYCAT FROM HRLEAVEMAST A
@@ -1345,7 +1344,6 @@ export async function getlongAbsent(req,res) {
    const connection = await getConnection(res);
   try {
      const { compCode, docdate,docdate1,payCat } = req.query;
-        console.log(compCode,docdate,docdate1,payCat,"long Adsent")
 
     const sql = `
   SELECT DENSE_RANK() OVER (ORDER BY TO_NUMBER(C.IDCARD)) SNO,E.COMPCODE COMPCODE1,
@@ -1359,7 +1357,7 @@ FROM HREMPLOYMAST B,HREMPLOYDETAILS C,HRBANDMAST D,GTCOMPMAST E,GTDEPTDESGMAST G
 WHERE B.HREMPLOYMASTID = C.HREMPLOYMASTID AND C.BAND = D.HRBANDMASTID AND B.COMPCODE = E.GTCOMPMASTID 
 AND C.IDACTIVE = 'YES' AND C.DEPTNAME = G.GTDEPTDESGMASTID 
 AND H.GTDESIGNATIONMASTID = C.DESIGNATION AND E.COMPCODE = '${compCode}'
-AND ( D.BANDID =' ${payCat}' OR 'ALL' = '${payCat}' ) 
+AND ( D.BANDID =' ALL' OR 'ALL' = 'ALL' ) 
 AND C.DOJ <= TO_DATE('${docdate1}','DD/MM/YYYY')  
 AND C.IDCARD NOT IN
 (
@@ -1386,7 +1384,7 @@ GROUP BY A.IDCARD,A.LRDATE) A
 ORDER BY 1
 
     `;
-     console.log(sql,"long Absent sql")
+    console.log(sql,"sql for long")
  
 
    const result = await connection.execute(sql);
@@ -1404,7 +1402,96 @@ ORDER BY 1
      lwda: po[10]
 
     }));
-   console.log(result.rows,"leave availble result")
+     return res.json({ statusCode: 0, data: resp });
+
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  }
+  finally {
+    await connection.close();
+  }
+}
+export async function getFullPrasent(req,res) {
+   const connection = await getConnection(res);
+  try {
+     const { compCode, payPeriod,payCat } = req.query;
+
+    const sql = `
+SELECT DENSE_RANK() OVER(ORDER BY A.EMPID) SNO,A.EMPID IDCARD,C.FNAME EMPNAME,G.MNNAME1 DEPARTMENT,H.DESIGNATION 
+FROM AGFHPAYROLL A 
+JOIN HREMPLOYDETAILS B ON A.EMPID = B.IDCARD
+JOIN HREMPLOYMAST C ON C.HREMPLOYMASTID = B.HREMPLOYMASTID
+JOIN GTDEPTDESGMAST G ON G.GTDEPTDESGMASTID = B.DEPTNAME
+JOIN GTDESIGNATIONMAST  H ON H.GTDESIGNATIONMASTID = B.DESIGNATION
+WHERE A.PAYPERIOD = '${payPeriod}'
+AND A.PCTYPE = 'ACTUAL' AND A.PAYCAT = '${payCat}' AND A.COMPCODE = '${compCode}'
+AND A.MDAYS = (A.WDAYS-A.LEAVE)
+ORDER BY A.EMPID
+
+
+
+    `;
+  console.log(sql,"sql for full prasent")
+
+   const result = await connection.execute(sql);
+       let resp = result.rows.map((po) => ({
+      sno: po[0],
+      idCard: po[1],
+      empName: po[2],
+      department: po[3],
+     designation: po[4],
+
+
+    }));
+     return res.json({ statusCode: 0, data: resp });
+
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  }
+  finally {
+    await connection.close();
+  }
+}
+export async function getPayPeriod(req,res) {
+   const connection = await getConnection(res);
+  try {
+     const { finYear } = req.query;
+
+    const sql = `
+SELECT A.PAYPERIOD FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = 'AGF' AND A.FINYR ='${finYear}' ORDER BY A.STDT
+    `;
+ 
+
+   const result = await connection.execute(sql);
+       let resp = result.rows.map((po) => ({
+      payperiod: po[0],
+    
+    }));
+     return res.json({ statusCode: 0, data: resp });
+
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  }
+  finally {
+    await connection.close();
+  }
+}
+export async function getFinYear(req,res) {
+   const connection = await getConnection(res);
+  try {
+   
+    const sql = `
+SELECT A.FINYR FROM GTFINANCIALYEAR A ORDER BY 1    `;
+ 
+
+   const result = await connection.execute(sql);
+       let resp = result.rows.map((po) => ({
+      finYear: po[0],
+    
+    }));
      return res.json({ statusCode: 0, data: resp });
 
   } catch (err) {
