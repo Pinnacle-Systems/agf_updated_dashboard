@@ -54,7 +54,7 @@ app.use('/misDashboardERP', misDashboardERP)
 app.use('/ordManagement', ordManagement)
 
 app.use('/users', user)
-const PORT = 9007;
+const PORT = 9006;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
