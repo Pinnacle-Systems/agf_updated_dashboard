@@ -138,6 +138,9 @@ const LongAbsent = () => {
             >
               <option value="ALL">ALL</option>
               <option value="STAFF">STAFF</option>
+              <option value="WLABOUR">WLABOUR</option>
+              <option value="MLABOUR">MLABOUR</option>
+
 
             </select>
           </div>
@@ -184,12 +187,12 @@ const LongAbsent = () => {
                   >
                     Last Working Date {sortConfig.key === 'lwda' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                   </th>
-                  <th
+                  {/* <th
                     className="py-1 px-2 border text-left font-medium text-black uppercase tracking-wider cursor-pointer"
                     onClick={() => requestSort('fname')}
                   >
                     Pay Category {sortConfig.key === 'fname' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -201,7 +204,7 @@ const LongAbsent = () => {
                     <td className="py-1 px-2 border text-gray-700">{item.department}</td>
                     <td className="py-1 px-2 border text-gray-700">{item.designation}</td>
                     <td className="py-1 px-2 border text-gray-700">{formatDisplayDate(item.lwda)}</td>
-                    <td className="py-1 px-2 border text-gray-700">{item.fname}</td>
+                    {/* <td className="py-1 px-2 border text-gray-700">{item.fname}</td> */}
                   </tr>
                 ))}
               </tbody>
