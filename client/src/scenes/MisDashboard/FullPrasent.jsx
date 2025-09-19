@@ -93,20 +93,7 @@ console.log(payPeriod,"payPeriod")
 
         {/* Date and Pay Category Filters */}
         <div className="flex flex-wrap gap-4 mb-4 p-2 bg-gray-50 rounded-md">
-                  <div className="flex flex-col">
-            <label className="text-xs font-medium mb-1">Pay Category</label>
-              <select
-              value={paycat}
-              onChange={(e) => setPaycat(e.target.value)}
-              className="border rounded-md text-xs p-1"
-            >
-              <option value="STAFF">STAFF</option>
-           <option value="MLABOUR">MLABOUR</option>
-              {/* <option value="SECURITY">SECURITY</option> */}
-              <option value="WLABOUR">WLABOUR</option>
-
-            </select>
-          </div>
+          
            <div className="flex flex-col">
             <label className="text-xs font-medium mb-1">FinYear</label>
               <select

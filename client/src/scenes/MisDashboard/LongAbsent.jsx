@@ -129,21 +129,7 @@ const LongAbsent = () => {
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-xs font-medium mb-1">Pay Category</label>
-            <select
-              value={paycat}
-              onChange={(e) => setPaycat(e.target.value)}
-              className="border rounded-md text-xs p-1"
-            >
-              <option value="ALL">ALL</option>
-              <option value="STAFF">STAFF</option>
-              <option value="WLABOUR">WLABOUR</option>
-              <option value="MLABOUR">MLABOUR</option>
-
-
-            </select>
-          </div>
+       
         </div>
 
         <div className="h-[350px] bg-white rounded-lg shadow-md mt-2 p-1">

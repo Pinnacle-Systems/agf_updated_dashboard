@@ -1343,7 +1343,7 @@ ORDER BY TO_NUMBER(IDCARD),LCODE
 export async function getlongAbsent(req,res) {
    const connection = await getConnection(res);
   try {
-     const { compCode, docdate,docdate1,payCat } = req.query;
+     const { compCode, docdate,docdate1 } = req.query;
 
     const sql = `
    SELECT DENSE_RANK() OVER (ORDER BY TO_NUMBER(C.IDCARD)) SNO,E.COMPCODE COMPCODE1,
@@ -1364,7 +1364,6 @@ SELECT DISTINCT AA.EMPID IDCARD,AA.DOCDATE ATTDATE FROM
 AGF_CATT AA WHERE AA.DOCDATE <= TO_DATE('${docdate}','DD/MM/YYYY')
 ) ZZ GROUP BY ZZ.IDCARD ) ZZ ON ZZ.IDCARD = C.IDCARD
 WHERE  E.COMPCODE ='${compCode}'
-AND ( D.BANDID ='ALL' OR 'ALL' = '${payCat}' )
 AND C.DOJ <= TO_DATE('${docdate1}','DD/MM/YYYY')
 AND NOT EXISTS 
 ( 
@@ -1426,7 +1425,7 @@ ORDER BY 1
 export async function getFullPrasent(req,res) {
    const connection = await getConnection(res);
   try {
-     const { compCode, payPeriod,payCat } = req.query;
+     const { compCode, payPeriod } = req.query;
 
     const sql = `
 SELECT DENSE_RANK() OVER(ORDER BY A.EMPID) SNO,A.EMPID IDCARD,C.FNAME EMPNAME,G.MNNAME1 DEPARTMENT,H.DESIGNATION 
@@ -1436,7 +1435,7 @@ JOIN HREMPLOYMAST C ON C.HREMPLOYMASTID = B.HREMPLOYMASTID
 JOIN GTDEPTDESGMAST G ON G.GTDEPTDESGMASTID = B.DEPTNAME
 JOIN GTDESIGNATIONMAST  H ON H.GTDESIGNATIONMASTID = B.DESIGNATION
 WHERE A.PAYPERIOD = '${payPeriod}'
-AND A.PCTYPE = 'ACTUAL' AND A.PAYCAT = '${payCat}' AND A.COMPCODE = '${compCode}'
+ AND A.COMPCODE = '${compCode}'
 AND A.MDAYS = (A.WDAYS-A.LEAVE)
 ORDER BY A.EMPID
 
