@@ -20,6 +20,7 @@ import PfData from './PfData';
 import LeaveAvailable from './LeaveAvailable';
 import LongAbsent from './LongAbsent';
 import FullPrasent from './FullPrasent';
+import HeadCount from './HeadCount';
 const MisDashboard = () => {
     const [selectedBuyer, setSelectedBuyer] = useState([]);
     const [tempSelectedBuyer, setTempSelectedBuyer] = useState([]); // Temporary selection
@@ -110,6 +111,9 @@ const MisDashboard = () => {
                 </div>
                 <div className='col-span-2'>
                     <FullPrasent />
+                </div>
+                   <div className='col-span-2 mt-16'>
+                    <HeadCount />
                 </div>
             </div>
         </div>

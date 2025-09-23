@@ -380,6 +380,34 @@ const MisDashboard = createApi({
   },
   providesTags: ['MisDashboard'],
 }),
+  getHeadCount: builder.query({
+  query: ({ params }) => {
+    return {
+      url: MIS_DASHBOARD + "/headCount",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      params
+      
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
+  getHeadCountDetail: builder.query({
+  query: ({ params }) => {
+    return {
+      url: MIS_DASHBOARD + "/HeadDetail",
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      params
+      
+    }
+  },
+  providesTags: ['MisDashboard'],
+}),
     }),
 })
 
@@ -412,7 +440,9 @@ export const {
     useGetlongAbsentQuery,
     useGetFullPrasentQuery,
     useGetPayPeriodQuery,
-    useGetFinYearQuery
+    useGetFinYearQuery,
+    useGetHeadCountQuery,
+    useGetHeadCountDetailQuery
     } = MisDashboard;
 
 export default MisDashboard;

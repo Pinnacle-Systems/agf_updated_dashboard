@@ -169,7 +169,6 @@ DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
 ) A
 ORDER BY A.EMPID`;
 
-
   const queryResult = await connection.execute(sql);
 
   result = queryResult.rows.map((row) =>
@@ -221,7 +220,6 @@ ORDER BY A.EMPID
 
  `;
 
-
   const queryResult = await connection.execute(sql);
 
   result = queryResult.rows.map((row) =>
@@ -264,7 +262,6 @@ JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
 JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
 WHERE ${whereClause}
 ORDER BY A.EMPID`;
-
 
   const queryResult = await connection.execute(sql);
 
@@ -319,7 +316,6 @@ export async function getattdet(req, res) {
     WHERE ${whereClause}
     ORDER BY A.COMPCODE, 1, 2, 3`;
 
-
   const queryResult = await connection.execute(sql);
 
   result = queryResult.rows.map((row) =>
@@ -333,9 +329,9 @@ export async function getattdet(req, res) {
 }
 export async function getattdetTable(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer, search = {}, filterYear} = req.query;
+  const { filterBuyer, search = {}, filterYear } = req.query;
   let result = [];
- 
+
   let whereClause = `C.IDCARDNO = A.IDCARD 
          AND C.LWORKDAY = A.DOL) AS REASON,
         A.COMPCODE,
@@ -369,7 +365,6 @@ export async function getattdetTable(req, res) {
     WHERE ${whereClause}
    `;
 
-
   const queryResult = await connection.execute(sql);
 
   result = queryResult.rows.map((row) =>
@@ -387,15 +382,14 @@ export async function getretdetTable(req, res) {
   let result = [];
 
   // Initialize whereClause
-  let whereClause = '';
+  let whereClause = "";
 
   // Add filters dynamically
   if (search.FNAME)
     whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
   if (search.GENDER)
     whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`;
-  if (search.MIDCARD)
-    whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
   if (search.DEPARTMENT)
     whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
@@ -468,7 +462,6 @@ export async function getretdetTable(req, res) {
     ORDER BY EMPID, STDT
   `;
 
-
   try {
     const queryResult = await connection.execute(sql);
 
@@ -481,7 +474,7 @@ export async function getretdetTable(req, res) {
 
     res.status(200).json({ success: true, data: result });
   } catch (error) {
-    console.error('Error executing SQL:', error);
+    console.error("Error executing SQL:", error);
     res.status(500).json({ success: false, error: error.message });
   }
 }
@@ -514,7 +507,6 @@ JOIN HREMPLOYMAST BB ON AA.IDCARD = BB.IDCARDNO
 JOIN HREMPLOYDETAILS CC ON BB.HREMPLOYMASTID = CC.HREMPLOYMASTID
 WHERE ${whereClause}
     `;
-
 
   try {
     const queryResult = await connection.execute(sql);
@@ -568,7 +560,6 @@ WHERE
 ${whereClause}
     `;
 
-
   try {
     const queryResult = await connection.execute(sql);
 
@@ -617,7 +608,6 @@ JOIN HRBGMAST CC ON BB.BG = CC.HRBGMASTID
 WHERE  ${whereClause}
     `;
 
-
   try {
     const queryResult = await connection.execute(sql);
 
@@ -634,7 +624,7 @@ WHERE  ${whereClause}
     res.status(500).json({ success: false, error: error.message });
   }
 }
- export async function getPfDataDet(req,res) {
+export async function getPfDataDet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {}, selectedYear } = req.query;
   let result = [];
@@ -664,7 +654,6 @@ WHERE ${whereClause}
 ORDER BY A.EMPID,YEAR,DAY
  `;
 
-
   const queryResult = await connection.execute(sql);
 
   result = queryResult.rows.map((row) =>
@@ -676,7 +665,7 @@ ORDER BY A.EMPID,YEAR,DAY
 
   res.status(200).json({ success: true, data: result });
 }
-export async function getEsiDataDet(req,res) {
+export async function getEsiDataDet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {}, selectedYear } = req.query;
   let result = [];
@@ -705,7 +694,6 @@ JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
 WHERE ${whereClause}
 ORDER BY A.EMPID,YEAR,DAY
  `;
-
 
   const queryResult = await connection.execute(sql);
 
@@ -766,8 +754,6 @@ export async function getEmployeesDetail(req, res) {
             WHERE ${whereClause}
         `;
 
-
-
   try {
     const queryResult = await connection.execute(sql);
     result = queryResult.rows.map((row) => {
@@ -822,8 +808,6 @@ export async function getEmployeesDetail1(req, res) {
             FROM MISTABLE A  
             WHERE ${whereClause}
         `;
-
-
 
   try {
     const queryResult = await connection.execute(sql);
@@ -1161,7 +1145,7 @@ ORDER BY TO_CHAR(A.DOB, 'MM-DD')
       age: po[5],
       exp: po[6],
       doj: po[7],
-      mid: po[8]
+      mid: po[8],
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
@@ -1266,7 +1250,7 @@ ORDER BY STDT1,STDT
       month: po[1],
       Year: po[2],
       esi: po[3],
-     headCount: po[4],
+      headCount: po[4],
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
@@ -1277,10 +1261,10 @@ ORDER BY STDT1,STDT
   }
 }
 
-export async function getLeaveAvailable(req,res) {
-   const connection = await getConnection(res);
+export async function getLeaveAvailable(req, res) {
+  const connection = await getConnection(res);
   try {
-     const { compCode, filterYear } = req.query;
+    const { compCode, filterYear } = req.query;
     const sql = `
   SELECT IDCARD,MIDCARD,FNAME,PAYCAT,LCODE,LDESC,SUM(LCOUNT) AVL,SUM(LT) LT,SUM(LCOUNT)-SUM(LT) LBAL 
 FROM (SELECT A.FINYEAR FINYR,A.LCODE, A.LDESC,D.IDCARD,D.MIDCARD,DD.FNAME,B.LDAYS AVL,0 LT,B.LDAYS LCOUNT,C.BANDID PAYCAT FROM HRLEAVEMAST A
@@ -1316,34 +1300,31 @@ WHERE A.FINYEAR ='${filterYear}' AND B.COMPCODE1 = '${compCode}' AND B.FRM1 > 0
 GROUP BY LCODE,LDESC,IDCARD,MIDCARD,FNAME,PAYCAT
 ORDER BY TO_NUMBER(IDCARD),LCODE
     `;
- 
 
-   const result = await connection.execute(sql);
-       let resp = result.rows.map((po) => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
       id: po[0],
       mid: po[1],
       fname: po[2],
       paycat: po[3],
-     lcode: po[4],
-     ldesc: po[5],
-     Avl: po[6],
-     lt: po[7],
-     lbal: po[8]
+      lcode: po[4],
+      ldesc: po[5],
+      Avl: po[6],
+      lt: po[7],
+      lbal: po[8],
     }));
-     return res.json({ statusCode: 0, data: resp });
-
+    return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error fetching leave availability:", err);
     throw err;
-  }
-  finally {
+  } finally {
     await connection.close();
   }
 }
-export async function getlongAbsent(req,res) {
-   const connection = await getConnection(res);
+export async function getlongAbsent(req, res) {
+  const connection = await getConnection(res);
   try {
-     const { compCode, docdate,docdate1 } = req.query;
+    const { compCode, docdate, docdate1 } = req.query;
 
     const sql = `
    SELECT DENSE_RANK() OVER (ORDER BY TO_NUMBER(C.IDCARD)) SNO,E.COMPCODE COMPCODE1,
@@ -1394,38 +1375,34 @@ WHERE C.IDCARD = AA.IDCARD
 ORDER BY 1
 
     `;
-    console.log(sql,"sql for long")
- 
+    console.log(sql, "sql for long");
 
-   const result = await connection.execute(sql);
-       let resp = result.rows.map((po) => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
       sno: po[0],
       company: po[1],
       fname: po[2],
       department: po[3],
-     designation: po[4],
-     idCard: po[5],
-     midCard: po[6],
-     empName: po[7],
-     doj: po[8],
-     contactNumber: po[9],
-     lwda: po[10]
-
+      designation: po[4],
+      idCard: po[5],
+      midCard: po[6],
+      empName: po[7],
+      doj: po[8],
+      contactNumber: po[9],
+      lwda: po[10],
     }));
-     return res.json({ statusCode: 0, data: resp });
-
+    return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error fetching leave availability:", err);
     throw err;
-  }
-  finally {
+  } finally {
     await connection.close();
   }
 }
-export async function getFullPrasent(req,res) {
-   const connection = await getConnection(res);
+export async function getFullPrasent(req, res) {
+  const connection = await getConnection(res);
   try {
-     const { compCode, payPeriod } = req.query;
+    const { compCode, payPeriod } = req.query;
 
     const sql = `
 SELECT DENSE_RANK() OVER(ORDER BY A.EMPID) SNO,A.EMPID IDCARD,C.FNAME EMPNAME,G.MNNAME1 DEPARTMENT,H.DESIGNATION 
@@ -1443,71 +1420,160 @@ ORDER BY A.EMPID
 
     `;
 
-   const result = await connection.execute(sql);
-       let resp = result.rows.map((po) => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
       sno: po[0],
       idCard: po[1],
       empName: po[2],
       department: po[3],
-     designation: po[4],
-
-
+      designation: po[4],
     }));
-     return res.json({ statusCode: 0, data: resp });
-
+    return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error fetching leave availability:", err);
     throw err;
-  }
-  finally {
+  } finally {
     await connection.close();
   }
 }
-export async function getPayPeriod(req,res) {
-   const connection = await getConnection(res);
+export async function getPayPeriod(req, res) {
+  const connection = await getConnection(res);
   try {
-     const { finYear } = req.query;
+    const { finYear } = req.query;
 
     const sql = `
 SELECT A.PAYPERIOD FROM MONTHLYPAYFRQ A WHERE A.COMPCODE = 'AGF' AND A.FINYR ='${finYear}' ORDER BY A.STDT
     `;
- 
 
-   const result = await connection.execute(sql);
-       let resp = result.rows.map((po) => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
       payperiod: po[0],
-    
     }));
-     return res.json({ statusCode: 0, data: resp });
-
+    return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error fetching leave availability:", err);
     throw err;
-  }
-  finally {
+  } finally {
     await connection.close();
   }
 }
-export async function getFinYear(req,res) {
-   const connection = await getConnection(res);
+export async function getFinYear(req, res) {
+  const connection = await getConnection(res);
   try {
-   
     const sql = `
 SELECT A.FINYR FROM GTFINANCIALYEAR A ORDER BY 1    `;
- 
 
-   const result = await connection.execute(sql);
-       let resp = result.rows.map((po) => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
       finYear: po[0],
-    
     }));
-     return res.json({ statusCode: 0, data: resp });
-
+    return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error fetching leave availability:", err);
     throw err;
-  }
-  finally {
+  } finally {
     await connection.close();
   }
 }
+
+export async function getEmployeeHeadCount(req, res) {
+  const connection = await getConnection(res);
+
+  try {
+    let { compCode, docdate } = req.query;
+
+    compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
+
+    if (!docdate || docdate.trim() === "") {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, "0");
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const yyyy = today.getFullYear();
+      docdate = `${dd}/${mm}/${yyyy}`;
+    }
+
+    const sql = `
+      SELECT A.DEPARTMENT, COUNT(*) AS HC 
+      FROM MISTABLE A 
+      WHERE A.COMPCODE = :compCode
+      AND A.DOJ <= TO_DATE(:docdate,'DD/MM/YYYY') 
+      AND (A.DOL IS NULL OR A.DOL >= TO_DATE(:docdate,'DD/MM/YYYY'))
+      GROUP BY A.DEPARTMENT
+      ORDER BY 1
+    `;
+
+    const result = await connection.execute(sql, { compCode, docdate });
+    const resp = result.rows.map((po) => ({
+      department: po[0],
+      headCount: po[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    return res
+      .status(500)
+      .json({ statusCode: 1, message: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getHeadDetail(req, res) {
+  const connection = await getConnection(res);
+
+  try {
+    let { compCode, docdate, department } = req.query;
+    console.log(compCode, docdate, department, "values list");
+
+    // Default compCode
+    compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
+
+    // Convert docdate to DD/MM/YYYY format
+    if (!docdate || docdate.trim() === "") {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, "0");
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const yyyy = today.getFullYear();
+      docdate = `${dd}/${mm}/${yyyy}`;
+    } else {
+      const d = new Date(docdate); // parse YYYY-MM-DD
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      docdate = `${dd}/${mm}/${yyyy}`; // convert to DD/MM/YYYY
+    }
+
+    const sql = `
+     SELECT * FROM MISTABLE A 
+WHERE A.COMPCODE = '${compCode}'
+AND A.DOJ <= TO_DATE('${docdate}','DD/MM/YYYY') AND (A.DOL IS NULL OR A.DOL >= TO_DATE('${docdate}','DD/MM/YYYY'))
+AND A.DEPARTMENT = '${department}'
+    `;
+
+    console.log(sql, "sql for Det");
+
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((row) => ({
+      id: row[0],
+      name: row[1],
+      gender: row[2],
+      doj: row[3],
+      dob: row[4],
+      payCat: row[7],
+      department: row[17]
+
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error fetching head detail:", err);
+    return res
+      .status(500)
+      .json({ statusCode: 1, message: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+

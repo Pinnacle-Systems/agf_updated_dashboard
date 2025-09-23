@@ -5,7 +5,7 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getpfdet,getesidet,getattdet,getagedet,getexpdet,getbgdet,getEmployeesDetail1,getPfDataDet,getEsiDataDet,
     getESIPF1,getattdetTable,
     getretdetTable,getLeaveAvailable,getlongAbsent,getFullPrasent,getPayPeriod,
-    getFinYear} from '../services/misDashboard.service.js';
+    getFinYear,getEmployeeHeadCount,getHeadDetail} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -25,10 +25,12 @@ router.get ('/pfDet', getpfdet )
 router.get ('/esiDet', getesidet )
 
 router.get ('/AttDet', getattdet )
+
 router.get ('/AttDetTable', getattdetTable )
 
 router.get ('/RetDetTable', getretdetTable)
 
+router.get ('/HeadDetail', getHeadDetail)
 
 router.get ('/AgeDet', getagedet )
 
@@ -41,6 +43,8 @@ router.get ('/PfDataDet', getPfDataDet)
 router.get ('/EsiDataDet', getEsiDataDet)
 
 router.get ('/leaveAvailable',getLeaveAvailable)
+
+router.get ('/headCount',getEmployeeHeadCount)
 
 router.get ("/LongAbsent",getlongAbsent)
 
