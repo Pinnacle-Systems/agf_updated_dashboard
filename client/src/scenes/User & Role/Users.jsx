@@ -569,7 +569,7 @@
                         <tr className="bg-red-800 text-white">
                           {tableHead.map((head) => (
                             <th key={head} className="py-2 px-3 text-center">
-                              {head}
+                              {head}  
                             </th>
                           ))}
                         </tr>
