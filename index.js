@@ -2,8 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 import { createRequire } from "module";
+import { PrismaClient } from './src/generated/prisma/client.js';
+
 const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
 oracledb.initOracleClient({ libDir: "C:\\oracle\\instantclient_19_20" }); 
@@ -16,7 +20,8 @@ import {
   misDashboard,
   ordManagement,
   misDashboardERP,
-  user
+  user,
+  role
 } from "./src/routes/index.js"
 
 const app = express()
@@ -54,8 +59,13 @@ app.use('/misDashboardERP', misDashboardERP)
 app.use('/ordManagement', ordManagement)
 
 app.use('/users', user)
-const PORT = 9007;
+
+app.use('/role',role)
+
+const PORT = 9008;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+export const prisma_Connector = new PrismaClient();

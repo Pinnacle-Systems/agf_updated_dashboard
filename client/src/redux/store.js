@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { openTabs } from "./features";
 
-import { poRegister, commonMast, supplier, poData, misDashboardService, ordManagement, UsersApi,misDashboardServiceERP } from './service'
+import { poRegister, commonMast, supplier, poData, misDashboardService, ordManagement, UsersApi,misDashboardServiceERP, RoleApi } from './service'
 import { setupListeners } from '@reduxjs/toolkit/query'
 
 export const store = configureStore({
@@ -15,6 +15,7 @@ export const store = configureStore({
         [misDashboardService.reducerPath]: misDashboardService.reducer,
         [ordManagement.reducerPath]: ordManagement.reducer,
         [UsersApi.reducerPath]: UsersApi.reducer,
+        [RoleApi.reducerPath]: RoleApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat([
@@ -26,6 +27,7 @@ export const store = configureStore({
             ordManagement.middleware,
             misDashboardServiceERP.middleware,
             UsersApi.middleware,
+            RoleApi.middleware,
         ]
         ),
 });

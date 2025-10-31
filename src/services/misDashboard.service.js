@@ -1375,7 +1375,7 @@ WHERE C.IDCARD = AA.IDCARD
 ORDER BY 1
 
     `;
-    console.log(sql, "sql for long");
+    // console.log(sql, "sql for long");
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1524,7 +1524,7 @@ export async function getHeadDetail(req, res) {
 
   try {
     let { compCode, docdate, department } = req.query;
-    console.log(compCode, docdate, department, "values list");
+    // console.log(compCode, docdate, department, "values list");
 
     // Default compCode
     compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
@@ -1551,7 +1551,7 @@ AND A.DOJ <= TO_DATE('${docdate}','DD/MM/YYYY') AND (A.DOL IS NULL OR A.DOL >= T
 AND A.DEPARTMENT = '${department}'
     `;
 
-    console.log(sql, "sql for Det");
+    // console.log(sql, "sql for Det");
 
     const result = await connection.execute(sql);
 

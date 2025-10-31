@@ -15,7 +15,7 @@ const Form = ({ closeModal, onClose }) => {
   const pageNames = [
     { id: 1, label: "DASHBOARD" },
     { id: 2, label: "Employees Detail" },
-    // { id: 4, label: "Allocation" },
+    { id: 4, label: "Allocation" },
     { id: 4, label: "User" },
   ];
 

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { Children, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { push, remove } from "../../redux/features/opentabs";
 
@@ -9,14 +9,30 @@ import PoRegister from "../poRegister";
 import { MisDashboard } from "../../scenes"
 import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
-import OutlinedCard from "../Users/Users";
+// import OutlinedCard from "../Users/Users";
 import { ColorContext } from "../global/context/ColorContext";
+import Main_Dashboad from "../maindashboard";
+// import RolePermission from "../Users/Users";
+// import Users from "../index.js";
+import UserCreation from "../User & Role/Users.jsx";
+import Users from "../User & Role";
+import secureLocalStorage from "react-secure-storage";
+import Roles from "../User & Role";
+import UserDetails from "../User & Role/user/user.jsx";
+ 
 
 const ActiveTabList = () => {
     const { color } = useContext(ColorContext);
     const openTabs = useSelector((state) => state.openTabs);
     const dispatch = useDispatch();
     const [showHidden, setShowHidden] = useState(false);
+
+   
+
+
+
+
+
 
     const ref = useOutsideClick(() => { setShowHidden(false) })
 
@@ -25,17 +41,46 @@ const ActiveTabList = () => {
         "ERP": <MisDashboardERP />,
         "Employees Detail": <PoRegister />,
         'Order Status': <OrderManagement />,
-        "User": <OutlinedCard />,
+        // "User": <OutlinedCard />,
+        "User": {
+            label: "User Management",
+            Children: {
+                "User": <UserCreation />,
+                "Roles": <Roles />
+
+            }
+        },
+        "Main": <Main_Dashboad />
     };
+
+    // console.log(tabs);
 
     const innerWidth = window.innerWidth;
     const itemsToShow = innerWidth / 130;
     const currentShowingTabs = openTabs.tabs.slice(0, parseInt(itemsToShow));
     const hiddenTabs = openTabs.tabs.slice(parseInt(itemsToShow));
+
+    const findTabComponent = (tabs, tabName) => {
+        for (const key in tabs) {
+            const item = tabs[key];
+
+            if (key === tabName && React.isValidElement(item)) {
+                return item;
+            }
+
+            // If the tab has children, search inside them
+            if (item.Children) {
+                const childResult = findTabComponent(item.Children, tabName);
+                if (childResult) return childResult;
+            }
+        }
+        return null;
+    };
+
     return (
         <div className="relative w-full h-full">
             <div className="flex justify-between ">
-                <div className="flex gap-2 mt-2 ml-3  ">
+                <div className="flex gap-2 mt-2 ml-3 ">
                     {currentShowingTabs.map((tab, index) => (
                         <div
                             key={index}
@@ -49,7 +94,7 @@ const ActiveTabList = () => {
                             <button
                                 onClick={() => {
                                     dispatch(push({ id: tab.id }));
-                                }} className="" 
+                                }} className=""
                             >
                                 {tab.name}
                             </button>
@@ -96,7 +141,11 @@ const ActiveTabList = () => {
             </div>
             {openTabs.tabs.map((tab, index) => (
                 <div key={index} className={`${tab.active ? "block" : "hidden"} w-full`}>
-                    {tabs[tab.name]}
+                    {findTabComponent(tabs, tab.name) || (
+                        <div className="text-center text-gray-400 p-10">
+                            Page not found for: {tab.name}
+                        </div>
+                    )}
                 </div>
             ))}
         </div>

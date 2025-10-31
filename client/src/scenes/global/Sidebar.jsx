@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import Collapse from '@mui/material/Collapse';
 import { FaDatabase, FaMoneyBill } from "react-icons/fa";
 import {
   Box,
@@ -22,6 +24,10 @@ import { useGetUsersQuery } from '../../redux/service/user';
 import { ColorContext } from './context/ColorContext';
 import { useContext } from "react";
 import ActiveTabList from '../ActiveTab';
+import secureLocalStorage from 'react-secure-storage';
+import axios from 'axios';
+import { Item } from 'devextreme-react/cjs/funnel';
+import { PermissionContext } from "./context/PermissionContext";
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: '32px',
   height: '32px',
@@ -60,74 +66,281 @@ const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [openERP, setOpenERP] = useState(false);
   const dispatch = useDispatch();
   const { data: userData } = useGetUsersQuery();
   const { color } = useContext(ColorContext);
+  const { setPermissions } = useContext(PermissionContext);
 
+  const [allowpages, setallowpages] = useState([])
+  const [role, setRole] = useState("")
+
+  async function Fliter() {
+    const userId = secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "userId"
+    );
+    const userId1 = secureLocalStorage.getItem(
+      sessionStorage.getItem("sessionId") + "roleId"
+    );
+
+    const result = await axios.get("http://localhost:9008/role/getuserpages", { params: { userId } })
+    setallowpages(result.data)
+    const result1 =await axios.get("http://localhost:9008/role/get")
+    const Rolename = result1.data.find(item => item.id === userId1)?.rolename;
+    setRole(Rolename);
+
+ }
+
+
+  useEffect(() => {
+    Fliter()
+  }, [])
+
+  const permissionMap = {};
+  allowpages.forEach((p) => {
+    permissionMap[p.link] = {
+      read: p.read,
+      create: p.create,
+      edit: p.edit,
+      delete: p.delete,
+    };
+  });
+  setPermissions(permissionMap);
+  //  console.log(role)
 
   return (
-    <SidebarContainer isCollapsed={isCollapsed}>
-      <List className="mt-3">
-        <Tooltip title="PayRoll" placement="right" disableHoverListener={!isCollapsed}>
-          <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>
+    <SidebarContainer>
+  <List className="mt-3">
+    {/* ✅ Show default User Management section only for Admin */}
+    {role === "Admin" && (
+      <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
+        <>
+          <StyledListItemButton onClick={() => setOpenERP(!openERP)}>
             <StyledListItemIcon>
-              <DashboardIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
-            </StyledListItemIcon>
-            {!isCollapsed && (
-              <ListItemText
-                primary="Dashboard"
-                primaryTypographyProps={{
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
+              <FaDatabase
+                style={{
+                  color: color || "#CA8A04",
+                  fontSize: "20px",
+                  background: "white",
                 }}
-                sx={{ ml: 1 }}
               />
-            )}
+            </StyledListItemIcon>
+            <ListItemText
+              primary="User Management"
+              primaryTypographyProps={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+              }}
+              sx={{ ml: 1 }}
+            />
+            {openERP ? <ExpandLess /> : <ExpandMore />}
           </StyledListItemButton>
-        </Tooltip>
-        <Tooltip title="ERP" placement="right" disableHoverListener={!isCollapsed}>
-  <StyledListItemButton onClick={() => dispatch(push({ id: 2, name: 'ERP' }))}>
-    <StyledListItemIcon>
-      <FaDatabase
-        style={{
-          color: color || '#CA8A04',
-          fontSize: '20px',
-          background: 'white',
-        }}
-      />
-    </StyledListItemIcon>
-    {!isCollapsed && (
-      <ListItemText
-        primary="ERP"
-        primaryTypographyProps={{
-          fontSize: '0.875rem',
-          fontWeight: 500,
-        }}
-        sx={{ ml: 1 }}
-      />
-    )}
-  </StyledListItemButton>
-</Tooltip>
 
-        <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
-          <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>
-            <StyledListItemIcon>
-              <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
-            </StyledListItemIcon>
-            {!isCollapsed && (
-              <ListItemText
-                primary="User"
-                primaryTypographyProps={{
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                }}
-                sx={{ ml: 1 }}
-              />
-            )}
-          </StyledListItemButton>
-        </Tooltip>
-      </List>
-    </SidebarContainer>
+          {/* Sub-menu items */}
+          <Collapse in={openERP} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <StyledListItemButton
+                sx={{ pl: 6 }}
+                onClick={() => dispatch(push({ id: 4, name: "User" }))}
+              >
+                <ListItemText
+                  primary="User"
+                  primaryTypographyProps={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                />
+              </StyledListItemButton>
+
+              <StyledListItemButton
+                sx={{ pl: 6 }}
+                onClick={() => dispatch(push({ id: 5, name: "Roles" }))}
+              >
+                <ListItemText
+                  primary="Roles & Allocation"
+                  primaryTypographyProps={{
+                    fontSize: "0.875rem",
+                    fontWeight: 500,
+                  }}
+                />
+              </StyledListItemButton>
+            </List>
+          </Collapse>
+        </>
+      </Tooltip>
+    )}
+
+    {/* ✅ Render dynamic pages for all users */}
+    {allowpages.map((page) => (
+      <Tooltip
+        key={page.id}
+        title={page.link}
+        placement="right"
+        disableHoverListener={!isCollapsed}
+      >
+        <StyledListItemButton
+          onClick={() => dispatch(push({ id: page.id, name: page.link }))}
+        >
+          <StyledListItemIcon>
+            {page.link === "DASHBOARD" && <DashboardIcon sx={{ color }} />}
+            {page.link === "ERP" && <FaDatabase style={{ color }} />}
+            {page.link === "USER" && <PersonIcon sx={{ color }} />}
+            {page.link === "Main" && <PersonIcon sx={{ color }} />}
+          </StyledListItemIcon>
+
+          <ListItemText
+            primary={page.link}
+            primaryTypographyProps={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+            }}
+            sx={{ ml: 1 }}
+          />
+        </StyledListItemButton>
+      </Tooltip>
+    ))}
+  </List>
+</SidebarContainer>
+
+    // <SidebarContainer >
+    //   <List className="mt-3">
+    //     <Tooltip title="PayRoll" placement="right" disableHoverListener={!isCollapsed}>
+    //       <StyledListItemButton onClick={() => dispatch(push({ id: 1, name: 'DASHBOARD' }))}>
+    //         <StyledListItemIcon>
+    //           <DashboardIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
+    //         </StyledListItemIcon>
+    //         {/* {!isCollapsed && ( */}
+    //         <ListItemText
+    //           primary="Dashboard"
+    //           primaryTypographyProps={{
+    //             fontSize: '0.875rem',
+    //             fontWeight: '500',
+    //           }}
+    //           sx={{ ml: 1 }}
+    //         />
+    //         {/* )} */}
+    //       </StyledListItemButton>
+    //     </Tooltip>
+    //     <Tooltip title="ERP" placement="right" disableHoverListener={!isCollapsed}>
+    //       <StyledListItemButton onClick={() => dispatch(push({ id: 2, name: 'ERP' }))}>
+    //         <StyledListItemIcon>
+    //           <FaDatabase
+    //             style={{
+    //               color: color || '#CA8A04',
+    //               fontSize: '20px',
+    //               background: 'white',
+    //             }}
+    //           />
+    //         </StyledListItemIcon>
+    //         {/* {!isCollapsed && ( */}
+    //         <ListItemText
+    //           primary="ERP"
+    //           primaryTypographyProps={{
+    //             fontSize: '0.875rem',
+    //             fontWeight: 500,
+    //           }}
+    //           sx={{ ml: 1 }}
+    //         />
+    //         {/* )} */}
+    //       </StyledListItemButton>
+    //     </Tooltip>
+    //         {/*   already uncomment
+    //     <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
+    //     <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>
+    //       <StyledListItemIcon>
+    //         <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
+    //       </StyledListItemIcon>
+    //       {!isCollapsed && (
+    //       <ListItemText
+    //         primary="User"
+    //         primaryTypographyProps={{
+    //           fontSize: '0.875rem',
+    //           fontWeight: '500',
+    //         }}
+    //         sx={{ ml: 1 }}
+    //       />
+    //        )} 
+    //     </StyledListItemButton>
+    //     </Tooltip> */}
+    //     <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
+    //       <>
+    //         <StyledListItemButton onClick={() => setOpenERP(!openERP)}>
+    //           <StyledListItemIcon>
+    //             <FaDatabase
+    //               style={{
+    //                 color: color || '#CA8A04',
+    //                 fontSize: '20px',
+    //                 background: 'white',
+    //               }}
+    //             />
+    //           </StyledListItemIcon>
+    //           <ListItemText
+    //             primary="User Management"
+    //             primaryTypographyProps={{
+    //               fontSize: '0.875rem',
+    //               fontWeight: 500,
+    //             }}
+    //             sx={{ ml: 1 }}
+    //           />
+    //           {openERP ? <ExpandLess /> : <ExpandMore />}
+    //         </StyledListItemButton>
+
+    //         {/* Dropdown (collapsible) items */}
+    //         <Collapse in={openERP} timeout="auto" unmountOnExit>
+    //           <List component="div" disablePadding>
+    //             <StyledListItemButton
+    //               sx={{ pl: 6 }}
+    //               onClick={() => dispatch(push({ id: 4, name: 'User' }))}
+    //             >
+    //               <ListItemText primary="User"
+    //                 primaryTypographyProps={{
+    //                   fontSize: '0.875rem',
+    //                   fontWeight: 500,
+    //                 }}
+    //               />
+    //             </StyledListItemButton>
+
+    //             <StyledListItemButton
+    //               sx={{ pl: 6 }}
+    //               onClick={() => dispatch(push({ id: 5, name: 'Roles' }))}
+    //             >
+    //               <ListItemText primary="Roles & Allocation"
+    //                 primaryTypographyProps={{
+    //                   fontSize: '0.875rem',
+    //                   fontWeight: 500,
+    //                 }} />
+    //             </StyledListItemButton>
+
+    //             {/* <StyledListItemButton
+    //       sx={{ pl: 6 }}
+    //       onClick={() => dispatch(push({ id: 23, name: 'ERP Settings' }))}
+    //     >
+    //       <ListItemText primary="ERP Settings" />
+    //     </StyledListItemButton> */}
+    //           </List>
+    //         </Collapse>
+    //       </>
+    //     </Tooltip>
+
+    //     <Tooltip title="Main Dashborad" placement="right" disableHoverListener={!isCollapsed}>
+    //       <StyledListItemButton onClick={() => dispatch(push({ id: 6, name: 'Main' }))}>
+    //         <StyledListItemIcon>
+    //           <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
+    //         </StyledListItemIcon>
+    //         {/* {!isCollapsed && ( */}
+    //         <ListItemText
+    //           primary="Main Dashboard"
+    //           primaryTypographyProps={{
+    //             fontSize: '0.875rem',
+    //             fontWeight: '500',
+    //           }}
+    //           sx={{ ml: 1 }}
+    //         />
+    //         {/* )} */}
+    //       </StyledListItemButton>
+    //     </Tooltip>
+    //   </List>
+    // </SidebarContainer>
   );
 };
 

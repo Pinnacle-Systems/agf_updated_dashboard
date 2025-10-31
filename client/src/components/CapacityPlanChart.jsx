@@ -4,8 +4,8 @@ import Modal from '../Ui Component/popUpModel';
 import { useGetCapPlanDataQuery } from '../redux/service/orderManagement';
 
 import Box from '@mui/material/Box';
-import { DataGridPro } from '@mui/x-data-grid-pro';
-import { useDemoData } from '@mui/x-data-grid-generator';
+// import { DataGridPro } from '@mui/x-data-grid-pro';
+// import { useDemoData } from '@mui/x-data-grid-generator';
 import { DataGrid, GridToolbarContainer, gridClasses } from '@mui/x-data-grid';
 import { useGetCompCodeDataQuery } from '../redux/service/commonMasters';
 import DropdownDt from '../Ui Component/dropDownParam';

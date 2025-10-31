@@ -257,7 +257,7 @@ console.log(typeof(selectedIndex),"selectIndex")
   >
     <FaSyncAlt className="text-base drop-shadow-sm" />
     <span className="text-xs font-semibold hidden group-hover:inline-block">
-      Refresh
+      Refreshsss
     </span>
    
   </button>

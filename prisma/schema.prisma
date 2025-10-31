@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model role {
+  id       Int      @id @default(autoincrement())
+  rolename String?  @unique(map: "Role_rolename_key")
+  active   Boolean? @default(true)
+}
+
+model user {
+  id         Int      @id @default(autoincrement())
+  roleId     Int?
+  username   String?  @unique(map: "User_username_key")
+  employeeId String?  @unique(map: "User_employeeId_key")
+  active     Boolean? @default(true)
+  password   String?
+  COMPCODE   String?
+  useronpages useronpage[]
+}
+
+model useronpage {
+  id        Int      @id @default(autoincrement())
+  roleId    Int?
+  username  String?
+  active    Boolean? @default(true)
+  read      Boolean? @default(false)
+  create    Boolean? @default(false)
+  edit      Boolean? @default(false)
+  link      String?
+  delete    Boolean? @default(false)
+  isdefault Boolean? @default(false)
+  userId    Int
+  user      user @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "UserOnPage_userId_fkey")
+}

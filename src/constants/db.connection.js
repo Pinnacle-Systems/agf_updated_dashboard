@@ -44,6 +44,7 @@ export async function getConnection(res) {
                   password: dbConfig.password,
                   connectString: dbConfig.connectString
             });
+            console.log('✅ OracleDB Connection Successful!')
             return connection
       } catch (err) {
             return res.json({ statusCode: 1, message: "Database Connection Failed" })
