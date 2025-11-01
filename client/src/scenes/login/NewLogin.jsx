@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
 import { LOGIN_API } from '../../constants/apiUrl';
 
 
-axios.defaults.baseURL = "http://localhost:9008/";
+axios.defaults.baseURL = "http://192.168.1.68:9008/";
 
 // // Then call
 // axios.post("users/login", { username, password });

@@ -100,549 +100,937 @@
     //   );
     // }
 
-    import React, { useEffect, useState } from "react";
-    import { Dropdown } from 'primereact/dropdown';
-    import "./User.css"
-    import CustomDataTable from "../User & Role/Customtable.jsx"
-    import tabs from "../../components/tabIndex.js";
+    // import React, { useEffect, useState } from "react";
+    // import { Dropdown } from 'primereact/dropdown';
+    // import "./User.css"
+    // import CustomDataTable from "../User & Role/Customtable.jsx"
+    // import tabs from "../../components/tabIndex.js";
 
-    import { motion } from "framer-motion";
-    import { toast } from "react-toastify";
-    import "react-toastify/dist/ReactToastify.css";
-    import { Grid } from "@mui/material";
-    import { useAddnewuserMutation, useAddRoleMutation, useCreateRoleOnPageMutation, useGetRoleQuery } from "../../redux/service/Rolemaster.js";
-    import { useDeleteUserMutation, useGetUserBasicDetailsMutation, useGetUserBasicDetailsQuery, useGetuserdetailQuery, useUpdateuserOnPageMutation } from "../../redux/service/user.js";
-    import { useGetCompCodeDataQuery } from "../../redux/service/commonMasters.js";
-    import { isOverflown } from "@mui/x-data-grid/utils/domUtils.js";
-    import { ReusableTable } from "../../input/index.js";
-    import { Power } from "lucide-react";
-    import Swal from 'sweetalert2';
+    // import { motion } from "framer-motion";
+    // import { toast } from "react-toastify";
+    // import "react-toastify/dist/ReactToastify.css";
+    // import { Grid } from "@mui/material";
+    // import { useAddnewuserMutation, useAddRoleMutation, useCreateRoleOnPageMutation, useGetRoleQuery } from "../../redux/service/Rolemaster.js";
+    // import { useDeleteUserMutation, useGetUserBasicDetailsMutation, useGetUserBasicDetailsQuery, useGetuserdetailQuery, useUpdateuserOnPageMutation } from "../../redux/service/user.js";
+    // import { useGetCompCodeDataQuery } from "../../redux/service/commonMasters.js";
+    // import { isOverflown } from "@mui/x-data-grid/utils/domUtils.js";
+    // import { ReusableTable } from "../../input/index.js";
+    // import { Power } from "lucide-react";
+    // import Swal from 'sweetalert2';
 
     // toast.configure();
 
-    const UserCreation = () => {
-      const [permissions, setPermissions] = useState({});
-      const [selectedRole, setSelectedRole] = useState(null);
-      const [roleId, setroleId] = useState("");
-      const [edit, setEdit] = useState(false);
-      const [currentEditingId, setCurrentEditingId] = useState(null);
-      const [toggleScroll, setToggleScroll] = useState(false);
+  //   const UserCreation = () => {
+  //     const [permissions, setPermissions] = useState({});
+  //     const [selectedRole, setSelectedRole] = useState(null);
+  //     const [roleId, setroleId] = useState("");
+  //     const [edit, setEdit] = useState(false);
+  //     const [currentEditingId, setCurrentEditingId] = useState(null);
+  //     const [toggleScroll, setToggleScroll] = useState(false);
 
-      const [employeeId, setemployeeId] = useState("")
-      const [username, setusername] = useState("")
-      const [password, setpassword] = useState("")
-      const [COMPCODE, setCOMPCODE] = useState("")
-      const [active, setactive] = useState(false)
-      const [mode,setmode]=useState(true)
-      // const[alldata,setalldata]=useState([])
+  //     const [employeeId, setemployeeId] = useState("")
+  //     const [username, setusername] = useState("")
+  //     const [password, setpassword] = useState("")
+  //     const [COMPCODE, setCOMPCODE] = useState("")
+  //     const [active, setactive] = useState(false)
+  //     const [mode,setmode]=useState(true)
+  //     // const[alldata,setalldata]=useState([])
 
-      const { data: compCode } = useGetCompCodeDataQuery({ params: {} })
+  //     const { data: compCode } = useGetCompCodeDataQuery({ params: {} })
 
-      //   const { data: createdRoles, refetch: refetchCreatedRoles } = useGetCreatedRolesOnPageQuery();
-      const { data: getRole } = useGetRoleQuery();
-      // console.log(COMPCODE);
+  //     //   const { data: createdRoles, refetch: refetchCreatedRoles } = useGetCreatedRolesOnPageQuery();
+  //     const { data: getRole } = useGetRoleQuery();
+  //     // console.log(COMPCODE);
       
-      const { data: basicDetails,error, isLoading } = useGetUserBasicDetailsQuery({COMPCODE})
-      const [createRole] = useCreateRoleOnPageMutation();
-      const [adduser] = useAddnewuserMutation()
-        const [updateRole] = useUpdateuserOnPageMutation();
-      //   const [deleteRow] = useDelete_CommonMutation();
-      // const [addRole, { isLoading }] = useAddRoleMutation();
-      // console.log("basic", basicDetails);
-    const[form,setForm]=useState(false)
+  //     const { data: basicDetails,error, isLoading } = useGetUserBasicDetailsQuery({COMPCODE})
+  //     const [createRole] = useCreateRoleOnPageMutation();
+  //     const [adduser] = useAddnewuserMutation()
+  //       const [updateRole] = useUpdateuserOnPageMutation();
+  //     //   const [deleteRow] = useDelete_CommonMutation();
+  //     // const [addRole, { isLoading }] = useAddRoleMutation();
+  //     // console.log("basic", basicDetails);
+  //   const[form,setForm]=useState(false)
          
-          const { data: allData,refetch } = useGetuserdetailQuery();
+  //         const { data: allData,refetch } = useGetuserdetailQuery();
 
-          const[deleteUser]=useDeleteUserMutation();
+  //         const[deleteUser]=useDeleteUserMutation();
       
 
 
 
 
-      const onNew = () => {
-        setPermissions({});
-        setemployeeId("")
-        setusername("")
-        setpassword("")
-        setCOMPCODE("")
-        setEdit(false);
-        setroleId("");
-        setSelectedRole(null);
-        setmode(true)
-      };
+  //     const onNew = () => {
+  //       setPermissions({});
+  //       setemployeeId("")
+  //       setusername("")
+  //       setpassword("")
+  //       setCOMPCODE("")
+  //       setEdit(false);
+  //       setroleId("");
+  //       setSelectedRole(null);
+  //       setmode(true)
+  //     };
 
-      const handlePermissionChange = (page, permission) => {
-        setPermissions((prev) => {
+  //     const handlePermissionChange = (page, permission) => {
+  //       setPermissions((prev) => {
 
-          // console.log(prev,"prev");
+  //         // console.log(prev,"prev");
           
-          const updated = { ...prev };
+  //         const updated = { ...prev };
 
-          if (!updated[page]) {
-            updated[page] = {
-              read: false,
-              create: false,
-              edit: false,
-              delete: false,
-              isdefault: false,
-            };
-          }
+  //         if (!updated[page]) {
+  //           updated[page] = {
+  //             read: false,
+  //             create: false,
+  //             edit: false,
+  //             delete: false,
+  //             isdefault: false,
+  //           };
+  //         }
 
-          if (permission === "isdefault") {
-            const isCurrentlyDefault = updated[page].isdefault;
+  //         if (permission === "isdefault") {
+  //           const isCurrentlyDefault = updated[page].isdefault;
 
-            if (isCurrentlyDefault) {
-              // Unset all when toggled off
-              updated[page] = {
-                read: false,
-                create: false,
-                edit: false,
-                delete: false,
-                isdefault: false,
-              };
-            } else {
-              // Set all when toggled on
-              updated[page] = {
-                read: true,
-                create: true,
-                edit: true,
-                delete: true,
-                isdefault: true,
-              };
-            }
-          } else {
-            updated[page] = {
-              ...updated[page],
-              [permission]: !updated[page][permission],
-            };
-          }
+  //           if (isCurrentlyDefault) {
+  //             // Unset all when toggled off
+  //             updated[page] = {
+  //               read: false,
+  //               create: false,
+  //               edit: false,
+  //               delete: false,
+  //               isdefault: false,
+  //             };
+  //           } else {
+  //             // Set all when toggled on
+  //             updated[page] = {
+  //               read: true,
+  //               create: true,
+  //               edit: true,
+  //               delete: true,
+  //               isdefault: true,
+  //             };
+  //           }
+  //         } else {
+  //           updated[page] = {
+  //             ...updated[page],
+  //             [permission]: !updated[page][permission],
+  //           };
+  //         }
 
-          const perms = updated[page];
-        const allFalse = Object.values(perms).every((val) => val === false);
-        if (allFalse) {
-          delete updated[page];
-        }
-          console.log("permission",permission);
+  //         const perms = updated[page];
+  //       const allFalse = Object.values(perms).every((val) => val === false);
+  //       if (allFalse) {
+  //         delete updated[page];
+  //       }
+  //         console.log("permission",permission);
           
-          return updated;
-        });
-      };
+  //         return updated;
+  //       });
+  //     };
 
-      const handleSubmit = async () => {
-        if(edit){
-          if (!username || !roleId || !employeeId || !COMPCODE ||  Object.keys(permissions).length === 0) {
-          toast.warning("Please fill all rerwtequired fields");
-          return;
+  //     const handleSubmit = async () => {
+  //       if(edit){
+  //         if (!username || !roleId || !employeeId || !COMPCODE ||  Object.keys(permissions).length === 0) {
+  //         toast.warning("Please fill all rerwtequired fields");
+  //         return;
 
-        }
-      }
-        else if(!username || !roleId || !employeeId || !password || !COMPCODE ||  Object.keys(permissions).length === 0) {
-          toast.warning("Please fill all required fields");
-          return;
-        }
+  //       }
+  //     }
+  //       else if(!username || !roleId || !employeeId || !password || !COMPCODE ||  Object.keys(permissions).length === 0) {
+  //         toast.warning("Please fill all required fields");
+  //         return;
+  //       }
 
-        // console.log(permissions);
+  //       // console.log(permissions);
         
-        const formData = {
-          id:currentEditingId,username,employeeId,
-          permissions, roleId,COMPCODE,password,active,
-          ...(edit && { id: currentEditingId }),
-        };
-       console.log(formData,'formdata');
+  //       const formData = {
+  //         id:currentEditingId,username,employeeId,
+  //         permissions, roleId,COMPCODE,password,active,
+  //         ...(edit && { id: currentEditingId }),
+  //       };
+  //      console.log(formData,'formdata');
        
-        try {
-            const response = !edit? await createRole(formData).unwrap():
-                             await updateRole(formData).unwrap();
-                             console.log("respones",response);
+  //       try {
+  //           const response = !edit? await createRole(formData).unwrap():
+  //                            await updateRole(formData).unwrap();
+  //                            console.log("respones",response);
                              
 
-          if (response.count > 0) {
-            toast.success(`User ${edit ? "Updated" : "Created"} Successfully`);
-            // refetchCreatedRoles();
-            onNew();
-            refetch();
-          }
-        } catch (error) {
+  //         if (response.count > 0) {
+  //           toast.success(`User ${edit ? "Updated" : "Created"} Successfully`);
+  //           // refetchCreatedRoles();
+  //           onNew();
+  //           refetch();
+  //         }
+  //       } catch (error) {
 
-          console.log(error);
-          const errMsg =
-        error.data.message || // message from your backend
-        error.message ||                 // generic network error
-        "Something went wrong";          // fallback message
+  //         console.log(error);
+  //         const errMsg =
+  //       error.data.message || // message from your backend
+  //       error.message ||                 // generic network error
+  //       "Something went wrong";          // fallback message
 
-      toast.error(errMsg);
-        }
-      };
+  //     toast.error(errMsg);
+  //       }
+  //     };
 
-      const handleDelete = async (item) => {
-        if (window.confirm("Are you sure you want to delete this role?")) {
-          //   const res = await deleteRow({ table: "role", where: { id: item.id } });
-          //   if (res?.data?.status === 1) {
-          //     toast.info("Data Deleted Successfully");
-          //     // refetchCreatedRoles();
-          //   }
-        }
-      };
+  //     const handleDelete = async (item) => {
+  //       if (window.confirm("Are you sure you want to delete this role?")) {
+  //         //   const res = await deleteRow({ table: "role", where: { id: item.id } });
+  //         //   if (res?.data?.status === 1) {
+  //         //     toast.info("Data Deleted Successfully");
+  //         //     // refetchCreatedRoles();
+  //         //   }
+  //       }
+  //     };
 
-      const handleChange =(e)=>{
-        const { value, type, checked } = e.target;
-        setactive(type === 'checkbox' ? checked : value);
+  //     const handleChange =(e)=>{
+  //       const { value, type, checked } = e.target;
+  //       setactive(type === 'checkbox' ? checked : value);
 
-      }
+  //     }
 
-      const editData = async (item) => {
-        setEdit(true);
-        setroleId(item.name);
-        setSelectedRole(item.name);
-        // setCurrentEditingId(item.id);
+  //     const editData = async (item) => {
+  //       setEdit(true);
+  //       setroleId(item.name);
+  //       setSelectedRole(item.name);
+  //       // setCurrentEditingId(item.id);
 
-        const data = item.RoleOnPage;
-        if (data) {
-          const transformed = data.reduce((acc, perm) => {
-            acc[perm.link] = {
-              read: !!perm.read,
-              create: !!perm.create,
-              edit: !!perm.edit,
-              delete: !!perm.delete,
-              isdefault: !!perm.isdefault,
-            };
-            return acc;
-          }, {});
-          setPermissions(transformed);
-        }
-      };
+  //       const data = item.RoleOnPage;
+  //       if (data) {
+  //         const transformed = data.reduce((acc, perm) => {
+  //           acc[perm.link] = {
+  //             read: !!perm.read,
+  //             create: !!perm.create,
+  //             edit: !!perm.edit,
+  //             delete: !!perm.delete,
+  //             isdefault: !!perm.isdefault,
+  //           };
+  //           return acc;
+  //         }, {});
+  //         setPermissions(transformed);
+  //       }
+  //     };
 
-      const tableHead = ["Page", "Read", "Create", "Edit", "Delete", "Default"];
-      const tableData = (tabs || [])
-        .filter((item) => item.list)
-        .map((item) => {
-          const p = permissions[item.name] || {};
-          return (
-            <tr key={item.name} className="text-center border-b border-gray-200">
-              <td className="font-medium">{item.list_name}</td>
-              {["read", "create", "edit", "delete", "isdefault"].map((perm) => (
-                <td key={perm}>
-                  <button
-                    disabled={item.default}
-                    onClick={() => handlePermissionChange(item.name, perm)}
-                    className={`w-8 h-8 rounded ${p[perm] ? "bg-gray-300" : "bg-gray-100"
-                      } hover:bg-gray-400 transition`}
-                  >
-                    {p[perm] ? "✔" : ""}
-                  </button>
-                </td>
-              ))}
-            </tr>
-          );
-        });
+  //     const tableHead = ["Page", "Read", "Create", "Edit", "Delete", "Default"];
+  //     const tableData = (tabs || [])
+  //       .filter((item) => item.list)
+  //       .map((item) => {
+  //         const p = permissions[item.name] || {};
+  //         return (
+  //           <tr key={item.name} className="text-center border-b border-gray-200">
+  //             <td className="font-medium">{item.list_name}</td>
+  //             {["read", "create", "edit", "delete", "isdefault"].map((perm) => (
+  //               <td key={perm}>
+  //                 <button
+  //                   disabled={item.default}
+  //                   onClick={() => handlePermissionChange(item.name, perm)}
+  //                   className={`w-8 h-8 rounded ${p[perm] ? "bg-gray-300" : "bg-gray-100"
+  //                     } hover:bg-gray-400 transition`}
+  //                 >
+  //                   {p[perm] ? "✔" : ""}
+  //                 </button>
+  //               </td>
+  //             ))}
+  //           </tr>
+  //         );
+  //       });
 
-      // const fields = [
-      //   { key: "name", label: "Name" },
-      //   { key: "active", label: "Active" },
-      // ];
+  //     // const fields = [
+  //     //   { key: "name", label: "Name" },
+  //     //   { key: "active", label: "Active" },
+  //     // ];
       
-          const ACTIVE = (
-          <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
-            <Power size={10} />
-          </div>
-        );
-        const INACTIVE = (
-          <div className="bg-gradient-to-r from-red-200 to-red-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-red-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
-            <Power size={10} />
-          </div>
-        );
-      const columns = [
-        {
-          header: "S.No",
-          accessor: (item, index) => index + 1,
-          className: "font-medium text-gray-900 w-12  text-center",
-        },
+  //         const ACTIVE = (
+  //         <div className="bg-gradient-to-r from-green-200 to-green-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-green-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
+  //           <Power size={10} />
+  //         </div>
+  //       );
+  //       const INACTIVE = (
+  //         <div className="bg-gradient-to-r from-red-200 to-red-500 inline-flex items-center justify-center rounded-full border-2 w-6 border-red-500 shadow-lg text-white hover:scale-110 transition-transform duration-300">
+  //           <Power size={10} />
+  //         </div>
+  //       );
+  //     const columns = [
+  //       {
+  //         header: "S.No",
+  //         accessor: (item, index) => index + 1,
+  //         className: "font-medium text-gray-900 w-12  text-center",
+  //       },
 
-        {
-          header: "User Name",
-          accessor: (item) => item?.username,
-          //   cellClass: () => "font-medium  text-gray-900",
-          className: "font-medium text-gray-900 text-center uppercase w-96",
-        },
+  //       {
+  //         header: "User Name",
+  //         accessor: (item) => item?.username,
+  //         //   cellClass: () => "font-medium  text-gray-900",
+  //         className: "font-medium text-gray-900 text-center uppercase w-96",
+  //       },
 
-        {
-          header: "Status",
-          accessor: (item) => (item.active ? ACTIVE : INACTIVE),
-          //   cellClass: () => "font-medium text-gray-900",
-          className: "font-medium text-gray-900 text-center uppercase w-16",
-        },
+  //       {
+  //         header: "Status",
+  //         accessor: (item) => (item.active ? ACTIVE : INACTIVE),
+  //         //   cellClass: () => "font-medium text-gray-900",
+  //         className: "font-medium text-gray-900 text-center uppercase w-16",
+  //       },
 
-      ];
+  //     ];
 
-      // const onNew =()=>{
-      //       setForm(true);
+  //     // const onNew =()=>{
+  //     //       setForm(true);
 
-      //   }
-    const handleView=()=>{
+  //     //   }
+  //   const handleView=()=>{
 
-    }
-    const handleEdit=async(id)=>{
+  //   }
+  //   const handleEdit=async(id)=>{
       
       
-      const user = allData.users.find((item)=>item.id === id)
-      const pages =allData.perrmissions.filter((item)=>item.userId == id)
-   console.log(user);
+  //     const user = allData.users.find((item)=>item.id === id)
+  //     const pages =allData.perrmissions.filter((item)=>item.userId == id)
+  //  console.log(user);
 
    
 
-      setCurrentEditingId(id)
-      setCOMPCODE(user.COMPCODE)
-      setusername(user.username)
-      setemployeeId(user.employeeId)
-      setroleId(user.roleId)
-      setactive(user.active)
-      setmode(false)
-      setEdit(true);
-       if (pages) {
-          const transformed = pages.reduce((acc, perm) => {
-            acc[perm.link] = {
-              read: !!perm.read,
-              create: !!perm.create,
-              edit: !!perm.edit,
-              delete: !!perm.delete,
-              isdefault: !!perm.isdefault,
-            };
-            return acc;
-          }, {});
-          setPermissions(transformed);
-        }
+  //     setCurrentEditingId(id)
+  //     setCOMPCODE(user.COMPCODE)
+  //     setusername(user.username)
+  //     setemployeeId(user.employeeId)
+  //     setroleId(user.roleId)
+  //     setactive(user.active)
+  //     setmode(false)
+  //     setEdit(true);
+  //      if (pages) {
+  //         const transformed = pages.reduce((acc, perm) => {
+  //           acc[perm.link] = {
+  //             read: !!perm.read,
+  //             create: !!perm.create,
+  //             edit: !!perm.edit,
+  //             delete: !!perm.delete,
+  //             isdefault: !!perm.isdefault,
+  //           };
+  //           return acc;
+  //         }, {});
+  //         setPermissions(transformed);
+  //       }
       
              
 
 
-    }
-    const deleteData=async(id)=>{
-      // console.log(id,"id");
+  //   }
+  //   const deleteData=async(id)=>{
+  //     // console.log(id,"id");
       
-      if (id) {
-        if (!window.confirm("Are you sure to delete...?")) {
-          return;
-        }
-        try {
-          let deldata = await deleteUser(id).unwrap();
-          if (deldata?.statusCode == 1) {
-            toast.error(deldata?.message)
-            return
-          }
+  //     if (id) {
+  //       if (!window.confirm("Are you sure to delete...?")) {
+  //         return;
+  //       }
+  //       try {
+  //         let deldata = await deleteUser(id).unwrap();
+  //         if (deldata?.statusCode == 1) {
+  //           toast.error(deldata?.message)
+  //           return
+  //         }
           
-          Swal.fire({
-            title: "Deleted" + "  " + "Successfully",
-            icon: "success",
-            draggable: true,
-            timer: 1000,
-            showConfirmButton: false,
-            didOpen: () => {
-              Swal.showLoading();
-            }
-          });
-          setForm(false)
-          refetch();
-        } catch (error) {
-          toast.error("something went wrong");
-        }
-      }
+  //         Swal.fire({
+  //           title: "Deleted" + "  " + "Successfully",
+  //           icon: "success",
+  //           draggable: true,
+  //           timer: 1000,
+  //           showConfirmButton: false,
+  //           didOpen: () => {
+  //             Swal.showLoading();
+  //           }
+  //         });
+  //         setForm(false)
+  //         refetch();
+  //       } catch (error) {
+  //         toast.error("something went wrong");
+  //       }
+  //     }
         
-    }
+  //   }
 
-      // const filterRole = getRole?.data?.map((fdata) => ({ label: fdata?.roleId, value: fdata?.id }));
-      // const filterRole1 = basicDetails?.data?.map((fdata) => ({optionLabel:fdata?.FNAME,optionValue:fdata?.EMPID}));
-      // console.log(filterRole1);
+  //     // const filterRole = getRole?.data?.map((fdata) => ({ label: fdata?.roleId, value: fdata?.id }));
+  //     // const filterRole1 = basicDetails?.data?.map((fdata) => ({optionLabel:fdata?.FNAME,optionValue:fdata?.EMPID}));
+  //     // console.log(filterRole1);
 
-      return (
-        <Grid container>
-          <Grid item lg={7}>
+  //     return (
+  //       <Grid container>
+  //         <Grid item lg={7}>
 
-            <motion.div
-              className="p-1"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
+  //           <motion.div
+  //             className="p-1"
+  //             initial={{ opacity: 0, y: 30 }}
+  //             animate={{ opacity: 1, y: 0 }}
+  //             transition={{ duration: 0.6 }}
+  //           >
 
-              <div className="max-w-6xl mx-auto space-y-6" style={{overflow:"scroll",maxHeight:"85vh"}} >
-                {/* User Info */}
-                <div className="bg-white p-5 rounded-xl shadow">
-                  <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
-                    New User
-                  </h2>
-                  <div className="mt-1 z-10 mb-2">
-                    <label className="text-sm font-bold  pb-2 mb-3">Select Company</label>
-                    {/* <Dropdown value={employeeId} onChange={(e) => setemployeeId(e.value)} options={[{}]} optionLabel="name" 
-          editable placeholder="Select a City" className="w-full md:w-14rem" /> */}
-                    <Dropdown
-                      value={COMPCODE}
-                      onChange={(e) => setCOMPCODE(String(e.value))}
-                      options={compCode?.data || []}
-                      optionLabel="com"
-                      optionValue="com"
-                      filter
-                      showClear
-                      virtualScrollerOptions={{ itemSize: 38 }}
-                      placeholder="Select an company"
-                      className="border p-1 w-80 h-10 rounded ml-5 custom-dropdown"
-                      panelClassName="custom-dropdown-panel"
-                    // dropdownAppendTo="body"
-                    />
-                  </div>
-                  <div className="mt-1 z-10 mb-2">
-                    <label className="text-sm font-bold  pb-2 mb-3">Select EmpID</label>
-                    {/* <Dropdown value={employeeId} onChange={(e) => setemployeeId(e.value)} options={[{}]} optionLabel="name" 
-          editable placeholder="Select a City" className="w-full md:w-14rem" /> */}
-                    <Dropdown
-                      value={employeeId}
-                      onChange={(e) => setemployeeId(String(e.value))}
-                      options={basicDetails?.data || []}
-                      optionLabel="FNAME"
-                      optionValue="EMPID"
-                      filter
-                      showClear
-                      virtualScrollerOptions={{ itemSize: 38 }}
-                      placeholder="Select an Employee"
-                      className="border p-1 w-80 h-10 rounded ml-9 custom-dropdown"
-                      panelClassName="custom-dropdown-panel"
-                    // dropdownAppendTo="body"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold  pb-2 mb-3">
-                      User Name
-                    </label>
-                    <input type="text" value={username} className="rounded p-2 ml-12  w-80 h-10" onChange={(e) => setusername(e.target.value)} />
+  //             <div className="max-w-6xl mx-auto space-y-6" style={{overflow:"scroll",maxHeight:"85vh"}} >
+  //               {/* User Info */}
+  //               <div className="bg-white p-5 rounded-xl shadow">
+  //                 <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
+  //                   New User
+  //                 </h2>
+  //                 <div className="mt-1 z-10 mb-2">
+  //                   <label className="text-sm font-bold  pb-2 mb-3">Select Company</label>
+  //                   {/* <Dropdown value={employeeId} onChange={(e) => setemployeeId(e.value)} options={[{}]} optionLabel="name" 
+  //         editable placeholder="Select a City" className="w-full md:w-14rem" /> */}
+  //                   <Dropdown
+  //                     value={COMPCODE}
+  //                     onChange={(e) => setCOMPCODE(String(e.value))}
+  //                     options={compCode?.data || []}
+  //                     optionLabel="com"
+  //                     optionValue="com"
+  //                     filter
+  //                     showClear
+  //                     virtualScrollerOptions={{ itemSize: 38 }}
+  //                     placeholder="Select an company"
+  //                     className="border p-1 w-80 h-10 rounded ml-5 custom-dropdown"
+  //                     panelClassName="custom-dropdown-panel"
+  //                   // dropdownAppendTo="body"
+  //                   />
+  //                 </div>
+  //                 <div className="mt-1 z-10 mb-2">
+  //                   <label className="text-sm font-bold  pb-2 mb-3">Select EmpID</label>
+  //                   {/* <Dropdown value={employeeId} onChange={(e) => setemployeeId(e.value)} options={[{}]} optionLabel="name" 
+  //         editable placeholder="Select a City" className="w-full md:w-14rem" /> */}
+  //                   <Dropdown
+  //                     value={employeeId}
+  //                     onChange={(e) => setemployeeId(String(e.value))}
+  //                     options={basicDetails?.data || []}
+  //                     optionLabel="FNAME"
+  //                     optionValue="EMPID"
+  //                     filter
+  //                     showClear
+  //                     virtualScrollerOptions={{ itemSize: 38 }}
+  //                     placeholder="Select an Employee"
+  //                     className="border p-1 w-80 h-10 rounded ml-9 custom-dropdown"
+  //                     panelClassName="custom-dropdown-panel"
+  //                   // dropdownAppendTo="body"
+  //                   />
+  //                 </div>
+  //                 <div>
+  //                   <label className="text-sm font-bold  pb-2 mb-3">
+  //                     User Name
+  //                   </label>
+  //                   <input type="text" value={username} className="rounded p-2 ml-12  w-80 h-10" onChange={(e) => setusername(e.target.value)} />
 
-                  </div>
-                  <div className="mt-2">
-                    <label className="text-sm font-bold  pb-2 mb-3 ">
-                      Password
-                    </label>
-                    <input type="text" value={password} className={`rounded p-2 ml-14 w-80 h-10 ${mode === false ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} onChange={(e) => setpassword(e.target.value)} disabled={mode=== false} />
-                  </div>
+  //                 </div>
+  //                 <div className="mt-2">
+  //                   <label className="text-sm font-bold  pb-2 mb-3 ">
+  //                     Password
+  //                   </label>
+  //                   <input type="text" value={password} className={`rounded p-2 ml-14 w-80 h-10 ${mode === false ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white text-black"}`} onChange={(e) => setpassword(e.target.value)} disabled={mode=== false} />
+  //                 </div>
 
 
-                  <div className="mt-3 z-10">
-                    <label className="text-sm font-bold  pb-2 mb-3">Select Role</label>
+  //                 <div className="mt-3 z-10">
+  //                   <label className="text-sm font-bold  pb-2 mb-3">Select Role</label>
                     
-                      <Dropdown
-                        value={roleId}
-                        onChange={(e) => { setroleId(e?.value) }}
-                        placeholder="Select Role"
-                        filter
-                        showClear
-                        options={getRole || []}
-                        optionLabel={"rolename"}
-                        optionValue={"id"}
-                        className="border p-1 w-80 h-10 rounded ml-12 custom-dropdown"
-                        panelClassName="custom-dropdown-panel"
-                        // dropdownAppendTo="body"
-                        virtualScrollerOptions={{ itemSize: 38 }}
-                      // width={"100%"}
-                      />
+  //                     <Dropdown
+  //                       value={roleId}
+  //                       onChange={(e) => { setroleId(e?.value) }}
+  //                       placeholder="Select Role"
+  //                       filter
+  //                       showClear
+  //                       options={getRole || []}
+  //                       optionLabel={"rolename"}
+  //                       optionValue={"id"}
+  //                       className="border p-1 w-80 h-10 rounded ml-12 custom-dropdown"
+  //                       panelClassName="custom-dropdown-panel"
+  //                       // dropdownAppendTo="body"
+  //                       virtualScrollerOptions={{ itemSize: 38 }}
+  //                     // width={"100%"}
+  //                     />
                     
-                  </div>
-                  <div className="mt-2">
-                        <label className="">
-                            <input type="checkbox" name="active" checked={active} onChange={handleChange} className="" />
-                            Active
-                        </label>
-                      </div>
+  //                 </div>
+  //                 <div className="mt-2">
+  //                       <label className="">
+  //                           <input type="checkbox" name="active" checked={active} onChange={handleChange} className="" />
+  //                           Active
+  //                       </label>
+  //                     </div>
                 
 
 
 
 
-                {/* Permissions Table */}
-                {/* <div className="bg-white p-5 rounded-xl shadow"> */}
-                  <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
-                    Page Permissions
-                  </h2>
+  //               {/* Permissions Table */}
+  //               {/* <div className="bg-white p-5 rounded-xl shadow"> */}
+  //                 <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
+  //                   Page Permissions
+  //                 </h2>
 
-                  <div
-                    className={`overflow-y-auto ${toggleScroll ? "h-auto" : "h-[300px]"
-                      }`}
-                  >
-                    <table className="w-full border-collapse text-sm ">
-                      <thead>
-                        <tr className="bg-red-800 text-white">
-                          {tableHead.map((head) => (
-                            <th key={head} className="py-2 px-3 text-center">
-                              {head}       
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>{tableData}
+  //                 <div
+  //                   className={`overflow-y-auto ${toggleScroll ? "h-auto" : "h-[300px]"
+  //                     }`}
+  //                 >
+  //                   <table className="w-full border-collapse text-sm ">
+  //                     <thead>
+  //                       <tr className="bg-red-800 text-white">
+  //                         {tableHead.map((head) => (
+  //                           <th key={head} className="py-2 px-3 text-center">
+  //                             {head}       
+  //                           </th>
+  //                         ))}
+  //                       </tr>
+  //                     </thead>
+  //                     <tbody>{tableData}
                         
-                      </tbody>
-                    </table>
-                  </div>
+  //                     </tbody>
+  //                   </table>
+  //                 </div>
 
-                  <div className="flex justify-center mt-2">
-                    <button
-                      onClick={() => setToggleScroll(!toggleScroll)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {toggleScroll ?  "Show More ▼" : "Show Less ▲"}
-                    </button>
-                  </div>
-                {/* </div> */}
+  //                 <div className="flex justify-center mt-2">
+  //                   <button
+  //                     onClick={() => setToggleScroll(!toggleScroll)}
+  //                     className="text-blue-600 hover:underline"
+  //                   >
+  //                     {toggleScroll ?  "Show More ▼" : "Show Less ▲"}
+  //                   </button>
+  //                 </div>
+  //               {/* </div> */}
 
-                {/* Created Roles */}
-                {/* <div className="bg-white p-5 rounded-xl shadow">
-                <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
-                  Available Roles
-                </h2>
-                <CustomDataTable
-                  title="Available Roles"
-                  // data={createdRoles?.data || []}
-                  fields={fields}
-                  onEdit={editData}
-                  onDelete={handleDelete}
-                  itemsPerPage={3}
-                />
-              </div> */}
+  //               {/* Created Roles */}
+  //               {/* <div className="bg-white p-5 rounded-xl shadow">
+  //               <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
+  //                 Available Roles
+  //               </h2>
+  //               <CustomDataTable
+  //                 title="Available Roles"
+  //                 // data={createdRoles?.data || []}
+  //                 fields={fields}
+  //                 onEdit={editData}
+  //                 onDelete={handleDelete}
+  //                 itemsPerPage={3}
+  //               />
+  //             </div> */}
 
-                {/* Action Buttons */}
-                <div className="flex justify-center gap-4 mt-5">
-                  <button
-                    onClick={onNew}
-                    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
-                  >
-                    New
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    {edit ? "Update" : "Save"}
-                  </button>
-                </div>
-              </div>
-              </div>
-            </motion.div>
+  //               {/* Action Buttons */}
+  //               <div className="flex justify-center gap-4 mt-5">
+  //                 <button
+  //                   onClick={onNew}
+  //                   className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
+  //                 >
+  //                   New
+  //                 </button>
+  //                 <button
+  //                   onClick={handleSubmit}
+  //                   className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+  //                 >
+  //                   {edit ? "Update" : "Save"}
+  //                 </button>
+  //               </div>
+  //             </div>
+  //             </div>
+  //           </motion.div>
 
-          </Grid>
-          <Grid item lg={5}>
+  //         </Grid>
+  //         <Grid item lg={5}>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-3">
-                    <ReusableTable
-                      columns={columns}
-                      data={allData?.users || ""}
-                      onView={handleView}
-                      onEdit={handleEdit}
-                      onDelete={deleteData}
-                      itemsPerPage={14}
-                    />
-                  </div>
+  //           <div className="bg-white rounded-xl shadow-sm overflow-hidden mt-3">
+  //                   <ReusableTable
+  //                     columns={columns}
+  //                     data={allData?.users || ""}
+  //                     onView={handleView}
+  //                     onEdit={handleEdit}
+  //                     onDelete={deleteData}
+  //                     itemsPerPage={14}
+  //                   />
+  //                 </div>
             
 
-          </Grid>
+  //         </Grid>
 
-        </Grid>
+  //       </Grid>
 
-      );
+  //     );
+  //   }
+  //   export default UserCreation
+
+  import React, { useState, useEffect } from "react";
+import { Modal } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Dropdown } from "primereact/dropdown";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+import { ReusableTable } from "../../input/index.js";
+import {
+  
+  useUpdateuserOnPageMutation,
+  useDeleteUserMutation,
+  useGetuserdetailQuery,
+  useGetUserBasicDetailsQuery,
+} from "../../redux/service/user.js";
+import { useGetCompCodeDataQuery } from "../../redux/service/commonMasters.js";
+import { useGetRoleQuery,useAddnewuserMutation, } from "../../redux/service/Rolemaster.js";
+import tabs from "../../components/tabIndex.js";
+import "./User.css";
+
+export default function UserCreation() {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const [edit, setEdit] = useState(false);
+  const [permissions, setPermissions] = useState({});
+  const [employeeId, setEmployeeId] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [COMPCODE, setCOMPCODE] = useState("");
+  const [roleId, setRoleId] = useState("");
+  const [active, setActive] = useState(false);
+  const [currentEditingId, setCurrentEditingId] = useState(null);
+  const [mode, setMode] = useState(true);
+  const [toggleScroll, setToggleScroll] = useState(false);
+
+  const { data: compCode } = useGetCompCodeDataQuery({ params: {} });
+  const { data: getRole } = useGetRoleQuery();
+  const { data: basicDetails } = useGetUserBasicDetailsQuery({ COMPCODE });
+  const { data: allData, refetch } = useGetuserdetailQuery();
+
+  const [createUser] = useAddnewuserMutation();
+  const [updateUser] = useUpdateuserOnPageMutation();
+  const [deleteUser] = useDeleteUserMutation();
+
+  const onNew = () => {
+    setPermissions({});
+    setEmployeeId("");
+    setUsername("");
+    setPassword("");
+    setCOMPCODE("");
+    setRoleId("");
+    setEdit(false);
+    setActive(false);
+    setMode(true);
+  };
+
+  const handlePermissionChange = (page, permission) => {
+    setPermissions((prev) => {
+      const updated = { ...prev };
+      if (!updated[page]) {
+        updated[page] = {
+          read: false,
+          create: false,
+          edit: false,
+          delete: false,
+          isdefault: false,
+        };
+      }
+      if (permission === "isdefault") {
+        const isDefault = updated[page].isdefault;
+        updated[page] = isDefault
+          ? { read: false, create: false, edit: false, delete: false, isdefault: false }
+          : { read: true, create: true, edit: true, delete: true, isdefault: true };
+      } else {
+        updated[page] = {
+          ...updated[page],
+          [permission]: !updated[page][permission],
+        };
+      }
+      const allFalse = Object.values(updated[page]).every((val) => val === false);
+      if (allFalse) delete updated[page];
+      return updated;
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (
+      !username ||
+      !roleId ||
+      !employeeId ||
+      (!edit && !password) ||
+      !COMPCODE ||
+      Object.keys(permissions).length === 0
+    ) {
+      toast.warning("Please fill all required fields");
+      return;
     }
-    export default UserCreation
+
+    const formData = {
+      id: currentEditingId,
+      username,
+      employeeId,
+      permissions,
+      roleId,
+      COMPCODE,
+      password,
+      active,
+    };
+
+    try {
+      const response = edit
+        ? await updateUser(formData).unwrap()
+        : await createUser(formData).unwrap();
+
+      if (response.count > 0) {
+        toast.success(`User ${edit ? "Updated" : "Created"} Successfully`);
+        onNew();
+        handleClose();
+        refetch();
+      }
+    } catch (error) {
+      toast.error(error?.data?.message || "Something went wrong");
+    }
+  };
+
+  const handleEdit = async (id) => {
+    const user = allData.users.find((item) => item.id === id);
+    const pages = allData.perrmissions.filter((item) => item.userId === id);
+    setCurrentEditingId(id);
+    setCOMPCODE(user.COMPCODE);
+    setUsername(user.username);
+    setEmployeeId(user.employeeId);
+    setRoleId(user.roleId);
+    setActive(user.active);
+    setMode(false);
+    setEdit(true);
+    if (pages) {
+      const transformed = pages.reduce((acc, perm) => {
+        acc[perm.link] = {
+          read: !!perm.read,
+          create: !!perm.create,
+          edit: !!perm.edit,
+          delete: !!perm.delete,
+          isdefault: !!perm.isdefault,
+        };
+        return acc;
+      }, {});
+      setPermissions(transformed);
+    }
+    handleOpen();
+  };
+
+  const deleteData = async (id) => {
+    if (!window.confirm("Are you sure to delete...?")) return;
+    try {
+      let deldata = await deleteUser(id).unwrap();
+      if (deldata?.statusCode == 1) {
+        toast.error(deldata?.message);
+        return;
+      }
+      Swal.fire({
+        title: "Deleted Successfully",
+        icon: "success",
+        timer: 1000,
+        showConfirmButton: false,
+      });
+      refetch();
+    } catch {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const columns = [
+    {
+      header: "S.No",
+      accessor: (_, index) => index + 1,
+      className: "text-center w-12",
+    },
+    {
+      header: "User Name",
+      accessor: (item) => item?.username,
+      className: "text-center uppercase w-64",
+    },
+    {
+      header: "Status",
+      accessor: (item) => (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            item.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+          }`}
+        >
+          {item.active ? "Active" : "Inactive"}
+        </span>
+      ),
+      className: "text-center w-24",
+    },
+  ];
+
+  return (
+    <div className="w-full mt-5">
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold text-gray-800 bg-indigo-100 px-4 py-2 rounded">
+          User Master
+        </h2>
+        <button
+          onClick={handleOpen}
+          className="flex items-center justify-center gap-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 shadow-md"
+        >
+          <AddIcon fontSize="small" /> Add User
+        </button>
+      </div>
+
+      {/* TABLE */}
+      <div className="w-full overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+        <ReusableTable
+          columns={columns}
+          data={allData?.users || []}
+          onEdit={(item) => handleEdit(item.id)}
+          onDelete={(item) => deleteData(item.id)}
+          itemsPerPage={10}
+        />
+      </div>
+
+      {/* MODAL */}
+      <Modal
+        open={open}
+        onClose={() => {
+          handleClose();
+          onNew();
+        }}
+      >
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+          <div className="bg-white p-6 rounded shadow-lg w-[75%] max-h-[90%] overflow-y-auto">
+            <h2 className="text-xl font-bold border-b pb-2 mb-3 text-center">
+              {edit ? "Edit User" : "New User"}
+            </h2>
+
+            {/* FORM FIELDS */}
+            <div className="space-y-4">
+              <div>
+                <label className="font-semibold">Select Company</label>
+                <Dropdown
+                  value={COMPCODE}
+                  onChange={(e) => setCOMPCODE(String(e.value))}
+                  options={compCode?.data || []}
+                  optionLabel="com"
+                  optionValue="com"
+                  placeholder="Select a company"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Employee</label>
+                <Dropdown
+                  value={employeeId}
+                  onChange={(e) => setEmployeeId(String(e.value))}
+                  options={basicDetails?.data || []}
+                  optionLabel="FNAME"
+                  optionValue="EMPID"
+                  placeholder="Select an Employee"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Username</label>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="border p-2 w-full rounded"
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Password</label>
+                <input
+                  type="text"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={!mode}
+                  className={`border p-2 w-full rounded ${
+                    !mode ? "bg-gray-100 text-gray-500" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Select Role</label>
+                <Dropdown
+                  value={roleId}
+                  onChange={(e) => setRoleId(e.value)}
+                  options={getRole?.data || []}
+                  optionLabel="rolename"
+                  optionValue="id"
+                  placeholder="Select Role"
+                  className="border p-2 w-full rounded"
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  checked={active}
+                  onChange={(e) => setActive(e.target.checked)}
+                />
+                <label>Active</label>
+              </div>
+
+              {/* PERMISSIONS TABLE */}
+              <h3 className="text-lg font-semibold mt-4 border-b pb-1">
+                Page Permissions
+              </h3>
+              <div
+                className={`overflow-y-auto ${
+                  toggleScroll ? "h-auto" : "h-[300px]"
+                } border rounded`}
+              >
+                <table className="w-full border-collapse text-sm">
+                  <thead className="bg-blue-600 text-white">
+                    <tr>
+                      {["Page", "Read", "Create", "Edit", "Delete", "Default"].map(
+                        (head) => (
+                          <th key={head} className="py-2 px-3 text-center border">
+                            {head}
+                          </th>
+                        )
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tabs
+                      .filter((item) => item.list)
+                      .map((item) => {
+                        const p = permissions[item.name] || {};
+                        return (
+                          <tr
+                            key={item.name}
+                            className="text-center border-b hover:bg-gray-50"
+                          >
+                            <td>{item.list_name}</td>
+                            {["read", "create", "edit", "delete", "isdefault"].map(
+                              (perm) => (
+                                <td key={perm}>
+                                  <button
+                                    disabled={item.default}
+                                    onClick={() =>
+                                      handlePermissionChange(item.name, perm)
+                                    }
+                                    className={`w-8 h-8 rounded ${
+                                      p[perm]
+                                        ? "bg-gray-300"
+                                        : "bg-gray-100 hover:bg-gray-300"
+                                    } transition`}
+                                  >
+                                    {p[perm] ? "✔" : ""}
+                                  </button>
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="flex justify-end gap-4 mt-5">
+                <button
+                  onClick={onNew}
+                  className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  {edit ? "Update" : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+

@@ -52,7 +52,7 @@ const MisDashboard = () => {
             filterMonth: selectedMonth, payCat, search
         }
     });
-    console.log(search, "search")
+    console.log(misData, "misData")
 
     const { data: buyer } = useGetBuyerNameQuery({ params: {} });
     const option = buyer?.data || [];

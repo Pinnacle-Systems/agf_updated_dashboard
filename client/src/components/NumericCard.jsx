@@ -76,8 +76,8 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   };
   var currMonthName = moment().format('MMM YY');
   var prevMonthName = moment().subtract(1, "month").format('MMM YY');
-  console.log(currMonthName);
-  console.log(prevMonthName);
+  // console.log(currMonthName);
+  // console.log(prevMonthName);
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
   
   const data = [
@@ -138,7 +138,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
     },
   ];
-  console.log(selectedGender,"selectedGenderIndex")
+  // console.log(selectedGender,"selectedGenderIndex")
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {
@@ -146,7 +146,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
     newTabs[index] = tab;
     setActiveTabs(newTabs);
   };
-  console.log(showTable,"showTable")
+  // console.log(showTable,"showTable")
  
   const calculatePercentage = (value, totalValue) => {
     if (totalValue === 0) return 0;
@@ -158,7 +158,7 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   };
 
   const onInfoShowText = selectedState == "All" ? "All Employees" : selectedState;
-console.log(typeof(selectedIndex),"selectIndex")
+// console.log(typeof(selectedIndex),"selectIndex")
 
   return (
     <div className="flex w-full">
@@ -255,7 +255,7 @@ console.log(typeof(selectedIndex),"selectIndex")
     className="absolute right-0 top-0 flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-b from-gray-300 to-gray-400 text-gray-800 shadow-[3px_3px_0px_#888] hover:brightness-105 active:shadow-none active:translate-y-1 active:scale-95 transition-all duration-200 group"
     onClick={handleClick}
   >
-    <FaSyncAlt className="text-base drop-shadow-sm" />
+    {/* <FaSyncAlt className="text-base drop-shadow-sm" /> */}
     <span className="text-xs font-semibold hidden group-hover:inline-block">
       Refreshsss
     </span>
@@ -277,7 +277,7 @@ console.log(typeof(selectedIndex),"selectIndex")
     const malePercentage = calculatePercentage(val.previousValue, i === 1 ? totalValueIndex0 : totalValue);
     const femalePercentage = calculatePercentage(val.value, i === 1 ? totalValueIndex0 : totalValue);
     
-     console.log(totalValueIndex0,"totalValueIndex0")
+    //  console.log(totalValueIndex0,"totalValueIndex0")
     let attritionPercentage = null;
     if (i === 1) {
       if (totalValueIndex0 && totalValueIndex0 !== 0) {
@@ -285,12 +285,12 @@ console.log(typeof(selectedIndex),"selectIndex")
 
         attritionPercentage = attritionPercentage.toFixed(2);         
       } else {
-        console.log('Error: totalValueIndex0 is invalid');
+        // console.log('Error: totalValueIndex0 is invalid');
         attritionPercentage = "0"; 
       }
     }
     
-  console.log(attritionPercentage,"attritionPercentage")
+  // console.log(attritionPercentage,"attritionPercentage")
     return (
       <div
         key={i} 

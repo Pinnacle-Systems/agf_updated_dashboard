@@ -18,7 +18,7 @@ import {
   Person as PersonIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { push } from '../../redux/features/opentabs';
 import { useGetUsersQuery } from '../../redux/service/user';
 import { ColorContext } from './context/ColorContext';
@@ -66,6 +66,7 @@ const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  // const openTabs = useSelector((state) => state.openTabs);
   const [openERP, setOpenERP] = useState(false);
   const dispatch = useDispatch();
   const { data: userData } = useGetUsersQuery();
@@ -74,6 +75,10 @@ const Sidebar = () => {
 
   const [allowpages, setallowpages] = useState([])
   const [role, setRole] = useState("")
+  const openTabs = useSelector((state) => {
+  console.log("Redux state:", state);
+  return state.openTabs;
+});
 
   async function Fliter() {
     const userId = secureLocalStorage.getItem(
@@ -83,14 +88,16 @@ const Sidebar = () => {
       sessionStorage.getItem("sessionId") + "roleId"
     );
 
-    const result = await axios.get("http://localhost:9008/role/getuserpages", { params: { userId } })
+    const result = await axios.get("http://192.168.1.68:9008/role/getuserpages", { params: { userId } })
     setallowpages(result.data)
-    const result1 =await axios.get("http://localhost:9008/role/get")
+    const result1 =await axios.get("http://192.168.1.68:9008/role/get")
     const Rolename = result1.data.find(item => item.id === userId1)?.rolename;
     setRole(Rolename);
 
  }
 
+ console.log(openTabs,"opentabs");
+ 
 
   useEffect(() => {
     Fliter()

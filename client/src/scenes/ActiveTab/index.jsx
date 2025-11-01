@@ -19,6 +19,7 @@ import Users from "../User & Role";
 import secureLocalStorage from "react-secure-storage";
 import Roles from "../User & Role";
 import UserDetails from "../User & Role/user/user.jsx";
+import Sidebar from "../global/Sidebar.jsx";
  
 
 const ActiveTabList = () => {
@@ -26,14 +27,6 @@ const ActiveTabList = () => {
     const openTabs = useSelector((state) => state.openTabs);
     const dispatch = useDispatch();
     const [showHidden, setShowHidden] = useState(false);
-
-   
-
-
-
-
-
-
     const ref = useOutsideClick(() => { setShowHidden(false) })
 
     const tabs = {
@@ -51,6 +44,7 @@ const ActiveTabList = () => {
             }
         },
         "Main": <Main_Dashboad />
+        
     };
 
     // console.log(tabs);
@@ -139,6 +133,7 @@ const ActiveTabList = () => {
                     </ul>
                 }
             </div>
+            {/* <Sidebar /> */}
             {openTabs.tabs.map((tab, index) => (
                 <div key={index} className={`${tab.active ? "block" : "hidden"} w-full`}>
                     {findTabComponent(tabs, tab.name) || (
