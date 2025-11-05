@@ -120,6 +120,17 @@ const UsersApi = createApi({
             }),
             invalidatesTags: ["UpdateRoleonPage"],
         }),
+        AddCompany:builder.mutation({
+            query: (payload) => ({
+                url: USERS_API + "/addcompany",
+                method: "POST",
+                body: payload,
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8",
+                },
+            }),
+            invalidatesTags: ["AddCompany"],
+        }),
 
 
     }),
@@ -132,7 +143,8 @@ export const {
     useGetUserBasicDetailsQuery,
     useGetuserdetailQuery,
     useDeleteUserMutation,
-    useUpdateuserOnPageMutation
+    useUpdateuserOnPageMutation,
+    useAddCompanyMutation
 } = UsersApi;
 
 export default UsersApi;

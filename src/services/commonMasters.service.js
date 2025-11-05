@@ -86,6 +86,7 @@ JOIN HREMPLOYDETAILS B ON A.HREMPLOYMASTID = B.HREMPLOYMASTID
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
 WHERE B.IDACTIVE = 'YES'
 GROUP BY C.COMPCODE`
+// `SELECT * FROM HREMPLOYMAST`
         // console.log(sql, '84');
         const result = await connection.execute(sql)
         let resp = result.rows.map(po => ({

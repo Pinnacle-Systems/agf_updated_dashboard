@@ -167,7 +167,7 @@ console.log(payCat,selectedState,"payCat")
               htmlFor="companySelect"
               className="block text-sm font-semibold text-gray-700 mb-1"
             >
-              Select Company
+              Select Company123
             </label>
 
             <SelectBuyer

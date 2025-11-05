@@ -2,24 +2,20 @@
   "name": "hindiformat",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "��#\u0000 \u0000B\u0000S\u0000S\u0000-\u0000d\u0000a\u0000s\u0000h\u0000B\u0000o\u0000a\u0000r\u0000d\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "migrate": "npx prisma migrate dev --schema ./prisma/schema.prisma",
+    "migrate": "npx prisma migrate dev --schema ./src/models/schema.prisma",
+    "studio": "npx prisma studio --schema ./src/models/schema.prisma",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "react-scripts --max_old_space_size=8192 build",
-    "seed": "ts-node prisma/seed.js",
-    "postinstall": "prisma generate"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
+    "build": "react-scripts --max_old_space_size=8192 build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "6": "^0.0.1",
-    "@prisma/client": "^6.18.0",
+    "@prisma/client": "^4.16.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "canvas": "^3.2.0",
@@ -41,7 +37,8 @@
     "node-oracledb": "^1.0.2",
     "nodemailer": "^6.10.1",
     "nodemon": "^3.1.9",
-    "oracledb": "^6.8.0",
+    "oracledb": "^6.10.0",
+    "prisma": "^4.16.2",
     "sharp": "^0.34.3",
     "socket.io": "^4.8.1",
     "tailwindcss": "3",
@@ -49,7 +46,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@react-native-community/cli": "^18.0.0",
-    "prisma": "^6.18.0"
-  }
+    "@react-native-community/cli": "^18.0.0"
+  },
+  "keywords": []
 }

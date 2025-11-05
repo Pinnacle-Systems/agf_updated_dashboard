@@ -18,8 +18,9 @@ import UserCreation from "../User & Role/Users.jsx";
 import Users from "../User & Role";
 import secureLocalStorage from "react-secure-storage";
 import Roles from "../User & Role";
-import UserDetails from "../User & Role/user/user.jsx";
 import Sidebar from "../global/Sidebar.jsx";
+import { User } from "lucide-react";
+import UserCompany from "../User & Role/userCompany.js";
  
 
 const ActiveTabList = () => {
@@ -30,7 +31,7 @@ const ActiveTabList = () => {
     const ref = useOutsideClick(() => { setShowHidden(false) })
 
     const tabs = {
-        "DASHBOARD": <MisDashboard />,
+        "Dashboard": <MisDashboard />,
         "ERP": <MisDashboardERP />,
         "Employees Detail": <PoRegister />,
         'Order Status': <OrderManagement />,
@@ -39,7 +40,9 @@ const ActiveTabList = () => {
             label: "User Management",
             Children: {
                 "User": <UserCreation />,
-                "Roles": <Roles />
+                "Roles": <Roles />,
+                "UserCompany":<UserCompany/>
+               
 
             }
         },

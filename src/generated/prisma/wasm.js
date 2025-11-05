@@ -105,7 +105,13 @@ exports.Prisma.UserScalarFieldEnum = {
   employeeId: 'employeeId',
   active: 'active',
   password: 'password',
-  COMPCODE: 'COMPCODE'
+  comCode: 'comCode'
+};
+
+exports.Prisma.UseroncompanyScalarFieldEnum = {
+  id: 'id',
+  companyName: 'companyName',
+  userId: 'userId'
 };
 
 exports.Prisma.UseronpageScalarFieldEnum = {
@@ -119,7 +125,8 @@ exports.Prisma.UseronpageScalarFieldEnum = {
   link: 'link',
   delete: 'delete',
   isdefault: 'isdefault',
-  userId: 'userId'
+  userId: 'userId',
+  check: 'check'
 };
 
 exports.Prisma.SortOrder = {
@@ -132,27 +139,32 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
-exports.Prisma.roleOrderByRelevanceFieldEnum = {
+exports.Prisma.RoleOrderByRelevanceFieldEnum = {
   rolename: 'rolename'
 };
 
-exports.Prisma.userOrderByRelevanceFieldEnum = {
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
   username: 'username',
-  employeeId: 'employeeId',
   password: 'password',
-  COMPCODE: 'COMPCODE'
+  comCode: 'comCode'
 };
 
-exports.Prisma.useronpageOrderByRelevanceFieldEnum = {
+exports.Prisma.UseroncompanyOrderByRelevanceFieldEnum = {
+  companyName: 'companyName'
+};
+
+exports.Prisma.UseronpageOrderByRelevanceFieldEnum = {
   username: 'username',
-  link: 'link'
+  link: 'link',
+  check: 'check'
 };
 
 
 exports.Prisma.ModelName = {
-  role: 'role',
-  user: 'user',
-  useronpage: 'useronpage'
+  Role: 'Role',
+  User: 'User',
+  Useroncompany: 'Useroncompany',
+  Useronpage: 'Useronpage'
 };
 /**
  * Create the Client
@@ -165,7 +177,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\pinnacle\\Desktop\\agf-dashboard\\src\\generated\\prisma",
+      "value": "E:\\Lavanya\\Agf_dashboard\\agf_updated_dashboard\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -179,7 +191,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\pinnacle\\Desktop\\agf-dashboard\\prisma\\schema.prisma",
+    "sourceFilePath": "E:\\Lavanya\\Agf_dashboard\\agf_updated_dashboard\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -193,7 +205,6 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -202,13 +213,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel role {\n  id       Int      @id @default(autoincrement())\n  rolename String?  @unique(map: \"Role_rolename_key\")\n  active   Boolean? @default(true)\n}\n\nmodel user {\n  id          Int          @id @default(autoincrement())\n  roleId      Int?\n  username    String?      @unique(map: \"User_username_key\")\n  employeeId  String?      @unique(map: \"User_employeeId_key\")\n  active      Boolean?     @default(true)\n  password    String?\n  COMPCODE    String?\n  useronpages useronpage[]\n}\n\nmodel useronpage {\n  id        Int      @id @default(autoincrement())\n  roleId    Int?\n  username  String?\n  active    Boolean? @default(true)\n  read      Boolean? @default(false)\n  create    Boolean? @default(false)\n  edit      Boolean? @default(false)\n  link      String?\n  delete    Boolean? @default(false)\n  isdefault Boolean? @default(false)\n  userId    Int\n  user      user     @relation(fields: [userId], references: [id])\n\n  @@index([userId], map: \"UserOnPage_userId_fkey\")\n}\n",
-  "inlineSchemaHash": "a558232ac80229775f9270c2942dbe9e6cc8cd4f81aa2e8715265792cfbd1eea",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Role {\n  id       Int      @id @default(autoincrement())\n  rolename String?  @unique\n  active   Boolean? @default(true)\n}\n\nmodel User {\n  id            Int             @id @default(autoincrement())\n  roleId        Int?\n  username      String?         @unique\n  employeeId    Int?            @unique\n  active        Boolean?        @default(true)\n  password      String?\n  comCode       String?\n  Useronpage    Useronpage[]\n  Useroncompany Useroncompany[]\n}\n\nmodel Useroncompany {\n  id          Int     @id @default(autoincrement())\n  companyName String?\n  User        User    @relation(fields: [userId], references: [id])\n\n  userId Int\n}\n\nmodel Useronpage {\n  id        Int      @id @default(autoincrement())\n  roleId    Int?\n  username  String?\n  active    Boolean? @default(true)\n  read      Boolean? @default(false)\n  create    Boolean? @default(false)\n  edit      Boolean? @default(false)\n  link      String?\n  delete    Boolean? @default(false)\n  isdefault Boolean? @default(false)\n  User      User     @relation(fields: [userId], references: [id])\n  userId    Int\n  check     String?\n}\n",
+  "inlineSchemaHash": "598fc19ea766ba3018d568a19445a86ed3a59216741c3738a1278952b1b1fa31",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"role\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"rolename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"user\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"employeeId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"COMPCODE\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"useronpages\",\"kind\":\"object\",\"type\":\"useronpage\",\"relationName\":\"userTouseronpage\"}],\"dbName\":null},\"useronpage\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"read\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"create\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"edit\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"link\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"delete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isdefault\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"userTouseronpage\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Role\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"rolename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"employeeId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"comCode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"Useronpage\",\"kind\":\"object\",\"type\":\"Useronpage\",\"relationName\":\"UserToUseronpage\"},{\"name\":\"Useroncompany\",\"kind\":\"object\",\"type\":\"Useroncompany\",\"relationName\":\"UserToUseroncompany\"}],\"dbName\":null},\"Useroncompany\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"companyName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"User\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUseroncompany\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Useronpage\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"roleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"active\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"read\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"create\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"edit\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"link\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"delete\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isdefault\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"User\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToUseronpage\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"check\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

@@ -56,34 +56,39 @@ export async function getUserPages(req, res) {
 }
 
 export async function createRoleOnPage(req, res) {
-  const { username, employeeId,permissions, roleId ,COMPCODE,password,active,} = req.body;
+  const { username, employeeId,permissions, COMPCODE,password,active,} = req.body;
+  const roleId= parseInt(req.body.roleId)
 
   try {
     
-    if (!username || !employeeId ||!roleId || !permissions) {
+    if (!username || !employeeId ||!roleId || !permissions ||!COMPCODE) {
       return res.status(400).json({
         status: 0,
         message: "Missing required fields: username, employeeId, roleId, or permissions",
       });
     }
+    const user = await prisma_Connector.user.findUnique({
+    where: { username }, // or { username }
+    });
+    if (user) {
+    return res.status(404).json({
+      status: 0,
+      message: `UserName already exists with employeeId ${employeeId} .`,
+    });
+  }
 
     const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        console.log(hashedPassword);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log(hashedPassword);
         
     const result1 = await prisma_Connector.user.create({ data: {employeeId, username,COMPCODE,password:hashedPassword,active, roleId,}})
     
-    
-    const user = await prisma_Connector.user.findUnique({
-      where: { employeeId }, // or { username }
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        status: 0,
-        message: `User not found for employeeId: ${employeeId}`,
-      });
-    }
+    // if (!user) {
+    //   return res.status(404).json({
+    //     status: 0,
+    //     message: `User not found for employeeId: ${employeeId}`,
+    //   });
+    // }
 
     const insertData = Object.entries(permissions).map(([page, pagePermissions]) => ({
       read: !!pagePermissions.read,
@@ -94,7 +99,7 @@ export async function createRoleOnPage(req, res) {
       username,
       roleId,
       link: page,
-      userId: user.id,
+      userId: result1.id,
     }));
 
     if (!insertData.length) {
@@ -104,8 +109,11 @@ export async function createRoleOnPage(req, res) {
    
     const result = await prisma_Connector.useronpage.createMany({
       data: insertData,
+      skipDuplicates: true
       // skip duplicates if record already exists
     });
+
+    
     
  
     res.status(200).json({

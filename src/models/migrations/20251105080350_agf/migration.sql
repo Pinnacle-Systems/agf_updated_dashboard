@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `role` (
+CREATE TABLE `Role` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `rolename` VARCHAR(191) NULL,
     `active` BOOLEAN NULL DEFAULT true,
@@ -9,14 +9,14 @@ CREATE TABLE `role` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `user` (
+CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `roleId` INTEGER NULL,
     `username` VARCHAR(191) NULL,
-    `employeeId` VARCHAR(191) NULL,
+    `employeeId` INTEGER NULL,
     `active` BOOLEAN NULL DEFAULT true,
     `password` VARCHAR(191) NULL,
-    `COMPCODE` VARCHAR(191) NULL,
+    `comCode` VARCHAR(191) NULL,
 
     UNIQUE INDEX `User_username_key`(`username`),
     UNIQUE INDEX `User_employeeId_key`(`employeeId`),
@@ -24,7 +24,16 @@ CREATE TABLE `user` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `useronpage` (
+CREATE TABLE `Useroncompany` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `companyName` VARCHAR(191) NULL,
+    `userId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Useronpage` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `roleId` INTEGER NULL,
     `username` VARCHAR(191) NULL,
@@ -36,7 +45,13 @@ CREATE TABLE `useronpage` (
     `delete` BOOLEAN NULL DEFAULT false,
     `isdefault` BOOLEAN NULL DEFAULT false,
     `userId` INTEGER NOT NULL,
+    `check` VARCHAR(191) NULL,
 
-    INDEX `UserOnPage_userId_fkey`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Useroncompany` ADD CONSTRAINT `Useroncompany_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Useronpage` ADD CONSTRAINT `Useronpage_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

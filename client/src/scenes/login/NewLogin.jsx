@@ -10,10 +10,10 @@ import { generateSessionId } from '../../utils/hleper';
 // import BranchAndFinYearForm from '../../components/BranchAndFinyear';
 // import { PRODUCT_ADMIN_HOME_PATH } from '../../../Route/urlPaths';
 import Swal from 'sweetalert2';
-import { LOGIN_API } from '../../constants/apiUrl';
+import { BASE_URL } from '../../constants/apiUrl';
 
 
-axios.defaults.baseURL = "http://192.168.1.68:9008/";
+axios.defaults.baseURL = BASE_URL;
 
 // // Then call
 // axios.post("users/login", { username, password });
@@ -41,7 +41,6 @@ const Login = () => {
             errors.email = "Email is required";
         }
         //  else if (
-        //     !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)
         // ) {
         //     errors.email = "Invalid email address";
         // }
@@ -86,8 +85,14 @@ const Login = () => {
                 
                 if (result.status === 200) {
                     if (result.data.statusCode === 0) {
+                        console.log(result.data.userInfo.roleId);
+                        
                         sessionStorage.setItem("sessionId", generateSessionId());
                         if (!result.data.userInfo.roleId) {
+
+                            console.log(username);
+                            
+                        
                             secureLocalStorage.setItem(
                                 sessionStorage.getItem("sessionId") + "userId",
                                 result.data.userInfo.id
@@ -100,6 +105,7 @@ const Login = () => {
                                 sessionStorage.getItem("sessionId") + "superAdmin",
                                 true
                             );
+                            navigate('/dashboard');
                             // navigate(PRODUCT_ADMIN_HOME_PATH);
                         } else {
                             // console.log(result, "result");
@@ -131,6 +137,10 @@ const Login = () => {
                                 sessionStorage.getItem("sessionId") + "roleId",
                                 result.data.userInfo.roleId
                             );
+                            secureLocalStorage.setItem(
+                  sessionStorage.getItem("sessionId") + "superAdmin",
+                  false
+                );
                            
 
                            

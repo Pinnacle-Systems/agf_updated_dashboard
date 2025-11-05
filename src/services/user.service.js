@@ -5,46 +5,89 @@ import { getConnection } from "../constants/db.connection.js";
 
 
 export async function login(req, res) {
+  const { username, password } = req.body;
 
-    const { username, password } = req.body
+  if (!username || !password) {
+    return res.status(400).json({
+      statusCode: 1,
+      message: "Username and password required",
+    });
+  }
 
+  try {
+    const user = await prisma_Connector.user.findUnique({
+      where: { username },
+      // include: { useronpage: true }, // ✅ fixed here
+    });
 
-    if (!username || !password) {
-        return res.status(400).json({ statusCode: 1, message: "Username and password required" });
+    console.log(user);
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ statusCode: 1, message: "Username doesn't exist" });
     }
 
-    try {
-        const user = await prisma_Connector.user.findUnique({
-            where: { username: username },
-            include: { useronpages: true },
-        });
-        // console.log(user);
-        if (!user) {
-            return res.status(401).json({ statusCode: 1, message: "Username doesn't exists" })
-        };  
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch)
+      return res
+        .status(401)
+        .json({ statusCode: 1, message: "Invalid Password" });
+
+    return res.status(200).json({
+      statusCode: 0,
+      message: "Login Successful",
+      userInfo: user,
+    });
+  } catch (err) {
+    console.error("Prisma error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
+// export async function login(req, res) {
+
+//     const { username, password } = req.body
+
+
+//     if (!username || !password) {
+//         return res.status(400).json({ statusCode: 1, message: "Username and password required" });
+//     }
+
+//     try {
+
+//         const user = await prisma_Connector.user.findUnique({
+//             where: { username: username },
+//             include: { useronpages: true },
+//         });
+//         console.log(user);
+//         if (!user) {
+//             return res.status(401).json({ statusCode: 1, message: "Username doesn't exists" })
+//         };  
 
         
-        const passwordMatch = await bcrypt.compare(password, user.password);
+//         const passwordMatch = await bcrypt.compare(password, user.password);
 
-        if (!passwordMatch) return res.status(401).json({ statusCode: 1, message: "Invalid Password" });
-        // if (password !== user.password) return res.status(401).json({ statusCode: 1, message: "Invalid Password" });
+//         if (!passwordMatch) return res.status(401).json({ statusCode: 1, message: "Invalid Password" });
+//         // if (password !== user.password) return res.status(401).json({ statusCode: 1, message: "Invalid Password" });
 
-        // const token = jwt.sign(
-        //     {
-        //         userId: user.id,
-        //         userName: user.username,
-        //         userRole: user.role
-        //     },
-        //     "RANDOM-TOKEN",
-        //     { expiresIn: "2m" }
-        // );
-        return res.status(200).json({ statusCode: 0, message: "Login Successfull", userInfo: user });
-    }
-    catch(err){
-        res.status(500).json(err)
-    }
+//         // const token = jwt.sign(
+//         //     {
+//         //         userId: user.id,
+//         //         userName: user.username,
+//         //         userRole: user.role
+//         //     },
+//         //     "RANDOM-TOKEN",
+//         //     { expiresIn: "2m" }
+//         // );
+//         return res.status(200).json({ statusCode: 0, message: "Login Successfull", userInfo: user });
+//     }
+//     catch(err){
+//         res.status(500).json(err)
+//     }
 
-}
+// }
 
 // export async function login(req, res) {
 //     const connection = await getConnection(res)
@@ -316,6 +359,7 @@ export async function remove(req, res, next) {
 
 
 export async function get_Usedetails(req, res) {
+
   const connection = await getConnection(res)
     // const userId = parseInt(req.query.userId);
     // const{userId}=req.query.userId
@@ -324,8 +368,8 @@ export async function get_Usedetails(req, res) {
   try {
     const result = await prisma_Connector.user.findMany({ })
     const result1 = await prisma_Connector.useronpage.findMany({ })
+    
 
-    // console.log(result)
     return res.status(201).json({
         users:result,
         perrmissions:result1
@@ -359,18 +403,7 @@ export async function UpdateUserOnPage(req, res) {
       where: { id },
     });
 
-    
-    
-    // if (!user) {
-      
-    //   const result = await prisma_Connector.user.update({
-    //     where: { username },
-    //     data: { employeeId, username,COMPCODE,roleId, },
-    //         });
-    // }
-    // else{
-
-      const result = await prisma_Connector.user.update({
+    const result = await prisma_Connector.user.update({
               where: { id :user.id},
               // where: { username },
               data: { employeeId, username,COMPCODE,roleId,active},
@@ -494,6 +527,97 @@ export async function UpdateUserOnPage(req, res) {
 //     });
 //   }
 // }
+
+
+//  export async function Add_Company(req, res) {
+
+//   const connection = await getConnection(res)
+//   const { username,COMPCODE } = req.body
+
+
+//   const existingUser = await prisma_Connector.useroncompany.findUnique({
+//     where: { username },
+//   });
+
+//   if (existingUser) {
+//     return res.status(409).json({
+//       status: 0,
+//       message: `User with employeeId ${employeeId} already exists.`,
+//     });
+//   }
+//   try {
+
+//      const insertData1 = Object.entries(COMPCODE).map((item) => ({
+//       companyName:item.value,
+//       userId: user.id,
+//     }));
+//     if (!insertData1.length) {
+//       return res.status(400).json({ status: 0, message: "No Companies to insert" });
+//     }
+//     const result = await prisma_Connector.useroncompany.createMany({
+//       data: insertData1,
+//       // skip duplicates if record already exists
+//     });
+//     res.json({
+//       status: 1,
+//       data: result,
+//         message: 'Created successfully',
+        
+// });
+//   }
+//   catch (err) {
+//     console.error('Error retrieving data:', err);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+//   finally {
+//     await connection.close()
+//   }
+// }
+export async function Add_Company(req, res) {
+  const connection = await getConnection(res);
+  const { username, COMPCODE } = req.body;
+
+  try {
+    // 1️⃣ Find the user
+    const user = await prisma_Connector.useroncompany.findUnique({
+      where: { username },
+    });
+
+    if (user) {
+      return res.status(404).json({
+      status: 0,
+      message: `User already exists.`,
+    });
+    }
+
+    // 2️⃣ Build insert data
+    const insertData1 = (COMPCODE || []).map((item) => ({
+      companyName: item.value, // use value field
+      userId: user.id,
+    }));
+
+    if (!insertData1.length) {
+      return res.status(400).json({ status: 0, message: "No companies to insert" });
+    }
+
+    // 3️⃣ Insert with skipDuplicates if needed
+    const result = await prisma_Connector.useroncompany.createMany({
+      data: insertData1,
+      skipDuplicates: true,
+    });
+
+    res.json({
+      status: 1,
+      data: result,
+      message: "Created successfully",
+    });
+  } catch (err) {
+    console.error("Error in Add_Company:", err);
+    res.status(500).json({ error: "Internal Server Error", details: err.message });
+  } finally {
+    await connection.close();
+  }
+}
 
 
 

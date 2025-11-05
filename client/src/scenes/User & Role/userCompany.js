@@ -10,7 +10,8 @@ import {
 } from "../../redux/service/user.js";
 
 import UserCreate from "./UserCreation.js";
-export default function UserCreation() {
+import CompanyAllocation from "./CompanyAllocation.js";
+export default function UserCompany() {
   const [usercreate, setusercreate] = useState(false);
   const [readonly, setReadonly] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -88,7 +89,7 @@ export default function UserCreation() {
       className: "text-center w-64",
     },
     {
-      header: "Status",
+      header: "Company List",
       accessor: (item) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -107,7 +108,7 @@ export default function UserCreation() {
   return (
     <>
       {usercreate ? (
-        <UserCreate
+        <CompanyAllocation
           onClose={() => {
             setusercreate(false);
           }}
@@ -126,9 +127,9 @@ export default function UserCreation() {
       ) : (
         <div className="p-2 bg-[#F1F1F0] min-h-screen">
           <div className="flex flex-col sm:flex-row justify-between bg-white py-1.5 px-1 items-start sm:items-center mb-4 gap-x-4 rounded-tl-lg rounded-tr-lg shadow-sm border border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-800 mb-1 shadow-2xl">
-              User Details
-            </h1>
+            <h3 className="text-xl font-bold text-gray-800 mb-1 shadow-2xl">
+             User Company Details
+            </h3>
 
             <button
               onClick={() => setusercreate(true)}

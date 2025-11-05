@@ -133,7 +133,13 @@ exports.Prisma.UserScalarFieldEnum = {
   employeeId: 'employeeId',
   active: 'active',
   password: 'password',
-  COMPCODE: 'COMPCODE'
+  comCode: 'comCode'
+};
+
+exports.Prisma.UseroncompanyScalarFieldEnum = {
+  id: 'id',
+  companyName: 'companyName',
+  userId: 'userId'
 };
 
 exports.Prisma.UseronpageScalarFieldEnum = {
@@ -147,7 +153,8 @@ exports.Prisma.UseronpageScalarFieldEnum = {
   link: 'link',
   delete: 'delete',
   isdefault: 'isdefault',
-  userId: 'userId'
+  userId: 'userId',
+  check: 'check'
 };
 
 exports.Prisma.SortOrder = {
@@ -160,27 +167,32 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
-exports.Prisma.roleOrderByRelevanceFieldEnum = {
+exports.Prisma.RoleOrderByRelevanceFieldEnum = {
   rolename: 'rolename'
 };
 
-exports.Prisma.userOrderByRelevanceFieldEnum = {
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
   username: 'username',
-  employeeId: 'employeeId',
   password: 'password',
-  COMPCODE: 'COMPCODE'
+  comCode: 'comCode'
 };
 
-exports.Prisma.useronpageOrderByRelevanceFieldEnum = {
+exports.Prisma.UseroncompanyOrderByRelevanceFieldEnum = {
+  companyName: 'companyName'
+};
+
+exports.Prisma.UseronpageOrderByRelevanceFieldEnum = {
   username: 'username',
-  link: 'link'
+  link: 'link',
+  check: 'check'
 };
 
 
 exports.Prisma.ModelName = {
-  role: 'role',
-  user: 'user',
-  useronpage: 'useronpage'
+  Role: 'Role',
+  User: 'User',
+  Useroncompany: 'Useroncompany',
+  Useronpage: 'Useronpage'
 };
 
 /**
