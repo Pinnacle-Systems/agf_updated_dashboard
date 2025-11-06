@@ -21,6 +21,11 @@ export default function UserCreation() {
   const { data: allData, refetch: Getrefetch } = useGetuserdetailQuery();
   const [deleteUser] = useDeleteUserMutation();
 
+  // console.log(allData,"All data");
+
+  
+  
+
   const onNew = () => {
     setCurrentEditingId("");
     setReadonly(false);

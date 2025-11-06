@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 dotenv.config();
 
 import { createRequire } from "module";
-import { PrismaClient } from './src/generated/prisma/client.js';
+// import { PrismaClient } from './src/generated/prisma/client.js';
 
 const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
@@ -27,6 +27,9 @@ import {
   user,
   role
 } from "./src/routes/index.js"
+import { PrismaClient } from '@prisma/client';
+
+export const prisma_Connector = new PrismaClient();
 
 const app = express()
 app.use(express.json())
@@ -92,4 +95,4 @@ httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-export const prisma_Connector = new PrismaClient();
+
