@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { login, create, get, remove, getOne, getUserDetails, get_Usedetails, UpdateUserOnPage, Add_Company } from "../services/user.service.js";
+import { login, create, get, remove, getOne, getUserDetails, get_Usedetails, UpdateUserOnPage, Add_Company, get_UserOne } from "../services/user.service.js";
 
 router.post('/login', login);
 
@@ -17,7 +17,9 @@ router.get('/getuserdetail', get_Usedetails)
 
 router.post('/updateUserOnPage', UpdateUserOnPage)
 
-router.post('/addcompany', Add_Company)
+router.get('/:id', get_UserOne)
+
+
 
 
 

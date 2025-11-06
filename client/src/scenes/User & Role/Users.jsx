@@ -10,6 +10,7 @@ import {
 } from "../../redux/service/user.js";
 
 import UserCreate from "./UserCreation.js";
+import { getCommonParams } from "../../utils/hleper.js";
 export default function UserCreation() {
   const [usercreate, setusercreate] = useState(false);
   const [readonly, setReadonly] = useState(false);
@@ -18,10 +19,18 @@ export default function UserCreation() {
   const [mode, setMode] = useState(false);
   const [text, setText] = useState("");
 
-  const { data: allData, refetch: Getrefetch } = useGetuserdetailQuery();
   const [deleteUser] = useDeleteUserMutation();
-
+  
   // console.log(allData,"All data");
+  const params = getCommonParams();
+  
+  const { userId, isSuperAdmin } = params;
+  
+  const { data: allData, refetch: Getrefetch } = useGetuserdetailQuery({ userId: isSuperAdmin ? false : userId },
+    { skip: !isSuperAdmin && !userId });
+
+  console.log(allData,"created users");
+  
 
   
   
@@ -34,9 +43,9 @@ export default function UserCreation() {
     setMode(false);
   };
 
-  const handleView = (id) => {
+  const handleView = (userId) => {
     setEdit(true);
-    setCurrentEditingId(id);
+    setCurrentEditingId(userId);
     setReadonly(true);
     setusercreate(true);
     setText("Cancel");
@@ -131,7 +140,7 @@ export default function UserCreation() {
       ) : (
         <div className="p-2 bg-[#F1F1F0] min-h-screen">
           <div className="flex flex-col sm:flex-row justify-between bg-white py-1.5 px-1 items-start sm:items-center mb-4 gap-x-4 rounded-tl-lg rounded-tr-lg shadow-sm border border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-800 mb-1 shadow-2xl">
+            <h1 className="text-m text-gray-1000 mb-1 shadow-2xl">
               User Details
             </h1>
 
@@ -146,7 +155,7 @@ export default function UserCreation() {
           <div className="w-full overflow-x-auto shadow-lg rounded-lg border border-gray-200">
             <ReusableTable
               columns={columns}
-              data={allData?.users || []}
+              data={allData?.data || []}
               onView={handleView}
               onEdit={handleEdit}
               onDelete={deleteData}

@@ -437,6 +437,77 @@ export const DropdownWithSearch = forwardRef(({
     </div>
   );
 });
+export const DropdownWithSearch2 = forwardRef(({
+  className,
+  options,
+  value,
+  setValue,
+  readOnly,
+  disabled,
+  required = false,
+  labelField,
+  label,
+  nextRef = null,
+  classNameForOptions  // 👈 next input ref
+}, ref) => {
+
+  // 👈 next input ref
+  console.log(classNameForOptions, "classNameForOptions")
+
+  const [currentIndex, setCurrentIndex] = useState("");
+  useEffect(() => setCurrentIndex(Date.now()), []);
+
+  useEffect(() => {
+    const dropDownElement = document.getElementById(`dropdown${currentIndex}`);
+    if (!dropDownElement) return;
+
+    const handleKeyDown = (ev) => {
+      if (ev.key === "Enter" || ev.key === "Tab") {
+        if (nextRef?.current) {
+          nextRef.current.focus();
+          ev.preventDefault();
+        }
+      }
+    };
+
+    dropDownElement.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      dropDownElement.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentIndex, nextRef]);
+
+  return (
+    <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+      {label && (
+        <label className="block text-xs font-bold text-slate-700 mb-1">
+          {required ? <RequiredLabel name={label} /> : `${label}`}
+        </label>
+      )}
+      <select
+        ref={ref}
+        className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+    focus:border-indigo-300 focus:outline-none transition-all duration-200
+    hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} 
+    ${className}`}
+        disabled={disabled}
+        readOnly={readOnly}
+        value={value || ""}
+        onChange={(e) => setValue(e.target.value)}
+      >
+        <option value="">Select</option>
+        {(options || []).map((option) => (
+          <option
+            key={option.companyName}
+            value={option.companyName}
+          >
+            <span></span>   {option[labelField]}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+});
 export const DropdownWithSearch1 = forwardRef(({
   className,
   options,

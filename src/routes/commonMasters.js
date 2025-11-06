@@ -11,4 +11,5 @@ router.get('/getBuyer', getBuyer)
 router.get('/getMonth', getMonthData)
 
 router.get('/getCompCodeData', getCompCodeData)
+
 export default router;

@@ -34,6 +34,7 @@ export async function getUserPages(req, res) {
   // const{userId}=req.query.userId
   // console.log(userId);
 
+
   try {
     const result = await prisma_Connector.useronpage.findMany({
       where: { userId: userId },
@@ -49,7 +50,7 @@ export async function getUserPages(req, res) {
 }
 
 export async function createRoleOnPage(req, res) {
-  const { username, employeeId, permissions, COMPCODE, password, active,compList } =
+  const { username, employeeId, permissions, COMPCODE, password, active,compList,createdbyId} =
     req.body;
   const roleId = parseInt(req.body.roleId);
 
@@ -83,6 +84,7 @@ export async function createRoleOnPage(req, res) {
         password: hashedPassword,
         active,
         roleId,
+        createdbyId
       },
     });
 

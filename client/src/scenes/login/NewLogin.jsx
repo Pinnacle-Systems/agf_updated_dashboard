@@ -95,7 +95,7 @@ const Login = () => {
                         
                             secureLocalStorage.setItem(
                                 sessionStorage.getItem("sessionId") + "userId",
-                                result.data.userInfo.id
+                                false
                             );
                             secureLocalStorage.setItem(
                                 sessionStorage.getItem("sessionId") + "username",

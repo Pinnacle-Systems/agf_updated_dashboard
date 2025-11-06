@@ -47,7 +47,7 @@ const commonMast = createApi({
             providesTags: ['commonMast'],
         }),
         getCompCodeData: builder.query({
-            query: ({ params }) => {
+            query: (params ) => {
                 return {
                     url: `${COMMON_MAST}/getCompCodeData`,
                     method: 'GET',

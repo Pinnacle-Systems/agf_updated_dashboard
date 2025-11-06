@@ -138,7 +138,7 @@ const handleToggle = (menuKey) => {
         <ListItemText
               primary="Dashboard"
               primaryTypographyProps={{
-                fontSize: '0.875rem',
+                fontSize: '0.8rem',
                 fontWeight: '500',
               }}
               sx={{ ml: 1 }}
@@ -161,7 +161,7 @@ const handleToggle = (menuKey) => {
             <ListItemText
               primary="ERP"
               primaryTypographyProps={{
-                fontSize: '0.875rem',
+                fontSize: '0.8rem',
                 fontWeight: 500,
               }}
               sx={{ ml: 1 }}
@@ -202,7 +202,7 @@ const handleToggle = (menuKey) => {
               <ListItemText
                 primary="User Management"
                 primaryTypographyProps={{
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 500,
                 }}
                 sx={{ ml: 1 }}
@@ -219,7 +219,7 @@ const handleToggle = (menuKey) => {
                 >
                   <ListItemText primary="User"
                     primaryTypographyProps={{
-                      fontSize: '0.875rem',
+                      fontSize: '0.75rem',
                       fontWeight: 500,
                     }}
                   />
@@ -231,11 +231,11 @@ const handleToggle = (menuKey) => {
                 >
                   <ListItemText primary="Roles"
                     primaryTypographyProps={{
-                      fontSize: '0.875rem',
+                      fontSize: '0.75rem',
                       fontWeight: 500,
                     }} />
                 </StyledListItemButton>
-                <StyledListItemButton
+                {/* <StyledListItemButton
                   sx={{ pl: 6 }}
                   onClick={() => dispatch(push({ id: 6, name: 'UserCompany' }))}
                 >
@@ -244,7 +244,7 @@ const handleToggle = (menuKey) => {
                       fontSize: '0.875rem',
                       fontWeight: 500,
                     }} />
-                </StyledListItemButton>
+                </StyledListItemButton> */}
 
                 {/* <StyledListItemButton
           sx={{ pl: 6 }}
@@ -266,7 +266,7 @@ const handleToggle = (menuKey) => {
             <ListItemText
               primary="Main Dashboard"
               primaryTypographyProps={{
-                fontSize: '0.875rem',
+                fontSize: '0.8rem',
                 fontWeight: '500',
               }}
               sx={{ ml: 1 }}

@@ -131,6 +131,21 @@ const UsersApi = createApi({
             }),
             invalidatesTags: ["AddCompany"],
         }),
+         getuserone: builder.query({
+            query: (id) => {
+                return {
+                    url: `${USERS_API}/${id}`,
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                        // compcode:COMPCODE
+                    },
+
+                };
+            },
+            providesTags: ["getuserone"],
+        }),
+
 
 
     }),
@@ -144,7 +159,7 @@ export const {
     useGetuserdetailQuery,
     useDeleteUserMutation,
     useUpdateuserOnPageMutation,
-    useAddCompanyMutation
+    useAddCompanyMutation,useGetuseroneQuery
 } = UsersApi;
 
 export default UsersApi;

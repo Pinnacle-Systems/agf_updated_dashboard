@@ -16,9 +16,7 @@ export async function login(req, res) {
   try {
     const user = await prisma_Connector.user.findUnique({
       where: { username },
-      include: { Useronpage: true ,
-         Useroncompany: true,
-      }, // ✅ fixed here
+      include: { Useronpage: true, Useroncompany: true }, // ✅ fixed here
     });
 
     console.log(user);
@@ -363,15 +361,75 @@ export async function get_Usedetails(req, res) {
   // const{userId}=req.query.userId
   // console.log(userId);
 
-  try {
+  const {userId}=req.query
+
+  if(!userId || userId === "false"){
+    try {
     const result = await prisma_Connector.user.findMany({});
     const result1 = await prisma_Connector.useronpage.findMany({});
     const result2 = await prisma_Connector.useroncompany.findMany({});
 
     return res.status(201).json({
-      users: result,
+      data: result,
       perrmissions: result1,
       companyList: result2,
+    });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+ }
+ else{
+  try{
+    const result = await prisma_Connector.user.findMany({
+    where: { createdbyId: parseInt(userId) },
+    include:{Useroncompany:true}
+  });
+  return res.json({ statusCode: 0, data: result });
+
+    }
+    catch(error){
+      console.error("Error retrieving data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+
+    }
+    finally {
+    await connection.close();
+  }
+
+
+ }
+
+  
+  
+}
+
+export async function get_UserOne(req, res) {
+  const connection = await getConnection(res);
+
+  // const { id } = req.query
+  // 
+  const id = parseInt(req.params.id);
+
+  
+
+  try {
+    const result = await prisma_Connector.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include:{
+        Useroncompany:true,
+        Useronpage:true
+      }
+    });
+    
+
+    return res.status(201).json({
+      data: result,
+      
     });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -506,7 +564,17 @@ export async function get_Usedetails(req, res) {
 //   }
 // }
 export async function UpdateUserOnPage(req, res) {
-  const { id, username, employeeId, permissions, roleId, COMPCODE, active, compList } = req.body;
+  const {
+    id,
+    username,
+    employeeId,
+    permissions,
+    roleId,
+    COMPCODE,
+    active,
+    compList,
+    createdbyId
+  } = req.body;
 
   try {
     // --- Validate required fields ---
@@ -520,7 +588,8 @@ export async function UpdateUserOnPage(req, res) {
     if (!compList || !Array.isArray(compList) || compList.length === 0) {
       return res.status(400).json({
         status: 0,
-        message: "UserOnCompany is mandatory. Please provide at least one company.",
+        message:
+          "Please provide at least one company to allow.",
       });
     }
 
@@ -533,16 +602,22 @@ export async function UpdateUserOnPage(req, res) {
     // --- Update main user details ---
     await prisma_Connector.user.update({
       where: { id: user.id },
-      data: { employeeId, username, COMPCODE, roleId, active },
+      data: { employeeId, username, COMPCODE, roleId, active,createdbyId },
     });
 
     // --- Handle UserOnPage updates ---
-    const existingPages = await prisma_Connector.useronpage.findMany({ where: { userId: user.id } });
+    const existingPages = await prisma_Connector.useronpage.findMany({
+      where: { userId: user.id },
+    });
 
     // Delete pages not in permissions
-    const pagesToDelete = existingPages.filter(page => !permissions.hasOwnProperty(page.link));
+    const pagesToDelete = existingPages.filter(
+      (page) => !permissions.hasOwnProperty(page.link)
+    );
     await Promise.all(
-      pagesToDelete.map(page => prisma_Connector.useronpage.delete({ where: { id: page.id } }))
+      pagesToDelete.map((page) =>
+        prisma_Connector.useronpage.delete({ where: { id: page.id } })
+      )
     );
 
     // Upsert/update pages present in request
@@ -567,7 +642,10 @@ export async function UpdateUserOnPage(req, res) {
         });
 
         if (existingRecord) {
-          return prisma_Connector.useronpage.update({ where: { id: existingRecord.id }, data: upsertData });
+          return prisma_Connector.useronpage.update({
+            where: { id: existingRecord.id },
+            data: upsertData,
+          });
         } else {
           return prisma_Connector.useronpage.create({ data: upsertData });
         }
@@ -575,31 +653,40 @@ export async function UpdateUserOnPage(req, res) {
     );
 
     // --- Handle UserOnCompany updates ---
-    const existingCompanies = await prisma_Connector.useroncompany.findMany({ where: { userId: user.id } });
+    const existingCompanies = await prisma_Connector.useroncompany.findMany({
+      where: { userId: user.id },
+    });
 
     // Delete companies not in compList
     const companiesToDelete = existingCompanies.filter(
-      item => !compList.some(c => c.label === item.companyName)
+      (item) => !compList.some((c) => c.label === item.companyName)
     );
     await Promise.all(
-      companiesToDelete.map(item => prisma_Connector.useroncompany.delete({ where: { id: item.id } }))
+      companiesToDelete.map((item) =>
+        prisma_Connector.useroncompany.delete({ where: { id: item.id } })
+      )
     );
 
     // Upsert/update companies present in compList
     await Promise.all(
-      compList.map(async item => {
+      compList.map(async (item) => {
         const upsertData = { companyName: item.label, userId: user.id };
-        const existingRecord = await prisma_Connector.useroncompany.findFirst({ where: { userId: user.id, companyName: item.label } });
+        const existingRecord = await prisma_Connector.useroncompany.findFirst({
+          where: { userId: user.id, companyName: item.label },
+        });
 
         if (existingRecord) {
-          return prisma_Connector.useroncompany.update({ where: { id: existingRecord.id }, data: upsertData });
+          return prisma_Connector.useroncompany.update({
+            where: { id: existingRecord.id },
+            data: upsertData,
+          });
         } else {
           return prisma_Connector.useroncompany.create({ data: upsertData });
         }
       })
     );
 
-    const failedPageOps = pageResults.filter(r => r === null).length;
+    const failedPageOps = pageResults.filter((r) => r === null).length;
 
     return res.json({
       status: 1,
@@ -609,7 +696,6 @@ export async function UpdateUserOnPage(req, res) {
         failedPageCount: failedPageOps,
       },
     });
-
   } catch (error) {
     console.error("Unexpected error in UpdateUserOnPage:", error);
     return res.status(500).json({
@@ -619,7 +705,6 @@ export async function UpdateUserOnPage(req, res) {
     });
   }
 }
-
 
 export async function Add_Company(req, res) {
   const connection = await getConnection(res);
