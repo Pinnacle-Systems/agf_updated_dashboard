@@ -25,9 +25,11 @@ import { ColorContext } from './context/ColorContext';
 import { useContext } from "react";
 import ActiveTabList from '../ActiveTab';
 import secureLocalStorage from 'react-secure-storage';
-import axios from 'axios';
+import axios, { all } from 'axios';
 import { Item } from 'devextreme-react/cjs/funnel';
 import { PermissionContext } from "./context/PermissionContext";
+import { getCommonParams } from '../../utils/hleper';
+import { useGetRoleQuery, useGetuserpagesQuery } from '../../redux/service/Rolemaster';
 const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: '32px',
   height: '32px',
@@ -66,26 +68,27 @@ const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  // const openTabs = useSelector((state) => state.openTabs);
   const [openERP, setOpenERP] = useState(false);
   const dispatch = useDispatch();
-  const { data: userData } = useGetUsersQuery();
   const { color } = useContext(ColorContext);
   const { setPermissions } = useContext(PermissionContext);
-  const [isSuperAdmin,setIssuperAdmin]=useState(false)
+  // const [isSuperAdmin,setIssuperAdmin]=useState(false)
   const [allowpages, setallowpages] = useState([])
   const [role, setRole] = useState("")
-  const openTabs = useSelector((state) => {
-  // console.log("Redux state:", state);
-  return state.openTabs;
-});
-const [openMenu, setOpenMenu] = useState({});
+  const params =getCommonParams();
+  const{userId,isSuperAdmin}=params
 
-const handleToggle = (menuKey) => {
-  setOpenMenu((prev) => ({ ...prev, [menuKey]: !prev[menuKey] }));
-};
+  // const { data: allData, refetch: Getrefetch } = useGetRoleQuery();
+  // const skip = isSuperAdmin === true || !userId;
 
+  // const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery({userId}, {skip })
 
+  
+
+  // console.log(allData,"sidebar alldata");
+  // console.log(allPages,"sidebar allPages");
+  
+ 
   async function Fliter() {
     const userId = secureLocalStorage.getItem(
       sessionStorage.getItem("sessionId") + "userId"
@@ -93,15 +96,15 @@ const handleToggle = (menuKey) => {
     const userId1 = secureLocalStorage.getItem(
       sessionStorage.getItem("sessionId") + "roleId"
     );
-    const isSuperAdmin = secureLocalStorage.getItem(
-      sessionStorage.getItem("sessionId") + "superAdmin"
-    );
-    setIssuperAdmin(isSuperAdmin)
-    const result = await axios.get("http://192.168.1.61:9008/role/getuserpages", { params: { userId } })
+        if(!isSuperAdmin){
+       const result = await axios.get("http://192.168.1.61:9008/role/getuserpages", { params: { userId } })
     setallowpages(result.data)
     const result1 =await axios.get("http://192.168.1.61:9008/role/get")
     const Rolename = result1.data.find(item => item.id === userId1)?.rolename;
     setRole(Rolename);
+
+    }
+   
 
  }
   useEffect(() => {
@@ -126,7 +129,7 @@ const handleToggle = (menuKey) => {
   return (
     <SidebarContainer>
   <List className="">
-    {isSuperAdmin == true && (
+    {isSuperAdmin === true && (
 
     <>      
       <Tooltip title="PayRoll" placement="right" disableHoverListener={!isCollapsed}>

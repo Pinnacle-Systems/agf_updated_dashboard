@@ -54,20 +54,6 @@ const UsersApi = createApi({
             invalidatesTags: ["Login"],
         }),
 
-
-        // getUserBasicDetails: builder.mutation({
-        //     query: ({ COMPCODE, ...params }) => ({
-        //         url: `${USERS_API}/getUserBasicDetails`,
-        //         method: "POST",
-        //         params, // these will still appear in the query string
-        //         body: { COMPCODE },
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //         },
-        //     }),
-        //      providesTags: ["/getUserBasicDetails"],
-        // })
-
         getUserBasicDetails: builder.query({
             query: (params) => {
                 return {

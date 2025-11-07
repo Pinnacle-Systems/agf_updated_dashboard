@@ -4,8 +4,27 @@ import bcrypt from "bcrypt";
 
 export async function Add_role(req, res) {
   const connection = await getConnection(res);
+  const{rolename,active}=req.body
   try {
-    const result = await prisma_Connector.role.create({ data: req.body });
+    if(!rolename||active){
+      return res.status(400).json({
+        status: 0,
+        message:
+          "Fill required fields",
+      });
+
+    }
+     const role = await prisma_Connector.role.findUnique({
+      where: { rolename: rolename },
+    });
+     if (role) {
+      return res.status(404).json({
+        status: 0,
+        message: `RoleName already exists.`,
+      });
+    }
+
+    const result = await prisma_Connector.role.create({ data: {rolename,active} });
     return res.status(201).json(result);
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -16,6 +35,9 @@ export async function Add_role(req, res) {
 }
 
 export async function get_Role(req, res) {
+
+  
+
   const connection = await getConnection(res);
   try {
     const result = await prisma_Connector.role.findMany({});
@@ -46,6 +68,34 @@ export async function getUserPages(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();
+  }
+}
+
+export async function deleteRole(req, res, next) {
+  
+  const id = parseInt(req.query.id);
+  console.log(id);
+
+  try {
+    
+    const result1 = await prisma_Connector.role.delete({
+      where: { id: id },
+    });
+    res.status(200).json({ statusCode: 0, message: "Deleted Successfully" });
+    // console.log(result);
+  } catch (error) {
+    if (error.code === "P2025") {
+      res.statusCode = 200;
+      res.json({ statusCode: 1, message: `Record Not Found` });
+      console.log(res.statusCode);
+    } else if (error.code === "P2003") {
+      res.statusCode = 200;
+      res.json({ statusCode: 1, message: "Child record Exists" });
+    }
+    console.log(
+      `Error`,
+      error?.message?.match(/message: "(.*?)"/)?.[1] || error?.message
+    );
   }
 }
 
@@ -111,8 +161,7 @@ export async function createRoleOnPage(req, res) {
         delete: !!pagePermissions.delete,
         isdefault: !!pagePermissions.isdefault,
         username,
-        roleId,
-        link: page,
+               link: page,
         userId: result1.id,
       })
     );
@@ -154,35 +203,46 @@ export async function createRoleOnPage(req, res) {
   }
 }
 
-// export async function AddNewUser(req, res) {
+export async function UpdateRole(req, res) {
+  const {
+    id,
+    rolename,
+    active,
+    } = req.body;
 
-//   const connection = await getConnection(res)
-//   const { employeeId, username,COMPCODE,password,active, roleId, } = req.body
+  try {
+    // --- Validate required fields ---
+    if (!rolename) {
+      return res.status(400).json({
+        status: 0,
+        message: "Please fill the required fields",
+      });
+    }
+    // --- Check if user exists ---
+    const role = await prisma_Connector.role.findUnique({ where: { id } });
+    if (!role) {
+      return res.status(404).json({ status: 0, message: "User not found" });
+    }
 
-//   const existingUser = await prisma_Connector.user.findUnique({
-//     where: { employeeId: employeeId },
-//   });
+    // --- Update main user details ---
+    const result =await prisma_Connector.role.update({
+      where: { id: role.id },
+      data: {rolename ,active },
+    });
+    return res.json({
+      status: 1,
+      data:result,
+      message: "Updated successfully" 
+      }
+    );
+  } catch (error) {
+    console.error("Unexpected error in UpdateRolepage:", error);
+    return res.status(500).json({
+      status: 0,
+      message: "An error occurred while updating role",
+      error:error.message 
+    });
+  }
+}
 
-//   if (existingUser) {
-//     return res.status(409).json({
-//       status: 0,
-//       message: `User with employeeId ${employeeId} already exists.`,
-//     });
-//   }
-//   try {
 
-//       const saltRounds = 10;
-//         const hashedPassword = await bcrypt.hash(password, saltRounds);
-//         console.log(hashedPassword);
-
-// const result = await prisma_Connector.user.create({ data: {employeeId, username,COMPCODE,password:hashedPassword,active, roleId,}})
-//     return res.status(201).json(result)
-//   }
-//   catch (err) {
-//     console.error('Error retrieving data:', err);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-//   finally {
-//     await connection.close()
-//   }
-// }

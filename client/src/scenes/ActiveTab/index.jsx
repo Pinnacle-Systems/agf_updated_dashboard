@@ -12,15 +12,14 @@ import OrderManagement from "../OrderManagement";
 // import OutlinedCard from "../Users/Users";
 import { ColorContext } from "../global/context/ColorContext";
 import Main_Dashboad from "../maindashboard";
-// import RolePermission from "../Users/Users";
-// import Users from "../index.js";
+
 import UserCreation from "../User & Role/Users.jsx";
-import Users from "../User & Role";
+
 import secureLocalStorage from "react-secure-storage";
-import Roles from "../User & Role";
+
 import Sidebar from "../global/Sidebar.jsx";
 import { User } from "lucide-react";
-import UserCompany from "../User & Role/userCompany.js";
+import RolePermission from "../User & Role/Roles.jsx";
  
 
 const ActiveTabList = () => {
@@ -40,8 +39,8 @@ const ActiveTabList = () => {
             label: "User Management",
             Children: {
                 "User": <UserCreation />,
-                "Roles": <Roles />,
-                "UserCompany":<UserCompany/>
+                "Roles": <RolePermission />,
+                
                
 
             }

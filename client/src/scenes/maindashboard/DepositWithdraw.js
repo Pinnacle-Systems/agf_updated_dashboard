@@ -32,22 +32,22 @@ const depositData = [
     subtitle: 'iOS Application',
     logo: '/images/logos/stripe.png'
   },
-  // {
-  //   logoWidth: 34,
-  //   logoHeight: 32,
-  //   amount: '+$6,837',
-  //   title: 'American Bank',
-  //   subtitle: 'Bank Transfer',
-  //   logo: '/images/logos/american-bank.png'
-  // },
-  // {
-  //   logoWidth: 33,
-  //   logoHeight: 22,
-  //   amount: '+$446',
-  //   title: 'Bank Account',
-  //   subtitle: 'Wallet deposit',
-  //   logo: '/images/logos/citi-bank.png'
-  // }
+  {
+    logoWidth: 34,
+    logoHeight: 32,
+    amount: '+$6,837',
+    title: 'American Bank',
+    subtitle: 'Bank Transfer',
+    logo: '/images/logos/american-bank.png'
+  },
+  {
+    logoWidth: 33,
+    logoHeight: 22,
+    amount: '+$446',
+    title: 'Bank Account',
+    subtitle: 'Wallet deposit',
+    logo: '/images/logos/citi-bank.png'
+  }
 ]
 
 const withdrawData = [
@@ -75,49 +75,49 @@ const withdrawData = [
     subtitle: 'Debit card deposit',
     logo: '/images/logos/slack.png'
   },
-  // {
-  //   logoWidth: 30,
-  //   logoHeight: 30,
-  //   amount: '-$540',
-  //   title: 'Digital Ocean',
-  //   subtitle: 'Cloud Hosting',
-  //   logo: '/images/logos/digital-ocean.png'
-  // },
-  // {
-  //   logoWidth: 36,
-  //   logoHeight: 21,
-  //   amount: '-$21',
-  //   title: 'AWS Account',
-  //   logo: '/images/logos/aws.png',
-  //   subtitle: 'Choosing a Cloud Platform'
-  // }
+  {
+    logoWidth: 30,
+    logoHeight: 30,
+    amount: '-$540',
+    title: 'Digital Ocean',
+    subtitle: 'Cloud Hosting',
+    logo: '/images/logos/digital-ocean.png'
+  },
+  {
+    logoWidth: 36,
+    logoHeight: 21,
+    amount: '-$21',
+    title: 'AWS Account',
+    logo: '/images/logos/aws.png',
+    subtitle: 'Choosing a Cloud Platform'
+  }
 ]
 
 // Styled Divider component
 const Divider = styled(MuiDivider)(({ theme }) => ({
-  margin: theme.spacing(5, 0),
+  margin: theme.spacing(4, 0),
   borderRight: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.down('md')]: {
     borderRight: 'none',
-    margin: theme.spacing(0, 5),
+    margin: theme.spacing(0, 4),
     borderBottom: `1px solid ${theme.palette.divider}`
   }
 }))
 
 const DepositWithdraw = () => {
   return (
-    <Card sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: ['column', 'column', 'row'],overflow:'hidden',m:1}}>
+    <Card sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: ['column', 'column', 'row'] }}>
       <Box sx={{ width: '100%' }}>
         <CardHeader
           title='Deposit'
-          sx={{ pt: 5.5, alignItems: 'center', '& .MuiCardHeader-action': { mt: 0.6 } }}
+          sx={{ pt: 2, alignItems: 'center', '& .MuiCardHeader-action': { mt: 0.6 } }}
           action={<Typography variant='caption'>View All</Typography>}
           titleTypographyProps={{
             variant: 'h6',
             sx: { lineHeight: '1.6 !important', letterSpacing: '0.15px !important' }
           }}
         />
-        <CardContent sx={{ pb: theme => `${theme.spacing(5.5)} !important` }}>
+        <CardContent sx={{ pb: theme => `${theme.spacing(4.4)} !important` }}>
           {depositData.map((item, index) => {
             return (
               <Box
@@ -156,7 +156,7 @@ const DepositWithdraw = () => {
       <Box sx={{ width: '100%' }}>
         <CardHeader
           title='Withdraw'
-          sx={{ pt: 5.5, alignItems: 'center', '& .MuiCardHeader-action': { mt: 0.6 } }}
+          sx={{ pt: 2, alignItems: 'center', '& .MuiCardHeader-action': { mt: 0.6 } }}
           action={<Typography variant='caption'>View All</Typography>}
           titleTypographyProps={{
             variant: 'h6',

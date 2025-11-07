@@ -20,12 +20,4 @@ router.post('/updateUserOnPage', UpdateUserOnPage)
 router.get('/:id', get_UserOne)
 
 
-
-
-
-
-
-
-// router.put('/', put)
-
 export default router;

@@ -60,7 +60,40 @@ const RoleApi = createApi({
             }),
             invalidatesTags: ["addnewuser"],
         }),
-      
+         deleterole: builder.mutation({
+                    query: (id) => ({
+                        url:`${ROLE_API}?id=${id}`,
+                        method: "DELETE",
+                    
+                    
+                    }),
+                    invalidatesTags: ["Rolemast"],
+                }),
+      Updaterole:
+              builder.mutation({
+                  query: (payload) => ({
+                      url: ROLE_API + "/updaterole",
+                      method: "POST",
+                      body: payload,
+                      headers: {
+                          "Content-type": "application/json; charset=UTF-8",
+                      },
+                  }),
+                  invalidatesTags: ["Rolemast"],
+              }),
+              getuserpages:builder.query({
+            query:({ userId })=>{
+                return{
+                    url:`${ROLE_API}/getuserpages?userId=${userId}`,
+                    method:"GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+                }
+            },
+            providesTags: ["Rolemast"],
+
+        }),
 
 
     }),
@@ -70,7 +103,7 @@ export const {
     useAddRoleMutation,
     useGetRoleQuery,
     useCreateRoleOnPageMutation,
-    useAddnewuserMutation
+    useAddnewuserMutation,useDeleteroleMutation,useUpdateroleMutation,useGetuserpagesQuery
     
 } = RoleApi;
 

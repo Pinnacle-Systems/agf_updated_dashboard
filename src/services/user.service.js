@@ -331,6 +331,9 @@ export async function remove(req, res, next) {
 
   try {
     // res.json(await _remove(req.params.id));
+    const result2 = await prisma_Connector.useroncompany.deleteMany({
+      where: { userId: id },
+    });
     const result = await prisma_Connector.useronpage.deleteMany({
       where: { userId: id },
     });
@@ -357,10 +360,6 @@ export async function remove(req, res, next) {
 
 export async function get_Usedetails(req, res) {
   const connection = await getConnection(res);
-  // const userId = parseInt(req.query.userId);
-  // const{userId}=req.query.userId
-  // console.log(userId);
-
   const {userId}=req.query
 
   if(!userId || userId === "false"){
@@ -569,7 +568,6 @@ export async function UpdateUserOnPage(req, res) {
     username,
     employeeId,
     permissions,
-    roleId,
     COMPCODE,
     active,
     compList,
@@ -578,7 +576,7 @@ export async function UpdateUserOnPage(req, res) {
 
   try {
     // --- Validate required fields ---
-    if (!roleId || !username || !permissions || !employeeId) {
+    if (!username || !permissions || !employeeId) {
       return res.status(400).json({
         status: 0,
         message: "Please fill the required fields",
@@ -602,7 +600,7 @@ export async function UpdateUserOnPage(req, res) {
     // --- Update main user details ---
     await prisma_Connector.user.update({
       where: { id: user.id },
-      data: { employeeId, username, COMPCODE, roleId, active,createdbyId },
+      data: { employeeId, username, COMPCODE, active,createdbyId },
     });
 
     // --- Handle UserOnPage updates ---
@@ -631,7 +629,6 @@ export async function UpdateUserOnPage(req, res) {
           delete: Boolean(del),
           isdefault: Boolean(isdefault),
           username,
-          roleId,
           active,
           link: page,
           userId: user.id,
