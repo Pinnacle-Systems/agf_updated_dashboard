@@ -1,8 +1,30 @@
 import React from 'react'
 import { Box, Typography, Button, Avatar, Stack } from '@mui/material'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import { getCommonParams } from '../../utils/hleper'
+import { useGetFnameQuery } from '../../redux/service/user'
+import { useState } from 'react'
+import { useEffect } from 'react'
 
 const DashboardHeader = () => {
+
+  const [user,setUser]=useState(null)
+const params=getCommonParams()
+
+const{isSuperAdmin,employeeId}=params
+console.log(employeeId);
+
+
+
+const {data:userName}=useGetFnameQuery({params:{employeeId}})
+
+ useEffect(() => {
+    if (!isSuperAdmin && userName && userName.data && Array.isArray(userName.data)) {
+      const usernameObj = userName.data.find((x) => x.userName)
+      if (usernameObj) setUser(usernameObj.userName)
+    }
+  }, [isSuperAdmin, userName])
+
   return (
     <Box
       sx={{
@@ -23,13 +45,13 @@ const DashboardHeader = () => {
         />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Welcome Back, Adrian <span style={{ fontSize: '1.2rem' }}>👋</span>
+            Welcome Back, {user||"SuperAdmin"}<span style={{ fontSize: '1.2rem' }}>👋</span>
           </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             You have{' '}
             <span style={{ color: '#E53935', fontWeight: 600 }}>21</span> Pending Approvals &{' '}
             <span style={{ color: '#E53935', fontWeight: 600 }}>14</span> Leave Requests
-          </Typography>
+          </Typography> */}
         </Box>
       </Box>
 

@@ -42,6 +42,21 @@ const UsersApi = createApi({
             },
             providesTags: ["Users"],
         }),
+         getFname: builder.query({
+            query: ({params}) => {
+
+                return {
+                    url: `${USERS_API}/fname`,
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8",
+                    },
+                    params
+
+                };
+            },
+            providesTags: ["Fname"],
+        }),
         createUser: builder.mutation({
             query: (payload) => ({
                 url: USERS_API,
@@ -145,7 +160,7 @@ export const {
     useGetuserdetailQuery,
     useDeleteUserMutation,
     useUpdateuserOnPageMutation,
-    useAddCompanyMutation,useGetuseroneQuery
+    useAddCompanyMutation,useGetuseroneQuery,useGetFnameQuery
 } = UsersApi;
 
 export default UsersApi;

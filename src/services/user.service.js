@@ -186,6 +186,30 @@ order by userName`;
     await connection.close();
   }
 }
+export async function getfname(req, res) {
+  const {employeeId}=req.query
+
+  console.log(employeeId,"employeeID erfef");
+  
+
+  const connection = await getConnection(res);
+  try {
+    const sql = `  
+    select FNAME from HREMPLOYMAST where IDCARDNO=${employeeId}
+  `;
+  const result = await connection.execute(sql);
+    const resp = result.rows.map((user) => ({
+      userName: user[0],
+      
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    // console.log(err)
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
 
 export async function getUserDetails(req, res) {
   const Idcard = req.query.Idcard;

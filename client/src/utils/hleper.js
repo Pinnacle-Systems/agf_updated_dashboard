@@ -362,6 +362,9 @@ export const getCommonParams = () => ({
   isSuperAdmin: secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "superAdmin"
   ),
+   employeeId: secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "employeeId"
+  ),
 });
 
 export function convertSpaceToUnderScore(str) {
@@ -496,7 +499,7 @@ export function autoFocusSelect(el, refObj, condition = true) {
 }
 
 export const multiSelectOption = (data, label, value) => {
-  console.log(data, "data");
+  // console.log(data, "data");
 
   const outputData = [];
   for (let i of data) {

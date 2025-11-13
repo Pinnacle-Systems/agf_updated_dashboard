@@ -37,6 +37,12 @@ const lastMonthYear = lastMonthDate.getFullYear();
 const currentDt = [monthName, yearName].join(" ");
 const lstMnth = [lastMonthName, lastMonthYear].join(" ");
 
+// Convert "September 2025" → "Sep-25"
+const monthShort = lastMonthDate.toLocaleString('en-us', { month: 'short' }); // "Sep"
+const yearShort = lastMonthDate.getFullYear().toString().slice(2); // "25"
+const lstMnthPattern = `${monthShort}-${yearShort}`; // "Sep-25"
+
+
 export async function get(req, res) {
   const connection = await getConnection(res);
   try {
@@ -130,150 +136,433 @@ export async function executeProcedure(req, res) {
     }
   }
 }
+// export async function getSalarydet(req, res) {
+//   const connection = await getConnection(res);
+//   const { filterBuyer, search = {} } = req.query;
+//   let result = [];
+//   // ✅ Build filter buyer list safely
+//   let filterBuyerList = "";
+//   if (filterBuyer && filterBuyer.trim() !== "") {
+//     filterBuyerList = filterBuyer
+//       .split(",")
+//       .map((buyer) => `'${buyer.trim()}'`)
+//       .join(",");
+//   }
+
+//   // ✅ Base where clause
+//   let whereClause = "1=1";
+//   if (filterBuyerList) {
+//     whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+//   }
+
+//   if (search.FNAME)
+//     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+//   if (search.GENDER)
+//     whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+//   if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+//   if (search.DEPARTMENT)
+//     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+//   if (search.COMPCODE)
+//     whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('%${search.COMPCODE}%')`;
+
+//   const sql = `
+//         SELECT * FROM (
+// SELECT
+// DD.IDCARD EMPID, DD.FNAME FNAME, DD.GENDER GENDER, DD.DOJ DOJ,
+// DD.DEPARTMENT, NVL(SUM(A.NETPAY), 0) AS NETPAY, DD.PAYCAT, DD.COMPCODE
+// FROM MISTABLE DD
+// JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
+// AND A.PCTYPE = 'ACTUAL'
+// AND A.PAYPERIOD = '${lstMnth}'
+// JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+// JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+// JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+// WHERE ${whereClause}
+// GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
+// DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
+// ) A
+// ORDER BY A.EMPID`;
+
+//   const queryResult = await connection.execute(sql);
+
+//   result = queryResult.rows.map((row) =>
+//     queryResult.metaData.reduce((acc, column, index) => {
+//       acc[column.name] = row[index];
+//       return acc;
+//     }, {})
+//   );
+
+//   res.status(200).json({ success: true, data: result });
+// }
 export async function getSalarydet(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer, search = {} } = req.query;
-  let result = [];
-  const filterBuyerList = filterBuyer
-    .split(",")
-    .map((buyer) => `'${buyer.trim()}'`)
-    .join(",");
+  const { filterBuyer = "", search = {} } = req.query;
 
-  let whereClause = `DD.COMPCODE IN (${filterBuyerList})`;
+  let result = [];
+  let filterBuyerList = "";
+
+  console.log(filterBuyer,"filterBuyer Lavnay");
+  
+
+  // ✅ Handle company filter
+  if (filterBuyer && filterBuyer.trim() !== "") {
+    filterBuyerList = filterBuyer
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+  // ✅ Build where clause
+  let whereClause = "1=1";
+  if (filterBuyerList) whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
 
   if (search.FNAME)
-    whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
   if (search.GENDER)
-    whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD)
+    whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
   if (search.DEPARTMENT)
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
-    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('%${search.COMPCODE}%')`;
+    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
 
+  console.log(whereClause, "whereClause");
+
+  // ✅ Query with per-company latest pay period
   const sql = `
-        SELECT * FROM (
-SELECT
-DD.IDCARD EMPID, DD.FNAME FNAME, DD.GENDER GENDER, DD.DOJ DOJ,
-DD.DEPARTMENT, NVL(SUM(A.NETPAY), 0) AS NETPAY, DD.PAYCAT, DD.COMPCODE
-FROM MISTABLE DD
-JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
-AND A.PCTYPE = 'ACTUAL'
-AND A.PAYPERIOD = '${lstMnth}'
-JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
-JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-WHERE ${whereClause}
-GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
-DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
-) A
-ORDER BY A.EMPID`;
+    SELECT * FROM (
+      SELECT
+        DD.IDCARD EMPID,
+        DD.FNAME,
+        DD.GENDER,
+        DD.DOJ,
+        DD.DEPARTMENT,
+        NVL(SUM(A.NETPAY), 0) AS NETPAY,
+        DD.PAYCAT,
+        DD.COMPCODE
+      FROM MISTABLE DD
+      JOIN HPAYROLL A
+        ON A.EMPID = DD.IDCARD
+        AND A.PCTYPE = 'ACTUAL'
+        AND A.PAYPERIOD = (
+          SELECT MAX(PAYPERIOD)
+          FROM HPAYROLL X
+          JOIN MISTABLE M ON X.EMPID = M.IDCARD
+          WHERE X.PCTYPE = 'ACTUAL'
+          AND M.COMPCODE = DD.COMPCODE
+        )
+      JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+      JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+      JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+      WHERE ${whereClause}
+      GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
+               DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
+    ) A
+    ORDER BY A.EMPID
+  `;
 
-  const queryResult = await connection.execute(sql);
+  try {
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
 
-  result = queryResult.rows.map((row) =>
-    queryResult.metaData.reduce((acc, column, index) => {
-      acc[column.name] = row[index];
-      return acc;
-    }, {})
-  );
-
-  res.status(200).json({ success: true, data: result });
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching salary details",
+      error,
+    });
+  }
 }
+
+
 export async function getpfdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
   let result = [];
-  const filterBuyerList = filterBuyer
-    .split(",")
-    .map((buyer) => `'${buyer.trim()}'`)
-    .join(",");
+  let filterBuyerList = "";
 
-  let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' and A.PAYPERIOD = '${lstMnth}' AND A.PF> 0
-    `;
+  if (filterBuyer && filterBuyer.trim() !== "") {
+    filterBuyerList = filterBuyer
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+  
+  let whereClause = `
+    A.PCTYPE = 'BUYER' 
+    AND A.PAYPERIOD LIKE '%${lstMnth}%'
+    AND A.PF > 0
+  `;
+
+
+  if (filterBuyerList) {
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+  }
+
 
   if (search.FNAME)
     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
   if (search.GENDER)
     whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+  if (search.MIDCARD)
+    whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
   if (search.DEPARTMENT)
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
     whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
   const sql = `
-      SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.PF AS NETPAY, DD.PAYCAT, DD.COMPCODE
-
-FROM HPAYROLL A
-
-JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
-
-JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-
-JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
-
-WHERE ${whereClause}
-ORDER BY A.EMPID
-
- `;
+    SELECT 
+      A.EMPID,
+      AA.FNAME,
+      AA.GENDER,
+      BB.DOJ,
+      DD.DEPARTMENT,
+      A.PF AS NETPAY,
+      DD.PAYCAT,
+      DD.COMPCODE
+    FROM HPAYROLL A
+    JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+    JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    JOIN MISTABLE DD ON A.EMPID = DD.IDCARD
+    WHERE ${whereClause}
+    ORDER BY DD.COMPCODE, A.EMPID
+  `;
 
   const queryResult = await connection.execute(sql);
 
-  result = queryResult.rows.map((row) =>
+  const mappedResult = queryResult.rows.map((row) =>
     queryResult.metaData.reduce((acc, column, index) => {
       acc[column.name] = row[index];
       return acc;
     }, {})
   );
 
-  res.status(200).json({ success: true, data: result });
+  res.status(200).json({ success: true, data: mappedResult });
 }
+
+// export async function getpfdet(req, res) {
+//   const connection = await getConnection(res);
+
+//   try {
+//     const { filterBuyer, search = {} } = req.query;
+//     const bindParams = {};
+
+//     // ✅ Build company filter safely
+//     let whereClause = `A.PCTYPE = 'BUYER' AND A.PAYPERIOD = :lstMnthPattern AND A.PF > 0`;
+//     bindParams.lstMnthPattern = lstMnthPattern; // make sure lstMnth is defined globally or imported
+
+//     if (filterBuyer && filterBuyer.trim() !== "") {
+//       const buyers = filterBuyer.split(",").map((b, i) => {
+//         const key = `buyer${i}`;
+//         bindParams[key] = b.trim();
+//         return `:${key}`;
+//       });
+//       whereClause = `DD.COMPCODE IN (${buyers.join(",")}) AND ${whereClause}`;
+//     }
+
+//     // ✅ Apply search filters safely
+//     if (search.FNAME) {
+//       whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER(:fname)`;
+//       bindParams.fname = `%${search.FNAME}%`;
+//     }
+//     if (search.GENDER) {
+//       whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER(:gender)`;
+//       bindParams.gender = `${search.GENDER}%`;
+//     }
+//     if (search.MIDCARD) {
+//       whereClause += ` AND A.EMPID LIKE :midcard`;
+//       bindParams.midcard = `${search.MIDCARD}`;
+//     }
+//     if (search.DEPARTMENT) {
+//       whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER(:dept)`;
+//       bindParams.dept = `%${search.DEPARTMENT}%`;
+//     }
+//     if (search.COMPCODE) {
+//       whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER(:comp)`;
+//       bindParams.comp = `%${search.COMPCODE}%`;
+//     }
+
+//     // ✅ Main SQL query
+//     const sql = `
+//       SELECT 
+//         A.EMPID,
+//         AA.FNAME,
+//         AA.GENDER,
+//         BB.DOJ,
+//         DD.DEPARTMENT,
+//         A.PF AS NETPAY,
+//         DD.PAYCAT,
+//         DD.COMPCODE
+//       FROM HPAYROLL A
+//       JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+//       JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+//       JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+//       JOIN MISTABLE DD ON A.EMPID = DD.IDCARD
+//       WHERE ${whereClause}
+//       ORDER BY A.EMPID
+//     `;
+
+//     // ✅ Execute with bind parameters
+//     const queryResult = await connection.execute(sql, bindParams);
+
+//     // ✅ Format result
+//     const result = queryResult.rows.map((row) =>
+//       queryResult.metaData.reduce((acc, col, i) => {
+//         acc[col.name] = row[i];
+//         return acc;
+//       }, {})
+//     );
+
+//     res.status(200).json({ success: true, data: result });
+//   } catch (err) {
+//     console.error("Error fetching PF details:", err);
+//     res.status(500).json({ success: false, message: err.message });
+//   } finally {
+//     if (connection) await connection.close();
+//   }
+// }
+
+// export async function getesidet(req, res) {
+//   const connection = await getConnection(res);
+//   const { filterBuyer, search = {} } = req.query;
+//   let result = [];
+//  let filterBuyerList = "";
+//   if (filterBuyer && filterBuyer.trim() !== "") {
+//     filterBuyerList = filterBuyer
+//       .split(",")
+//       .map((buyer) => `'${buyer.trim()}'`)
+//       .join(",");
+//   }
+
+//   // ✅ Base where clause
+//   let whereClause = "1=1";
+//   if (filterBuyerList) {
+//     whereClause += ` AND DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' AND A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
+// `;
+//   }
+// //   let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' AND A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
+// // `;
+
+//   if (search.FNAME)
+//     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+//   if (search.GENDER)
+//     whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+//   if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+//   if (search.DEPARTMENT)
+//     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+//   if (search.COMPCODE)
+//     whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+//   console.log(whereClause,"whereClause");
+  
+
+//   const sql = `
+//     SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE ,DD.PAYCAT     
+// FROM HPAYROLL A
+// JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+// JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+// JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+// JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
+// WHERE ${whereClause}
+// ORDER BY A.EMPID`;
+
+//   const queryResult = await connection.execute(sql);
+
+//   result = queryResult.rows.map((row) =>
+//     queryResult.metaData.reduce((acc, column, index) => {
+//       acc[column.name] = row[index];
+//       return acc;
+//     }, {})
+//   );
+
+//   res.status(200).json({ success: true, data: result });
+// }
+
 export async function getesidet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
   let result = [];
-  const filterBuyerList = filterBuyer
-    .split(",")
-    .map((buyer) => `'${buyer.trim()}'`)
-    .join(",");
+  let filterBuyerList = "";
 
-  let whereClause = `DD.COMPCODE IN (${filterBuyerList}) AND A.PCTYPE = 'BUYER' AND A.PAYPERIOD = '${lstMnth}' AND A.ESI > 0
-`;
+  try {
+    // ✅ Step 1: get latest pay period dynamically
+    const payPeriodQuery = `SELECT MAX(PAYPERIOD) AS LATEST_PERIOD FROM HPAYROLL`;
+    const payPeriodResult = await connection.execute(payPeriodQuery);
+    const lstMnth = payPeriodResult.rows?.[0]?.[0] || ""; // e.g. 'September 2025'
 
-  if (search.FNAME)
-    whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
-  if (search.GENDER)
-    whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
-  if (search.DEPARTMENT)
-    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
-  if (search.COMPCODE)
-    whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+    if (!lstMnth) {
+      return res.status(400).json({ success: false, message: "No PAYPERIOD found in HPAYROLL" });
+    }
 
-  const sql = `
-    SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE ,DD.PAYCAT     
-FROM HPAYROLL A
-JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
-JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-JOIN MISTABLE  DD ON A.EMPID = DD.IDCARD
-WHERE ${whereClause}
-ORDER BY A.EMPID`;
+    // ✅ Step 2: handle filter buyer
+    if (filterBuyer && filterBuyer.trim() !== "") {
+      filterBuyerList = filterBuyer
+        .split(",")
+        .map((buyer) => `'${buyer.trim()}'`)
+        .join(",");
+    }
 
-  const queryResult = await connection.execute(sql);
+    // ✅ Step 3: build WHERE clause
+    let whereClause = "1=1";
+    if (filterBuyerList) {
+      whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})
+                       AND A.PCTYPE = 'BUYER'
+                       AND A.PAYPERIOD = '${lstMnth}'
+                       AND A.ESI > 0`;
+    }
 
-  result = queryResult.rows.map((row) =>
-    queryResult.metaData.reduce((acc, column, index) => {
-      acc[column.name] = row[index];
-      return acc;
-    }, {})
-  );
+    if (search.FNAME)
+      whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER)
+      whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD)
+      whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.DEPARTMENT)
+      whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE)
+      whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
-  res.status(200).json({ success: true, data: result });
+    console.log(whereClause, "whereClause");
+
+    // ✅ Step 4: main SQL
+    const sql = `
+      SELECT A.EMPID, AA.FNAME, AA.GENDER, BB.DOJ,
+             DD.DEPARTMENT, A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE
+      FROM HPAYROLL A
+      JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+      JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+      JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+      JOIN MISTABLE DD ON A.EMPID = DD.IDCARD
+      WHERE ${whereClause}
+      ORDER BY A.EMPID`;
+
+    const queryResult = await connection.execute(sql);
+
+    // ✅ Step 5: map result
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    res.status(200).json({ success: true, data: result, payPeriodUsed: lstMnth });
+  } catch (error) {
+    console.error("Error in getesidet:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 }
+
 export async function getattdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
@@ -943,49 +1232,126 @@ export async function getActualVsBudgetValueMonthWise(req, res) {
     await connection.close();
   }
 }
+// export async function getYearlyComp(req, res) {
+//   const month = [
+//     "January",
+//     "February",
+//     "March",
+//     "April",
+//     "May",
+//     "June",
+//     "July",
+//     "August",
+//     "September",
+//     "October",
+//     "November",
+//     "December",
+//   ];
+//   const d = new Date();
+//   const monthName = month[d.getMonth()];
+//   const yearName = d.getFullYear();
+//   const lastmonth = month[d.getMonth() - 1];
+//   const currentDt = [monthName, yearName].join(" ");
+//   const lstMnth = [lastmonth, yearName].join(" ");
+//   const connection = await getConnection(res);
+//   try {
+//     const {} = req.query;
+
+//     const sql = `
+//            SELECT A.COMPCODE,SUM(MALE) MALE,SUM(FEMALE) FEMALE,SUM(MALE)+SUM(FEMALE) TOTAL FROM (
+// SELECT A.COMPCODE,CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
+// CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE  A.DOJ <= (
+// SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
+// ) AND (A.DOL IS NULL OR A.DOL <= (
+// SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}'
+// ) )
+// ) A
+// GROUP BY A.COMPCODE
+//      `;
+
+//     const result = await connection.execute(sql);
+//     let resp = result.rows.map((po) => ({
+//       customer: po[0],
+//       male: po[1],
+//       female: po[2],
+//     }));
+//     return res.json({ statusCode: 0, data: resp });
+//   } catch (err) {
+//     console.error("Error retrieving data:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   } finally {
+//     await connection.close();
+//   }
+// }
 export async function getYearlyComp(req, res) {
   const month = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
+
   const d = new Date();
   const monthName = month[d.getMonth()];
   const yearName = d.getFullYear();
   const lastmonth = month[d.getMonth() - 1];
   const currentDt = [monthName, yearName].join(" ");
   const lstMnth = [lastmonth, yearName].join(" ");
+
   const connection = await getConnection(res);
+
   try {
-    const {} = req.query;
+    const { filterBuyer = "" } = req.query || {}
+    let filterBuyerList = "";
+    console.log("req.query:", req.query);
+    console.log(filterBuyer,"filterBuyerewrewrtwert");
+    
+
+    if (filterBuyer && filterBuyer.trim() !== "") {
+      filterBuyerList = filterBuyer
+        .split(",")
+        .map((buyer) => `'${buyer.trim()}'`)
+        .join(",");
+    }
+
+    // ✅ Add optional company filter
+    let companyFilter = "";
+    if (filterBuyerList) {
+      companyFilter = `AND A.COMPCODE IN (${filterBuyerList})`;
+    }
 
     const sql = `
-           SELECT A.COMPCODE,SUM(MALE) MALE,SUM(FEMALE) FEMALE,SUM(MALE)+SUM(FEMALE) TOTAL FROM (
-SELECT A.COMPCODE,CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
-CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE  A.DOJ <= (
-SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
-) AND (A.DOL IS NULL OR A.DOL <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}'
-) )
-) A
-GROUP BY A.COMPCODE
-     `;
+      SELECT A.COMPCODE,
+             SUM(MALE) MALE,
+             SUM(FEMALE) FEMALE,
+             SUM(MALE) + SUM(FEMALE) TOTAL
+      FROM (
+        SELECT A.COMPCODE,
+               CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
+               CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE
+        FROM MISTABLE A
+        WHERE A.DOJ <= (
+          SELECT MIN(AA.STDT)
+          FROM MONTHLYPAYFRQ AA
+          WHERE AA.PAYPERIOD = '${currentDt}'
+        )
+        AND (A.DOL IS NULL OR A.DOL <= (
+          SELECT MIN(AA.ENDT)
+          FROM MONTHLYPAYFRQ AA
+          WHERE AA.PAYPERIOD = '${currentDt}'
+        ))
+        ${companyFilter}   -- 👈 dynamic filter added here
+      ) A
+      GROUP BY A.COMPCODE
+    `;
 
     const result = await connection.execute(sql);
-    let resp = result.rows.map((po) => ({
+
+    const resp = result.rows.map((po) => ({
       customer: po[0],
       male: po[1],
       female: po[2],
+      total: po[3],
     }));
+
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -994,6 +1360,7 @@ GROUP BY A.COMPCODE
     await connection.close();
   }
 }
+
 export async function getBuyerWiseRevenue(req, res) {
   const connection = await getConnection(res);
   try {

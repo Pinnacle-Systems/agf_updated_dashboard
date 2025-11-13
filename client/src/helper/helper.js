@@ -17,7 +17,7 @@ export function filterSearch(searchArr, data) {
       const { field, searchValue } = searchItem
 
       if (!item[field] || !searchValue) return true
-      console.log(searchArr, 'data');
+      // console.log(searchArr, 'data');
 
       if (searchItem?.isDate) {
         return getMonthValue(item[field]).toLowerCase().includes(searchValue.toLowerCase())

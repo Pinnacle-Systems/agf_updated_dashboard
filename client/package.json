@@ -53,7 +53,7 @@
     "gsap": "^3.12.5",
     "highcharts": "^11.4.8",
     "highcharts-3d": "^0.1.7",
-    "highcharts-react-official": "^3.2.1",
+    "highcharts-react-official": "^3.2.3",
     "igniteui-react-charts": "^6.6.10",
     "lucide-react": "^0.548.0",
     "mdi-material-ui": "^7.9.4",

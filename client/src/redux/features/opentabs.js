@@ -19,9 +19,15 @@ export const openTabs = createSlice({
         state.tabs[existingIndex] = {
           ...state.tabs[existingIndex],
           active: true,
+          data: action.payload.data || state.tabs[existingIndex].data,
+       component: action.payload.component || state.tabs[existingIndex].component,
         };
       } else {
-        state.tabs.push({ id: action.payload.id, name: action.payload.name, active: true });
+        state.tabs.push({ id: action.payload.id, 
+          name: action.payload.name, 
+          active: true,
+        component: action.payload.component,
+      data: action.payload.data, });
       }
       localStorage.setItem("openTabs", JSON.stringify(state.tabs));
     },

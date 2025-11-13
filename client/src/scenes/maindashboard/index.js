@@ -14,7 +14,7 @@
     // ** Styled Component Import
     import ApexChartWrapper from '../../components/ApexChartWrapper.js'
     import YearlyComChart from '../MisDashboard/comParision/YearlyCompChart.jsx'
-    import SalesByCountries from './SalesByCountries.js'
+    import SalaryDet from './EmployeeDetail/SalaryDet.js'
 
     // ** Demo Components Imports
     import Table from '../../scenes/maindashboard/Table.js'
@@ -25,8 +25,13 @@
     import DepositWithdraw from '../../scenes/maindashboard/DepositWithdraw.js'
     import { Poll } from '@mui/icons-material'
 import DashboardHeader from './DashboardHeader.js'
-import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
+// import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
+import NewjoiningChart from './EmployeeDetail/ESI Det.js'
+import PfChartByCompany from './EmployeeDetail/ESI Det.js'
     // import SalesByCountries from 'src/views/dashboard/SalesByCountries'
+    import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
+import PfData from '../MisDashboard/PfData/EsiPf.jsx'
+import HeadCount from './HeadCount.js'
 
     const Main_Dashboad = () => {
       return (
@@ -41,6 +46,55 @@ import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
             <Grid item xs={12} md={8}>
               <StatisticsCard />
             </Grid>
+            
+              {/* <WeeklyOverview /> */}
+              <Grid item xs={12} md={3}>
+                  <CardStatisticsVerticalComponent
+                    stats='$78'
+                    title='Revenue'
+                    trend='negative'
+                    color='secondary'
+                    trendNumber='-15%'
+                    subtitle='Past Month'
+                    icon={<CurrencyUsd />}
+                  />
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <CardStatisticsVerticalComponent
+                    stats='$25.6k'
+                    icon={<ReceiptLongIcon />}
+                    color='success'
+                    trendNumber='+42%'
+                    title='Expense'
+                    subtitle='Weekly Profit'
+                  />
+
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <CardStatisticsVerticalComponent
+                    stats='$25.6k'
+                    icon={<Poll />}
+                    color='primary'
+                    trendNumber='+42%'
+                    title='Sales'
+                    subtitle='Weekly Profit'
+                  />
+
+                </Grid>
+                <Grid item xs={6} md={3}>
+                  <CardStatisticsVerticalComponent
+                    stats='$25.6k'
+                    icon={<Poll />}
+                    color='warning'
+                    trendNumber='+42%'
+                    title='Orders'
+                    subtitle='Weekly Profit'
+                  />
+
+                </Grid>
+                
+        
+
             <Grid item xs={12} md={6} lg={7}>
               <WeeklyOverview />
             </Grid>
@@ -49,7 +103,7 @@ import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
             </Grid> */}
             <Grid item xs={12} md={6} lg={5}>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                {/* <Grid item xs={6}>
                   <CardStatisticsVerticalComponent
                     stats='$25.6k'
                     icon={<Poll />}
@@ -92,7 +146,7 @@ import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
                     icon={<HelpCircleOutline />}
                   />
                 </Grid>
-                <Grid item xs={6}>
+               <Grid item xs={6}>
                   <CardStatisticsVerticalComponent
                     stats='15'
                     color='warning'
@@ -113,13 +167,19 @@ import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
                     title='Sales Queries'
                     icon={<HelpCircleOutline />}
                   />
+                </Grid> */}
+                <Grid item lg={12} md={12}>
+                     {/* <NewjoiningChart/> */}
+                     <HeadCount/>
+                     {/* <PfData /> */}
                 </Grid>
 
               </Grid>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <LeaveDetailsCard/>
-                            {/* <SalesByCountries /> */}
+              {/* <LeaveDetailsCard/> */}
+              {/* <NewjoiningChart/> */}
+                            <SalaryDet />
             </Grid>
             <Grid item xs={12} md={12} lg={8}>
               <DepositWithdraw />

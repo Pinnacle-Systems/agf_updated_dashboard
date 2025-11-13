@@ -18,8 +18,13 @@ import GroupsIcon from '@mui/icons-material/Groups'
 
 import ReactApexcharts from 'react-apexcharts'
 import { useState, useEffect } from 'react'
+import EmployeeDetail from './DetailedDashboard/EmployDetail'
+import { useDispatch } from 'react-redux'
+import { push } from '../../redux/features/opentabs'
 
 const GenderDistributionChart = () => {
+  const dispatch = useDispatch();
+  const[detailedpage,setDetailedpage]=useState(false)
   const theme = useTheme()
   const [chartData, setChartData] = useState({ male: [], female: [] })
   const [categories, setCategories] = useState([])
@@ -32,8 +37,11 @@ const GenderDistributionChart = () => {
       try {
         const response = await fetch('http://localhost:9008/misDashboard/yearlyComp')
         if (!response.ok) throw new Error('Failed to fetch data')
+          console.log(response.data,"getEmploy deatil");
+          
 
         const result = await response.json()
+        console.log(result.data,"getEmploy deatil");
         if (result.statusCode === 0 && result.data) {
           const apiCategories = result.data.map(item => item.customer)
           const maleData = result.data.map(item => item.male)
@@ -55,11 +63,32 @@ const GenderDistributionChart = () => {
     fetchData()
   }, [])
 
+  const handleView =()=>{
+    console.log("lavanya");
+    
+    
+    // dispatch(push({ id: "employees-detail", name: "EmployeeDetail" }));
+    
+  }
+
   const chartOptions = {
     chart: {
       type: 'bar',
       toolbar: { show: false },
-      animations: { enabled: true, easing: 'easeinout', speed: 800 }
+      animations: { enabled: true, easing: 'easeinout', speed: 800 },
+      events: {
+      dataPointSelection: (event, chartContext, config) => {
+        
+        const company = categories[config.dataPointIndex];
+        console.log('Clicked company:', company);
+
+        // dispatch your redux action or call your function
+        dispatch(push({ id: `EmployeeDetail`,
+                        name: `EmployeeDetail`,
+                        component: "DetailedDashBoard", //
+                        data: { companyName: company }, }));
+      },
+    },
     },
     plotOptions: {
       bar: {
@@ -163,107 +192,112 @@ const GenderDistributionChart = () => {
       </Card>
     )
 
-  return (
-    <Card
-      sx={{
-        borderRadius: 3,
-        boxShadow: 4,
-        width: '100%',
-        maxWidth: 1200,
-        mx: 'auto'
-      }}
-    >
-      <CardHeader
-        title='Employee Strength As On Date'
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-          color: '#fff',
-          py: 1,
-                  }}
-        titleTypographyProps={{
-          sx: { fontSize: '1.1rem', fontWeight: 600 }
+    return (
+
+      <>     
+      <Card sx={{
+          // m:1,
+          borderRadius: 3,
+          boxShadow: 4,
+          width: '100%',
+          maxWidth: 1000,
+          mx:1
         }}
-        action={
-          <Tooltip title='Options'>
-            <IconButton sx={{ color: '#fff' }}>
-              <DotsVertical />
-            </IconButton>
-          </Tooltip>
-        }
-      />
-
-      <CardContent sx={{ p: 2 }}>
-        <Grid container spacing={2} sx={{ mb: 1 }}>
-          <Grid item xs={12} md={4}>
-            <StatBox
-              icon={MaleIcon}
-              value={totalStats.totalMale}
-              label='Total Male'
-              color={theme.palette.primary.main}
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <StatBox
-              icon={FemaleIcon}
-              value={totalStats.totalFemale}
-              label='Total Female'
-              color={theme.palette.secondary.main}
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <StatBox
-              icon={GroupsIcon}
-              value={totalStats.total}
-              label='Total Employees'
-              color={theme.palette.success.main}
-            />
-          </Grid>
-        </Grid>
-
-        <Box sx={{ height: 200 }}>
-          <ReactApexcharts type='bar' height='100%' options={chartOptions} series={chartSeries} />
-        </Box>
-
-        <Box
+      >
+        <CardHeader
+          title='Employee Strength As On Date'
           sx={{
-            mt: 1,
-            p: 1,
-            bgcolor: 'background.default',
-            borderRadius: 3,
-            textAlign: 'center',
-            border: `1px solid ${theme.palette.divider}`
-          }}
-        >
-          <Typography variant='h6' sx={{ fontWeight: 600, mb: 1 }}>
-            Gender Distribution
-          </Typography>
-          <Typography variant='body1' sx={{ fontWeight: 500 }}>
-            Male: {((totalStats.totalMale / totalStats.total) * 100).toFixed(1)}% | Female:{' '}
-            {((totalStats.totalFemale / totalStats.total) * 100).toFixed(1)}%
-          </Typography>
-        </Box>
-
-        <Button
-          fullWidth
-          variant='contained'
-          sx={{
-            mt: 4,
-            py: 1,
-            borderRadius: 3,
             background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            fontSize: '1rem',
-            fontWeight: 600,
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: 4
-            }
+            color: '#fff',
+            py: 1,
+                    }}
+          titleTypographyProps={{
+            sx: { fontSize: '1.1rem', fontWeight: 600 }
           }}
-        >
-          View Detailed Report
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
+          action={
+            <Tooltip title='Options'>
+              <IconButton sx={{ color: '#fff' }}>
+                <DotsVertical />
+              </IconButton>
+            </Tooltip>
+          }
+        />
+
+        <CardContent sx={{ p: 2 }}>
+          <Grid container spacing={2} sx={{ mb: 1 }}>
+            <Grid item xs={12} md={4}>
+              <StatBox
+                icon={MaleIcon}
+                value={totalStats.totalMale}
+                label='Total Male'
+                color={theme.palette.primary.main}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <StatBox
+                icon={FemaleIcon}
+                value={totalStats.totalFemale}
+                label='Total Female'
+                color={theme.palette.secondary.main}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <StatBox
+                icon={GroupsIcon}
+                value={totalStats.total}
+                label='Total Employees'
+                color={theme.palette.success.main}
+              />
+            </Grid>
+          </Grid>
+
+          <Box sx={{ height: 230 ,'& .apexcharts-bar-area:hover': { cursor: 'pointer' }}} >
+            <ReactApexcharts type='bar' height='100%' options={chartOptions} series={chartSeries} />
+          </Box>
+
+          <Box
+            sx={{
+              mt: 1,
+              p: 1,
+              bgcolor: 'background.default',
+              borderRadius: 3,
+              textAlign: 'center',
+              border: `1px solid ${theme.palette.divider}`
+            }}
+          >
+            <Typography variant='h6' sx={{ fontWeight: 600, mb: 1 }}>
+              Gender Distribution
+            </Typography>
+            <Typography variant='body1' sx={{ fontWeight: 500 }}>
+              Male: {((totalStats.totalMale / totalStats.total) * 100).toFixed(1)}% | Female:{' '}
+              {((totalStats.totalFemale / totalStats.total) * 100).toFixed(1)}%
+            </Typography>
+          </Box>
+
+          {/* <Button
+            fullWidth
+            variant='contained'
+            sx={{
+              mt: 4,
+              py: 1,
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+              fontSize: '1rem',
+              fontWeight: 600,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: 4
+              }
+            }}
+            onClick={handleView}
+          >
+            View Detailed Report
+          </Button> */}
+        </CardContent>
+      </Card>
+      </>
+      
+    )
+  }
 
 export default GenderDistributionChart

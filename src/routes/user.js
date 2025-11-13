@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { login, create, get, remove, getOne, getUserDetails, get_Usedetails, UpdateUserOnPage, Add_Company, get_UserOne } from "../services/user.service.js";
+import { login, create, get, remove, getOne, getUserDetails, get_Usedetails, UpdateUserOnPage, Add_Company, get_UserOne, getfname } from "../services/user.service.js";
 
 router.post('/login', login);
 
@@ -8,6 +8,7 @@ router.post('/', create);
 router.get('/getUserBasicDetails',getUserDetails)
 
 router.get('/', get);
+router.get('/fname', getfname);
 
 router.get('/userDetails', getOne)
 

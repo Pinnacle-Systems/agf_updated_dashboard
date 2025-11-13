@@ -9,36 +9,41 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Icons Imports
-import TrendingUp from 'mdi-material-ui/TrendingUp'
-import CurrencyUsd from 'mdi-material-ui/CurrencyUsd'
-import DotsVertical from 'mdi-material-ui/DotsVertical'
-import CellphoneLink from 'mdi-material-ui/CellphoneLink'
-import AccountOutline from 'mdi-material-ui/AccountOutline'
+// import TrendingUp from 'mdi-material-ui/TrendingUp'
+// import CurrencyUsd from 'mdi-material-ui/CurrencyUsd'
+// import DotsVertical from 'mdi-material-ui/DotsVertical'
+// import CellphoneLink from 'mdi-material-ui/CellphoneLink'
+// import AccountOutline from 'mdi-material-ui/AccountOutline'
+
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import CancelIcon from '@mui/icons-material/Cancel'
+import EventNoteIcon from '@mui/icons-material/EventNote'
 
 const salesData = [
   {
     stats: '245k',
-    title: 'Sales',
+    title: 'Present',
     color: 'primary',
-    icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
+    icon: <CheckCircleIcon  sx={{ fontSize: '1.75rem' }} />
   },
   {
     stats: '12.5k',
-    title: 'Customers',
+    title: 'Late',
     color: 'success',
-    icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
+    icon: <AccessTimeIcon  sx={{ fontSize: '1.75rem' }} />
   },
   {
     stats: '1.54k',
     color: 'warning',
-    title: 'Products',
-    icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
+    title: 'Absent',
+    icon: <CancelIcon  sx={{ fontSize: '1.75rem' }} />
   },
   {
-    stats: '$88k',
+    stats: '88k',
     color: 'info',
-    title: 'Revenue',
-    icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
+    title: 'Permission',
+    icon: <EventNoteIcon  sx={{ fontSize: '1.75rem' }} />
   }
 ]
 
@@ -72,25 +77,28 @@ const StatisticsCard = () => {
   return (
     <Card sx={{ position: 'relative',m:1}}> 
       <CardHeader
-        title='Statistics Card'
-        action={
-          <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
-            <DotsVertical />
-          </IconButton>
-        }
+        title='Attendance OverView'
+
+        // action={
+        //   <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
+        //     <DotsVertical />
+        //   </IconButton>
+        // }
+        
         subheader={
           <Typography variant='body2'>
             <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
-              Total 48.5% growth
+              Total 48.5% Presents
             </Box>{' '}
-            😎 this month
+            😎 the day
           </Typography>
         }
         titleTypographyProps={{
           sx: {
             mb: 2.5,
             lineHeight: '2rem !important',
-            letterSpacing: '0.15px !important'
+            letterSpacing: '0.15px !important',
+            fontWeight:500
           }
         }}
       />

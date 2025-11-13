@@ -381,7 +381,7 @@ export const DropdownWithSearch = forwardRef(({
 }, ref) => {
 
   // 👈 next input ref
-  console.log(classNameForOptions, "classNameForOptions")
+  // console.log(classNameForOptions, "classNameForOptions")
 
   const [currentIndex, setCurrentIndex] = useState("");
   useEffect(() => setCurrentIndex(Date.now()), []);
@@ -452,7 +452,7 @@ export const DropdownWithSearch2 = forwardRef(({
 }, ref) => {
 
   // 👈 next input ref
-  console.log(classNameForOptions, "classNameForOptions")
+  // console.log(classNameForOptions, "classNameForOptions")
 
   const [currentIndex, setCurrentIndex] = useState("");
   useEffect(() => setCurrentIndex(Date.now()), []);
@@ -523,7 +523,7 @@ export const DropdownWithSearch1 = forwardRef(({
 }, ref) => {
 
   // 👈 next input ref
-  console.log(classNameForOptions, "classNameForOptions")
+  // console.log(classNameForOptions, "classNameForOptions")
 
   const [currentIndex, setCurrentIndex] = useState("");
   useEffect(() => setCurrentIndex(Date.now()), []);
@@ -591,7 +591,7 @@ export const MultiSelectDropdown = ({
   className = "",
   required,
 }) => {
-  console.log(selected, "selected");
+  // console.log(selected, "selected");
 
   const customSelectStyles = {
     control: (provided, state) => ({
@@ -637,7 +637,8 @@ export const MultiSelectDropdown = ({
       <span className="mb-2">
         {required ? <RequiredLabel name={label ? label : name} /> : name}
   
-      </span>{console.log(options, "options")}
+      </span>
+      {/* {console.log(options, "options")} */}
       <MultiSelect
         options={options}
         value={selected}

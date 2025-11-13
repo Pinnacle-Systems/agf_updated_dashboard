@@ -48,6 +48,7 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        
         getMisDashboardSalaryDet: builder.query({
             query: ({ params }) => {
                 return {
@@ -61,6 +62,7 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+
         getMisDashboardPfDet: builder.query({
             query: ({ params }) => {
                 return {

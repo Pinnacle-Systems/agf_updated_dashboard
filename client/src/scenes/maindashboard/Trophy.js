@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
+import { Box } from '@mui/material'
 
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')({
@@ -29,13 +30,26 @@ const Trophy = () => {
   return (
     <Card sx={{ position: 'relative',m:1}}>
       <CardContent>
-        <Typography variant='h6'>Congratulations ! 🥳</Typography>
-        <Typography variant='body2' sx={{ letterSpacing: '0.25px' }}>
-          Best seller of the month
+        <Typography variant='h5' sx={{fontWeight:500}}>Profit 💰</Typography>
+        <Typography variant='body2' sx={{ letterSpacing: '0.25px',lineHeight:'30px' }}>
+          Profit of the month
         </Typography>
-        <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
+        <Box sx={{ marginTop: 1.5, display: 'flex', flexWrap: 'wrap', marginBottom: 1.5, alignItems: 'flex-start' }}>
+
+
+        <Typography variant='h6' sx={{ mr: 2,my:2 }}>
           $42.8k
-        </Typography>
+          </Typography>
+          <Typography
+            component='sup'
+            variant='caption'
+            sx={{ color: 'success.main' ,my:1}}
+          >
+             +15 %
+          </Typography>
+        </Box>
+          
+        
         <Button size='small' variant='contained'>
           View Sales
         </Button>

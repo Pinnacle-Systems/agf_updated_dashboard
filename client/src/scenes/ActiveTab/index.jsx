@@ -6,7 +6,7 @@ import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../icons";
 import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
-import { MisDashboard } from "../../scenes"
+import { MisDashboard } from "../../scenes";
 import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
 // import OutlinedCard from "../Users/Users";
@@ -20,133 +20,148 @@ import secureLocalStorage from "react-secure-storage";
 import Sidebar from "../global/Sidebar.jsx";
 import { User } from "lucide-react";
 import RolePermission from "../User & Role/Roles.jsx";
- 
+import EmployeeDetail from "../maindashboard/DetailedDashboard/EmployDetail.js";
+import DetailedDashBoard from "../maindashboard/DetailedDashboard/index.js";
 
 const ActiveTabList = () => {
-    const { color } = useContext(ColorContext);
-    const openTabs = useSelector((state) => state.openTabs);
-    const dispatch = useDispatch();
-    const [showHidden, setShowHidden] = useState(false);
-    const ref = useOutsideClick(() => { setShowHidden(false) })
+  const { color } = useContext(ColorContext);
+  const openTabs = useSelector((state) => state.openTabs);
+  const dispatch = useDispatch();
+  const [showHidden, setShowHidden] = useState(false);
+  const ref = useOutsideClick(() => {
+    setShowHidden(false);
+  });
 
-    const tabs = {
-        "Dashboard": <MisDashboard />,
-        "ERP": <MisDashboardERP />,
-        "Employees Detail": <PoRegister />,
-        'Order Status': <OrderManagement />,
-        // "User": <OutlinedCard />,
-        "User": {
-            label: "User Management",
-            Children: {
-                "User": <UserCreation />,
-                "Roles": <RolePermission />,
-                
-               
+  const tabs = {
+    Dashboard: <MisDashboard />,
+    ERP: <MisDashboardERP />,
+    "Employees Detail": <PoRegister />,
+    "Order Status": <OrderManagement />,
+    // "User": <OutlinedCard />,
+    User: {
+      label: "User Management",
+      Children: {
+        User: <UserCreation />,
+        Roles: <RolePermission />,
+      },
+    },
+    Main: <Main_Dashboad />,
+     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} />
+    
+  };
 
-            }
-        },
-        "Main": <Main_Dashboad />
-        
-    };
+  // console.log(tabs);
 
-    // console.log(tabs);
+  const innerWidth = window.innerWidth;
+  const itemsToShow = innerWidth / 130;
+  const currentShowingTabs = openTabs.tabs.slice(0, parseInt(itemsToShow));
+  const hiddenTabs = openTabs.tabs.slice(parseInt(itemsToShow));
 
-    const innerWidth = window.innerWidth;
-    const itemsToShow = innerWidth / 130;
-    const currentShowingTabs = openTabs.tabs.slice(0, parseInt(itemsToShow));
-    const hiddenTabs = openTabs.tabs.slice(parseInt(itemsToShow));
+  const findTabComponent = (tabs, tabName,tabData) => {
+    for (const key in tabs) {
+      const item = tabs[key];
 
-    const findTabComponent = (tabs, tabName) => {
-        for (const key in tabs) {
-            const item = tabs[key];
+      if (key === tabName && React.isValidElement(item)) {
+        return item;
+      }
+      if (key === tabName && typeof item === "function") {
+      return item(tabData);
+    }
 
-            if (key === tabName && React.isValidElement(item)) {
-                return item;
-            }
+      // If the tab has children, search inside them
+      if (item.Children) {
+        const childResult = findTabComponent(item.Children, tabName,tabData);
+        if (childResult) return childResult;
+      }
+    }
+    return null;
+  };
 
-            // If the tab has children, search inside them
-            if (item.Children) {
-                const childResult = findTabComponent(item.Children, tabName);
-                if (childResult) return childResult;
-            }
-        }
-        return null;
-    };
-
-    return (
-        <div className="relative w-full h-full">
-            <div className="flex justify-between ">
-                <div className="flex gap-2 mt-2 ml-3 ">
-                    {currentShowingTabs.map((tab, index) => (
-                        <div
-                            key={index}
-                            className={`p-1 rounded subheading-font text-xs flex justify-center gap-1`}
-                            style={
-                                tab.active
-                                    ? { backgroundColor: color, color: "white" }
-                                    : { backgroundColor: "white", color: color }
-                            }
-                        >
-                            <button
-                                onClick={() => {
-                                    dispatch(push({ id: tab.id }));
-                                }} className=""
-                            >
-                                {tab.name}
-                            </button>
-                            <button className="px-1 rounded-xs transition"
-                                onClick={() => {
-                                    dispatch(remove({ id: tab.id }));
-                                }}
-                            >
-                                {CLOSE_ICON}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-                <div>
-                    {(hiddenTabs.length !== 0) &&
-                        <button onClick={() => setShowHidden(true)}>
-                            {DOUBLE_NEXT_ICON}
-                        </button>
-                    }
-                </div>
-                {showHidden &&
-                    <ul ref={ref} className="absolute right-0 top-5 bg-gray-200 z-50 p-1">
-                        {hiddenTabs.map(tab =>
-                            <li key={tab.id} className={`flex justify-between hover:bg-blue-200  ${tab.active ? "bg-red-300" : "bg-gray-300"
-                                } `}>
-                                <button className=" text-gray-500"
-                                    onClick={() => {
-                                        dispatch(push({ id: tab.id }));
-                                    }}
-                                >
-                                    {tab.name}
-                                </button>
-                                <button className="hover:bg-red-400 px-1 rounded-xs transition"
-                                    onClick={() => {
-                                        dispatch(remove({ id: tab.id }));
-                                    }}
-                                >
-                                    {CLOSE_ICON}
-                                </button>
-                            </li>
-                        )}
-                    </ul>
-                }
+  return (
+    <div className="relative w-full h-full">
+      <div className="flex justify-between ">
+        <div className="flex gap-2 mt-2 ml-3 ">
+          {currentShowingTabs.map((tab, index) => (
+            <div
+              key={index}
+              className={`p-1 rounded subheading-font text-xs flex justify-center gap-1`}
+              style={
+                tab.active
+                  ? { backgroundColor: color, color: "white" }
+                  : { backgroundColor: "white", color: color }
+              }
+            >
+              <button
+                onClick={() => {
+                  dispatch(push({ id: tab.id }));
+                }}
+                className=""
+              >
+                {tab.name}
+              </button>
+              <button
+                className="px-1 rounded-xs transition"
+                onClick={() => {
+                  dispatch(remove({ id: tab.id }));
+                }}
+              >
+                {CLOSE_ICON}
+              </button>
             </div>
-            {/* <Sidebar /> */}
-            {openTabs.tabs.map((tab, index) => (
-                <div key={index} className={`${tab.active ? "block" : "hidden"} w-full`}>
-                    {findTabComponent(tabs, tab.name) || (
-                        <div className="text-center text-gray-400 p-10">
-                            Page not found for: {tab.name}
-                        </div>
-                    )}
-                </div>
-            ))}
+          ))}
         </div>
-    );
+        <div>
+          {hiddenTabs.length !== 0 && (
+            <button onClick={() => setShowHidden(true)}>
+              {DOUBLE_NEXT_ICON}
+            </button>
+          )}
+        </div>
+        {showHidden && (
+          <ul ref={ref} className="absolute right-0 top-5 bg-gray-200 z-50 p-1">
+            {hiddenTabs.map((tab) => (
+              <li
+                key={tab.id}
+                className={`flex justify-between hover:bg-blue-200  ${
+                  tab.active ? "bg-red-300" : "bg-gray-300"
+                } `}
+              >
+                <button
+                  className=" text-gray-500"
+                  onClick={() => {
+                    dispatch(push({ id: tab.id }));
+                  }}
+                >
+                  {tab.name}
+                </button>
+                <button
+                  className="hover:bg-red-400 px-1 rounded-xs transition"
+                  onClick={() => {
+                    dispatch(remove({ id: tab.id }));
+                  }}
+                >
+                  {CLOSE_ICON}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {/* <Sidebar /> */}
+      {openTabs.tabs.map((tab, index) => (
+        <div
+          key={index}
+          className={`${tab.active ? "block" : "hidden"} w-full`}
+        >
+          {findTabComponent(tabs, tab.name, tab.data) || (
+            <div className="text-center text-gray-400 p-10">
+              Page not found for: {tab.name}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default ActiveTabList;
