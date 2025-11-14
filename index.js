@@ -81,7 +81,8 @@ app.use('/users', user)
 
 app.use('/role',role)
 
-const PORT = 9008;
+// const PORT = 9008;
+const PORT = process.env.PORT || 9000 ;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
