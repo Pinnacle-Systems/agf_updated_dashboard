@@ -22,6 +22,8 @@ import { User } from "lucide-react";
 import RolePermission from "../User & Role/Roles.jsx";
 import EmployeeDetail from "../maindashboard/DetailedDashboard/EmployDetail.js";
 import DetailedDashBoard from "../maindashboard/DetailedDashboard/index.js";
+import DetailedAttribution from "../maindashboard/Attrition/index.js";
+import DetailedHeadcount from "../maindashboard/Headcount/index.js";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -46,7 +48,10 @@ const ActiveTabList = () => {
       },
     },
     Main: <Main_Dashboad />,
-     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} />
+     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} />,
+     Headcount: (tabData)=><DetailedHeadcount companyName={tabData?.companyName} />,
+     Attrition: (tabData)=><DetailedAttribution companyName={tabData?.companyName} />
+     
     
   };
 

@@ -28,17 +28,17 @@ import EmployeeDetail from "./EmployDetail";
 import CompanywiseEsi from "./companywiseEsi";
 import CompanywiseStrenth from "./companywiseStrenth";
 import Companywisessalary from "./companywisalary";
-
+import HeadcountDept from "../Headcount/HeadCountDept";
+import DeptHeadCount from "../Headcount/DeptHead";
+import EmployeeByDepartment from "../Headcount/StautusofEmploy";
+import CompAttrition from "../Attrition/CompanyAttrition";
 
 const DetailedDashBoard = ({ companyName }) => {
   const [filterBuyer, setFilterBuyer] = useState([]);
   const [readOnly, setReadonly] = useState(false);
   const params = getCommonParams();
 
-
   const { userId, isSuperAdmin } = params;
-
-  
 
   const { data: compCode } = useGetCompCodeDataQuery(
     { userId: isSuperAdmin ? false : userId },
@@ -50,11 +50,9 @@ const DetailedDashBoard = ({ companyName }) => {
   //   const { data:Saldata, isLoading, isError } = useGetMisDashboardSalaryDetQuery({filterBuyer:companyName});
   //   console.log(Saldata,"salary Details");
 
-
   useEffect(() => {
     if (companyName) {
-      setFilterBuyer(companyName)
-      
+      setFilterBuyer(companyName);
     }
   }, [companyName]);
   console.log("Opened for company:", filterBuyer);
@@ -99,20 +97,24 @@ const DetailedDashBoard = ({ companyName }) => {
             selected={filterBuyer}
             setSelected={setFilterBuyer}
           /> */}
+          <Grid>
+            <HeadcountDept companyName={filterBuyer} />
+          </Grid>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
-              <CompanywiseStrenth companyName={filterBuyer}/>
-             
+            <Grid item xs={12} md={7}>
+              <DeptHeadCount companyName={filterBuyer} />
+            </Grid>
+            <Grid item md={5}>
+              <EmployeeByDepartment />
             </Grid>
             <Grid item xs={12} md={4}>
-          
-              <CompanywiseEsi  companyName={filterBuyer}/>
-                          </Grid>
-            <Grid item xs={12} md={4}>
-              <Companywisessalary companyName={filterBuyer}/>
+              <CompanywiseEsi companyName={filterBuyer} />
             </Grid>
             <Grid item xs={12} md={4}>
-              
+              <Companywisessalary companyName={filterBuyer} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <CompAttrition companyName={filterBuyer} />
             </Grid>
           </Grid>
         </CardContent>

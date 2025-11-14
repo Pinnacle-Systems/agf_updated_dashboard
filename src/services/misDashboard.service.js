@@ -38,10 +38,9 @@ const currentDt = [monthName, yearName].join(" ");
 const lstMnth = [lastMonthName, lastMonthYear].join(" ");
 
 // Convert "September 2025" → "Sep-25"
-const monthShort = lastMonthDate.toLocaleString('en-us', { month: 'short' }); // "Sep"
+const monthShort = lastMonthDate.toLocaleString("en-us", { month: "short" }); // "Sep"
 const yearShort = lastMonthDate.getFullYear().toString().slice(2); // "25"
 const lstMnthPattern = `${monthShort}-${yearShort}`; // "Sep-25"
-
 
 export async function get(req, res) {
   const connection = await getConnection(res);
@@ -201,9 +200,6 @@ export async function getSalarydet(req, res) {
   let result = [];
   let filterBuyerList = "";
 
-  console.log(filterBuyer,"filterBuyer Lavnay");
-  
-
   // ✅ Handle company filter
   if (filterBuyer && filterBuyer.trim() !== "") {
     filterBuyerList = filterBuyer
@@ -214,7 +210,8 @@ export async function getSalarydet(req, res) {
 
   // ✅ Build where clause
   let whereClause = "1=1";
-  if (filterBuyerList) whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+  if (filterBuyerList)
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -226,9 +223,6 @@ export async function getSalarydet(req, res) {
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
     whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
-
-  console.log(whereClause, "whereClause");
-
   // ✅ Query with per-company latest pay period
   const sql = `
     SELECT * FROM (
@@ -282,7 +276,6 @@ export async function getSalarydet(req, res) {
   }
 }
 
-
 export async function getpfdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
@@ -296,25 +289,21 @@ export async function getpfdet(req, res) {
       .join(",");
   }
 
-  
   let whereClause = `
     A.PCTYPE = 'BUYER' 
     AND A.PAYPERIOD LIKE '%${lstMnth}%'
     AND A.PF > 0
   `;
 
-
   if (filterBuyerList) {
     whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
   }
-
 
   if (search.FNAME)
     whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
   if (search.GENDER)
     whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-  if (search.MIDCARD)
-    whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+  if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
   if (search.DEPARTMENT)
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
@@ -395,7 +384,7 @@ export async function getpfdet(req, res) {
 
 //     // ✅ Main SQL query
 //     const sql = `
-//       SELECT 
+//       SELECT
 //         A.EMPID,
 //         AA.FNAME,
 //         AA.GENDER,
@@ -464,10 +453,9 @@ export async function getpfdet(req, res) {
 //   if (search.COMPCODE)
 //     whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 //   console.log(whereClause,"whereClause");
-  
 
 //   const sql = `
-//     SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE ,DD.PAYCAT     
+//     SELECT A.EMPID,AA.FNAME,AA.GENDER,BB.DOJ,DD.DEPARTMENT,A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE ,DD.PAYCAT
 // FROM HPAYROLL A
 // JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
 // JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
@@ -501,7 +489,9 @@ export async function getesidet(req, res) {
     const lstMnth = payPeriodResult.rows?.[0]?.[0] || ""; // e.g. 'September 2025'
 
     if (!lstMnth) {
-      return res.status(400).json({ success: false, message: "No PAYPERIOD found in HPAYROLL" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No PAYPERIOD found in HPAYROLL" });
     }
 
     // ✅ Step 2: handle filter buyer
@@ -525,14 +515,11 @@ export async function getesidet(req, res) {
       whereClause += ` AND LOWER(AA.FNAME) LIKE LOWER('%${search.FNAME}%')`;
     if (search.GENDER)
       whereClause += ` AND LOWER(AA.GENDER) LIKE LOWER('${search.GENDER}%')`;
-    if (search.MIDCARD)
-      whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
+    if (search.MIDCARD) whereClause += ` AND A.EMPID LIKE '${search.MIDCARD}'`;
     if (search.DEPARTMENT)
       whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
     if (search.COMPCODE)
       whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
-
-    console.log(whereClause, "whereClause");
 
     // ✅ Step 4: main SQL
     const sql = `
@@ -556,7 +543,9 @@ export async function getesidet(req, res) {
       }, {})
     );
 
-    res.status(200).json({ success: true, data: result, payPeriodUsed: lstMnth });
+    res
+      .status(200)
+      .json({ success: true, data: result, payPeriodUsed: lstMnth });
   } catch (error) {
     console.error("Error in getesidet:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -1255,13 +1244,24 @@ export async function getActualVsBudgetValueMonthWise(req, res) {
 //   const lstMnth = [lastmonth, yearName].join(" ");
 //   const connection = await getConnection(res);
 //   try {
+//     const { filterBuyer = "" } = req.query || {};
+//     let filterBuyerList = "";
+//     console.log("req.query:", req.query);
+//     console.log(filterBuyer, "filterBuyerewrewrtwert");
+
+//     if (filterBuyer && filterBuyer.trim() !== "") {
+//       filterBuyerList = filterBuyer
+//         .split(",")
+//         .map((buyer) => `'${buyer.trim()}'`)
+//         .join(",");
+//     }
 //     const {} = req.query;
 
 //     const sql = `
 //            SELECT A.COMPCODE,SUM(MALE) MALE,SUM(FEMALE) FEMALE,SUM(MALE)+SUM(FEMALE) TOTAL FROM (
 // SELECT A.COMPCODE,CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
 // CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE FROM MISTABLE A WHERE  A.DOJ <= (
-// SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}' 
+// SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}'
 // ) AND (A.DOL IS NULL OR A.DOL <= (
 // SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE AA.PAYPERIOD = '${currentDt}'
 // ) )
@@ -1285,8 +1285,18 @@ export async function getActualVsBudgetValueMonthWise(req, res) {
 // }
 export async function getYearlyComp(req, res) {
   const month = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const d = new Date();
@@ -1299,11 +1309,8 @@ export async function getYearlyComp(req, res) {
   const connection = await getConnection(res);
 
   try {
-    const { filterBuyer = "" } = req.query || {}
+    const { filterBuyer = "" } = req.query || {};
     let filterBuyerList = "";
-    console.log("req.query:", req.query);
-    console.log(filterBuyer,"filterBuyerewrewrtwert");
-    
 
     if (filterBuyer && filterBuyer.trim() !== "") {
       filterBuyerList = filterBuyer
@@ -1317,6 +1324,7 @@ export async function getYearlyComp(req, res) {
     if (filterBuyerList) {
       companyFilter = `AND A.COMPCODE IN (${filterBuyerList})`;
     }
+    // console.log(currentDt, "currentDt");
 
     const sql = `
       SELECT A.COMPCODE,
@@ -1584,32 +1592,32 @@ export async function getESIPF1(req, res) {
     let sql;
 
     sql = `
-SELECT
-A.COMPCODE,
-A.PAYPERIOD,
-A.FINYR,
- SUM(A.ESI) AS ESI,
-COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
-FROM
-(SELECT
-A.COMPCODE,
-A.PAYPERIOD,
-EE.FINYR,
-A.ESI,
-A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
-FROM HPAYROLL A
-JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
-JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
-WHERE EE.FINYR = '${filterYear}'
-AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
-) A
-GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
-ORDER BY STDT1,STDT
+  SELECT
+  A.COMPCODE,
+  A.PAYPERIOD,
+  A.FINYR,
+  SUM(A.ESI) AS ESI,
+  COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
+  FROM
+  (SELECT
+  A.COMPCODE,
+  A.PAYPERIOD,
+  EE.FINYR,
+  A.ESI,
+  A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+  FROM HPAYROLL A
+  JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+  JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+  JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+  JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+  WHERE EE.FINYR = '${filterYear}'
+  AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
+  ) A
+  GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
+  ORDER BY STDT1,STDT
 
  
-`;
+`
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1623,6 +1631,138 @@ ORDER BY STDT1,STDT
   } catch (err) {
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getESIlastmonth(req, res) {
+  const connection = await getConnection(res);
+
+  try {
+
+
+    const sql = `WITH LAST_MONTH AS (
+    SELECT MAX(EE.STDT) AS LAST_STDT
+    FROM HPAYROLL A
+    JOIN MONTHLYPAYFRQ EE
+      ON EE.PAYPERIOD = A.PAYPERIOD
+     AND EE.COMPCODE = A.COMPCODE
+    WHERE A.PCTYPE = 'BUYER'
+      AND A.ESI > 0
+)
+SELECT
+    A.COMPCODE,
+    A.PAYPERIOD,
+    A.FINYR,
+    SUM(A.ESI) AS ESI,
+    COUNT(A.EMPID) AS HEADCOUNT,
+    A.STDT,
+    A.STDT1
+FROM
+(
+    SELECT
+        A.COMPCODE,
+        A.PAYPERIOD,
+        EE.FINYR,
+        A.ESI,
+        A.EMPID,
+        TO_CHAR(EE.STDT,'MM') AS STDT,
+        TO_CHAR(EE.STDT,'YY') AS STDT1
+    FROM HPAYROLL A
+    JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+    JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+    WHERE EE.STDT = (SELECT LAST_STDT FROM LAST_MONTH)
+      AND A.PCTYPE = 'BUYER'
+      AND A.ESI > 0
+) A
+GROUP BY
+    A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT, A.STDT1
+ORDER BY
+    A.STDT1, A.STDT`;
+
+    const result = await connection.execute(sql);
+    console.log(result, "result");
+
+    let resp = result.rows.map((po) => ({
+      customer: po[0],
+      month: po[1],
+      Year: po[2],
+      esi: po[3],
+      headCount: po[4],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getPFlastmonth(req, res) {
+  const connection = await getConnection(res);
+
+  try {
+
+
+    const sql = `WITH LAST_MONTH AS (
+    SELECT MAX(EE.STDT) AS LAST_STDT
+    FROM HPAYROLL A
+    JOIN MONTHLYPAYFRQ EE
+      ON EE.PAYPERIOD = A.PAYPERIOD
+     AND EE.COMPCODE = A.COMPCODE
+    WHERE A.PCTYPE = 'BUYER'
+      AND A.PF > 0
+)
+SELECT
+    A.COMPCODE,
+    A.PAYPERIOD,
+    A.FINYR,
+    SUM(A.PF) AS PF,
+    COUNT(A.EMPID) AS HEADCOUNT,
+    A.STDT,
+    A.STDT1
+FROM
+(
+    SELECT
+        A.COMPCODE,
+        A.PAYPERIOD,
+        EE.FINYR,
+        A.PF,
+        A.EMPID,
+        TO_CHAR(EE.STDT,'MM') AS STDT,
+        TO_CHAR(EE.STDT,'YY') AS STDT1
+    FROM HPAYROLL A
+    JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+    JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+    WHERE EE.STDT = (SELECT LAST_STDT FROM LAST_MONTH)
+      AND A.PCTYPE = 'BUYER'
+      AND A.PF > 0
+) A
+GROUP BY
+    A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT, A.STDT1
+ORDER BY
+    A.STDT1, A.STDT`;
+
+    const result = await connection.execute(sql);
+    console.log(result, "result");
+
+    let resp = result.rows.map((po) => ({
+      customer: po[0],
+      month: po[1],
+      Year: po[2],
+      esi: po[3],
+      headCount: po[4],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error fetching leave availability:", err);
+    throw err;
   } finally {
     await connection.close();
   }
@@ -1847,29 +1987,34 @@ export async function getEmployeeHeadCount(req, res) {
   const connection = await getConnection(res);
 
   try {
-    let { compCode, docdate } = req.query;
+    let { compCode } = req.query;
 
-    compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
+    // compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
 
-    if (!docdate || docdate.trim() === "") {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, "0");
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const yyyy = today.getFullYear();
-      docdate = `${dd}/${mm}/${yyyy}`;
-    }
+    // if (!docdate || docdate.trim() === "") {
+    //   const today = new Date();
+    //   // const dd = String(today.getDate()).padStart(2, "0");
+    //   // const mm = String(today.getMonth() + 1).padStart(2, "0");
+    //   // const yyyy = today.getFullYear();
+    //   // docdate = `${dd}/${mm}/${yyyy}`;
+    //   docdate = today.toLocaleDateString("en-GB");
+    // }
+
+    // console.log(docdate, "docdate");
 
     const sql = `
       SELECT A.DEPARTMENT, COUNT(*) AS HC 
       FROM MISTABLE A 
       WHERE A.COMPCODE = :compCode
-      AND A.DOJ <= TO_DATE(:docdate,'DD/MM/YYYY') 
-      AND (A.DOL IS NULL OR A.DOL >= TO_DATE(:docdate,'DD/MM/YYYY'))
+      
       GROUP BY A.DEPARTMENT
       ORDER BY 1
     `;
+    //manually deleted line
+    // AND A.DOJ <= TO_DATE(:docdate,'DD/MM/YYYY')
+    // AND (A.DOL IS NULL OR A.DOL >= TO_DATE(:docdate,'DD/MM/YYYY'))
 
-    const result = await connection.execute(sql, { compCode, docdate });
+    const result = await connection.execute(sql, { compCode });
     const resp = result.rows.map((po) => ({
       department: po[0],
       headCount: po[1],
@@ -1929,8 +2074,7 @@ AND A.DEPARTMENT = '${department}'
       doj: row[3],
       dob: row[4],
       payCat: row[7],
-      department: row[17]
-
+      department: row[17],
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1943,4 +2087,3 @@ AND A.DEPARTMENT = '${department}'
     await connection.close();
   }
 }
-

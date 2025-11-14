@@ -1,15 +1,23 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
-import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
-import { ColorContext } from '../global/context/ColorContext';
+// import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
+// import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
+// import { ColorContext } from '../global/context/ColorContext';
 import { useContext } from "react";
-import CardWrapper from '../../components/CardWrapper';
-import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
-import AttritionDetTable from '../../components/AttDetTable';
+import { ColorContext } from '../../global/context/ColorContext';
+import { useGetBuyerNameQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
+import { useGetFinYearQuery } from '../../../redux/service/misDashboardService';
+import { useGetYFActVsPlnQuery } from '../../../redux/service/orderManagement';
+import AttritionDetTable from '../../../components/AttDetTable';
+import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
+import CardWrapper1 from '../../../components/CardWrapper';
+import { Card } from '@mui/material';
+// import CardWrapper from '../../components/CardWrapper';
+// import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
+// import AttritionDetTable from '../../components/AttDetTable';
 
-const ChartTable = () => {
+const CompAttrition = ({companyName}) => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
@@ -32,7 +40,7 @@ const ChartTable = () => {
             setYearData(finYearData);
         }
     }, [buyer, month, year]);
-    const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: { filterMonth: selectedMonth || '', filterSupplier: selectedBuyer || '', filterYear: selectedYear || '' } });
+    const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: { filterMonth: selectedMonth || '', filterSupplier: companyName || '', filterYear: selectedYear || '' } });
     // const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: {filterYear: selectedYear || '' } });
     const fabPlVsActFullDt = fabPlVsActFull?.data ? fabPlVsActFull?.data : [];
 
@@ -151,7 +159,7 @@ const ChartTable = () => {
     const [showModel, setShowModel] = useState(false);
 
     return (
-        <CardWrapper heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }}  chartRef={chartRef}  >
+        <Card heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }}  chartRef={chartRef}  >
             <div style={{ display: 'flex', flexDirection: 'column',  }}>
             
                 {orderCount > 0 ? (
@@ -170,15 +178,16 @@ const ChartTable = () => {
                 ) : (
                     <div>No Data Available</div>
                 )}
-                {openpopup && <AttritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup = {setOpenpopup}  />}
+                {/* {openpopup && <AttritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup = {setOpenpopup}  />} */}
                     {showModel &&
-                    <ModelMultiSelectChart3 color={color}
+                    <ModelMultiSelectChart4 color={color}
                         showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                         selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
                 }
             </div>
-        </CardWrapper >
+        </Card >
     );
 };
 
-export default ChartTable;
+export default CompAttrition;
+

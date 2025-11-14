@@ -317,6 +317,32 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getEsilastmonth: builder.query({
+            query: () => {
+                return {
+                    url: MIS_DASHBOARD + "/getEsilastmonth",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getEPFlastmonth: builder.query({
+            query: () => {
+                return {
+                    url: MIS_DASHBOARD + "/getPFlastmonth",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
          getLeaveAvb: builder.query({
             query: ({ params }) => {
                 return {
@@ -444,7 +470,9 @@ export const {
     useGetPayPeriodQuery,
     useGetFinYearQuery,
     useGetHeadCountQuery,
-    useGetHeadCountDetailQuery
+    useGetHeadCountDetailQuery,
+    useGetEsilastmonthQuery,
+    useGetEPFlastmonthQuery
     } = MisDashboard;
 
 export default MisDashboard;

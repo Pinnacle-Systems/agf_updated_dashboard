@@ -31,7 +31,10 @@ import PfChartByCompany from './EmployeeDetail/ESI Det.js'
     // import SalesByCountries from 'src/views/dashboard/SalesByCountries'
     import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import PfData from '../MisDashboard/PfData/EsiPf.jsx'
-import HeadCount from './HeadCount.js'
+import HeadCount from './Headcount/HeadCount.jsx'
+import HomeAttrition from './Attrition/HomeAttrition.jsx'
+import HomeESI from './EmployeeDetail/ESI Det.js'
+
 
     const Main_Dashboad = () => {
       return (
@@ -47,7 +50,7 @@ import HeadCount from './HeadCount.js'
               <StatisticsCard />
             </Grid>
             
-              {/* <WeeklyOverview /> */}
+              
               <Grid item xs={12} md={3}>
                   <CardStatisticsVerticalComponent
                     stats='$78'
@@ -95,13 +98,13 @@ import HeadCount from './HeadCount.js'
                 
         
 
-            <Grid item xs={12} md={6} lg={7}>
+            {/* <Grid item xs={12} md={6} lg={7}>
               <WeeklyOverview />
-            </Grid>
+            </Grid> */}
             {/* <Grid item xs={12} md={6} lg={4}>
               <TotalEarning />
             </Grid> */}
-            <Grid item xs={12} md={6} lg={5}>
+            <Grid item xs={12} lg={4}>
               <Grid container spacing={2}>
                 {/* <Grid item xs={6}>
                   <CardStatisticsVerticalComponent
@@ -168,7 +171,7 @@ import HeadCount from './HeadCount.js'
                     icon={<HelpCircleOutline />}
                   />
                 </Grid> */}
-                <Grid item lg={12} md={12}>
+                <Grid item lg={12}>
                      {/* <NewjoiningChart/> */}
                      <HeadCount/>
                      {/* <PfData /> */}
@@ -177,12 +180,19 @@ import HeadCount from './HeadCount.js'
               </Grid>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              {/* <LeaveDetailsCard/> */}
-              {/* <NewjoiningChart/> */}
-                            <SalaryDet />
+           {/* <SalaryDet /> */}  
+                  {/* <ApexChart1/> */}
+                  <HomeAttrition/>
+            </Grid>
+            <Grid item xs={12} md={6} lg={4}>
+           {/* <SalaryDet /> */}
+                  {/* <ApexChart1/> */}
+                  <HomeESI/>
+                  
             </Grid>
             <Grid item xs={12} md={12} lg={8}>
-              <DepositWithdraw />
+              {/* <DepositWithdraw /> */}
+               
             </Grid>
             <Grid item xs={12}>
               <Table />

@@ -453,32 +453,68 @@ export async function getFabStsData(req, res) {
 
 export async function getYFActVsPln(req, res) {
     const connection = await getConnection(res);
+
+let {filterSupplier, filterYear } = req.query;
+   
+
     try {
-        const {filterSupplier, filterYear } = req.query;
+        if (!filterYear || filterYear.trim() === "") {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+
+      if (month >= 4) {
+        filterYear = `${String(year).slice(2)}-${String(year + 1).slice(2)}`;
+      } else {
+        filterYear = `${String(year - 1).slice(2)}-${String(year).slice(2)}`;
+      }
+    }
+        
         console.log(filterSupplier, 'fil');
+        console.log(filterYear, 'fil');
+        let supplierCondition = "";
+    if (filterSupplier && filterSupplier.trim() !== "") {
+      const supplierArray = filterSupplier.split(",");
+      const supplierList = supplierArray.map(s => `'${s.trim()}'`).join(",");
+      supplierCondition = `AND A.COMPCODE IN (${supplierList})`;
+    }
 
         // Split the filterSupplier string into an array
-        const supplierArray = filterSupplier.split(',');
-        const sepComName = supplierArray.join('');
-        const supplierList = supplierArray.map(supplier => `'${supplier}'`).join(',');
+        // const supplierArray = filterSupplier.split(',');
+        // const sepComName = supplierArray.join('');
+        // const supplierList = supplierArray.map(supplier => `'${supplier}'`).join(',');
 
         const sql = `
-            SELECT B.PAYPERIOD, B.STDT,  COUNT(*) ATTRITION 
+            SELECT B.PAYPERIOD, B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION 
             FROM MISTABLE A
             JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
             AND B.FINYR = '${filterYear}' 
-            AND A.COMPCODE IN (${supplierList})
+           
             AND A.DOL BETWEEN B.STDT AND B.ENDT
+            ${supplierCondition}
             GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE
             ORDER BY 2
         `;
+
+
+            //old filter list
+
+        // SELECT B.PAYPERIOD, B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION 
+        //     FROM MISTABLE A
+        //     JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
+        //     AND B.FINYR = '${filterYear}' 
+        //     AND A.COMPCODE IN (${supplierList})
+        //     AND A.DOL BETWEEN B.STDT AND B.ENDT
+        //     GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE
+        //     ORDER BY 2
         console.log(sql, '416');
 
         const result = await connection.execute(sql);
         let resp = result.rows.map(po => ({
             payPeriod: po[0],
             stdt: po[1],
-            attrition: po[2],
+            company:po[2],
+            attrition: po[3],
         }));
 
         return res.json({ statusCode: 0, data: resp });

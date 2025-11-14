@@ -121,8 +121,10 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import Highcharts from "highcharts";
 // import { useGetPfDetQuery } from "../../redux/service/misDashboardService";
 import {
+  useGetEsilastmonthQuery,
   useGetMisDashboardEsiDetQuery,
   useGetMisDashboardPfDetQuery,
 } from "../../../redux/service/misDashboardService";
@@ -132,6 +134,7 @@ import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
 import { theme } from "highcharts";
 import { Box } from "lucide-react";
+import HighchartsReact from "highcharts-react-official";
 
 const COLORS = [
   "#0088FE",
@@ -144,35 +147,118 @@ const COLORS = [
   "#FF8046",
 ];
 
-const NewjoiningChart = () => {
+const HomeESI = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { data, isLoading, isError } = useGetMisDashboardEsiDetQuery({
     params: {}, // or pass filterBuyer/search if needed
   });
 
-  console.log(data,"ESI Hole Data");
+  const {data:ESIdata}=useGetEsilastmonthQuery()
+  console.log(ESIdata,"ESIdata");
   
-  const chartData = useMemo(() => {
-    if (!data?.data || !Array.isArray(data.data)) return [];
-    const compMap = {};
 
-    data.data.forEach((emp) => {
-      const code = emp.COMPCODE || "UNKNOWN";
-      const pf = Number(emp.NETPAY) || 0;
-      if (!compMap[code]) compMap[code] = 0;
-      compMap[code] += pf;
-    });
+  // console.log(data,"ESI Hole Data");
+  
 
-    return Object.entries(compMap).map(([key, value]) => ({
-      name: key,
-      value,
-    }));
-  }, [data]);
+  const chartData1 =ESIdata?.data.map((item)=>item.customer)
+  const chartvalue =ESIdata?.data.map((item)=>item.esi)
+  const chartcount =ESIdata?.data.map((item)=>item.headCount)
+  const month =ESIdata?.data.find((item)=>item.month)
+  console.log(month);
+  const colors = chartData1?.map(() =>
+    "#" + Math.floor(Math.random() * 16777215).toString(16)
+  );
+  
+  const formattedData = chartData1?.map((name, i) => ({
+    name,
+    y: chartvalue[i],
+    color: colors[i],
+    headCount: chartcount[i],
+    
+  }));
+  
+  const options = {
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: 0,
+      plotShadow: false
+    },        
+    title: {
+      text: `ESI<br>shares of<br>${month?.month}`,
+      align: 'center',
+      verticalAlign: 'middle',
+      y: -20,
+      style: {
+        fontSize: '1.1em'
+      }
+    },
+    tooltip: {
+      formatter: function () {
+    return `
+      <b>${this.point.name}</b><br/>
+      ESI Share: <b>${this.point.percentage.toFixed(1)}%</b><br/>
+      Amount: <b>${this.point.y}</b><br/>
+      Head Count: <b>${this.point.headCount}</b>
+    `;
+  },
+    },
+    accessibility: {
+      point: {
+        valueSuffix: '%'
+      }
+    },
+    plotOptions: {
+      pie: {
+        dataLabels: {
+          enabled: true,
+          distance: -50,
+          style: {
+            fontWeight: 'bold',
+            color: 'white'
+          }
+        },
+        startAngle: -90,
+        endAngle: 90,
+        center: ['50%', '50%'],
+        size: '110%',
+        point: {
+                        events: {
+                            click: function () {
+                                const companyName = this.category;
+                                console.log("Clicked:", companyName);
+        
+                                dispatch(
+                                  push({
+                                    id: "EmployeeDetail",
+                                    name: "EmployeeDetail",
+                                    component: "DetailedDashBoard",
+                                    data: { companyName },
+                                  }) 
+                                );
+                            }
+                        }
+                    }
+      },
+      
 
+    },
+    
+    series: [
+      {
+        type: "pie",
+        name: "ESI share",
+        innerSize: "50%",
+        data: formattedData
+      }
+    ]
+  };
+
+  
+  console.log(chartvalue,chartData1,chartcount,"New ESi data");
   if (isLoading) return <CircularProgress />;
   if (isError) return <div>Error loading PF data</div>;
-  if (!chartData.length) return <div>No PF data found for last month</div>;
+  if (!chartData1.length) return <div>No PF data found for last month</div>;
 
   return (
     <Card sx={{}}>
@@ -182,8 +268,9 @@ const NewjoiningChart = () => {
           sx: {
             lineHeight: "1.2 !important",
             letterSpacing: "0.31px !important",
-            fontSize: "16px",
-            p: 1,
+            fontSize: "15px",
+            fontWeight:600,
+           
           },
         }}
         action={
@@ -195,56 +282,16 @@ const NewjoiningChart = () => {
             <DotsVertical />
           </IconButton>
         }
-        sx={{
-          borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-          pb: 0,
-        }}
+        // sx={{
+        //   borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+        //   pb: 1,
+        // }}
       />
       <CardContent>
-        <ResponsiveContainer width="100%" height={230}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              // label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
-            >
-              {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                  style={{ cursor: 'pointer' }} 
-                  onClick={() => {
-                    dispatch(
-                      push({
-                        id: `EmployeeDetail`,
-                        name: `EmployeeDetail`,
-                        component: "DetailedDashBoard", //
-                        data: { companyName: entry.name },
-                      })
-                    );                 
-                  }}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value) => `₹${value.toLocaleString()}`}
-              contentStyle={{ backgroundColor: "#fff", borderRadius: "8px" }}
-            />
-            <Legend
-              layout="vertical"
-              verticalAlign="middle"
-              align="right"
-              wrapperStyle={{
-                fontSize: "11px",
-                fontWeight: 500,
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        
+                <div style={{ height: "280px" }}>
+      <HighchartsReact highcharts={Highcharts} options={options} />
+    </div>
         {/* <Button
           fullWidth
           variant="contained"
@@ -252,7 +299,7 @@ const NewjoiningChart = () => {
             mt: 1,
             py: 1,
             borderRadius: 3,
-            background: `linear-gradient(200deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            // background: `linear-gradient(200deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
             fontSize: ".75rem",
             fontWeight: 600,
             "&:hover": {
@@ -263,15 +310,10 @@ const NewjoiningChart = () => {
         >
           View Detailed Report
         </Button> */}
-        <Box>
-          <Typography>
-            
-            Total ESI cosdt
-          </Typography>
-        </Box>
-      </CardContent>
+        
+             </CardContent>
     </Card>
   );
 };
 
-export default NewjoiningChart;
+export default HomeESI;
