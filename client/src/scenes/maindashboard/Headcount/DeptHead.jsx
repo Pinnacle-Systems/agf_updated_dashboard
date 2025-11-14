@@ -16,6 +16,8 @@ const DeptHeadCount = ({ companyName }) => {
   const { data: DeptCount } = useGetHeadCountQuery({
     params: { compCode: companyName },
   });
+  console.log(companyName,"companyName");
+  
 
   const chartData = useMemo(() => {
     if (!DeptCount?.data) return [];

@@ -4,54 +4,28 @@ import ReactApexChart from "react-apexcharts";
 import { useDispatch } from "react-redux";
 import { Box, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { push } from "../../../redux/features/opentabs";
+import { useGetYearlyCompERPQuery } from "../../../redux/service/misDashboardServiceERP";
+import { params } from "node-oracledb/src/execObj.lib";
+import { useGetYearlyCompQuery } from "../../../redux/service/misDashboardService";
 
 const HeadCount = () => {
   const dispatch = useDispatch();
   const [detailedpage, setDetailedpage] = useState(false);
   const theme = useTheme();
   const [chartData, setChartData] = useState({ male: [], female: [] });
-  const [categories, setCategories] = useState([]);
+ 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [totalvalue, setTotalvalue] = useState([]);
-  const [headcount, setHeadcount] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:9008/misDashboard/yearlyComp"
-        );
-        if (!response.ok) throw new Error("Failed to fetch data");
-        console.log(response.data, "getEmploy deatil");
+  const { data: result } = useGetYearlyCompQuery({ params: {} });
+  console.log(result, "result");
+;
 
-        const result = await response.json();
-
-        console.log(result.data, "getEmploy deatil");
-
-        if (result.statusCode === 0 && result.data) {
-          const apiCategories = result.data.map((item) => item.customer);
-          // const maleData = result.data.map(item => item.male)
-          const total = result.data.map((item) => item.total);
-          const totalCount = total.reduce((sum, val) => sum + val, 0);
-          // const totalFemale = femaleData.reduce((sum, val) => sum + val, 0)
-          // console.log(maleData,"totalCount");
-          setHeadcount(totalCount);
-          setTotalvalue(total);
-          setCategories(apiCategories);
-          // setChartData({ male: maleData, female: femaleData })
-          // setTotalStats({ totalMale, totalFemale, total: totalMale + totalFemale })
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const categories = result?.data.map((item) => item.customer);
+  
+  const totalvalue = result?.data.map((item) => item.total);
+  const headcount = totalvalue?.reduce((sum, val) => sum + val, 0);
 
   const options = {
     chart: {
@@ -60,11 +34,13 @@ const HeadCount = () => {
       events: {
         dataPointSelection: (event, chartContext, config) => {
           const company = categories[config.dataPointIndex];
+          console.log(company,"compamnu");
+          
           dispatch(
             push({
               id: `Headcount`,
               name: `Headcount`,
-              component: "DetailedHeadcount", 
+              component: "DetailedHeadcount",
               data: { companyName: company },
             })
           );
@@ -73,7 +49,7 @@ const HeadCount = () => {
     },
     grid: {
       padding: {
-        bottom: -35, 
+        bottom: -35,
         top: 0,
       },
     },

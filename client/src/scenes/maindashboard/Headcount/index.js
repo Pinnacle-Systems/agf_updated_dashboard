@@ -40,88 +40,24 @@ import { BiMaleSign } from "react-icons/bi";
 const DetailedHeadcount = ({ companyName }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
-  const [detailedpage, setDetailedpage] = useState({});
   const theme = useTheme();
-  const [chartData, setChartData] = useState({ male: [], female: [] });
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [totalStats, setTotalStats] = useState({
-    totalMale: 0,
-    totalFemale: 0,
-    total: 0,
-  });
   const [filterBuyer, setFilterBuyer] = useState([]);
   const [readOnly, setReadonly] = useState(false);
   const params = getCommonParams();
-
   const { userId, isSuperAdmin } = params;
+  const { data: result } = useGetYearlyCompQuery({ params: {} });
 
   const { data: compCode } = useGetCompCodeDataQuery(
     { userId: isSuperAdmin ? false : userId },
     { skip: !isSuperAdmin && !userId }
   );
 
-  //   console.log(compCode.data,"compCode");
-
-//   useEffect(() => {
-//     if (companyName) {
-//       setFilterBuyer(companyName);
-//     }
-//   }, [companyName]);
-
-// setFilterBuyer(
-//         compCode?compCode?.map((item) => {
-//               return {
-//                 value: item.com,
-//                 label: item.com
-//               };
-//             })
-//           : []
-//       )
   console.log("Opened for company:", filterBuyer);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:9008/misDashboard/yearlyComp"
-        );
-        if (!response.ok) throw new Error("Failed to fetch data");
-        // console.log(response.data, "getEmploy deatil");
+  const detailedpage = result.data.find(
+    (item) => item.customer === companyName
+  );
 
-        const result = await response.json();
-        // console.log(result.data, "getEmploy deatil");
-        if (result.statusCode === 0 && result.data) {
-          const compdetail = result.data.find(
-            (item) => item.customer === companyName
-          );
-          // console.log(compdetail,"compdetail");
-          setDetailedpage(compdetail);
-
-          const apiCategories = result.data.map((item) => item.customer);
-          const maleData = result.data.map((item) => item.male);
-          const femaleData = result.data.map((item) => item.female);
-          const totalMale = maleData.reduce((sum, val) => sum + val, 0);
-          const totalFemale = femaleData.reduce((sum, val) => sum + val, 0);
-
-          setCategories(apiCategories);
-          setChartData({ male: maleData, female: femaleData });
-          setTotalStats({
-            totalMale,
-            totalFemale,
-            total: totalMale + totalFemale,
-          });
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [companyName]);
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
       sx={{
@@ -230,7 +166,7 @@ const DetailedHeadcount = ({ companyName }) => {
           <Grid>{/* <HeadcountDept companyName={filterBuyer} /> */}</Grid>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
-              <DeptHeadCount companyName={filterBuyer} />
+              <DeptHeadCount companyName={companyName} />
             </Grid>
             <Grid item md={5}>
               <EmployeeByDepartment />
@@ -242,7 +178,7 @@ const DetailedHeadcount = ({ companyName }) => {
               {/* <Companywisessalary companyName={filterBuyer} /> */}
             </Grid>
             <Grid item xs={12} md={4}>
-              <CompAttrition companyName={filterBuyer} />
+              <CompAttrition companyName={companyName} />
             </Grid>
           </Grid>
         </CardContent>

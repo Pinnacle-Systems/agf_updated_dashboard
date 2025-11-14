@@ -18,64 +18,21 @@ import { BiMaleSign } from "react-icons/bi";
 import { ColorContext } from "../../global/context/ColorContext";
 import { IoMdFemale } from "react-icons/io";
 import { IoIosPeople } from "react-icons/io";
+import { useGetYearlyCompQuery } from "../../../redux/service/misDashboardService";
 
-const HeadcountDept = ({companyName}) => {
-      
+const HeadcountDept = ({ companyName }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const [detailedpage, setDetailedpage] = useState({});
   const theme = useTheme();
-  const [chartData, setChartData] = useState({ male: [], female: [] });
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [totalStats, setTotalStats] = useState({
-    totalMale: 0,
-    totalFemale: 0,
-    total: 0,
-  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:9008/misDashboard/yearlyComp"
-        );
-        if (!response.ok) throw new Error("Failed to fetch data");
-        // console.log(response.data, "getEmploy deatil");
+  const { data: result } = useGetYearlyCompQuery({ params: {} });
+  console.log(result, "result");
 
-        const result = await response.json();
-        // console.log(result.data, "getEmploy deatil");
-        if (result.statusCode === 0 && result.data) {
+  const compdetail = result.data.find((item) => item.customer === companyName);
 
-            const compdetail= result.data.find((item)=>item.customer === companyName)
-            // console.log(compdetail,"compdetail");
-            setDetailedpage(compdetail)
-            
+  setDetailedpage(compdetail);
 
-          const apiCategories = result.data.map((item) => item.customer);
-          const maleData = result.data.map((item) => item.male);
-          const femaleData = result.data.map((item) => item.female);
-          const totalMale = maleData.reduce((sum, val) => sum + val, 0);
-          const totalFemale = femaleData.reduce((sum, val) => sum + val, 0);
-
-          setCategories(apiCategories);
-          setChartData({ male: maleData, female: femaleData });
-          setTotalStats({
-            totalMale,
-            totalFemale,
-            total: totalMale + totalFemale,
-          });
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {   
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [companyName]);
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
       sx={{
@@ -92,8 +49,8 @@ const HeadcountDept = ({companyName}) => {
       <Avatar
         variant="rounded"
         sx={{
-        //   mr: 3,
-        borderRadius:50,
+          //   mr: 3,
+          borderRadius: 50,
           width: 50,
           height: 50,
           boxShadow: 3,
@@ -116,10 +73,9 @@ const HeadcountDept = ({companyName}) => {
   );
   return (
     <>
-      <Card sx={{p:1}}>
-        
+      <Card sx={{ p: 1 }}>
         <Grid container spacing={2}>
-            <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={2}>
             <StatBox
               icon={<IoIosPeople size={40} />}
               value={detailedpage?.total}

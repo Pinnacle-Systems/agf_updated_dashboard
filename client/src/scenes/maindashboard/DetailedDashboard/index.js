@@ -44,12 +44,6 @@ const DetailedDashBoard = ({ companyName }) => {
     { userId: isSuperAdmin ? false : userId },
     { skip: !isSuperAdmin && !userId }
   );
-
-  //   const { data:Esidata } = useGetMisDashboardEsiDetQuery({ params: { filterBuyer:companyName} });
-  //   console.log(Esidata,"ESi Details");
-  //   const { data:Saldata, isLoading, isError } = useGetMisDashboardSalaryDetQuery({filterBuyer:companyName});
-  //   console.log(Saldata,"salary Details");
-
   useEffect(() => {
     if (companyName) {
       setFilterBuyer(companyName);
