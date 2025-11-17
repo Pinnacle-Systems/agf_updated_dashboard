@@ -21,9 +21,11 @@ import Sidebar from "../global/Sidebar.jsx";
 import { User } from "lucide-react";
 import RolePermission from "../User & Role/Roles.jsx";
 import EmployeeDetail from "../maindashboard/DetailedDashboard/EmployDetail.js";
-import DetailedDashBoard from "../maindashboard/DetailedDashboard/index.js";
+// import DetailedDashBoard from "../maindashboard/DetailedDashboard/index.js";
 import DetailedAttribution from "../maindashboard/Attrition/index.js";
 import DetailedHeadcount from "../maindashboard/Headcount/index.js";
+import DetailedDashBoard from "../maindashboard/ESIdata/index.js";
+import PFIndex from "../maindashboard/PFdata/index.js";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -47,8 +49,9 @@ const ActiveTabList = () => {
         Roles: <RolePermission />,
       },
     },
-    Main: <Main_Dashboad />,
-     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} />,
+    MISDashboard: <Main_Dashboad />,
+     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} Year={tabData?.Year}/>,
+     PFDetails: (tabData)=><PFIndex companyName={tabData?.companyName} Year={tabData?.Year}/>,
      Headcount: (tabData)=><DetailedHeadcount companyName={tabData?.companyName} />,
      Attrition: (tabData)=><DetailedAttribution companyName={tabData?.companyName} />
      

@@ -33,7 +33,7 @@ const Topbar = ({ onLogout }) => {
   };
 
   return (
-    <div className="flex h-14">
+    <div className="flex h-14 ">
       <div className="bg-[#1F2937] w-1/2 flex items-center px-4">
         <img src={logo} alt="logo" className="w-44 cursor-pointer" />
       </div>

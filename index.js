@@ -13,7 +13,7 @@ import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
-oracledb.initOracleClient({ libDir: "C:\\oracle\\instantclient_19_20" }); 
+
 import { socketMain } from "./src/sockets/socket.js";
 
 import {

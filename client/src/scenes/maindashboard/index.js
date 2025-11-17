@@ -26,14 +26,15 @@
     import { Poll } from '@mui/icons-material'
 import DashboardHeader from './DashboardHeader.js'
 // import LeaveDetailsCard from './EmployeeDetail/LeaveDetailsCard.js'
-import NewjoiningChart from './EmployeeDetail/ESI Det.js'
-import PfChartByCompany from './EmployeeDetail/ESI Det.js'
+
     // import SalesByCountries from 'src/views/dashboard/SalesByCountries'
     import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import PfData from '../MisDashboard/PfData/EsiPf.jsx'
 import HeadCount from './Headcount/HeadCount.jsx'
 import HomeAttrition from './Attrition/HomeAttrition.jsx'
-import HomeESI from './EmployeeDetail/ESI Det.js'
+// import HomeESI from './EmployeeDetail/ESI Det.js'
+import HomePF from './PFdata/HomePF.jsx'
+import HomeESI from './ESIdata/ESI Det.js'
 
 
     const Main_Dashboad = () => {
@@ -95,10 +96,7 @@ import HomeESI from './EmployeeDetail/ESI Det.js'
                   />
 
                 </Grid>
-                
-        
-
-            {/* <Grid item xs={12} md={6} lg={7}>
+                            {/* <Grid item xs={12} md={6} lg={7}>
               <WeeklyOverview />
             </Grid> */}
             {/* <Grid item xs={12} md={6} lg={4}>
@@ -190,10 +188,12 @@ import HomeESI from './EmployeeDetail/ESI Det.js'
                   <HomeESI/>
                   
             </Grid>
-            <Grid item xs={12} md={12} lg={8}>
+            <Grid item xs={12} md={12} lg={4}>
               {/* <DepositWithdraw /> */}
-               
+                <HomePF/> 
             </Grid>
+
+          
             <Grid item xs={12}>
               <Table />
             </Grid>

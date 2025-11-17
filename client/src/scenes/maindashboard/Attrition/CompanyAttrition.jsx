@@ -17,10 +17,10 @@ import { Card } from '@mui/material';
 // import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
 // import AttritionDetTable from '../../components/AttDetTable';
 
-const CompAttrition = ({companyName}) => {
+const CompAttrition = ({companyName,selectedYear1}) => {
     const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedBuyer, setSelectedBuyer] = useState('');
-    const [selectedYear, setSelectedYear] = useState('');
+    const [selectedBuyer, setSelectedBuyer] = useState(companyName);
+    const [selectedYear, setSelectedYear] = useState(selectedYear1);
     const [buyerNm, setBuyerNm] = useState([]);
     const [monthData, setMonthData] = useState([]);
      const chartRef = useRef()
@@ -30,21 +30,33 @@ const CompAttrition = ({companyName}) => {
     const { data: buyer, isLoading: isbuyerLoad } = useGetBuyerNameQuery({ params: {} });
     const { data: month } = useGetMonthQuery({ params: { filterYear: selectedYear || '', filterBuyer: selectedBuyer || '' } });
     const { data: year } = useGetFinYearQuery({});
+
     useEffect(() => {
-        if (buyer?.data || month?.data || year?.data) {
-            const buyerName = (buyer?.data ? buyer?.data : []).map((item) => item.buyerName);
-            const monData = (month?.data ? month?.data : []).map((mon) => mon.month);
-            const finYearData = (year?.data ? year?.data : []).map((year) => year.finYear);
-            setBuyerNm(buyerName);
-            setMonthData(monData);
-            setYearData(finYearData);
-        }
-    }, [buyer, month, year]);
-    const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: { filterMonth: selectedMonth || '', filterSupplier: companyName || '', filterYear: selectedYear || '' } });
+    setSelectedBuyer(companyName);
+  }, [companyName]);
+
+  // FIX: sync year from parent
+  useEffect(() => {
+    setSelectedYear(selectedYear1);
+  }, [selectedYear1]);
+    // useEffect(() => {
+    //     if (buyer?.data || month?.data || year?.data) {
+    //         const buyerName = (buyer?.data ? buyer?.data : []).map((item) => item.buyerName);
+    //         const monData = (month?.data ? month?.data : []).map((mon) => mon.month);
+    //         const finYearData = (year?.data ? year?.data : []).map((year) => year.finYear);
+    //         setBuyerNm(buyerName);
+    //         setMonthData(monData);
+    //         setYearData(finYearData);
+    //     }
+    // }, [buyer,month,year]);
+    const { data: fabPlVsActFull } = useGetYFActVsPlnQuery({ params: {  filterSupplier: selectedBuyer || '', filterYear: selectedYear || '' } });
     // const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: {filterYear: selectedYear || '' } });
     const fabPlVsActFullDt = fabPlVsActFull?.data ? fabPlVsActFull?.data : [];
 
-
+console.log("API Params →", {
+  filterSupplier: selectedBuyer,
+  filterYear: selectedYear
+});
     console.log(fabPlVsActFull,"fabPlVsActFull data");
     
     const orderCount = fabPlVsActFullDt.length;
@@ -178,12 +190,12 @@ const CompAttrition = ({companyName}) => {
                 ) : (
                     <div>No Data Available</div>
                 )}
-                {/* {openpopup && <AttritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup = {setOpenpopup}  />} */}
-                    {showModel &&
+                {openpopup && <AttritionDetTable selectedBuyer={selectedBuyer} selectedYear={selectedYear} setOpenpopup = {setOpenpopup}  />}
+                    {/* {showModel &&
                     <ModelMultiSelectChart4 color={color}
                         showModel={showModel} setShowModel={setShowModel} selectedYear={selectedYear} setSelectedYear={setSelectedYear}
                         selectedBuyer={selectedBuyer} setSelectedBuyer={setSelectedBuyer} />
-                }
+                } */}
             </div>
         </Card >
     );

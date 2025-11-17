@@ -109,7 +109,7 @@ const DeptHeadCount = ({ companyName }) => {
         <HighchartsReact highcharts={Highcharts} options={options} />
       </Box>
 
-      <Box
+      {/* <Box
         sx={{
           mt: 2,
           p: 1.5,
@@ -122,7 +122,7 @@ const DeptHeadCount = ({ companyName }) => {
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Overall Head Count: {totalHeadCount}
         </Typography>
-      </Box>
+      </Box> */}
     </Card>
   );
 };

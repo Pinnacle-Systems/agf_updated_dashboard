@@ -19,19 +19,38 @@ import { ColorContext } from "../../global/context/ColorContext";
 import { IoMdFemale } from "react-icons/io";
 import { IoIosPeople } from "react-icons/io";
 import { useGetYearlyCompQuery } from "../../../redux/service/misDashboardService";
+import DeptHeadCount from "./DeptHead";
+import EmployeeByDepartment from "./StautusofEmploy";
+import CompAttrition from "../Attrition/CompanyAttrition";
+import { DropdownWithSearch, DropdownWithSearch3 } from "../../../input/inputcomponent";
 
 const HeadcountDept = ({ companyName }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
-  const [detailedpage, setDetailedpage] = useState({});
+  const [filterBuyer, setfilterBuyer] = useState({});
   const theme = useTheme();
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
-  console.log(result, "result");
+  // console.log(result, "result");
 
-  const compdetail = result.data.find((item) => item.customer === companyName);
+  const detailedpage = result?.data.find(
+    (item) => item.customer === companyName
+  );
 
-  setDetailedpage(compdetail);
+  const filterBuyer1=result?.data.map((item)=>item.customer)
+
+  // console.log(filterBuyer1,"filterBuyer");
+
+const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
+    compname: company,
+    id: company,
+  }));
+  
+  const optionsArray = Object.values(chartData);
+  
+  console.log(filterBuyer,"filterBuyer");
+
+
 
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
@@ -55,7 +74,7 @@ const HeadcountDept = ({ companyName }) => {
           height: 50,
           boxShadow: 3,
           color: "common.black",
-          backgroundColor: "white",
+          backgroundColor: "white", 
         }}
       >
         {Icon}
@@ -99,7 +118,20 @@ const HeadcountDept = ({ companyName }) => {
               color={color}
             />
           </Grid>
+          {/* <Grid item xs={12} md={2}>
+            <DropdownWithSearch3
+                            options={optionsArray || []}
+                            labelField={"compname"}
+                            // required={true}
+                            label={"Select company"}
+                            value={filterBuyer}
+                            setValue={setfilterBuyer}
+                            // disabled={readonly}
+                          />
+          </Grid> */}
         </Grid>
+
+        
       </Card>
     </>
   );

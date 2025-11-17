@@ -55,16 +55,29 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   },
 }));
 
-const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
-  width: isCollapsed ? '50px' : '180px',
-  overflow: 'hidden',
-  backgroundColor: theme.palette.mode === 'dark' ? '#1E1E1E' : '#F9FAFB',
-  transition: 'width 0.3s ease, background-color 0.3s ease',
-  height: '100vh',
-  boxShadow: isCollapsed ? 'none' : '2px 0 4px rgba(0, 0, 0, 0.1)',
-  paddingTop: theme.spacing(1),
-  paddingLeft: "5px"
+// const SidebarContainer = styled(Box)(({ theme, isCollapsed }) => ({
+//   width: isCollapsed ? '50px' : '180px',
+//   overflow: 'hidden',
+//   backgroundColor: theme.palette.mode === 'dark' ? '#1E1E1E' : '#F9FAFB',
+//   transition: 'width 0.3s ease, background-color 0.3s ease',
+//   height: '100vh',
+//   boxShadow: isCollapsed ? 'none' : '2px 0 4px rgba(0, 0, 0, 0.1)',
+//   paddingTop: theme.spacing(1),
+//   paddingLeft: "5px"
+// }));
+const SidebarContainer = styled(Box)(({ isCollapsed }) => ({
+  width: isCollapsed ? "10px" : "180px",
+  background: "#F9FAFB",
+  height: "100vh",
+  position: "sticky",
+  left: 0,
+  top: 0,
+  zIndex: 1000,
+  overflow: "hidden",
+  transition: "width 0.3s ease",
 }));
+
+
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -260,14 +273,14 @@ const Sidebar = () => {
           </>
         </Tooltip>
 
-        <Tooltip title="Main Dashborad" placement="right" disableHoverListener={!isCollapsed}>
-          <StyledListItemButton onClick={() => dispatch(push({ id: 7, name: 'Main' }))}>
+        <Tooltip title="MIS Dashborad" placement="right" disableHoverListener={!isCollapsed}>
+          <StyledListItemButton onClick={() => dispatch(push({ id: 7, name: 'MISDashboard' }))}>
             <StyledListItemIcon>
               <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
             </StyledListItemIcon>
             {/* {!isCollapsed && ( */}
             <ListItemText
-              primary="Main Dashboard"
+              primary="MIS Dashboard"
               primaryTypographyProps={{
                 fontSize: '0.8rem',
                 fontWeight: '500',
@@ -357,7 +370,7 @@ const Sidebar = () => {
             {page.link === "Dashboard" && <DashboardIcon sx={{ color }} />}
             {page.link === "ERP" && <FaDatabase style={{ color }} />}
             {page.link === "User" && <PersonIcon sx={{ color }} />}
-            {page.link === "Main" && <PersonIcon sx={{ color }} />}
+            {page.link === "MISDashboard" && <PersonIcon sx={{ color }} />}
           </StyledListItemIcon>
 
           <ListItemText

@@ -88,7 +88,7 @@
 
         {/* Chart */}
         <CardContent>
-            <Box sx={{ height: 350 }}>
+            <Box sx={{ height: 280 }}>
             <ReactApexChart
                 options={chartData.options}
                 series={chartData.series}

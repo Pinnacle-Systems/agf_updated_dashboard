@@ -41,22 +41,28 @@ const DetailedHeadcount = ({ companyName }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const theme = useTheme();
-  const [filterBuyer, setFilterBuyer] = useState([]);
+  const [filterBuyer, setfilterBuyer] = useState(companyName);
   const [readOnly, setReadonly] = useState(false);
-  const params = getCommonParams();
-  const { userId, isSuperAdmin } = params;
+
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
-  const { data: compCode } = useGetCompCodeDataQuery(
-    { userId: isSuperAdmin ? false : userId },
-    { skip: !isSuperAdmin && !userId }
-  );
+  const filterBuyer1 = result?.data.map((item) => item.customer);
 
-  console.log("Opened for company:", filterBuyer);
+  const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
+    compname: company,
+    id: company,
+  }));
+useEffect(()=>{
+  setfilterBuyer(companyName)
 
-  const detailedpage = result.data.find(
-    (item) => item.customer === companyName
-  );
+},[companyName])
+
+
+  const optionsArray = Object.values(chartData);
+
+  useEffect(() => {}, [filterBuyer]);
+
+  console.log("Opened for company:", companyName);
 
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
@@ -105,68 +111,60 @@ const DetailedHeadcount = ({ companyName }) => {
           boxShadow: 4,
           width: "100%",
           maxWidth: 1200,
-          mx: 1,
+          m: 1,
         }}
       >
-        <CardHeader
-          title={`Overview - ${companyName || ""}`}
-          sx={{
-            color: "black",
-            py: 1,
-          }}
-          titleTypographyProps={{
-            sx: { fontSize: "1.1rem", fontWeight: 600 },
-          }}
-          action={
-            <Tooltip title="Options">
-              <IconButton sx={{ color: "#fff" }}>
-                <DotsVertical />
-              </IconButton>
-            </Tooltip>
-          }
-        />
-        <CardContent sx={{ p: 2, my: "auto" }}>
-          <MultiSelectDropdown
-            name="Allocation Company List"
-            readOnly={readOnly}
-            options={multiSelectOption(
-              compCode ? compCode.data : [],
-              "com",
-              "com"
-            )}
-            selected={filterBuyer}
-            setSelected={setFilterBuyer}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={2}>
-              <StatBox
-                icon={<IoIosPeople size={40} />}
-                value={detailedpage?.total}
-                label="Head Count"
-                color={color}
+        <CardContent sx={{ p: 1, my: "auto" }}>
+          <Grid
+            container
+            spacing={3}
+            sx={{
+              color: "black",
+              // py: 1,
+              borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+              // pb: 1,
+            }}
+          >
+            <Grid item md={8}>
+              <CardHeader
+                title={`Overview of Headcount - ${
+                  filterBuyer 
+                }`}
+                titleTypographyProps={{
+                  sx: { fontSize: "1.1rem", fontWeight: 600 },
+                }}
+                action={
+                  <Tooltip title="Options">
+                    <IconButton sx={{ color: "#fff" }}>
+                      <DotsVertical />
+                    </IconButton>
+                  </Tooltip>
+                }
               />
             </Grid>
-            <Grid item xs={12} md={2}>
-              <StatBox
-                icon={<BiMaleSign size={40} />}
-                value={detailedpage?.male}
-                label="Total Male"
-                color={color}
-              />
-            </Grid>
-            <Grid item xs={12} md={2}>
-              <StatBox
-                icon={<IoMdFemale size={40} />}
-                value={detailedpage?.female}
-                label="Total Female"
-                color={color}
+            <Grid item md={1}></Grid>
+            <Grid item md={3}>
+              <DropdownWithSearch
+                options={optionsArray || []}
+                labelField={"compname"}
+                // required={true}
+                label={"Select company"}
+                value={filterBuyer}
+                setValue={setfilterBuyer}
+                // disabled={readonly}
               />
             </Grid>
           </Grid>
-          <Grid>{/* <HeadcountDept companyName={filterBuyer} /> */}</Grid>
+          <Grid>
+            <HeadcountDept
+              companyName={filterBuyer }
+            />
+          </Grid>
           <Grid container spacing={2}>
             <Grid item xs={12} md={7}>
-              <DeptHeadCount companyName={companyName} />
+              <DeptHeadCount
+                companyName={filterBuyer }
+              />
             </Grid>
             <Grid item md={5}>
               <EmployeeByDepartment />
@@ -178,7 +176,7 @@ const DetailedHeadcount = ({ companyName }) => {
               {/* <Companywisessalary companyName={filterBuyer} /> */}
             </Grid>
             <Grid item xs={12} md={4}>
-              <CompAttrition companyName={companyName} />
+              {/* <CompAttrition companyName={companyName} /> */}
             </Grid>
           </Grid>
         </CardContent>

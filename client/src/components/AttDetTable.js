@@ -21,6 +21,11 @@ const AttritionDetTable = ({
   selectedBuyer,
   selectedYear
 }) => {
+
+  console.log( setOpenpopup,
+  selectedBuyer,
+  selectedYear,"Attribution value");
+  
   const [currentPage, setCurrentPage] = useState(1);
      const [selectedState,setSelectedState] = useState('')
      const [selectmonths,setSelectmonths] = useState('')
@@ -148,7 +153,7 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Attrition2 Breakup -  <span className="text-blue-600">{selectedBuyer}</span>
+          Attrition Breakup -  <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}

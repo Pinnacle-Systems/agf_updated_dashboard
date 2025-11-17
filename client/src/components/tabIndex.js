@@ -10,8 +10,8 @@ const tabs = [
      { key: "Dashboard", name: "Dashboard", component: MisDashboard,list:true,list_name:"DashBoard"},
     { key: 'EPR', name: "ERP", component: ERP,list:true,list_name:"ERP " },
     // { key: 'User', name: "User", component: Users ,list:true,list_name:"User Management"},
-    { key: "Roles", name: "Roles", component: Roles,list:true,list_name:"Role Management" },
-    { key: "Main", name: "Main", component: mainDashboard ,list:true,list_name:"AdminDashboard" },
+    // { key: "Roles", name: "Roles", component: Roles,list:true,list_name:"Role Management" },
+    { key: "MISDashboard", name: "MIS Dashboard", component: mainDashboard ,list:true,list_name:"AdminDashboard" },
     // { key: "OnrollInsight", name: "Stock", component:NumericCard  ,list:true,default:false,list_name:"On Roll Insight" },
       
 ]
