@@ -15,7 +15,7 @@ const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
 
 
-console.log("oracledb 7");
+console.log("oracledb 9");
 
 import { socketMain } from "./src/sockets/socket.js";
 
