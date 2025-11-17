@@ -14,6 +14,9 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
 
+
+console.log("oracledb");
+
 import { socketMain } from "./src/sockets/socket.js";
 
 import {
