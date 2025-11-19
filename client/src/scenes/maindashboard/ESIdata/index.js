@@ -41,10 +41,9 @@ import DropdownData from "../../../Ui Component/modelUi";
 import { useGetFinYrQuery } from "../../../redux/service/poData";
 import DetailedESI from "./DetailedESI";
 
-const DetailedDashBoard = ({ companyName,Year}) => {
+const DetailedDashBoard = ({ companyName, Year }) => {
+  console.log(companyName, Year, "Selected");
 
-  console.log(companyName,Year,"Selected");
-  
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -115,27 +114,18 @@ const DetailedDashBoard = ({ companyName,Year}) => {
 
   return (
     <>
-      <div
-        sx={{
-          borderRadius: 3,
-          boxShadow: 4,
-          width: "100%",
-          maxWidth: 1200,
-          m: 10,
-        }}
-      >
+      <div className="w-full  mx-auto rounded-md shadow-lg px-2 py-1 overflow-y-auto">
         <CardContent sx={{ p: 1, my: "auto" }}>
           <Grid
             container
             spacing={3}
             sx={{
               color: "black",
-              // py: 1,
+
               borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-              // pb: 1,
             }}
           >
-            <Grid item md={6}>
+            <Grid item md={8}>
               <CardHeader
                 title={`Overview of ESI Contribution - ${filterBuyer}`}
                 titleTypographyProps={{

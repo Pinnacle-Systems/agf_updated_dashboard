@@ -119,13 +119,7 @@ const SalaryIndex = ({ companyName,Year}) => {
   return (
     <>
       <div
-        sx={{
-          borderRadius: 3,
-          boxShadow: 4,
-          width: "100%",
-          maxWidth: 1200,
-          m: 1,
-        }}
+        className="w-full  mx-auto rounded-md shadow-lg px-2 py-1 overflow-y-auto"
       >
         <CardContent sx={{ p: 1, my: "auto" }}>
           <Grid

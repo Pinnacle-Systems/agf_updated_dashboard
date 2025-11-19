@@ -91,14 +91,19 @@ const Sidebar = () => {
   const params =getCommonParams();
   const{userId,isSuperAdmin}=params
 
-  // const { data: allData, refetch: Getrefetch } = useGetRoleQuery();
-  // const skip = isSuperAdmin === true || !userId;
+  const { data: allData, refetch: Getrefetch } = useGetRoleQuery();
 
-  // const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery({userId}, {skip })
+  console.log(allData,"RTK alldata");
+  
+
+
+  const skip = isSuperAdmin === true || !userId;
+
+  const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery({userId}, {skip })
 
   
 
-  // console.log(allData,"sidebar alldata");
+  
   // console.log(allPages,"sidebar allPages");
   
  
@@ -117,7 +122,7 @@ const Sidebar = () => {
     setRole(Rolename);
 
     }
-   
+   console.log(allowpages,"sidebar alldata");
 
  }
   useEffect(() => {

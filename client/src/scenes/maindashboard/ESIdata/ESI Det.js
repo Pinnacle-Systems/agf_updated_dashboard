@@ -228,17 +228,18 @@ const HomeESI = () => {
 
   const options = {
     chart: {
+      height:250,
       plotBackgroundColor: null,
       plotBorderWidth: 0,
       plotShadow: true,
-      spacing: [0, 0, -100, 0], // remove bottom space
-      marginBottom: -200,
+      spacing: [0, 0, 0, 0], // remove bottom space
+    
     },
     title: {
       text: `ESI<br>shares of<br>${month}`,
       align: "center",
-      verticalAlign: "start",
-      y: 150,
+      verticalAlign: "middle",
+      y:70,
       style: { fontSize: ".9em" },
     },
     tooltip: {
@@ -260,8 +261,8 @@ const HomeESI = () => {
         },
         startAngle: -90,
         endAngle: 90,
-        center: ["50%", "35%"],
-        size: "90%",
+        center: ["50%", "90%"],
+        size: "180%",
         innerSize: "60%",
         point: {
           events: {
@@ -311,23 +312,23 @@ const HomeESI = () => {
         }}
       />
       <CardContent>
-        <Box style={{ height: "250px" }}>
+        <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
-        {/* <Box
+        <Box
           sx={{
             bgcolor: "background.default",
             borderRadius: 3,
             textAlign: "center",
             border: `1px solid ${theme.palette.divider}`,
             // mt: 2,
-            // p: 1,
+            p: 1,
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             OverAll Contribution : {totalESI}
           </Typography>
-        </Box> */}
+        </Box>
       </CardContent>
     </Card>
   );

@@ -60,7 +60,7 @@ const ActiveTabList = () => {
     
   };
 
-  // console.log(tabs);
+  console.log(openTabs,"openTabs");
 
   const innerWidth = window.innerWidth;
   const itemsToShow = innerWidth / 130;
@@ -164,7 +164,9 @@ const ActiveTabList = () => {
           className={`${tab.active ? "block" : "hidden"} w-full`}
         >
           {findTabComponent(tabs, tab.name, tab.data) || (
-            <div className="text-center text-gray-400 p-10">
+            <div 
+            className="text-center text-gray-400 p-10"
+            >
               Page not found for: {tab.name}
             </div>
           )}

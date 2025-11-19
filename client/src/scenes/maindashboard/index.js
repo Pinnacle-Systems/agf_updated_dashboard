@@ -38,12 +38,13 @@ import HomeESI from "./ESIdata/ESI Det.js";
 import HomeRegion from "./Regiondata/HomeRegion.jsx";
 import HomeSalary from "./salarydata/Homesalary.jsx";
 import HomeOTWages from "./OTWages/HomeOT.jsx";
+import CompanywiseEsi from "./DetailedDashboard/companywiseEsi.js";
 
 
 
 const Main_Dashboad = () => {
   return (
-    <ApexChartWrapper>
+    <div  className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
           <DashboardHeader />
@@ -96,35 +97,32 @@ const Main_Dashboad = () => {
             subtitle="Weekly Profit"
           />
         </Grid>
-        <Grid item xs={12} md={6} lg={7}>
+        <Grid item xs={12} md={7}>
           <HomeSalary/>
         </Grid>
 
-        <Grid item xs={12} md={6} lg={5}>
-         
+        <Grid item xs={12} md={5}>
           <HomeESI />
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
-          {/* <WeeklyOverview /> */}
+        <Grid item xs={12} md={4} >
            <HomePF />
         </Grid>
-        <Grid item xs={12} md={6} lg={4}>
+        <Grid item xs={12} md={4}>
           <HeadCount />
         </Grid>
-        <Grid item xs={12} md={12} lg={4}>
+        <Grid item xs={12} md={4}>
           <HomeAttrition />
         </Grid>
-        <Grid item xs={12} md={12} lg={6}>
+        <Grid item xs={12} md={6} >
           <HomeRegion />
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item xs={12} md={6} >
           {/* <Table /> */}
-          {/* <SunburstChart/> */}
-          <HomeOTWages/>
+            <HomeOTWages/>
         </Grid>
       </Grid>
-    </ApexChartWrapper>
+    </div>
   );
 };
 

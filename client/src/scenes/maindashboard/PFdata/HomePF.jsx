@@ -36,7 +36,7 @@ const HomePF = () => {
         alpha: 40,
       },
       backgroundColor: "#FFFFFF",
-      width: 330,
+   
       height: 265,
       borderRadius: 10,
       margin: [0, 0, 0, 0],
@@ -60,8 +60,12 @@ const HomePF = () => {
     plotOptions: {
       pie: {
         innerSize: 100,
-        depth: 45,
+        depth: 60,
+         center: ["60%", "50%"],
+         size: "100%",
+
         dataLabels: {
+          distance:-5,
           formatter: function () {
             return `${this.point.name}`;
           },

@@ -113,7 +113,7 @@ const DetailedAttribution = ({ companyName }) => {
   return (
     <>
       <div
-        style={{}}
+         className="w-full  mx-auto rounded-md shadow-lg px-2 py-1 overflow-y-auto"
       >
         <CardContent sx={{ p: 1, my: "auto" }}>
           <Grid

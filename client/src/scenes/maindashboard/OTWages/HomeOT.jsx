@@ -8,10 +8,12 @@ import {
   useTheme,
   CircularProgress,
   CardContent,
+  CardHeader,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useGetMisDashboardOTWagesDetQuery, useGetMisDashboardSalaryDetQuery } from "../../../redux/service/misDashboardService";
 import { Box } from "@mui/material";
+import { Margin } from "@mui/icons-material";
 
 const HomeOTWages = () => {
   const theme = useTheme();
@@ -48,6 +50,13 @@ const HomeOTWages = () => {
 
   console.log(totalsByComp, "Salarydata");
 
+
+  // const chartData = Object.entries(sumByCompany).map(([company, total]) => ({
+  //   name: company,
+  //   value: total,
+  // }));
+
+
   const compList = Object.entries(totalsByComp).map(
     ([code, total], index, arr) => {
       const prevTotal = index > 0 ? arr[index - 1][1] : total;
@@ -59,91 +68,140 @@ const HomeOTWages = () => {
   console.log(compList, "compList");
 
   const Totalvalue = compList?.map((x) => x.OTWAGES);
-  const company = compList?.map((x) => x.COMPCODE);
+  // const company = compList?.map((x) => x.COMPCODE);
 
   const Sumtotal = Totalvalue?.reduce((sum, total) => sum + total);
-
-  console.log(Totalvalue, Sumtotal, "Sumtotal");
-
-  const options = {
+ 
+  const option = {
     chart: {
-      type: "area",
-      height: 267,
-      zoomType: null,
-      enabled: true, // same as zoom: { enabled: false }
-    },
+        type: 'pie',
+        height: 280 ,
+        custom: {},
+        // margin:[0,0,0,0],
+        events: {
+            render() {
+                const chart = this,
+                    series = chart.series[0];
+                let customLabel = chart.options.chart.custom.label;
 
-    title: {
-      text: "Salary Contribution",
-      align: "",
-      style: {
-    fontSize: "16px",     
-    fontWeight: "600",    
-    color: "#000",        
-    
-  },
-    },
+                if (!customLabel) {
+                    customLabel = chart.options.chart.custom.label =
+                        chart.renderer.label(
+                            'Total<br/>' +
+                              `<strong>${Sumtotal.toLocaleString()}</strong>`
+                        )
+                            .css({
+                                color:
+                                    'var(--highcharts-neutral-color-100, #000)',
+                                textAnchor: 'middle',
+                                fontSize:'100px',
+                                
+                            })
+                            .add();
+                }
 
-    subtitle: {
-      text: "",
-      align: "left",
-    },
+                const x = series.center[0] + chart.plotLeft,
+                    y = series.center[1] + chart.plotTop -
+                    (customLabel.attr('height') / 2);
 
-    xAxis: {
-      type: "datetime",
-      categories: company, // SAME AS APEX LABELS
+                customLabel.attr({
+                    x,
+                    y
+                });
+                // Set font size based on chart diameter
+                customLabel.css({
+                    fontSize: `${series.center[2] / 12}px`
+                });
+            }
+        }
     },
-
-    yAxis: {
-      title: { text: "" },
-      opposite: true, // SAME AS APEX
-    },
-
-    legend: {
-      align: "left",
-      verticalAlign: "bottom",
-    },
-
-    plotOptions: {
-      series: {
-        dataLabels: {
-          enabled: false,
-        },
-      },
-      area: {
-        marker: {
-          enabled: false,
-        },
-        lineWidth: 2,
-      },
-    },
-
-    series: [
-      {
-        name: "Last Month salary",
-        data: Totalvalue.map((value, index) => ({
-          y: value,
-          comp: company[index],
-        })),
+    accessibility: {
         point: {
-          events: {
-            click: function () {
-              const company = this.category;
-              dispatch(
-                push({
-                  id: `SalaryDetail`,
-                  name: `SalaryDetail`,
-                  component: "SunburstChart", //
-                  data: { companyName: company },
-                })
-              );
-            },
-          },
-        },
-      },
-    ],
-  };
+            valueSuffix: '%'
+        }
+    },
+    title: {
+        text: null
+    },
 
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.y}</b>'
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            borderRadius: 3,
+            dataLabels: [{
+                enabled: true,
+                distance: 20,
+                format: '{point.name}'
+            }, {
+                enabled: true,
+                distance: -15,
+                format: '{point.y}',
+                style: {
+                    fontSize: '0.9em'
+                }
+            }],
+            showInLegend: true
+        }
+    },
+    series: [{
+        name: 'OTwages',
+        colorByPoint: true,
+        innerSize: '75%',
+        data: compList?.map((x,i)=>({
+          name:x.COMPCODE,
+          y:x.OTWAGES,
+        }))
+    }]
+  }
+
+  // Build the chart
+const options={
+    chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie'
+    },
+    title: {
+        text: null
+    },
+    tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+    },
+    accessibility: {
+        point: {
+            valueSuffix: '%'
+        }
+    },
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                format: '<span style="font-size: 1.2em"><b>{point.name}</b>' +
+                    '</span><br>' +
+                    '<span style="opacity: 0.6">{point.percentage:.1f} ' +
+                    '%</span>',
+                connectorColor: 'rgba(128,128,128,0.5)'
+            }
+        }
+    },
+    series: [{
+        name: 'OTWages',
+        data: compList?.map((x,i)=>({
+          name:x.COMPCODE,
+          y:x.OTWAGES,
+        }))
+    }]
+  }
   return (
     <Card
       sx={{
@@ -155,25 +213,18 @@ const HomeOTWages = () => {
         mx: 1,
       }}
     >
+      <CardHeader title="OT Wages Contribution" titleTypographyProps={{
+            sx: { fontSize: "1rem", fontWeight: 600 },
+          }}
+         
+          sx={{
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          }}/>
       <CardContent>
         <div>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </div>
-        <Box
-          sx={{
-            // m: 1,
-            p: 1,
-            // mb: 2,
-            bgcolor: "background.default",
-            borderRadius: 3,
-            textAlign: "center",
-            border: `1px solid ${theme.palette.divider}`,
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Contribution : {Sumtotal.toLocaleString()}
-          </Typography>
-        </Box>
+        
       </CardContent>
     </Card>
   );
