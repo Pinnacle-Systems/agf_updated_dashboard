@@ -157,7 +157,7 @@
 
 // export default SalesByCountries
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Box,
   Card,
@@ -185,6 +185,7 @@ const SalaryDet = () => {
     isError,
     error,
   } = useGetMisDashboardSalaryDetQuery({ params: {} });
+
   const dispatch = useDispatch();
 
   if (isLoading)
@@ -203,14 +204,14 @@ const SalaryDet = () => {
 
   const employees = Salarydata?.data || [];
 
-  // ✅ 1️⃣ Group NETPAY by COMPCODE
   const totalsByComp = employees.reduce((acc, emp) => {
     const code = emp.COMPCODE || "Unknown";
     acc[code] = (acc[code] || 0) + (emp.NETPAY || 0);
     return acc;
   }, {});
 
-  // ✅ 2️⃣ Convert to array and add dummy trend data
+  console.log(totalsByComp, "Salarydata");
+
   const compList = Object.entries(totalsByComp).map(
     ([code, total], index, arr) => {
       const prevTotal = index > 0 ? arr[index - 1][1] : total;
@@ -219,17 +220,27 @@ const SalaryDet = () => {
       return { COMPCODE: code, NETPAY: total, trendDir, color };
     }
   );
-  const handleView=(item)=>{
-    // console.log(item.COMPCODE);
-     dispatch( push({id: `EmployeeDetail`,
-                            name: `EmployeeDetail`,
-                            component: "DetailedDashBoard", //
-                            data: { companyName: item.COMPCODE },
-                          }))
-  }
+  console.log(compList, "compList");
 
-  // console.log(Salarydata,"Salarydata");
+  const handleView = (item) => {
+    // console.log(item.COMPCODE);
+    dispatch(
+      push({
+        id: `EmployeeDetail`,
+        name: `EmployeeDetail`,
+        component: "DetailedDashBoard", //
+        data: { companyName: item.COMPCODE },
+      })
+    );
+  };
+
+  const Totalvalue = compList?.map((x)=>x.NETPAY)
+
+  const Sumtotal =Totalvalue?.reduce((sum,total)=>sum+total)
+
+  console.log(Totalvalue,Sumtotal,"Sumtotal");
   
+
 
   return (
     <Card sx={{ mx: 1 }}>
@@ -261,17 +272,16 @@ const SalaryDet = () => {
       <CardContent sx={{ pt: (theme) => `${theme.spacing(2)} !important` }}>
         {compList.map((item, index) => (
           <Box
-              component="div"
-              style={{ cursor: 'pointer' }} 
-              onClick={()=>handleView(item)}
+            component="div"
+            style={{ cursor: "pointer" }}
+            onClick={() => handleView(item)}
             key={item.COMPCODE}
             sx={{
               display: "flex",
               alignItems: "center",
               ...(index !== compList.length - 1 ? { mb: 2 } : {}),
             }}
-          
-            >
+          >
             {/* Avatar with COMPCODE initials */}
             <Avatar
               sx={{
@@ -287,7 +297,6 @@ const SalaryDet = () => {
               {item.COMPCODE.slice(0, 2)}
             </Avatar>
 
-            {/* Company & Salary */}
             <Box
               sx={{
                 width: "100%",
@@ -330,24 +339,21 @@ const SalaryDet = () => {
             </Box>
           </Box>
         ))}
-        {/* <Button
-          fullWidth
-          variant="contained"
+        <Box
           sx={{
-            mt: 2,
-            py: 1,
+            m: 1,
+            p: 1,
+            // mb: 2,
+            bgcolor: "background.default",
             borderRadius: 3,
-            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            fontSize: "1rem",
-            fontWeight: 600,
-            "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: 4,
-            },
+            textAlign: "center",
+            border: `1px solid ${theme.palette.divider}`,
           }}
         >
-          View Detailed Report
-        </Button> */}
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            OverAll Contribution : {Sumtotal.toLocaleString()}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );

@@ -105,7 +105,7 @@ useEffect(()=>{
 
   return (
     <>
-      <Card
+      <div
         sx={{
           borderRadius: 3,
           boxShadow: 4,
@@ -133,13 +133,13 @@ useEffect(()=>{
                 titleTypographyProps={{
                   sx: { fontSize: "1.1rem", fontWeight: 600 },
                 }}
-                action={
-                  <Tooltip title="Options">
-                    <IconButton sx={{ color: "#fff" }}>
-                      <DotsVertical />
-                    </IconButton>
-                  </Tooltip>
-                }
+                // action={
+                //   <Tooltip title="Options">
+                //     <IconButton sx={{ color: "#fff" }}>
+                //       <DotsVertical />
+                //     </IconButton>
+                //   </Tooltip>
+                // }
               />
             </Grid>
             <Grid item md={1}></Grid>
@@ -180,7 +180,7 @@ useEffect(()=>{
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </div>
     </>
   );
 };

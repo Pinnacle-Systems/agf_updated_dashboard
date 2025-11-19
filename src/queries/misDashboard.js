@@ -174,7 +174,7 @@ JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
 JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND AND CC.BANDID <> 'STAFF'
 
 WHERE A.PCTYPE = 'ACTUAL' AND  A.PAYPERIOD = '${lstMnth}') group by COMPCODE `
-        console.log(sql,"sql salary");
+        console.log(sql,"sql salary today");
 
         result = await connection.execute(sql)
     } else if (type === "MONTH") {
@@ -206,6 +206,9 @@ WHERE A.PCTYPE = 'ACTUAL' AND  A.PAYPERIOD = '${lstMnth}') group by COMPCODE `
 
 
     }))
+
+     console.log(result,"result salary today");
+
     return result
 }
 export async function getTopCustomers(connection, type = "YEAR", filterYear, filterBuyer, filterMonth) {

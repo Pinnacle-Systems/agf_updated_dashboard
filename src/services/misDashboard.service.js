@@ -276,6 +276,89 @@ export async function getSalarydet(req, res) {
   }
 }
 
+export async function getOTwagesdet(req, res) {
+  const connection = await getConnection(res);
+  const { filterBuyer = "", search = {} } = req.query;
+
+  let result = [];
+  let filterBuyerList = "";
+
+  // ✅ Handle company filter
+  if (filterBuyer && filterBuyer.trim() !== "") {
+    filterBuyerList = filterBuyer
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+  // ✅ Build where clause
+  let whereClause = "1=1";
+  if (filterBuyerList)
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD)
+    whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
+  // ✅ Query with per-company latest pay period
+  const sql = `
+    SELECT * FROM (
+      SELECT
+        DD.IDCARD EMPID,
+        DD.FNAME,
+        DD.GENDER,
+        DD.DOJ,
+        DD.DEPARTMENT,
+        A.OTWAGES,
+        DD.PAYCAT,
+        DD.COMPCODE
+      FROM MISTABLE DD
+      JOIN HPAYROLL A
+        ON A.EMPID = DD.IDCARD
+        AND A.PCTYPE = 'ACTUAL'
+        AND A.PAYPERIOD = (
+          SELECT MAX(PAYPERIOD)
+          FROM HPAYROLL X
+          JOIN MISTABLE M ON X.EMPID = M.IDCARD
+          WHERE X.PCTYPE = 'ACTUAL'
+          AND M.COMPCODE = DD.COMPCODE
+        )
+      JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+      JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+      JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+      WHERE ${whereClause}
+      GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
+               DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE, A.OTWAGES
+    ) A
+    ORDER BY A.EMPID
+  `;
+
+  try {
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching salary details",
+      error,
+    });
+  }
+}
+
 export async function getpfdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {} } = req.query;
@@ -1324,7 +1407,7 @@ export async function getYearlyComp(req, res) {
     if (filterBuyerList) {
       companyFilter = `AND A.COMPCODE IN (${filterBuyerList})`;
     }
-    // console.log(currentDt, "currentDt");
+    console.log(currentDt, "currentDt yearly");
 
     const sql = `
       SELECT A.COMPCODE,
@@ -1346,9 +1429,10 @@ export async function getYearlyComp(req, res) {
           FROM MONTHLYPAYFRQ AA
           WHERE AA.PAYPERIOD = '${currentDt}'
         ))
-        ${companyFilter}   -- 👈 dynamic filter added here
+        ${companyFilter}  
       ) A
       GROUP BY A.COMPCODE
+      
     `;
 
     const result = await connection.execute(sql);
@@ -1358,6 +1442,92 @@ export async function getYearlyComp(req, res) {
       male: po[1],
       female: po[2],
       total: po[3],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getregionCount(req, res) {
+  const month = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const d = new Date();
+  const monthName = month[d.getMonth()];
+  const yearName = d.getFullYear();
+  const lastmonth = month[d.getMonth() - 1];
+  const currentDt = [monthName, yearName].join(" ");
+  const lstMnth = [lastmonth, yearName].join(" ");
+
+  const connection = await getConnection(res);
+
+  try {
+    console.log(currentDt, "currentDt yearly");
+
+    const sql = `
+   SELECT 
+    COMPCODE,
+
+   
+    SUM(CASE WHEN STATE = 'TAMILNADU' THEN MALE ELSE 0 END) AS TN_MALE,
+    SUM(CASE WHEN STATE = 'TAMILNADU' THEN FEMALE ELSE 0 END) AS TN_FEMALE,
+    SUM(CASE WHEN STATE = 'TAMILNADU' THEN MALE + FEMALE ELSE 0 END) AS TN_TOTAL,
+
+ 
+    SUM(CASE WHEN STATE <> 'TAMILNADU' THEN MALE ELSE 0 END) AS NON_TN_MALE,
+    SUM(CASE WHEN STATE <> 'TAMILNADU' THEN FEMALE ELSE 0 END) AS NON_TN_FEMALE,
+    SUM(CASE WHEN STATE <> 'TAMILNADU' THEN MALE + FEMALE ELSE 0 END) AS NON_TN_TOTAL
+
+FROM (
+    SELECT 
+        A.COMPCODE,
+        A.STATE,
+        CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
+        CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE
+    FROM MISTABLE A
+    WHERE A.DOJ <= (
+        SELECT MIN(AA.STDT)
+        FROM MONTHLYPAYFRQ AA
+        WHERE AA.PAYPERIOD = '${currentDt}'
+    )
+    AND (A.DOL IS NULL OR A.DOL <= (
+        SELECT MIN(AA.ENDT)
+        FROM MONTHLYPAYFRQ AA
+        WHERE AA.PAYPERIOD = '${currentDt}'
+    ))
+) A
+GROUP BY COMPCODE
+ORDER BY COMPCODE
+
+    `;
+
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((po) => ({
+      customer: po[0],
+      tn_male:po[1],
+      tn_female: po[2],
+      tn_total: po[3],
+      non_male: po[4],
+      non_female: po[5],
+      non_total: po[6],
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1617,7 +1787,7 @@ export async function getESIPF1(req, res) {
   ORDER BY STDT1,STDT
 
  
-`
+`;
 
     const result = await connection.execute(sql);
     let resp = result.rows.map((po) => ({
@@ -1640,8 +1810,6 @@ export async function getESIlastmonth(req, res) {
   const connection = await getConnection(res);
 
   try {
-
-
     const sql = `WITH LAST_MONTH AS (
     SELECT MAX(EE.STDT) AS LAST_STDT
     FROM HPAYROLL A
@@ -1706,8 +1874,6 @@ export async function getPFlastmonth(req, res) {
   const connection = await getConnection(res);
 
   try {
-
-
     const sql = `WITH LAST_MONTH AS (
     SELECT MAX(EE.STDT) AS LAST_STDT
     FROM HPAYROLL A

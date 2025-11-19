@@ -56,9 +56,9 @@ const PFIndex = ({ companyName,Year}) => {
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
-  const filterBuyer1 = result?.data.map((item) => item.customer);
+  const filterBuyer1 = result?.data?.map((item) => item.customer)  || [];
 
-  const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
+  const chartData = Object.entries(filterBuyer1 || {}).map(([id, company]) => ({
     compname: company,
     id: company,
   }));
@@ -117,7 +117,7 @@ const PFIndex = ({ companyName,Year}) => {
 
   return (
     <>
-      <Card
+      <div
         sx={{
           borderRadius: 3,
           boxShadow: 4,
@@ -137,19 +137,19 @@ const PFIndex = ({ companyName,Year}) => {
               // pb: 1,
             }}
           >
-            <Grid item md={6}>
+            <Grid item md={8}>
               <CardHeader
-                title={`Overview of Headcount - ${filterBuyer}`}
+                title={`Overview of PF Contribution - ${filterBuyer}`}
                 titleTypographyProps={{
                   sx: { fontSize: "1.1rem", fontWeight: 600 },
                 }}
-                action={
-                  <Tooltip title="Options">
-                    <IconButton sx={{ color: "#fff" }}>
-                      <DotsVertical />
-                    </IconButton>
-                  </Tooltip>
-                }
+                // action={
+                //   <Tooltip title="Options">
+                //     <IconButton sx={{ color: "#fff" }}>
+                //       <DotsVertical />
+                //     </IconButton>
+                //   </Tooltip>
+                // }
               />
             </Grid>
             <Grid item md={2}>
@@ -174,27 +174,9 @@ const PFIndex = ({ companyName,Year}) => {
                 // disabled={readonly}
               />
             </Grid>
-            {/* <Grid item md={2}>
-              <Button
-                variant="contained"
-                //   startIcon={<AddCircleOutlineIcon />}
-                sx={{
-                  mt: 1,
-                  ml: 1,
-                  p: 1,
-                  backgroundColor: "#446D7F",
-                  textTransform: "none",
-                  "&:hover": { backgroundColor: "#365A6A" },
-                }}
-              >
-                Show
-              </Button>
-            </Grid> */}
           </Grid>
           <Grid>
-            {/* <HeadcountDept
-                companyName={filterBuyer }
-                /> */}
+            
           </Grid>
           <Grid container spacing={2}>
             <Grid item xs={12} md={8}>
@@ -215,7 +197,7 @@ const PFIndex = ({ companyName,Year}) => {
             <Grid item xs={12} md={4}></Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </div>
     </>
   );
 };

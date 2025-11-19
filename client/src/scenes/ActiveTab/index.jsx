@@ -26,6 +26,7 @@ import DetailedAttribution from "../maindashboard/Attrition/index.js";
 import DetailedHeadcount from "../maindashboard/Headcount/index.js";
 import DetailedDashBoard from "../maindashboard/ESIdata/index.js";
 import PFIndex from "../maindashboard/PFdata/index.js";
+import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -50,10 +51,11 @@ const ActiveTabList = () => {
       },
     },
     MISDashboard: <Main_Dashboad />,
-     EmployeeDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} Year={tabData?.Year}/>,
+     ESIDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} Year={tabData?.Year}/>,
      PFDetails: (tabData)=><PFIndex companyName={tabData?.companyName} Year={tabData?.Year}/>,
      Headcount: (tabData)=><DetailedHeadcount companyName={tabData?.companyName} />,
-     Attrition: (tabData)=><DetailedAttribution companyName={tabData?.companyName} />
+     Attrition: (tabData)=><DetailedAttribution companyName={tabData?.companyName} Year={tabData?.Year} />,
+     SalaryDetail: (tabData)=><SalaryIndex companyName={tabData?.companyName}Year={tabData?.Year} />
      
     
   };

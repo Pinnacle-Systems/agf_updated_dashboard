@@ -92,7 +92,7 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
   );
   return (
     <>
-      <Card sx={{ p: 1 }}>
+      <div style={{padding:"5px"}}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={2}>
             <StatBox
@@ -132,7 +132,7 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
         </Grid>
 
         
-      </Card>
+      </div>
     </>
   );
 };

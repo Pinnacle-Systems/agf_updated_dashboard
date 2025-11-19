@@ -1,212 +1,254 @@
-// import ReactApexcharts from "react-apexcharts";
-// import { useState, useEffect } from "react";
+// import React, { useMemo } from "react";
+// import {
+//   PieChart,
+//   Pie,
+//   Cell,
+//   Tooltip,
+//   Legend,
+//   ResponsiveContainer,
+// } from "recharts";
 // import {
 //   Box,
 //   Card,
 //   CardHeader,
 //   CardContent,
-//   Typography,
-//   IconButton,
-//   Tooltip,
 //   CircularProgress,
-//   useTheme
+//   IconButton,
+//   Button,
+//   Typography,
+//   ButtonGroupButtonContext,
 // } from "@mui/material";
+// import Highcharts from "highcharts";
+// // import { useGetPfDetQuery } from "../../redux/service/misDashboardService";
+// import {
+//   useGetEsilastmonthQuery,
+//   useGetMisDashboardEsiDetQuery,
+//   useGetMisDashboardPfDetQuery,
+// } from "../../../redux/service/misDashboardService";
 // import DotsVertical from "mdi-material-ui/DotsVertical";
-// import { useGetMisDashboardSalaryDetQuery } from "../../../redux/service/misDashboardService";
+// import { useTheme } from "@emotion/react";
+// import { useDispatch } from "react-redux";
+// import { push } from "../../../redux/features/opentabs";
+// import { theme } from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
 
-// const NewjoiningChart = () => {
+// const HomeESI = () => {
 //   const theme = useTheme();
-//   const { data: Salarydata, isLoading, isError, error } = useGetMisDashboardSalaryDetQuery({ params: {} });
-//   const [series, setSeries] = useState([]);
-//   const [labels, setLabels] = useState([]);
-//   console.log(Salarydata,"Salarydata");
+//   const dispatch = useDispatch();
 
-//   useEffect(() => {
-//     if (Salarydata && Salarydata.success && Salarydata.data) {
-//       // ✅ Group NETPAY by COMPCODE
-//       const totalsByComp = {};
-//       Salarydata.data.forEach((item) => {
-//         const comp = item.COMPCODE || "Unknown";
-//         totalsByComp[comp] = (totalsByComp[comp] || 0) + item.NETPAY;
-//       });
+//   const { data: ESIdata, isLoading, isError } = useGetEsilastmonthQuery();
 
-//       setLabels(Object.keys(totalsByComp));
-//       setSeries(Object.values(totalsByComp));
-//     }
-//   }, [Salarydata]);
+//   const { chartData1, chartvalue, chartcount, month, year } = useMemo(() => {
+//     if (!ESIdata?.data) return {};
 
-//   const chartOptions = {
-//     chart: {
-//       type: "pie",
-//       toolbar: { show: false },
-//       animations: { enabled: true, easing: "easeinout", speed: 800 },
-//     },
-//     labels,
-//     legend: {
-//       position: "bottom",
-//       horizontalAlign: "center",
-//       markers: { width: 12, height: 12, radius: 6 },
-//     },
-//     dataLabels: {
-//       enabled: true,
-//       formatter: (val) => `${val.toFixed(1)}%`,
-//     },
-//     colors: [
-//       theme.palette.primary.main,
-//       theme.palette.secondary.main,
-//       theme.palette.success.main,
-//       theme.palette.warning.main,
-//       theme.palette.error.main,
-//     ],
-//   };
+//     return {
+//       chartData1: ESIdata.data.map((e) => e.customer),
+//       chartvalue: ESIdata.data.map((e) => e.esi),
+//       chartcount: ESIdata.data.map((e) => e.headCount),
+//       month: ESIdata.data[0], // first object has month
+//       year: ESIdata.data.map((e) => e.Year),
+//     };
+//   }, [ESIdata]);
 
-//   if (isLoading)
-//     return (
-//       <Card sx={{ p: 6, display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
-//         <CircularProgress />
-//       </Card>
+//   const colors = useMemo(() => {
+//     if (!chartData1) return [];
+//     return chartData1.map(
+//       () => "#" + Math.floor(Math.random() * 16777215).toString(16)
 //     );
+//   }, [chartData1]);
 
-//   if (isError)
-//     return (
-//       <Typography color="error" variant="h6">
-//         Error: {error?.message || "Failed to load data"}
-//       </Typography>
-//     );
+//   const formattedData1 = useMemo(() => {
+//     if (!chartData1) return [];
+//     return chartData1.map((name, i) => ({
+//       name,
+//       y: chartvalue[i],
+//       color: colors[i],
+//       headCount: chartcount[i],
+//       Year: year[i],
+//     }));
+//   }, [chartData1, chartvalue, chartcount, colors, year]);
+
+//   const formattedData = ESIdata?.data.map((item, i) => ({
+//     name: item.customer,
+//     y: item.esi,
+//     color: colors[i],
+//     headCount: item.headCount,
+//     Year: year[i],
+//   }));
+
+//   console.log(formattedData, "formattedData");
+
+// const totalvalue = ESIdata?.data.map((item) => item.pf);
+//   const headcount = totalvalue?.reduce((sum, val) => sum + val, 0);
+
+//   const options = useMemo(() => {
+//     if (!formattedData) return {};
+
+//     return {
+//       chart: {
+//         plotBackgroundColor: null,
+//         plotBorderWidth: 0,
+//         plotShadow: false,
+//       },
+//       title: {
+//         text: `ESI<br>shares of<br>${month?.month}`,
+//         align: "center",
+//         verticalAlign: "middle",
+//         y: -20,
+//         style: { fontSize: "1.1em" },
+//       },
+//       tooltip: {
+//         formatter: function () {
+//           return `
+//             <b>${this.point.name}</b><br/>
+//             ESI Share: <b>${this.point.percentage.toFixed(1)}%</b><br/>
+//             Amount: <b>${this.point.y}</b><br/>
+//             Head Count: <b>${this.point.headCount}</b>
+//           `;
+//         },
+//       },
+//       plotOptions: {
+//         pie: {
+//           dataLabels: {
+//             enabled: true,
+//             distance: -50,
+//             style: { fontWeight: "bold", color: "white" },
+//           },
+//           startAngle: -90,
+//           endAngle: 90,
+//           center: ["50%", "50%"],
+//           size: "110%",
+//           point: {
+//             events: {
+//               click: function () {
+//                 dispatch(
+//                   push({
+//                     id: "EmployeeDetail",
+//                     name: "EmployeeDetail",
+//                     component: "DetailedDashBoard",
+//                     data: { companyName: this.name, Year: this.Year },
+//                   })
+//                 );
+//               },
+//             },
+//           },
+//         },
+//       },
+//       series: [
+//         {
+//           type: "pie",
+//           name: "ESI share",
+//           innerSize: "50%",
+//           data: formattedData,
+//         },
+//       ],
+//     };
+//   }, [formattedData, month, dispatch]);
+
+//   if (isLoading) return <CircularProgress />;
+//   if (isError) return <div>Error loading ESIdata</div>;
+//   if (!chartData1?.length) return <div>No data found</div>;
 
 //   return (
-//     <Card sx={{ borderRadius: 3, boxShadow: 4, p: 2 }}>
-//       <CardHeader
-//         title="Salary Distribution Company Code"
-//         sx={{
-//           borderBottom:'2px solid #ccc',
-//           borderBlockStyle:"solid",
-//           // background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-//           color: "#fff",
-//         }}
-//         action={
-//           <Tooltip title="Options">
-//             <IconButton sx={{ color: "#fff" }}>
-//               <DotsVertical />
-//             </IconButton>
-//           </Tooltip>
-//         }
-//       />
-
+//     <Card>
+//       <CardHeader title="ESI Contribution" />
 //       <CardContent>
-//         <Box sx={{ height: 400 }}>
-//           <ReactApexcharts type="pie" height="100%" options={chartOptions} series={series} />
-//         </Box>
+//         <div style={{ height: "280px" }}>
+//           <HighchartsReact highcharts={Highcharts} options={options} />
+//         </div>
+
+//           <Box
+//             sx={{
+//               bgcolor: "background.default",
+//               borderRadius: 3,
+//               textAlign: "center",
+//               border: `1px solid ${theme.palette.divider}`,
+//               mt: 2,
+//               p: 1,
+//             }}
+//           >
+//             <Typography variant="h6" sx={{ fontWeight: 600 }}>
+//               OverAll Contribution : {headcount}
+//             </Typography>
+//           </Box>
+
 //       </CardContent>
 //     </Card>
 //   );
 // };
 
-// export default NewjoiningChart;
-import React, { useMemo } from "react";
+// export default HomeESI;
+
+import React from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import {
+  Box,
   Card,
   CardHeader,
   CardContent,
   CircularProgress,
-  IconButton,
-  Button,
   Typography,
 } from "@mui/material";
 import Highcharts from "highcharts";
-// import { useGetPfDetQuery } from "../../redux/service/misDashboardService";
-import {
-  useGetEsilastmonthQuery,
-  useGetMisDashboardEsiDetQuery,
-  useGetMisDashboardPfDetQuery,
-} from "../../../redux/service/misDashboardService";
-import DotsVertical from "mdi-material-ui/DotsVertical";
+import HighchartsReact from "highcharts-react-official";
 import { useTheme } from "@emotion/react";
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
-import { theme } from "highcharts";
-import { Box } from "lucide-react";
-import HighchartsReact from "highcharts-react-official";
-
-const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#A020F0",
-  "#FF4560",
-  "#A020F5",
-  "#FF8046",
-];
+import { useGetEsilastmonthQuery } from "../../../redux/service/misDashboardService";
 
 const HomeESI = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { data, isLoading, isError } = useGetMisDashboardEsiDetQuery({
-    params: {}, // or pass filterBuyer/search if needed
-  });
 
-  const { data: ESIdata } = useGetEsilastmonthQuery();
-  console.log(ESIdata, "ESIdata");
+  const { data: ESIdata, isLoading, isError } = useGetEsilastmonthQuery();
 
-  // console.log(data,"ESI Hole Data");
+  if (isLoading) return <CircularProgress />;
+  if (isError) return <div>Error loading data</div>;
+  if (!ESIdata?.data?.length) return <div>No data found</div>;
 
-  const chartData1 = ESIdata?.data.map((item) => item.customer);
-  const chartvalue = ESIdata?.data.map((item) => item.esi);
-  const chartcount = ESIdata?.data.map((item) => item.headCount);
-  const month = ESIdata?.data.find((item) => item.month);
-  const year=ESIdata?.data.map((item) => item.Year);
-  console.log(month);
-  const colors = chartData1?.map(
+  const chartData1 = ESIdata.data.map((e) => e.customer);
+
+  const month = ESIdata.data[0]?.month;
+  const year = ESIdata.data.map((e) => e.Year);
+
+  const colors = chartData1.map(
     () => "#" + Math.floor(Math.random() * 16777215).toString(16)
   );
 
-  const formattedData = chartData1?.map((name, i) => ({
-    name,
-    y: chartvalue[i],
+  const formattedData = ESIdata.data.map((item, i) => ({
+    name: item.customer,
+    y: item.esi,
     color: colors[i],
-    headCount: chartcount[i],
-    Year:year[i]
+    headCount: item.headCount,
+    Year: year[i],
   }));
-  console.log(formattedData,"formattedData");
-  
+
+  const totalESI = ESIdata.data
+    .map((x) => Number(x.esi ?? 0))
+    .reduce((a, b) => a + b, 0);
 
   const options = {
     chart: {
       plotBackgroundColor: null,
       plotBorderWidth: 0,
-      plotShadow: false,
+      plotShadow: true,
+      spacing: [0, 0, -100, 0], // remove bottom space
+      marginBottom: -200,
     },
     title: {
-      text: `ESI<br>shares of<br>${month?.month}`,
+      text: `ESI<br>shares of<br>${month}`,
       align: "center",
-      verticalAlign: "middle",
-      y: -20,
-      style: {
-        fontSize: "1.1em",
-      },
+      verticalAlign: "start",
+      y: 150,
+      style: { fontSize: ".9em" },
     },
     tooltip: {
       formatter: function () {
         return `
-      <b>${this.point.name}</b><br/>
-      ESI Share: <b>${this.point.percentage.toFixed(1)}%</b><br/>
-      Amount: <b>${this.point.y}</b><br/>
-      Head Count: <b>${this.point.headCount}</b>
-    `;
-      },
-    },
-    accessibility: {
-      point: {
-        valueSuffix: "%",
+          <b>${this.point.name}</b><br/>
+          ESI Share: <b>${this.point.percentage.toFixed(1)}%</b><br/>
+          Amount: <b>${this.point.y}</b><br/>
+          Head Count: <b>${this.point.headCount}</b>
+        `;
       },
     },
     plotOptions: {
@@ -214,28 +256,22 @@ const HomeESI = () => {
         dataLabels: {
           enabled: true,
           distance: -50,
-          style: {
-            fontWeight: "bold",
-            color: "white",
-          },
+          style: { fontWeight: "bold", color: "white" },
         },
         startAngle: -90,
         endAngle: 90,
-        center: ["50%", "50%"],
-        size: "110%",
+        center: ["50%", "35%"],
+        size: "90%",
+        innerSize: "60%",
         point: {
           events: {
             click: function () {
-              const companyName = this.name;
-              const Year=this.Year;
-              console.log("Clicked:", companyName,Year);
-
               dispatch(
                 push({
-                  id: "EmployeeDetail",
-                  name: "EmployeeDetail",
+                  id: "ESIDetail",
+                  name: "ESIDetail",
                   component: "DetailedDashBoard",
-                  data: { companyName,Year },
+                  data: { companyName: this.name, Year: this.Year },
                 })
               );
             },
@@ -243,7 +279,6 @@ const HomeESI = () => {
         },
       },
     },
-
     series: [
       {
         type: "pie",
@@ -254,59 +289,45 @@ const HomeESI = () => {
     ],
   };
 
-  // console.log(chartvalue,chartData1,chartcount,"New ESi data");
-  if (isLoading) return <CircularProgress />;
-  if (isError) return <div>Error loading PF data</div>;
-  if (!chartData1.length) return <div>No PF data found for last month</div>;
-
   return (
-    <Card sx={{}}>
+    <Card
+      sx={{
+        // m:1,
+        borderRadius: 3,
+        boxShadow: 4,
+        width: "100%",
+        maxWidth: 1000,
+        //   mx: 1,
+      }}
+    >
       <CardHeader
         title="ESI Contribution"
         titleTypographyProps={{
-          sx: {
-            lineHeight: "1.2 !important",
-            letterSpacing: "0.31px !important",
-            fontSize: "15px",
-            fontWeight: 600,
-          },
+          sx: { fontSize: "1rem", fontWeight: 600,  },
         }}
-        action={
-          <IconButton
-            size="small"
-            aria-label="settings"
-            sx={{ color: "text.secondary" }}
-          >
-            <DotsVertical />
-          </IconButton>
-        }
-        // sx={{
-        //   borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-        //   pb: 1,
-        // }}
+        sx={{
+          borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          // pb: 1,
+        }}
       />
       <CardContent>
-        <div style={{ height: "280px" }}>
+        <Box style={{ height: "250px" }}>
           <HighchartsReact highcharts={Highcharts} options={options} />
-        </div>
-        {/* <Button
-          fullWidth
-          variant="contained"
+        </Box>
+        {/* <Box
           sx={{
-            mt: 1,
-            py: 1,
+            bgcolor: "background.default",
             borderRadius: 3,
-            // background: `linear-gradient(200deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            fontSize: ".75rem",
-            fontWeight: 600,
-            "&:hover": {
-              transform: "translateY(-2px)",
-              boxShadow: 4,
-            },
+            textAlign: "center",
+            border: `1px solid ${theme.palette.divider}`,
+            // mt: 2,
+            // p: 1,
           }}
         >
-          View Detailed Report
-        </Button> */}
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            OverAll Contribution : {totalESI}
+          </Typography>
+        </Box> */}
       </CardContent>
     </Card>
   );

@@ -112,14 +112,8 @@ const DetailedAttribution = ({ companyName }) => {
 
   return (
     <>
-      <Card
-        sx={{
-          borderRadius: 3,
-          boxShadow: 4,
-          width: "100%",
-          maxWidth: 1200,
-          m: 1,
-        }}
+      <div
+        style={{}}
       >
         <CardContent sx={{ p: 1, my: "auto" }}>
           <Grid
@@ -132,19 +126,19 @@ const DetailedAttribution = ({ companyName }) => {
               // pb: 1,
             }}
           >
-            <Grid item md={6}>
+            <Grid item md={8}>
               <CardHeader
                 title={`Overview of Headcount - ${filterBuyer}`}
                 titleTypographyProps={{
                   sx: { fontSize: "1.1rem", fontWeight: 600 },
                 }}
-                action={
-                  <Tooltip title="Options">
-                    <IconButton sx={{ color: "#fff" }}>
-                      <DotsVertical />
-                    </IconButton>
-                  </Tooltip>
-                }
+                // action={
+                //   <Tooltip title="Options">
+                //     <IconButton sx={{ color: "#fff" }}>
+                //       <DotsVertical />
+                //     </IconButton>
+                //   </Tooltip>
+                // }
               />
             </Grid>
             <Grid item md={2}>
@@ -207,7 +201,7 @@ const DetailedAttribution = ({ companyName }) => {
             </Grid>
           </Grid>
         </CardContent>
-      </Card>
+      </div>
     </>
   );
 };

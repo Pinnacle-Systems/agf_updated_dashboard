@@ -18,6 +18,9 @@ import { Card } from '@mui/material';
 // import AttritionDetTable from '../../components/AttDetTable';
 
 const CompAttrition = ({companyName,selectedYear1}) => {
+
+    console.log(companyName,selectedYear1,"companyName,selectedYear1");
+    
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedBuyer, setSelectedBuyer] = useState(companyName);
     const [selectedYear, setSelectedYear] = useState(selectedYear1);
@@ -63,7 +66,7 @@ console.log("API Params →", {
     const options = {
         chart: {
             type: 'column',
-            height: 370,
+            height:400,
             borderRadius: "10px",
             options3d: {
                 enabled: true,
@@ -171,7 +174,15 @@ console.log("API Params →", {
     const [showModel, setShowModel] = useState(false);
 
     return (
-        <Card heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }}  chartRef={chartRef}  >
+        <Card sx={{
+          p:1,
+          mt:2,
+          borderRadius: 3,
+          boxShadow: 4,
+          width: "100%",
+          maxWidth: 1000,
+          mx: 1,
+        }} heading={"Attrition  Breakup"} onFilterClick={() => { setShowModel(true) }}  chartRef={chartRef}  >
             <div style={{ display: 'flex', flexDirection: 'column',  }}>
             
                 {orderCount > 0 ? (
@@ -181,7 +192,7 @@ console.log("API Params →", {
                             <HighchartsReact
                                 highcharts={Highcharts}
                                 options={options}
-                                containerProps={{ style: { minWidth: '70%', height: '360px',borderRadius: "10px", 
+                                containerProps={{ style: { minWidth: '70%', height: '390px',borderRadius: "10px", 
                                 } }}
                             />
                         </div>

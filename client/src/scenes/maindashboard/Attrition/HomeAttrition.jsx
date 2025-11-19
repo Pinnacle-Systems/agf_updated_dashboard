@@ -22,6 +22,10 @@ const HomeAttrition = () => {
     params: {}
   });
 
+  console.log(fabPlVsActFull,"fabPlVsActFull1");
+  
+  
+
   const sumByCompany = (fabPlVsActFull?.data || []).reduce((acc, item) => {
     acc[item.company] = (acc[item.company] || 0) + item.attrition;
     return acc;

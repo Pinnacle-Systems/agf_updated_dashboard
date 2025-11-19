@@ -1,12 +1,21 @@
 import { useState } from "react";
 import { useGetEsiPf1Query } from "../../../redux/service/misDashboardService";
 import { useEffect } from "react";
-import { Card } from "@mui/material";
+import { Box, Card } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
+import EsiDetail from "../../../components/EsiDet";
 
 const DetailedESI = ({ companyName, selectedYear1 }) => {
     console.log(companyName,selectedYear1, "selectedYear1");
+     const [search, setSearch] = useState({
+                FNAME: "",
+                GENDER: "",
+                MIDCARD: "",
+                DEPARTMENT: "",
+                COMPCODE: "",
+            });
+            const [showTable,setShowTable] = useState(false) 
 
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
@@ -59,7 +68,7 @@ const DetailedESI = ({ companyName, selectedYear1 }) => {
         yAxis: {
             min: 0,
             title: {
-                text: 'Amount (PF)',
+                text: 'Amount (ESI)',
                 style: { fontSize: '10px' }
             },
             labels: {
@@ -77,7 +86,7 @@ const DetailedESI = ({ companyName, selectedYear1 }) => {
                 let monthName = this.x; 
     
                 return `<b>Month:</b> ${monthName} <br/>
-                        <b>PF Value:</b> ${pf} <br/>
+                        <b>ESI Value:</b> ${pf} <br/>
                         <b>Headcount:</b> ${headCountValue}`;
             },
         },
@@ -90,6 +99,17 @@ const DetailedESI = ({ companyName, selectedYear1 }) => {
                 },
                 dataLabels: {
                     style: { fontSize: '10px' }
+                },
+                point:{
+                    events:{
+                        click:function(){
+                            // console.log("lavanya");
+                            
+                            setShowTable(true);
+ 
+
+                        }
+                    }
                 }
             },
         },
@@ -101,7 +121,7 @@ const DetailedESI = ({ companyName, selectedYear1 }) => {
         },
         series: [
             {
-                name: 'PF',
+                name: 'ESI',
                 data: pfData,
                 color: '#FF5733',
             }
@@ -109,9 +129,31 @@ const DetailedESI = ({ companyName, selectedYear1 }) => {
     };
 
   return <>
-<Card>
+<Card sx={{
+    mt:2,
+          p:4,
+          borderRadius: 3,
+          boxShadow: 4,
+          width: "100%",
+          maxWidth: 1000,
+        //   mx: 1,
+        }}>
+<Box>
 
  <HighchartsReact highcharts={Highcharts} options={options} />
+</Box>
+{showTable  && (
+    <EsiDetail
+    selectedBuyer={[filterBuyer]}
+   
+    closeTable={() => setShowTable(false)}
+    setSearch={setSearch}
+    
+    search={search}
+     
+    
+  />
+ )}
 
 </Card>
 

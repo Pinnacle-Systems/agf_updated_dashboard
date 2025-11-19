@@ -39,9 +39,12 @@ import { IoIosPeople, IoMdFemale } from "react-icons/io";
 import { BiMaleSign } from "react-icons/bi";
 import DropdownData from "../../../Ui Component/modelUi";
 import { useGetFinYrQuery } from "../../../redux/service/poData";
-import DetailedESI from "./DetailedESI";
+import DetailedESI from "../ESIdata/DetailedESI";
 
-const DetailedDashBoard = ({ companyName,Year}) => {
+import SunburstChart from "./detailedSalary";
+// import DetailedESI from "./DetailedESI";
+
+const SalaryIndex = ({ companyName,Year}) => {
 
   console.log(companyName,Year,"Selected");
   
@@ -54,9 +57,9 @@ const DetailedDashBoard = ({ companyName,Year}) => {
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
-  const filterBuyer1 = result?.data.map((item) => item.customer);
+  const filterBuyer1 = result?.data?.map((item) => item.customer)  || [];
 
-  const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
+  const chartData = Object.entries(filterBuyer1 || {}).map(([id, company]) => ({
     compname: company,
     id: company,
   }));
@@ -66,13 +69,13 @@ const DetailedDashBoard = ({ companyName,Year}) => {
 
   const { data: finYr } = useGetFinYrQuery();
 
-  console.log(finYr, "useGetFinYrQuery");
+//   console.log(finYr, "useGetFinYrQuery");
 
   const optionsArray = Object.values(chartData);
 
   useEffect(() => {}, [filterBuyer]);
 
-  console.log("Opened for company:", filterBuyer, selectedYear);
+//   console.log("Opened for company:", filterBuyer, selectedYear);
 
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
@@ -121,7 +124,7 @@ const DetailedDashBoard = ({ companyName,Year}) => {
           boxShadow: 4,
           width: "100%",
           maxWidth: 1200,
-          m: 10,
+          m: 1,
         }}
       >
         <CardContent sx={{ p: 1, my: "auto" }}>
@@ -135,22 +138,16 @@ const DetailedDashBoard = ({ companyName,Year}) => {
               // pb: 1,
             }}
           >
-            <Grid item md={6}>
+            <Grid item md={10}>
               <CardHeader
-                title={`Overview of ESI Contribution - ${filterBuyer}`}
+                title={`Overview of Salary Contribution - ${filterBuyer}`}
                 titleTypographyProps={{
                   sx: { fontSize: "1.1rem", fontWeight: 600 },
                 }}
-                // action={
-                //   <Tooltip title="Options">
-                //     <IconButton sx={{ color: "#fff" }}>
-                //       <DotsVertical />
-                //     </IconButton>
-                //   </Tooltip>
-                // }
+                
               />
             </Grid>
-            <Grid item md={2}>
+            {/* <Grid item md={2}>
               <DropdownWithSearch
                 options={finYr?.data || []}
                 labelField={"finYr"}
@@ -160,7 +157,7 @@ const DetailedDashBoard = ({ companyName,Year}) => {
                 setValue={setSelectedYear}
                 // disabled={readonly}
               />
-            </Grid>
+            </Grid> */}
             <Grid item md={2}>
               <DropdownWithSearch
                 options={optionsArray || []}
@@ -172,31 +169,13 @@ const DetailedDashBoard = ({ companyName,Year}) => {
                 // disabled={readonly}
               />
             </Grid>
-            {/* <Grid item md={2}>
-              <Button
-                variant="contained"
-                //   startIcon={<AddCircleOutlineIcon />}
-                sx={{
-                  mt: 1,
-                  ml: 1,
-                  p: 1,
-                  backgroundColor: "#446D7F",
-                  textTransform: "none",
-                  "&:hover": { backgroundColor: "#365A6A" },
-                }}
-              >
-                Show
-              </Button>
-            </Grid> */}
           </Grid>
           <Grid>
-            {/* <HeadcountDept
-                companyName={filterBuyer }
-                /> */}
+            
           </Grid>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={8}>
-              <DetailedESI
+            <Grid item xs={12} md={6}>
+              <SunburstChart
                 selectedYear1={selectedYear}
                 companyName={filterBuyer}
               />
@@ -217,4 +196,4 @@ const DetailedDashBoard = ({ companyName,Year}) => {
     </>
   );
 };
-export default DetailedDashBoard;
+export default SalaryIndex;

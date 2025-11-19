@@ -63,6 +63,20 @@ const MisDashboard = createApi({
             providesTags: ['MisDashboard'],
         }),
 
+         getMisDashboardOTWagesDet: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/otwagesdet",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+
         getMisDashboardPfDet: builder.query({
             query: ({ params }) => {
                 return {
@@ -236,6 +250,20 @@ const MisDashboard = createApi({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/yearlyComp",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+
+         getRegioncount: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/getregioncount",
                     method: 'GET',
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
@@ -472,7 +500,9 @@ export const {
     useGetHeadCountQuery,
     useGetHeadCountDetailQuery,
     useGetEsilastmonthQuery,
-    useGetEPFlastmonthQuery
+    useGetEPFlastmonthQuery,
+    useGetRegioncountQuery,
+    useGetMisDashboardOTWagesDetQuery
     } = MisDashboard;
 
 export default MisDashboard;

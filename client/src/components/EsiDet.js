@@ -141,7 +141,7 @@ const EsiDetail = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
+      <div className="bg-white p-4 rounded-lg shadow-2xl w-[1100px] max-w-[1100px]  h-[90vh] max-h-[90vh] relative">
         <button
           onClick={closeTable}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -150,7 +150,7 @@ const EsiDetail = ({
         </button>
 
         <div className="text-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 uppercase">
+          <h2 className="text-m font-bold text-gray-800 uppercase">
             ESI Insights -{" "}
             <span className="text-blue-600">{selectedBuyer.join(", ")}</span>
           </h2>
@@ -158,13 +158,13 @@ const EsiDetail = ({
           
             <div className="flex items-center justify-center mb-4">
               {/* Left: Total Records */}
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-xs text-gray-500 font-medium">
                 Total Records: {totalRecords}
               </p>
 
               {/* Right: Total Netpay */}
               <div className="text-right ml-5">
-                <p className="text-sm text-gray-500 font-semibold">
+                <p className="text-xs text-gray-500 font-semibold">
                   Total Netpay:{" "}
                   <span className="text-sky-700 pl-2">
                     {" "}
@@ -179,7 +179,7 @@ const EsiDetail = ({
         <div className="flex justify-center gap-2 mb-4">
           <button
             onClick={() => handleFilterClick("Labour")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
       ${
         selectedState === "Labour"
           ? "bg-blue-600 text-white scale-105"
@@ -192,7 +192,7 @@ const EsiDetail = ({
 
           <button
             onClick={() => handleFilterClick("Staff")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
       ${
         selectedState === "Staff"
           ? "bg-blue-600 text-white scale-105"
@@ -205,7 +205,7 @@ const EsiDetail = ({
 
           <button
             onClick={() => handleFilterClick("All")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
       ${
         selectedState === "All"
           ? "bg-blue-600 text-white scale-105"
@@ -217,7 +217,7 @@ const EsiDetail = ({
           </button>
           <button
             onClick={() => handleGenderFilter("Male")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
               ${
                 selectedGender === "Male"
                   ? "bg-blue-600 text-white scale-105"
@@ -229,7 +229,7 @@ const EsiDetail = ({
 
           <button
             onClick={() => handleGenderFilter("Female")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
               ${
                 selectedGender === "Female"
                   ? "bg-blue-600 text-white scale-105"
@@ -240,7 +240,7 @@ const EsiDetail = ({
           </button>
           <button
             onClick={() => handleGenderFilter("All")}
-            className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
+            className={`flex items-center gap-2 px-2 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
               ${
                 selectedGender === "Both"
                   ? "bg-blue-600 text-white scale-105"
@@ -261,7 +261,7 @@ const EsiDetail = ({
                     min: Number(e.target.value),
                   })
                 }
-                className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-24 p-1 border border-gray-300 rounded-md text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
 
@@ -276,7 +276,7 @@ const EsiDetail = ({
                     max: Number(e.target.value),
                   })
                 }
-                className="w-24 p-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-24 p-1 border border-gray-300 rounded-md text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
@@ -305,24 +305,24 @@ const EsiDetail = ({
                 onChange={(e) =>
                   setSearch({ ...search, [key]: e.target.value })
                 }
-                className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+                className="w-full p-2 pl-8 text-gray-900 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
               />
-              <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
+              <FaSearch className="absolute left-2 top-3 text-gray-500 text-xs" />
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
-            <table className="w-full border-collapse border border-gray-300 text-sm">
+            <table className="w-full border-collapse border border-gray-300 text-xs">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-2 text-left">ID Card</th>
-                  <th className="border p-2 text-left">Name</th>
-                  <th className="border p-2 text-left">Gender</th>
-                  <th className="border p-2 text-left">Department</th>
-                  <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Netpay</th>
+                  <th className="border p-1 text-left">ID Card</th>
+                  <th className="border p-1 text-left">Name</th>
+                  <th className="border p-1 text-left">Gender</th>
+                  <th className="border p-1 text-left">Department</th>
+                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -331,12 +331,12 @@ const EsiDetail = ({
                     key={index}
                     className="text-gray-700 bg-white even:bg-gray-100 "
                   >
-                    <td className="border p-2">{row.EMPID}</td>
-                    <td className="border p-2">{row.FNAME}</td>
-                    <td className="border p-2">{row.GENDER}</td>
-                    <td className="border p-2">{row.DEPARTMENT}</td>
-                    <td className="border p-2">{row.COMPCODE}</td>
-                    <td className="border p-2 text-sky-700 text-right text-end">
+                    <td className="border p-1">{row.EMPID}</td>
+                    <td className="border p-1">{row.FNAME}</td>
+                    <td className="border p-1">{row.GENDER}</td>
+                    <td className="border p-1">{row.DEPARTMENT}</td>
+                    <td className="border p-1">{row.COMPCODE}</td>
+                    <td className="border p-1 text-sky-700 text-right text-end">
                       {new Intl.NumberFormat("en-IN", {
                         style: "currency",
                         currency: "INR",
@@ -349,15 +349,15 @@ const EsiDetail = ({
           </div>
 
           <div className="overflow-x-auto max-h-[450px]">
-            <table className="w-full border-collapse border border-gray-300 text-sm">
+            <table className="w-full border-collapse border border-gray-300 text-xs">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-2 text-left">ID Card</th>
-                  <th className="border p-2 text-left">Name</th>
-                  <th className="border p-2 text-left">Gender</th>
-                  <th className="border p-2 text-left">Department</th>
-                  <th className="border p-2 text-left">Company</th>
-                  <th className="border p-2 text-left">Netpay</th>
+                  <th className="border p-1 text-left">ID Card</th>
+                  <th className="border p-1 text-left">Name</th>
+                  <th className="border p-1 text-left">Gender</th>
+                  <th className="border p-1 text-left">Department</th>
+                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -366,12 +366,12 @@ const EsiDetail = ({
                     key={index}
                     className="text-gray-700 bg-white even:bg-gray-100"
                   >
-                    <td className="border p-2">{row.EMPID}</td>
-                    <td className="border p-2">{row.FNAME}</td>
-                    <td className="border p-2">{row.GENDER}</td>
-                    <td className="border p-2">{row.DEPARTMENT}</td>
-                    <td className="border p-2">{row.COMPCODE}</td>
-                    <td className="border p-2 text-sky-700 text-right text-end">
+                    <td className="border p-1">{row.EMPID}</td>
+                    <td className="border p-1">{row.FNAME}</td>
+                    <td className="border p-1">{row.GENDER}</td>
+                    <td className="border p-1">{row.DEPARTMENT}</td>
+                    <td className="border p-1">{row.COMPCODE}</td>
+                    <td className="border p-1 text-sky-700 text-right text-end">
                       {new Intl.NumberFormat("en-IN", {
                         style: "currency",
                         currency: "INR",
@@ -386,7 +386,7 @@ const EsiDetail = ({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-4 space-x-2 text-sm">
+          <div className="flex justify-center items-center mt-4 space-x-2 text-xs">
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
@@ -411,7 +411,7 @@ const EsiDetail = ({
               <FaChevronLeft size={16} />
             </button>
 
-            <span className="text-sm font-semibold px-3">
+            <span className="text-xs font-semibold px-3">
               Page {currentPage} of {totalPages}
             </span>
 

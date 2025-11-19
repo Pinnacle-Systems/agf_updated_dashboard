@@ -4,8 +4,20 @@ import { useEffect } from "react";
 import { Card } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
+import { Title } from "@mui/icons-material";
+import PfDetail from "../../../components/PfDet";
+
 
 const DetailedPF = ({ companyName, selectedYear1 }) => {
+
+    const [search, setSearch] = useState({
+            FNAME: "",
+            GENDER: "",
+            MIDCARD: "",
+            DEPARTMENT: "",
+            COMPCODE: "",
+        });
+        const [showTable,setShowTable] = useState(false) 
     
     const [selectedYear, setSelectedYear] = useState(selectedYear1);
     const [filterBuyer, setFilterBuyer] = useState(companyName);
@@ -38,8 +50,9 @@ const DetailedPF = ({ companyName, selectedYear1 }) => {
             },
             marginTop: 10,
             type: 'line',
-            height: 360,
+            height: 380,
             borderRadius: 10,
+            
         },
         xAxis: {
             categories: PFyeardata?.data.map((order) => {
@@ -90,6 +103,17 @@ const DetailedPF = ({ companyName, selectedYear1 }) => {
                 },
                 dataLabels: {
                     style: { fontSize: '10px' }
+                },
+                point:{
+                    events:{
+                        click:function(){
+                            // console.log("lavanya");
+                            
+                            setShowTable(true);
+ 
+
+                        }
+                    }
                 }
             },
         },
@@ -108,53 +132,33 @@ const DetailedPF = ({ companyName, selectedYear1 }) => {
         ]
     };
 
-//     const options={
-//     chart: {
-//         plotBackgroundColor: null,
-//         plotBorderWidth: null,
-//         plotShadow: false,
-//         type: 'pie'
-//     },
-//     title: {
-//         text: 'Registered private vehicles in Norway, by type of fuel, 2020'
-//     },
-//     tooltip: {
-//         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-//     },
-//     accessibility: {
-//         point: {
-//             valueSuffix: '%'
-//         }
-//     },
-//     plotOptions: {
-//         pie: {
-//             allowPointSelect: true,
-//             cursor: 'pointer',
-//             dataLabels: {
-//                 enabled: true,
-//                 format: '<span style="font-size: 1.2em"><b>{point.name}</b>' +
-//                     '</span><br>' +
-//                     '<span style="opacity: 0.6">{point.percentage:.1f} ' +
-//                     '%</span>',
-//                 connectorColor: 'rgba(128,128,128,0.5)'
-//             }
-//         }
-//     },
-//     series: [{
-//         name: 'Share',
-//         data: [
-//             { name: 'Petrol', y: 938899 },
-//             { name: 'Diesel', y: 1229600 },
-//             { name: 'Electricity', y: 325251 },
-//             { name: 'Other', y: 238751 }
-//         ]
-//     }]
-// }
+
 
   return <>
-<Card>
+<Card   sx={{
+    mt:2,
+          p:2,
+          borderRadius: 3,
+          boxShadow: 4,
+          width: "100%",
+          maxWidth: 1000,
+        //   mx: 1,
+        }}>
 
  <HighchartsReact highcharts={Highcharts} options={options} />
+
+ {showTable  && (
+    <PfDetail
+    selectedBuyer={[filterBuyer]}
+   
+    closeTable={() => setShowTable(false)}
+    setSearch={setSearch}
+    
+    search={search}
+     
+    
+  />
+ )}
 
 </Card>
 

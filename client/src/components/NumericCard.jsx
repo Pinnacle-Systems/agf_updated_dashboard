@@ -138,7 +138,9 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
 
     },
   ];
-  // console.log(selectedGender,"selectedGenderIndex")
+
+  
+  
   const [activeTabs, setActiveTabs] = useState(data.map(() => "total"));
 
   const toggleTab = (index, tab) => {
@@ -271,7 +273,11 @@ const NumericCard = ({ misData, selectedBuyer,search,setSearch,
   </div>
 )}
 
+
+
   {data.map((val, i) => {
+
+    console.log(data,"selectedGenderIndex")
     const totalValueIndex0 = data[0].value + data[0].previousValue;
     const totalValue = val.value + val.previousValue;
     const malePercentage = calculatePercentage(val.previousValue, i === 1 ? totalValueIndex0 : totalValue);

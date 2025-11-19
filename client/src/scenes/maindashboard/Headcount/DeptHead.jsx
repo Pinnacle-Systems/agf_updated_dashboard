@@ -39,10 +39,10 @@ const DeptHeadCount = ({ companyName }) => {
         text: "Department-wise Headcount",
         style: { fontSize: "16px", fontWeight: "600" },
       },
-      subtitle: {
-        text: "Click on a slice for details",
-        style: { fontSize: "13px", color: "#888" },
-      },
+      // subtitle: {
+      //   text: "Click on a slice for details",
+      //   style: { fontSize: "13px", color: "#888" },
+      // },
       tooltip: {
         pointFormat:
           '<b>{point.name}</b>: {point.y} Employees<br/>({point.percentage:.1f}%)',
@@ -56,12 +56,12 @@ const DeptHeadCount = ({ companyName }) => {
         pie: {
           allowPointSelect: true,
           cursor: "pointer",
-          borderRadius: 6,
+          borderRadius: 1,
           dataLabels: {
             enabled: true,
             format: "{point.name}: {point.percentage:.1f}%",
             style: {
-              fontSize: "12px",
+              fontSize: "10px",
               textOutline: "none",
             },
           },
