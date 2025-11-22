@@ -220,6 +220,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getSalaryAgewise: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/salaryAgewise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHandMonthWise: builder.query({
             query: ({ params }) => {
                 return {
@@ -502,7 +515,8 @@ export const {
     useGetEsilastmonthQuery,
     useGetEPFlastmonthQuery,
     useGetRegioncountQuery,
-    useGetMisDashboardOTWagesDetQuery
+    useGetMisDashboardOTWagesDetQuery,
+    useGetSalaryAgewiseQuery
     } = MisDashboard;
 
 export default MisDashboard;

@@ -16,6 +16,7 @@ const BloodGrp = ({ option }) => {
     const topItems = topItem?.data || [];
 
     // Toggle the dropdown
+ console.log(topItems,"topItems");
  
     const chartRef = useRef(null); // Step 1: Create chartRef
  

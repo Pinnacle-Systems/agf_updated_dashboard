@@ -38,7 +38,7 @@ import HomeESI from "./ESIdata/ESI Det.js";
 import HomeRegion from "./Regiondata/HomeRegion.jsx";
 import HomeSalary from "./salarydata/Homesalary.jsx";
 import HomeOTWages from "./OTWages/HomeOT.jsx";
-import CompanywiseEsi from "./DetailedDashboard/companywiseEsi.js";
+// import CompanywiseEsi from "./DetailedDashboard/companywiseEsi.js";
 
 
 
@@ -55,7 +55,7 @@ const Main_Dashboad = () => {
         <Grid item xs={12} md={8}>
           <StatisticsCard />
         </Grid>
-
+      <Grid container spacing={1} sx={{mt:1,ml:1}}>
         <Grid item xs={12} md={3}>
           <CardStatisticsVerticalComponent
             stats="$78"
@@ -97,6 +97,9 @@ const Main_Dashboad = () => {
             subtitle="Weekly Profit"
           />
         </Grid>
+
+      </Grid>
+        
         <Grid item xs={12} md={7}>
           <HomeSalary/>
         </Grid>

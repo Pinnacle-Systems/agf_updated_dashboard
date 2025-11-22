@@ -54,6 +54,8 @@ const DetailedDashBoard = ({ companyName, Year }) => {
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
   const filterBuyer1 = result?.data.map((item) => item.customer);
+  console.log(filterBuyer1,"filterBuyer1");
+  
 
   const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
     compname: company,

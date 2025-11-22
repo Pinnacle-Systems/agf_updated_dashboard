@@ -9,7 +9,8 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getESIlastmonth,
     getPFlastmonth,
     getregionCount,
-    getOTwagesdet} from '../services/misDashboard.service.js';
+    getOTwagesdet,
+    getSalaryAgewise} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -58,6 +59,8 @@ router.get('/FullPrasent', getFullPrasent)
 router.get('/PayPeriod',getPayPeriod)
 
 router.get('/finYear',getFinYear)
+
+router.get('/salaryAgewise',getSalaryAgewise)
 
 router.get('/ordersInHandMonthWise', getOrdersInHandMonthWise);
 

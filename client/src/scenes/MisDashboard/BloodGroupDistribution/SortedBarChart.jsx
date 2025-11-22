@@ -3,6 +3,9 @@ import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from '@amcharts/amcharts4/themes/animated';
 const SortedBarChart = ({ topItems }) => {
+
+    console.log(topItems,"topItems");
+    
     useEffect(() => {
         am4core.useTheme(am4themes_animated);
 
@@ -28,7 +31,7 @@ const SortedBarChart = ({ topItems }) => {
         categoryAxis.title.fill = am4core.color("#333");
 
         let valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
-        valueAxis.max = Math.max(...topItems.map(i => parseFloat(i.poQty)));
+        valueAxis.max = Math.max(...topItems.map(i => parseFloat(i.Netpay)));
         valueAxis.renderer.labels.template.fontSize = 10;
         valueAxis.renderer.labels.template.fill = am4core.color("#666");
         valueAxis.title.text = "Number of Employees";

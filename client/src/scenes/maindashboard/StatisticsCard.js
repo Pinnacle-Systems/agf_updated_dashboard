@@ -75,7 +75,7 @@ const renderStats = () => {
 
 const StatisticsCard = () => {
   return (
-    <Card sx={{ position: 'relative',m:1}}> 
+    <Card sx={{ position: 'relative'}}> 
       <CardHeader
         title='Attendance OverView'
 

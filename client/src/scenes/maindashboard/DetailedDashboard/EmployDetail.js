@@ -41,14 +41,14 @@ const EmployeeDetail = () => {
 
   const employees = Salarydata?.data || [];
 
-  // ✅ 1️⃣ Group NETPAY by COMPCODE
+
   const totalsByComp = employees.reduce((acc, emp) => {
     const code = emp.COMPCODE || "Unknown";
     acc[code] = (acc[code] || 0) + (emp.NETPAY || 0);
     return acc;
   }, {});
 
-  // ✅ 2️⃣ Convert to array and add dummy trend data
+
   const compList = Object.entries(totalsByComp).map(
     ([code, total], index, arr) => {
       const prevTotal = index > 0 ? arr[index - 1][1] : total;

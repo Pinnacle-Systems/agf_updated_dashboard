@@ -11,6 +11,8 @@ import secureLocalStorage from "react-secure-storage";
 import { PermissionContext } from "./scenes/global/context/PermissionContext.js";
 import { ToastContainer } from "react-toastify";
 
+import ScrollToTop from "./components/ScrollTop.js";
+
 function App({ isCollapsed }) {
   const [theme, colorMode] = useMode();
   const [color, setColor] = useState("#CA8717");
@@ -21,7 +23,7 @@ function App({ isCollapsed }) {
     window.location.href = "/";
   };
 
-  return (
+    return (
     <>
       <Router>
         <ColorModeContext.Provider value={colorMode}>
@@ -51,7 +53,7 @@ function App({ isCollapsed }) {
                           <Sidebar />
                         </div>
                         <div
-                          className="bg-gray-200"
+                          className="bg-gray-200 active-tab-container"
                           style={{
                             marginLeft: isCollapsed ? "60px" : "200px",
 
@@ -61,7 +63,7 @@ function App({ isCollapsed }) {
                             width: "100%",
                           }}
                         >
-                          <ActiveTabList />
+                          <ActiveTabList/>
                         </div>
                       </div>
                     </div>

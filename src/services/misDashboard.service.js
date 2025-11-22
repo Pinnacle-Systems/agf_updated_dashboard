@@ -193,14 +193,16 @@ export async function executeProcedure(req, res) {
 
 //   res.status(200).json({ success: true, data: result });
 // }
-export async function getSalarydet(req, res) {
+
+
+export async function getSalaryAgewise(req, res) {
+
   const connection = await getConnection(res);
   const { filterBuyer = "", search = {} } = req.query;
 
   let result = [];
   let filterBuyerList = "";
 
-  // ✅ Handle company filter
   if (filterBuyer && filterBuyer.trim() !== "") {
     filterBuyerList = filterBuyer
       .split(",")
@@ -208,7 +210,6 @@ export async function getSalarydet(req, res) {
       .join(",");
   }
 
-  // ✅ Build where clause
   let whereClause = "1=1";
   if (filterBuyerList)
     whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
@@ -223,7 +224,198 @@ export async function getSalarydet(req, res) {
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
     whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
-  // ✅ Query with per-company latest pay period
+
+//   const sql = `
+//     SELECT 
+//     SLAP,
+//     PAYCAT,
+//     SUM(NETPAY) AS TOTAL_NETPAY,
+//     COUNT(EMPID) AS EMP_COUNT,
+    
+// FROM (
+//     SELECT 
+//         A.IDCARD AS EMPID,
+//         A.FNAME,
+//         A.GENDER,
+//         A.DOJ,
+//         A.DEPARTMENT,
+//         A.PAYCAT,
+//         A.COMPCODE,
+//         A.EMPTYPE,
+//         A.DESIGNATION,
+//         A.NETPAY,
+
+//         -- AGE CALCULATION
+//         FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AS AGE,
+
+//         -- AGE SLABS
+//         CASE 
+//             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 18 AND 25 THEN '18 - 25'
+//             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 25 AND 35 THEN '25 - 35'
+//             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 35 AND 45 THEN '35 - 45'
+//             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 45 AND 60 THEN '45 - 60'
+//             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) > 60 THEN '60 Above'
+//         END AS SLAP
+
+//     FROM (
+//         SELECT
+//             DD.IDCARD,
+//             DD.FNAME,
+//             DD.GENDER,
+//             DD.DOJ,
+//             DD.DEPARTMENT,
+//             NVL(SUM(A.NETPAY), 0) AS NETPAY,
+//             DD.PAYCAT,
+//             DD.COMPCODE,
+//             AA.EMPTYPE,
+//             EE.DESIGNATION,
+//             DD.DOB  -- MUST INCLUDE DOB
+//         FROM MISTABLE DD
+//         JOIN HPAYROLL A
+//             ON A.EMPID = DD.IDCARD
+//             AND A.PCTYPE = 'ACTUAL'
+//             AND A.PAYPERIOD = (
+//                 SELECT MAX(PAYPERIOD)
+//                 FROM HPAYROLL X
+//                 JOIN MISTABLE M ON X.EMPID = M.IDCARD
+//                 WHERE X.PCTYPE = 'ACTUAL'
+//                 AND M.COMPCODE = DD.COMPCODE
+//             )
+//         JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+//         JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+//         JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+//         JOIN GTDESIGNATIONMAST EE ON EE.GTDESIGNATIONMASTID = BB.DESIGNATION
+//         WHERE ${whereClause}
+//         GROUP BY 
+//             DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ, DD.DEPARTMENT,
+//             DD.PAYCAT, DD.COMPCODE, DD.DOB,
+//             AA.EMPTYPE, EE.DESIGNATION
+//     ) A
+// )
+// WHERE SLAP IS NOT NULL
+// GROUP BY SLAP,PAYCAT
+// ORDER BY SLAP
+
+//   `;
+const sql = `
+    SELECT 
+        SLAP,
+        PAYCAT,
+        SUM(NETPAY) AS TOTAL_NETPAY,
+        COUNT(EMPID) AS EMP_COUNT
+    FROM (
+        SELECT 
+            A.IDCARD AS EMPID,
+            A.FNAME,
+            A.GENDER,
+            A.DOJ,
+            A.DEPARTMENT,
+            A.PAYCAT,
+            A.COMPCODE,
+            A.EMPTYPE,
+            A.DESIGNATION,
+            A.NETPAY,
+
+            FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) AS AGE,
+
+            CASE 
+                WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 18 AND 25 THEN '18 - 25'
+                WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 25 AND 35 THEN '25 - 35'
+                WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 35 AND 45 THEN '35 - 45'
+                WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) BETWEEN 45 AND 60 THEN '45 - 60'
+                WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), A.DOB) / 12) > 60 THEN '60 Above'
+            END AS SLAP
+
+        FROM (
+            SELECT
+                DD.IDCARD,
+                DD.FNAME,
+                DD.GENDER,
+                DD.DOJ,
+                DD.DEPARTMENT,
+                NVL(SUM(A.NETPAY), 0) AS NETPAY,
+                DD.PAYCAT,
+                DD.COMPCODE,
+                AA.EMPTYPE,
+                EE.DESIGNATION,
+                DD.DOB
+            FROM MISTABLE DD
+            JOIN HPAYROLL A
+                ON A.EMPID = DD.IDCARD
+                AND A.PCTYPE = 'ACTUAL'
+                AND A.PAYPERIOD = (
+                    SELECT MAX(PAYPERIOD)
+                    FROM HPAYROLL X
+                    JOIN MISTABLE M ON X.EMPID = M.IDCARD
+                    WHERE X.PCTYPE = 'ACTUAL'
+                    AND M.COMPCODE = DD.COMPCODE
+                )
+            JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+            JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+            JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+            JOIN GTDESIGNATIONMAST EE ON EE.GTDESIGNATIONMASTID = BB.DESIGNATION
+            WHERE ${whereClause}
+            GROUP BY 
+                DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ, DD.DEPARTMENT,
+                DD.PAYCAT, DD.COMPCODE, DD.DOB,
+                AA.EMPTYPE, EE.DESIGNATION
+        ) A
+    )
+    WHERE SLAP IS NOT NULL
+    GROUP BY SLAP, PAYCAT
+    ORDER BY SLAP
+`;
+
+
+  try {
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching salary details",
+      error,
+    });
+  }
+
+}
+export async function getSalarydet(req, res) {
+  const connection = await getConnection(res);
+  const { filterBuyer = "", search = {} } = req.query;
+
+  let result = [];
+  let filterBuyerList = "";
+
+  if (filterBuyer && filterBuyer.trim() !== "") {
+    filterBuyerList = filterBuyer
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+  let whereClause = "1=1";
+  if (filterBuyerList)
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD)
+    whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
+
   const sql = `
     SELECT * FROM (
       SELECT
@@ -234,7 +426,10 @@ export async function getSalarydet(req, res) {
         DD.DEPARTMENT,
         NVL(SUM(A.NETPAY), 0) AS NETPAY,
         DD.PAYCAT,
-        DD.COMPCODE
+        DD.COMPCODE,
+        AA.EMPTYPE,
+        EE.DESIGNATION,
+        MONTHS_BETWEEN(TRUNC(SYSDATE),DD.DOB)/12 AS AGEMON
       FROM MISTABLE DD
       JOIN HPAYROLL A
         ON A.EMPID = DD.IDCARD
@@ -249,9 +444,10 @@ export async function getSalarydet(req, res) {
       JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
       JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
       JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+      JOIN GTDESIGNATIONMAST EE ON EE.GTDESIGNATIONMASTID = BB.DESIGNATION
       WHERE ${whereClause}
       GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
-               DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE
+               DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE,AA.EMPTYPE,EE.DESIGNATION,DD.DOB
     ) A
     ORDER BY A.EMPID
   `;
@@ -283,7 +479,6 @@ export async function getOTwagesdet(req, res) {
   let result = [];
   let filterBuyerList = "";
 
-  // ✅ Handle company filter
   if (filterBuyer && filterBuyer.trim() !== "") {
     filterBuyerList = filterBuyer
       .split(",")
@@ -291,7 +486,6 @@ export async function getOTwagesdet(req, res) {
       .join(",");
   }
 
-  // ✅ Build where clause
   let whereClause = "1=1";
   if (filterBuyerList)
     whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
@@ -306,7 +500,7 @@ export async function getOTwagesdet(req, res) {
     whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
   if (search.COMPCODE)
     whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
-  // ✅ Query with per-company latest pay period
+
   const sql = `
     SELECT * FROM (
       SELECT
@@ -1522,7 +1716,7 @@ ORDER BY COMPCODE
 
     const resp = result.rows.map((po) => ({
       customer: po[0],
-      tn_male:po[1],
+      tn_male: po[1],
       tn_female: po[2],
       tn_total: po[3],
       non_male: po[4],

@@ -12,6 +12,9 @@ const PieChart = ({setOpenpopup,openpopup,selected,setSelected}) => {
     const { color } = useContext(ColorContext);
     const chartRef = useRef(null); // Step 1: Create chartRef
 
+    console.log(ordersInHandBuyerWise,"ordersInHandBuyerWise");
+    
+
     return (
         
         <CardWrapper heading="Age Distribution" onFilterClick={() => setShowModel(true)} chartRef={chartRef}> 

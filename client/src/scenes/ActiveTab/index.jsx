@@ -31,6 +31,12 @@ import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
   const openTabs = useSelector((state) => state.openTabs);
+  useEffect(() => {
+  const container = document.querySelector(".active-tab-container");
+  if (container) {
+    container.scrollTop = 0;
+  }
+}, [openTabs.tabs]);
   const dispatch = useDispatch();
   const [showHidden, setShowHidden] = useState(false);
   const ref = useOutsideClick(() => {
@@ -51,23 +57,38 @@ const ActiveTabList = () => {
       },
     },
     MISDashboard: <Main_Dashboad />,
-     ESIDetail: (tabData)=><DetailedDashBoard companyName={tabData?.companyName} Year={tabData?.Year}/>,
-     PFDetails: (tabData)=><PFIndex companyName={tabData?.companyName} Year={tabData?.Year}/>,
-     Headcount: (tabData)=><DetailedHeadcount companyName={tabData?.companyName} />,
-     Attrition: (tabData)=><DetailedAttribution companyName={tabData?.companyName} Year={tabData?.Year} />,
-     SalaryDetail: (tabData)=><SalaryIndex companyName={tabData?.companyName}Year={tabData?.Year} />
-     
-    
+    ESIDetail: (tabData) => (
+      <DetailedDashBoard
+        companyName={tabData?.companyName}
+        Year={tabData?.Year}
+      />
+    ),
+    PFDetails: (tabData) => (
+      <PFIndex companyName={tabData?.companyName} Year={tabData?.Year} />
+    ),
+    Headcount: (tabData) => (
+      <DetailedHeadcount companyName={tabData?.companyName} />
+    ),
+    Attrition: (tabData) => (
+      <DetailedAttribution
+        companyName={tabData?.companyName}
+        Year={tabData?.Year}
+      />
+    ),
+    SalaryDetail: (tabData) => (
+      <SalaryIndex companyName={tabData?.companyName} Year={tabData?.Year} />
+      
+    ),
   };
 
-  console.log(openTabs,"openTabs");
+  console.log(openTabs, "openTabs");
 
   const innerWidth = window.innerWidth;
   const itemsToShow = innerWidth / 130;
   const currentShowingTabs = openTabs.tabs.slice(0, parseInt(itemsToShow));
   const hiddenTabs = openTabs.tabs.slice(parseInt(itemsToShow));
 
-  const findTabComponent = (tabs, tabName,tabData) => {
+  const findTabComponent = (tabs, tabName, tabData) => {
     for (const key in tabs) {
       const item = tabs[key];
 
@@ -75,12 +96,12 @@ const ActiveTabList = () => {
         return item;
       }
       if (key === tabName && typeof item === "function") {
-      return item(tabData);
-    }
+        return item(tabData);
+      }
 
       // If the tab has children, search inside them
       if (item.Children) {
-        const childResult = findTabComponent(item.Children, tabName,tabData);
+        const childResult = findTabComponent(item.Children, tabName, tabData);
         if (childResult) return childResult;
       }
     }
@@ -88,9 +109,13 @@ const ActiveTabList = () => {
   };
 
   return (
-    <div className="relative w-full h-full">
-      <div className="flex justify-between ">
-        <div className="flex gap-2 mt-2 ml-3 ">
+    <div className="relative w-full min-h-screen">
+      {/* <div className="flex justify-between "> */}
+      <div
+        className="flex justify-between sticky top-0 z-50 "
+        style={{ backgroundColor: "#E5E7EB" }}
+      >
+        <div className="flex gap-2  ml-3 p-1">
           {currentShowingTabs.map((tab, index) => (
             <div
               key={index}
@@ -164,9 +189,7 @@ const ActiveTabList = () => {
           className={`${tab.active ? "block" : "hidden"} w-full`}
         >
           {findTabComponent(tabs, tab.name, tab.data) || (
-            <div 
-            className="text-center text-gray-400 p-10"
-            >
+            <div className="text-center text-gray-400 p-10">
               Page not found for: {tab.name}
             </div>
           )}

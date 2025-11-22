@@ -24,6 +24,9 @@ const HomeOTWages = () => {
     error,
   } = useGetMisDashboardOTWagesDetQuery({ params: {} });
 
+  console.log(Salarydata,"OTWages");
+  
+
   const dispatch = useDispatch();
 
   if (isLoading)
@@ -75,7 +78,7 @@ const HomeOTWages = () => {
   const option = {
     chart: {
         type: 'pie',
-        height: 280 ,
+        height: 200 ,
         custom: {},
         // margin:[0,0,0,0],
         events: {
@@ -164,6 +167,7 @@ const HomeOTWages = () => {
   // Build the chart
 const options={
     chart: {
+      height:280,
         plotBackgroundColor: null,
         plotBorderWidth: null,
         plotShadow: false,
@@ -208,8 +212,6 @@ const options={
         //   m:1,
         borderRadius: 3,
         boxShadow: 4,
-        width: "100%",
-        maxWidth: 1000,
         mx: 1,
       }}
     >

@@ -19,14 +19,15 @@ const SalaryDetail = ({
   closeTable,
   search,
   setSearch,
-
+  selectGender1,
   selectedBuyer,
-
   color,
 }) => {
+  console.log(selectGender1,"selectedGender1");
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedGender, setSelectedGender] = useState();
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
@@ -41,6 +42,7 @@ const SalaryDetail = ({
     },
   });
 
+
   const salaryDet = salaryDetData?.data || [];
   console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
@@ -50,7 +52,7 @@ const SalaryDetail = ({
   const handleFilterClick = (type) => {
     setSelectedState(type);
   };
-  console.log(selectedState, "selectedState");
+ 
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -118,6 +120,9 @@ const SalaryDetail = ({
           return netpay >= netpayRange.min && netpay <= netpayRange.max;
         })
     : [];
+
+    console.log(filteredData,"filteredData1");
+    
   const totalNetPay = filteredData.reduce(
     (sum, row) => sum + (Number(row.NETPAY) || 0),
     0

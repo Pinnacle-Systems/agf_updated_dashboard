@@ -97,13 +97,10 @@ const HeadCount = () => {
     <>
       <Card
         sx={{
-          // m:1,
+          
           borderRadius: 3,
           boxShadow: 4,
-          width: "100%",
-          maxWidth: 1000,
-          mx: 1,
-        }}
+                 }}
       >
         <CardHeader
           title="Employees Strenght on Date"

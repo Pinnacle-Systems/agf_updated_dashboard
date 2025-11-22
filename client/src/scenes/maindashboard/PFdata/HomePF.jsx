@@ -61,7 +61,7 @@ const HomePF = () => {
       pie: {
         innerSize: 100,
         depth: 60,
-         center: ["60%", "50%"],
+         center: ["50%", "50%"],
          size: "100%",
 
         dataLabels: {
@@ -134,7 +134,7 @@ const HomePF = () => {
           boxShadow: 4,
           width: "100%",
           maxWidth: 1000,
-          mx: 1,
+          ml: 1,
         }}
       >
         <CardHeader
