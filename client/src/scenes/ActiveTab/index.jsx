@@ -27,6 +27,7 @@ import DetailedHeadcount from "../maindashboard/Headcount/index.js";
 import DetailedDashBoard from "../maindashboard/ESIdata/index.js";
 import PFIndex from "../maindashboard/PFdata/index.js";
 import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
+import HRDashboard from "../hrdashboard/index.js";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -79,6 +80,8 @@ const ActiveTabList = () => {
       <SalaryIndex companyName={tabData?.companyName} Year={tabData?.Year} />
       
     ),
+    HRDashBoard:<HRDashboard/>
+
   };
 
   console.log(openTabs, "openTabs");

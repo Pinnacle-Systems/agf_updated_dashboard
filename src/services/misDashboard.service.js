@@ -1954,44 +1954,107 @@ export async function getESIPF1(req, res) {
   try {
     const { filterCat, filterSupplier, filterYear } = req.query;
     let sql;
+    let result = [];
 
     sql = `
-  SELECT
-  A.COMPCODE,
+    SELECT
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
   A.PAYPERIOD,
   A.FINYR,
-  SUM(A.ESI) AS ESI,
-  COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
-  FROM
-  (SELECT
-  A.COMPCODE,
-  A.PAYPERIOD,
-  EE.FINYR,
   A.ESI,
-  A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
-  FROM HPAYROLL A
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE,
+   A.EMPLOYER_CON
+FROM
+(
+  SELECT
+    DD.IDCARD AS EMPID,
+    DD.FNAME,
+    DD.GENDER,
+    DD.DOJ,
+    DD.DEPARTMENT,
+    DD.PAYCAT,
+    FF.DESIGNATION,
+    A.COMPCODE,
+    A.PAYPERIOD,
+    AA.EMPTYPE,
+    MONTHS_BETWEEN(TRUNC(SYSDATE),DD.DOB)/12 AS AGE,
+    EE.FINYR,
+    A.ESI,
+    ROUND(A.EGROSS*3.25/100,0) AS EMPLOYER_CON,
+    TO_CHAR(EE.STDT,'MM') AS STDT,
+    TO_CHAR(EE.STDT,'YY') AS STDT1
+  FROM MISTABLE DD
+  JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
   JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
   JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
   JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
   JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+  JOIN GTDESIGNATIONMAST FF ON FF.GTDESIGNATIONMASTID = BB.DESIGNATION
   WHERE EE.FINYR = '${filterYear}'
-  AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
-  ) A
-  GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
-  ORDER BY STDT1,STDT
-
- 
+  AND A.COMPCODE = '${filterSupplier}'
+  AND A.PCTYPE = 'BUYER'
+  AND A.ESI > 0
+  
+) A
+GROUP BY
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
+  A.PAYPERIOD,
+  A.FINYR,
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE,
+   A.EMPLOYER_CON,
+   A.ESI  
+ORDER BY A.STDT1, A.STDT  
 `;
+// SELECT
+//   A.COMPCODE,
+//   A.PAYPERIOD,
+//   A.FINYR,
+//   SUM(A.ESI) AS ESI,
+//   COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
+//   FROM
+//   (SELECT
+//   A.COMPCODE,
+//   A.PAYPERIOD,
+//   EE.FINYR,
+//   A.ESI,
+//   A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+//   FROM HPAYROLL A
+//   JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+//   JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+//   JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+//   JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+//   WHERE EE.FINYR = '${filterYear}'
+//   AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
+//   ) A
+//   GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
+//   ORDER BY STDT1,STDT
+     const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
 
-    const result = await connection.execute(sql);
-    let resp = result.rows.map((po) => ({
-      customer: po[0],
-      month: po[1],
-      Year: po[2],
-      esi: po[3],
-      headCount: po[4],
-    }));
-    return res.json({ statusCode: 0, data: resp });
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });

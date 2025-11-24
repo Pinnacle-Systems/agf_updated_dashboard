@@ -32,6 +32,8 @@ import EmpType1 from "./Emptypesal";
 // import CompanywiseEsi from "./Emptypesal";
 
 const SalaryIndex = ({ companyName, Year }) => {
+  // console.log("ESIdata",ESIdata);
+  
   const { color } = useContext(ColorContext);
   const [selectedState, setSelectedState] = useState("");
   const dispatch = useDispatch();

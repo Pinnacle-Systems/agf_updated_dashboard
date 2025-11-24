@@ -4,27 +4,27 @@ import bcrypt from "bcrypt";
 
 export async function Add_role(req, res) {
   const connection = await getConnection(res);
-  const{rolename,active}=req.body
+  const { rolename, active } = req.body;
   try {
-    if(!rolename||active){
+    if (!rolename || active) {
       return res.status(400).json({
         status: 0,
-        message:
-          "Fill required fields",
+        message: "Fill required fields",
       });
-
     }
-     const role = await prisma_Connector.role.findUnique({
+    const role = await prisma_Connector.role.findUnique({
       where: { rolename: rolename },
     });
-     if (role) {
+    if (role) {
       return res.status(404).json({
         status: 0,
         message: `RoleName already exists.`,
       });
     }
 
-    const result = await prisma_Connector.role.create({ data: {rolename,active} });
+    const result = await prisma_Connector.role.create({
+      data: { rolename, active },
+    });
     return res.status(201).json(result);
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -35,13 +35,9 @@ export async function Add_role(req, res) {
 }
 
 export async function get_Role(req, res) {
-
-  
-
   const connection = await getConnection(res);
   try {
     const result = await prisma_Connector.role.findMany({});
-    // console.log(result)
     return res.status(201).json(result);
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -55,7 +51,6 @@ export async function getUserPages(req, res) {
   const userId = parseInt(req.query.userId);
   // const{userId}=req.query.userId
   // console.log(userId);
-
 
   try {
     const result = await prisma_Connector.useronpage.findMany({
@@ -72,12 +67,10 @@ export async function getUserPages(req, res) {
 }
 
 export async function deleteRole(req, res, next) {
-  
   const id = parseInt(req.query.id);
   console.log(id);
 
   try {
-    
     const result1 = await prisma_Connector.role.delete({
       where: { id: id },
     });
@@ -100,12 +93,27 @@ export async function deleteRole(req, res, next) {
 }
 
 export async function createRoleOnPage(req, res) {
-  const { username, employeeId, permissions, COMPCODE, password, active,compList,createdbyId} =
-    req.body;
+  const {
+    username,
+    employeeId,
+    permissions,
+    COMPCODE,
+    password,
+    active,
+    compList,
+    createdbyId,
+  } = req.body;
   const roleId = parseInt(req.body.roleId);
 
   try {
-    if (!username || !employeeId || !roleId || !permissions || !COMPCODE || !compList) {
+    if (
+      !username ||
+      !employeeId ||
+      !roleId ||
+      !permissions ||
+      !COMPCODE ||
+      !compList
+    ) {
       return res.status(400).json({
         status: 0,
         message:
@@ -134,7 +142,7 @@ export async function createRoleOnPage(req, res) {
         password: hashedPassword,
         active,
         roleId,
-        createdbyId
+        createdbyId,
       },
     });
 
@@ -144,7 +152,9 @@ export async function createRoleOnPage(req, res) {
     }));
 
     if (!insertData1.length) {
-      return res.status(400).json({ status: 0, message: "No companies to insert" });
+      return res
+        .status(400)
+        .json({ status: 0, message: "No companies to insert" });
     }
 
     // 3️⃣ Insert with skipDuplicates if needed
@@ -161,7 +171,7 @@ export async function createRoleOnPage(req, res) {
         delete: !!pagePermissions.delete,
         isdefault: !!pagePermissions.isdefault,
         username,
-               link: page,
+        link: page,
         userId: result1.id,
       })
     );
@@ -204,11 +214,7 @@ export async function createRoleOnPage(req, res) {
 }
 
 export async function UpdateRole(req, res) {
-  const {
-    id,
-    rolename,
-    active,
-    } = req.body;
+  const { id, rolename, active } = req.body;
 
   try {
     // --- Validate required fields ---
@@ -225,24 +231,21 @@ export async function UpdateRole(req, res) {
     }
 
     // --- Update main user details ---
-    const result =await prisma_Connector.role.update({
+    const result = await prisma_Connector.role.update({
       where: { id: role.id },
-      data: {rolename ,active },
+      data: { rolename, active },
     });
     return res.json({
       status: 1,
-      data:result,
-      message: "Updated successfully" 
-      }
-    );
+      data: result,
+      message: "Updated successfully",
+    });
   } catch (error) {
     console.error("Unexpected error in UpdateRolepage:", error);
     return res.status(500).json({
       status: 0,
       message: "An error occurred while updating role",
-      error:error.message 
+      error: error.message,
     });
   }
 }
-
-

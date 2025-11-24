@@ -48,10 +48,10 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  if (salaryDet1?.data?.length === 0)
-    return (
-      <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
-    );
+  // if (salaryDet1?.data?.length === 0)
+  //   return (
+  //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
+  //   );
 
   const filteredData = Array.isArray(salaryDet1?.data)
     ? salaryDet1?.data.filter((row) => {

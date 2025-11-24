@@ -28,10 +28,10 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
     setFilterBuyer(companyName);
   }, [companyName]);
 
-  if (salaryDet?.data?.length === 0)
-    return (
-      <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
-    );
+  // if (salaryDet?.data?.length === 0)
+  //   return (
+  //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
+  //   );
 
   const filteredData = Array.isArray(salaryDet)
     ? salaryDet.filter((row) => {
@@ -60,6 +60,8 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
       type: "area",
       height: 350,
       zoomType: "x",
+      //  marginLeft: 100,    // Adjust Y-axis spacing
+    marginBottom: 100, 
     },
 
     title: {

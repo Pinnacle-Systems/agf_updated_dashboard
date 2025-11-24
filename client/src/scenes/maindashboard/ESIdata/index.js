@@ -23,6 +23,7 @@ import { effect } from "@chakra-ui/system";
 import { useEditable } from "@chakra-ui/react";
 
 import {
+  useGetEsiPf1Query,
   useGetMisDashboardEsiDetQuery,
   useGetMisDashboardSalaryDetQuery,
   useGetYearlyCompQuery,
@@ -40,24 +41,37 @@ import { BiMaleSign } from "react-icons/bi";
 import DropdownData from "../../../Ui Component/modelUi";
 import { useGetFinYrQuery } from "../../../redux/service/poData";
 import DetailedESI from "./DetailedESI";
+import { FaUsers, FaUserTie } from "react-icons/fa";
+import DeptESI from "./deptESI";
+import EmployerESI from "./EmployerESi";
+import DeptmentESI from "./DepiEST";
+import AgeESI from "./AgewiseESI";
 
 const DetailedDashBoard = ({ companyName, Year }) => {
-  console.log(companyName, Year, "Selected");
-
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const theme = useTheme();
   const [filterBuyer, setfilterBuyer] = useState(companyName);
   const [selectedYear, setSelectedYear] = useState(Year);
+  const [selectedState, setSelectedState] = useState("");
   const [readOnly, setReadonly] = useState(false);
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
-  const filterBuyer1 = result?.data.map((item) => item.customer);
-  console.log(filterBuyer1,"filterBuyer1");
-  
+  const { data: ESIyeardata } = useGetEsiPf1Query({
+    params: {
+      filterSupplier: filterBuyer,
+      filterYear: selectedYear,
+    },
+  });
 
-  const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
+  const ESIdata = ESIyeardata?.data || [];
+
+  // console.log(ESIdata,"Esidata");
+
+  const filterBuyer1 = result?.data?.map((item) => item.customer) || [];
+
+  const chartData = Object.entries(filterBuyer1 || {}).map(([id, company]) => ({
     compname: company,
     id: company,
   }));
@@ -65,15 +79,15 @@ const DetailedDashBoard = ({ companyName, Year }) => {
     setfilterBuyer(companyName);
   }, [companyName]);
 
-  const { data: finYr } = useGetFinYrQuery();
-
-  console.log(finYr, "useGetFinYrQuery");
-
   const optionsArray = Object.values(chartData);
+
+  const handleFilterClick = (type) => {
+    setSelectedState(type);
+  };
 
   useEffect(() => {}, [filterBuyer]);
 
-  console.log("Opened for company:", filterBuyer, selectedYear);
+  const { data: finYr } = useGetFinYrQuery();
 
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
@@ -116,96 +130,153 @@ const DetailedDashBoard = ({ companyName, Year }) => {
 
   return (
     <>
-      <div className="w-full  mx-auto rounded-md shadow-lg px-2 py-1 overflow-y-auto">
-        <CardContent sx={{ p: 1, my: "auto" }}>
-          <Grid
-            container
-            spacing={3}
-            sx={{
-              color: "black",
-
-              borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Grid item md={8}>
-              <CardHeader
-                title={`Overview of ESI Contribution - ${filterBuyer}`}
-                titleTypographyProps={{
-                  sx: { fontSize: "1.1rem", fontWeight: 600 },
-                }}
-                // action={
-                //   <Tooltip title="Options">
-                //     <IconButton sx={{ color: "#fff" }}>
-                //       <DotsVertical />
-                //     </IconButton>
-                //   </Tooltip>
-                // }
-              />
-            </Grid>
-            <Grid item md={2}>
-              <DropdownWithSearch
-                options={finYr?.data || []}
-                labelField={"finYr"}
-                // required={true}
-                label={"Select Year"}
-                value={selectedYear}
-                setValue={setSelectedYear}
-                // disabled={readonly}
-              />
-            </Grid>
-            <Grid item md={2}>
-              <DropdownWithSearch
-                options={optionsArray || []}
-                labelField={"compname"}
-                // required={true}
-                label={"Select company"}
-                value={filterBuyer}
-                setValue={setfilterBuyer}
-                // disabled={readonly}
-              />
-            </Grid>
-            {/* <Grid item md={2}>
-              <Button
-                variant="contained"
-                //   startIcon={<AddCircleOutlineIcon />}
-                sx={{
-                  mt: 1,
-                  ml: 1,
-                  p: 1,
-                  backgroundColor: "#446D7F",
-                  textTransform: "none",
-                  "&:hover": { backgroundColor: "#365A6A" },
-                }}
+      <div
+        className=" mt-2"
+        style={{
+          position: "sticky",
+          top: "30px", // set to height of tab list
+          zIndex: 50,
+          backgroundColor: "white",
+        }}
+      >
+        <Grid
+          container
+          spacing={0}
+          sx={{
+            backgroundColor: "white",
+            color: "black",
+            p: 0.5,
+            borderBottom: "1px solid #afafaf",
+            borderTop: "1px solid #afafaf",
+          }}
+        >
+          <Grid item md={6}>
+            <Box sx={{ p: 0, backgroundColor: "" }}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 600, textAlign: "start", mt: 0.5, ml: 1 }}
               >
-                Show
-              </Button>
-            </Grid> */}
+                Overview of ESI Contribution -{filterBuyer}
+              </Typography>
+            </Box>
           </Grid>
-          <Grid>
-            {/* <HeadcountDept
-                companyName={filterBuyer }
-                /> */}
+
+          <Grid item md={6}>
+            <Grid container spacing={1}>
+              <Grid item md={2}>
+                <button
+                  onClick={() => handleFilterClick("Labour")}
+                  className={`flex items-center gap-2 px-5 py-2  text-[11px] font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "Labour"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUserTie size={14} /> Employees
+                </button>
+              </Grid>
+              <Grid item md={2}>
+                <button
+                  onClick={() => handleFilterClick("Staff")}
+                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "Staff"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUsers size={16} /> Staff
+                </button>
+              </Grid>
+              <Grid item md={2}>
+                <button
+                  onClick={() => handleFilterClick("All")}
+                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "All"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUsers size={16} /> All
+                </button>
+              </Grid>
+              <Grid item md={2}>
+                <DropdownWithSearch
+                  options={finYr?.data || []}
+                  labelField={"finYr"}
+                  // required={true}
+                  label={""}
+                  value={selectedYear}
+                  setValue={setSelectedYear}
+                  className="mt-1"
+                  // disabled={readonly}
+                />
+              </Grid>
+
+              <Grid item md={3}>
+                <DropdownWithSearch
+                  options={optionsArray || []}
+                  labelField={"compname"}
+                  // required={true}
+                  label={""}
+                  value={filterBuyer}
+                  setValue={setfilterBuyer}
+                  // disabled={readonly}
+                  className="mt-1"
+                />
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={8}>
+        </Grid>
+      </div>
+
+      <Grid container spacing={1}>
+        <Grid item xs={12} md={5}>
+          <Grid container spacing={1}>
+            <Grid item md={12}>
               <DetailedESI
                 selectedYear1={selectedYear}
                 companyName={filterBuyer}
+                ESIdata={ESIdata}
+                selectedState={selectedState}
               />
             </Grid>
-            <Grid item md={5}>
-              {/* <EmployeeByDepartment /> */}
+            <Grid item md={12}>
+              <DeptmentESI
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                ESIdata={ESIdata}
+                selectedState={selectedState}
+              />
             </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <CompanywiseEsi companyName={filterBuyer} /> */}
-            </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <Companywisessalary companyName={filterBuyer} /> */}
-            </Grid>
-            <Grid item xs={12} md={4}></Grid>
           </Grid>
-        </CardContent>
-      </div>
+        </Grid>
+        <Grid item xs={12} md={7}>
+          <Grid container spacing={1}>
+            <Grid item md={12}>
+              <DeptESI
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                ESIdata={ESIdata}
+                selectedState={selectedState}
+              />
+            </Grid>
+            <Grid item md={6}>
+              <AgeESI
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                ESIdata={ESIdata}
+                selectedState={selectedState}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
     </>
   );
 };

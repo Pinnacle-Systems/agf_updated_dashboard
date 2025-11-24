@@ -33,10 +33,10 @@ const OTwagessalary = ({ companyName, selectedState }) => {
       filterBuyer: filterBuyer,
     }, });
 
-  if (Salarydata?.data?.length === 0)
-    return (
-      <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
-    );
+  // if (Salarydata?.data?.length === 0)
+  //   return (
+  //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
+  //   );
 
   const salaryDet = Salarydata?.data || [];
   const filteredData = Array.isArray(salaryDet)
@@ -76,6 +76,7 @@ const OTwagessalary = ({ companyName, selectedState }) => {
 
  const options = {
     chart: {
+         marginBottom: 125, 
       backgroundColor: "#f5f5f5",
       scrollablePlotArea: { minWidth: 300 },
       // marginTop: 10,

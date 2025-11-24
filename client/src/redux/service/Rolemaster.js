@@ -82,13 +82,14 @@ const RoleApi = createApi({
                   invalidatesTags: ["Rolemast"],
               }),
               getuserpages:builder.query({
-            query:({ userId })=>{
+            query:({ params })=>{
                 return{
-                    url:`${ROLE_API}/getuserpages?userId=${userId}`,
+                    url:ROLE_API+"/getuserpages",
                     method:"GET",
                     headers: {
                         "Content-type": "application/json; charset=UTF-8",
                     },
+                    params
                 }
             },
             providesTags: ["Rolemast"],
