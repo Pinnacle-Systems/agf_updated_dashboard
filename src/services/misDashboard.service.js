@@ -387,6 +387,108 @@ const sql = `
   }
 
 }
+
+export async function getAgewiseESI(req, res) {
+
+  const connection = await getConnection(res);
+  const { filterBuyer = "",filterYear, search = {} } = req.query;
+
+  let result = [];
+  let filterBuyerList = "";
+
+  if (filterBuyer && filterBuyer.trim() !== "") {
+    filterBuyerList = filterBuyer
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+  let whereClause = "1=1";
+  if (filterBuyerList)
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD)
+    whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
+
+const sql = `
+    SELECT
+    SLAP,
+    PAYCAT,
+    FINYR,
+    SUM(ESI) AS TOTAL_ESI,
+    COUNT(EMPID) AS HEADCOUNT,
+    STDT,
+    STDT1
+FROM
+(
+    SELECT
+        A.EMPID,
+        A.ESI,
+        EE.FINYR,
+        FF.PAYCAT,
+        TO_CHAR(EE.STDT,'MM') AS STDT,
+        TO_CHAR(EE.STDT,'YY') AS STDT1,
+
+        FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) AS AGE,
+
+        CASE 
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 18 AND 25 THEN '18 - 25'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 25 AND 35 THEN '25 - 35'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 35 AND 45 THEN '35 - 45'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 45 AND 60 THEN '45 - 60'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) > 60 THEN '60 Above'
+        END AS SLAP
+
+    FROM HPAYROLL A 
+    
+    JOIN HREMPLOYMAST DD     ON A.EMPID = DD.IDCARDNO   
+    JOIN HREMPLOYDETAILS BB  ON DD.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    JOIN HRBANDMAST CC       ON CC.HRBANDMASTID = BB.BAND
+    JOIN MISTABLE FF         ON FF.IDCARD = DD.IDCARDNO
+    JOIN MONTHLYPAYFRQ EE    ON EE.PAYPERIOD = A.PAYPERIOD
+                             AND EE.COMPCODE = A.COMPCODE
+    WHERE 
+        EE.FINYR = '${filterYear}'
+        AND A.COMPCODE IN (${filterBuyerList})
+        AND A.PCTYPE = 'BUYER'
+        AND A.ESI > 0
+) T
+WHERE SLAP IS NOT NULL
+GROUP BY SLAP, PAYCAT, FINYR, STDT, STDT1
+ORDER BY STDT1, STDT, SLAP, PAYCAT
+
+
+`;
+
+
+  try {
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching salary details",
+      error,
+    });
+  }
+
+}
 export async function getSalarydet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer = "", search = {} } = req.query;
@@ -760,10 +862,10 @@ export async function getesidet(req, res) {
   let filterBuyerList = "";
 
   try {
-    // ✅ Step 1: get latest pay period dynamically
+   
     const payPeriodQuery = `SELECT MAX(PAYPERIOD) AS LATEST_PERIOD FROM HPAYROLL`;
     const payPeriodResult = await connection.execute(payPeriodQuery);
-    const lstMnth = payPeriodResult.rows?.[0]?.[0] || ""; // e.g. 'September 2025'
+    const lstMnth = payPeriodResult.rows?.[0]?.[0] || ""; 
 
     if (!lstMnth) {
       return res
@@ -771,7 +873,7 @@ export async function getesidet(req, res) {
         .json({ success: false, message: "No PAYPERIOD found in HPAYROLL" });
     }
 
-    // ✅ Step 2: handle filter buyer
+   
     if (filterBuyer && filterBuyer.trim() !== "") {
       filterBuyerList = filterBuyer
         .split(",")
@@ -779,7 +881,7 @@ export async function getesidet(req, res) {
         .join(",");
     }
 
-    // ✅ Step 3: build WHERE clause
+  
     let whereClause = "1=1";
     if (filterBuyerList) {
       whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})
@@ -798,7 +900,7 @@ export async function getesidet(req, res) {
     if (search.COMPCODE)
       whereClause += ` AND LOWER(DD.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
 
-    // ✅ Step 4: main SQL
+    
     const sql = `
       SELECT A.EMPID, AA.FNAME, AA.GENDER, BB.DOJ,
              DD.DEPARTMENT, A.ESI AS NETPAY, DD.PAYCAT, DD.COMPCODE
@@ -812,7 +914,7 @@ export async function getesidet(req, res) {
 
     const queryResult = await connection.execute(sql);
 
-    // ✅ Step 5: map result
+    
     result = queryResult.rows.map((row) =>
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
@@ -1952,9 +2054,33 @@ ORDER BY STDT1,STDT
 export async function getESIPF1(req, res) {
   const connection = await getConnection(res);
   try {
-    const { filterCat, filterSupplier, filterYear } = req.query;
+    const { filterCat, filterSupplier, filterYear ,search = {}} = req.query;
     let sql;
     let result = [];
+
+    let filterBuyerList = "";
+
+  if (filterSupplier && filterSupplier.trim() !== "") {
+    filterBuyerList = filterSupplier
+      .split(",")
+      .map((buyer) => `'${buyer.trim()}'`)
+      .join(",");
+  }
+
+    let whereClause = "1=1";
+  if (filterBuyerList)
+    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+  if (search.MIDCARD)
+    whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
 
     sql = `
     SELECT
@@ -2001,10 +2127,12 @@ FROM
   JOIN GTDESIGNATIONMAST FF ON FF.GTDESIGNATIONMASTID = BB.DESIGNATION
   WHERE EE.FINYR = '${filterYear}'
   AND A.COMPCODE = '${filterSupplier}'
+  AND ${whereClause}
   AND A.PCTYPE = 'BUYER'
   AND A.ESI > 0
   
 ) A
+ 
 GROUP BY
   A.EMPID,
   A.FNAME,

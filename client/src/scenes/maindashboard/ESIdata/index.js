@@ -274,6 +274,14 @@ const DetailedDashBoard = ({ companyName, Year }) => {
                 selectedState={selectedState}
               />
             </Grid>
+            <Grid item md={6}>
+              <EmployerESI
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                ESIdata={ESIdata}
+                selectedState={selectedState}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { useGetEsiPf1Query } from "../../../redux/service/misDashboardService";
+import {
+  useGetAgewiseEsiQuery,
+  useGetEsiPf1Query,
+} from "../../../redux/service/misDashboardService";
 import { useEffect } from "react";
-import { Box, Card } from "@mui/material";
+import { Box, Card, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Chart from "react-apexcharts";
 import EsiDetail from "../../../components/EsiDet";
+import AgewiseESIlDetail from "../../../components/AgeESIdetail";
 
 const AgeESI = ({
   companyName,
   selectedYear1,
-  ESIdata,
+
   selectedState,
 }) => {
-  
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -25,11 +28,21 @@ const AgeESI = ({
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
+  const { data: salaryDet1, isLoading } = useGetAgewiseEsiQuery({
+    params: {
+      filterBuyer: filterBuyer,
+      filterYear: selectedYear,
+    },
+  });
+
+  console.log(salaryDet1, "ESIsalaryDet21");
+
+  const ESIdata = salaryDet1?.data || [];
+
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
 
-  // FIX: sync year from parent
   useEffect(() => {
     setSelectedYear(selectedYear1);
   }, [selectedYear1]);
@@ -41,59 +54,76 @@ const AgeESI = ({
       })
     : [];
 
- const groupdata = filteredData?.reduce((acc, emp) => {
-  const dept = Math.floor(emp.AGE) || "Unknown";
-  const gender = (emp.GENDER || "Unknown").trim().toLowerCase();
-
-  const normalizedGender =
-    gender === "male" ? "Male" :
-    gender === "female" ? "Female" :
-    "Other";
-
-  if (!acc[dept]) {
-    acc[dept] = { Male: 0, Female: 0, Other: 0 };
-  }
-
-  acc[dept][normalizedGender] += emp.ESI || 0;
-
-  return acc;
-}, {});
-
-console.log(groupdata,"groupdata");
-
+  const groupdata = filteredData?.reduce((acc, emp) => {
+    const code = emp.SLAP || "Unknown";
+    acc[code] = (acc[code] || 0) + (emp.TOTAL_ESI || 0);
+    return acc;
+  }, {});
+  console.log(groupdata, "groupdata");
 
   const Chartdata = Object.entries(groupdata).map(([x, y]) => ({
-    month: x,
+    slap: x,
     esi: y,
     // percent: ((y / totalNetPay) * 100).toFixed(2),
     // color:getRandomColor()
   }));
 
-  // console.log(Chartdata,"ESIyeardata");
+  console.log(Chartdata, "ESIyeardata");
   const pfData = Chartdata?.map((item) => item.esi);
-  const headCount = Chartdata?.map((item) => item.month);
+  const headCount = Chartdata?.map((item) => item.slap);
 
   const options = {
-    series: [44, 55, 13, 43, 22],
+    series: pfData,
     options: {
       chart: {
-        width: 380,
         type: "pie",
-      },
-      labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 200,
-            },
-            legend: {
-              position: "bottom",
-            },
+        events: {
+          dataPointSelection: (event, chartContext, config) => {
+            const index = config.dataPointIndex;
+            const value = pfData[index];
+            const label = headCount[index];
+
+            // setSearch((prev) => ({
+            //   ...prev,
+            //   AGE: label,
+            // }));
+            setShowTable(true);
+
+            
           },
         },
-      ],
+      },
+      labels: headCount,
+      legend: {
+        position: "right",
+        fontSize: "14px",
+        itemMargin: {
+          horizontal: 10, // spacing width
+          vertical: 4, // spacing height
+        },
+        markers: {
+          width: 14,
+          height: 14,
+        },
+      },
+      dataLabels: {
+        style: {
+          fontSize: "10px",
+        },
+      },
+      // responsive: [
+      //   {
+      //     breakpoint: 480,
+      //     options: {
+      //       chart: {
+      //         width: 200,
+      //       },
+      //       legend: {
+      //         position: "bottom",
+      //       },
+      //     },
+      //   },
+      // ],
     },
   };
 
@@ -101,15 +131,29 @@ console.log(groupdata,"groupdata");
     <>
       <Card
         sx={{
-          ml: 1,
           backgroundColor: "#f5f5f5",
+          // borderRadius: 3,
+          // boxShadow: 4,
+          //  mt:2,
+          height: 275,
         }}
       >
+        <CardHeader
+          title="Age wise ESI "
+          titleTypographyProps={{
+            sx: { fontSize: ".9rem", fontWeight: 600 },
+          }}
+          sx={{
+            p: 1,
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          }}
+        />
         <Box>
-  <Chart options={options.options} series={options.series} type="pie" width="380" />
-</Box>
+          <Chart options={options.options} series={options.series} type="pie" />
+        </Box>
         {showTable && (
-          <EsiDetail
+          <AgewiseESIlDetail
+            selectedYear={selectedYear}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}

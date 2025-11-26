@@ -1,8 +1,9 @@
-import { Box, Card } from "@mui/material";
+import { Box, Card, CardHeader, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import EsiDetail from "../../../components/EsiDet";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
+import ESIDetailedCom from "../../../components/ESIdetailCom";
 
 const DeptmentESI = ({
   companyName,
@@ -60,36 +61,58 @@ const DeptmentESI = ({
 
     const options = {
          chart: {
-        type: 'column'
+        type: 'column',
+        marginBottom:80,
+        backgroundColor: "#f5f5f5",
+        height:320
     },
     title: {
-        text: 'World\'s largest cities per 2021'
+        text: null
     },
-    // subtitle: {
-    //     text: 'Source: <a href="https://worldpopulationreview.com/world-cities" target="_blank">World Population Review</a>'
-    // },
+    
     xAxis: {
         type: 'category',
         labels: {
             autoRotation: [-45, -90],
             style: {
-                fontSize: '13px',
+                fontSize: '8px',
                 fontFamily: 'Verdana, sans-serif'
-            }
+            } 
         }
     },
     yAxis: {
         min: 0,
         title: {
-            text: 'Population (millions)'
+            text: 'ESI'
         }
     },
     legend: {
         enabled: false
     },
     tooltip: {
-        pointFormat: 'Population in 2021: <b>{point.y:.1f} millions</b>'
+        pointFormat: 'ESI:<b>{point.y} </b>'
     },
+    plotOptions: {
+    series: {
+        cursor: "pointer",
+        point: {
+            events: {
+                click() {
+                   console.log("Clicked Dept:", this.name);
+const desg=this.name
+            setSearch((prev) => ({
+                ...prev,
+                DEPARTMENT: desg,
+              }));
+              setShowTable(true);
+
+                    // your click co
+                }
+            }
+        }
+    }
+},
+
     series: [{
         name: 'Population',
         colors: [
@@ -111,10 +134,10 @@ const DeptmentESI = ({
             color: '#FFFFFF',
             inside: true,
             verticalAlign: 'top',
-            format: '{point.y:.1f}', // one decimal
-            y: 10, // 10 pixels down from the top
+            format: '{point.y}', 
+            y: 10, 
             style: {
-                fontSize: '13px',
+                fontSize: '10px',
                 fontFamily: 'Verdana, sans-serif'
             }
         }
@@ -124,17 +147,27 @@ const DeptmentESI = ({
   return (
     <>
       <Card
-        sx={{
-          mt: 2,
-          ml: 1,
-          backgroundColor: "#f5f5f5",
-        }}
-      >
+             sx={{ 
+                backgroundColor: "#f5f5f5",
+               // borderRadius: 3,
+               // boxShadow: 4,
+              
+               ml:1
+             }}
+           >
+             <CardHeader title="Department wise ESI" titleTypographyProps={{
+                   sx: { fontSize: ".9rem", fontWeight: 600},
+                 }}
+                 sx={{
+                   p:1,
+                   borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+                 }}/>
         <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
         {showTable && (
-          <EsiDetail
+          <ESIDetailedCom
+          selectedYear={selectedYear}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}

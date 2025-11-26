@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useGetEsiPf1Query } from "../../../redux/service/misDashboardService";
 import { useEffect } from "react";
-import { Box, Card } from "@mui/material";
+import { Box, Card, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import EsiDetail from "../../../components/EsiDet";
+import ESIDetailed from "../../../components/MonthESIde";
+import SalaryDetail from "../../../components/SalaryDet";
 
 const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
-//   console.log("ESIdata", ESIdata);
+  // console.log("ESIdata", ESIdata);
   // console.log(companyName,selectedYear1, "selectedYear1");
   const [search, setSearch] = useState({
     FNAME: "",
@@ -43,6 +45,8 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
         
         return acc;
     }, {});
+
+    
     
   const Chartdata = Object.entries(groupdata).map(([x, y]) => ({
         month: x,
@@ -58,7 +62,7 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
 
   const options = {
     chart: {
-    
+    backgroundColor: "#f5f5f5",
       marginTop: 10,
       marginBottom: 100, 
       type: "line",
@@ -123,7 +127,14 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
         point: {
           events: {
             click: function () {
-              // console.log("lavanya");
+              
+              const Month=this.category
+              
+              
+              // setSearch((prev) => ({
+              //   ...prev,
+              //   PAYPERIOD: Month,
+              // }));
 
               setShowTable(true);
             },
@@ -155,16 +166,27 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
           backgroundColor: "#f5f5f5",
         }}
       >
+         <CardHeader
+                title="Month wise ESI"
+                titleTypographyProps={{
+                  sx: { fontSize: ".9rem", fontWeight: 600 },
+                }}
+                sx={{
+                  p: 1,
+                  borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+                }}
+              />
         <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
         {showTable && (
-          <EsiDetail
+          <ESIDetailed
+          selectedYear={selectedYear}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
-          />
+           />
         )}
       </Card>
     </>

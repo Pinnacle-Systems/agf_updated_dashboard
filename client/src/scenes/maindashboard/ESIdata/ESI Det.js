@@ -201,6 +201,9 @@ const HomeESI = () => {
 
   const { data: ESIdata, isLoading, isError } = useGetEsilastmonthQuery();
 
+  console.log(ESIdata,"ESIdata");
+  
+
   if (isLoading) return <CircularProgress />;
   if (isError) return <div>Error loading data</div>;
   if (!ESIdata?.data?.length) return <div>No data found</div>;

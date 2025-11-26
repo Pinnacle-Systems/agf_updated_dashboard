@@ -1,8 +1,9 @@
-import { Box, Card } from "@mui/material";
+import { Box, Card, CardHeader } from "@mui/material";
 import { useEffect, useState } from "react";
 import EsiDetail from "../../../components/EsiDet";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
+import ESIDetailedCom from "../../../components/ESIdetailCom";
 
 const DeptESI = ({ companyName, selectedYear1, ESIdata, selectedState }) => {
   console.log(selectedState, "selectedState");
@@ -139,12 +140,14 @@ console.log(femaleValues, "groupdata");
   const options = {
     chart: {
       type: "bar",
+       backgroundColor: "#f5f5f5",
       marginLeft:100,
-      height:400
+      height:400,
+      marginBottom:80,
 
     },
     title: {
-      text: "Designation wise ESI- Male vs Female",
+      text: null,
     },
     // subtitle: {
     //     text: 'Source: <a ' +
@@ -203,6 +206,21 @@ console.log(femaleValues, "groupdata");
       series: {
         stacking: "normal",
         borderRadius: "50%",
+        point: {
+        events: {
+          click: function () {
+
+            const desg=this.category
+            setSearch((prev) => ({
+                ...prev,
+                DESIGNATION: desg,
+              }));
+              setShowTable(true);
+
+            
+          },
+        },
+      }
       },
     },
 
@@ -222,18 +240,27 @@ console.log(femaleValues, "groupdata");
 
   return (
     <>
-      <Card
-        sx={{
-          mt: 2,
-          ml: 1,
-          backgroundColor: "#f5f5f5",
-        }}
-      >
+       <Card
+             sx={{ 
+                backgroundColor: "#f5f5f5",
+             
+               mt:2,
+               
+             }}
+           >
+             <CardHeader title="Designation wise ESI-Male vs Female" titleTypographyProps={{
+                   sx: { fontSize: ".9rem", fontWeight: 600},
+                 }}
+                 sx={{
+                   p:1,
+                   borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+                 }}/>
         <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
         {showTable && (
-          <EsiDetail
+          <ESIDetailedCom
+          selectedYear={selectedYear}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
