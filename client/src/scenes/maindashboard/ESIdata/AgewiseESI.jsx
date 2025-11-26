@@ -83,10 +83,10 @@ const AgeESI = ({
             const value = pfData[index];
             const label = headCount[index];
 
-            // setSearch((prev) => ({
-            //   ...prev,
-            //   AGE: label,
-            // }));
+            setSearch((prev) => ({
+              ...prev,
+              AGE: label,
+            }));
             setShowTable(true);
 
             

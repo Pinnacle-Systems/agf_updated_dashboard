@@ -115,7 +115,7 @@ const AgewiseESIlDetail = ({
         const rowValue = row[key];
 
         if (key === "AGE") {
-          const age = Math.floor(Number(rowValue));
+          const age = Math.floor(rowValue);
 
           
           if (searchValue.includes("-")) {
@@ -124,8 +124,8 @@ const AgewiseESIlDetail = ({
           }
 
        
-          if (searchValue.endsWith("+")) {
-            const minAge = Number(searchValue.replace("+", ""));
+          if (searchValue.endsWith("Above")) {
+            const minAge = Number(searchValue.replace("Above", ""));
             return age >= minAge;
           }
 

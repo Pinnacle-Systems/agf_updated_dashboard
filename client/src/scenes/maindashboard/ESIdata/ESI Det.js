@@ -235,8 +235,7 @@ const HomeESI = () => {
       plotBackgroundColor: null,
       plotBorderWidth: 0,
       plotShadow: true,
-      spacing: [0, 0, 0, 0], // remove bottom space
-    
+      spacing: [0, 0, 0, 0],     
     },
     title: {
       text: `ESI<br>shares of<br>${month}`,

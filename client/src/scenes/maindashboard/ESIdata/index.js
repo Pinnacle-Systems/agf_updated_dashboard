@@ -48,9 +48,7 @@ import DeptmentESI from "./DepiEST";
 import AgeESI from "./AgewiseESI";
 
 const DetailedDashBoard = ({ companyName, Year }) => {
-  const { color } = useContext(ColorContext);
-  const dispatch = useDispatch();
-  const theme = useTheme();
+  
   const [filterBuyer, setfilterBuyer] = useState(companyName);
   const [selectedYear, setSelectedYear] = useState(Year);
   const [selectedState, setSelectedState] = useState("");
