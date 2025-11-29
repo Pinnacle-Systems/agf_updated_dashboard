@@ -10,6 +10,7 @@ import Highcharts from "highcharts";
 import ESIDetailed from "../../../components/MonthESIde";
 import { IoIosPeople, IoMdFemale } from "react-icons/io";
 import { BiMaleSign } from "react-icons/bi";
+import PFShareDetailed from "../../../components/PF detail/EmployerpfDEt";
 
 const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
   const [search, setSearch] = useState({
@@ -39,6 +40,7 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       })
     : [];
 
+      console.log(PFdata, "PFdata");
   const groupdata = filteredData?.reduce((acc, emp) => {
     const code = emp.GENDER || "Unknown";
     acc[code] = (acc[code] || 0) + (Math.round(emp.EMPLOYER_CON) || 0);
@@ -76,124 +78,124 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
 
   const maledata = chartdata?.find((x) => x.gender === "MALE");
   const femaledata = chartdata?.find((x) => x.gender === "FEMALE");
-  console.log(maledata, "maledata");
 
-  const option = {
-    chart: {
-      backgroundColor: "#f5f5f5",
-      type: "pie",
-      height: 238,
-      custom: {},
 
-      events: {
-        render() {
-          const chart = this;
-          const series = chart.series[0];
+  // const option = {
+  //   chart: {
+  //     backgroundColor: "#f5f5f5",
+  //     type: "pie",
+  //     height: 238,
+  //     custom: {},
 
-          // Get total value
-          const total = chart.options.chart.custom.total ?? 0;
+  //     events: {
+  //       render() {
+  //         const chart = this;
+  //         const series = chart.series[0];
 
-          let customLabel = chart.customLabel;
+  //         // Get total value
+  //         const total = chart.options.chart.custom.total ?? 0;
 
-          if (!customLabel) {
-            customLabel = chart.customLabel = chart.renderer
-              .label(
-                `<br/><strong>${total}</strong>`,
-                0,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "center"
-              )
-              .css({
-                color: "#000",
-                textAnchor: "middle",
-              })
-              .add();
-          } else {
-            customLabel.attr({
-              text: `Total<br/><strong>${total}</strong>`,
-            });
-          }
+  //         let customLabel = chart.customLabel;
 
-          const x = series.center[0] + chart.plotLeft;
-          const y = series.center[1] + chart.plotTop;
+  //         if (!customLabel) {
+  //           customLabel = chart.customLabel = chart.renderer
+  //             .label(
+  //               `<br/><strong>${total}</strong>`,
+  //               0,
+  //               0,
+  //               null,
+  //               null,
+  //               null,
+  //               null,
+  //               null,
+  //               "center"
+  //             )
+  //             .css({
+  //               color: "#000",
+  //               textAnchor: "middle",
+  //             })
+  //             .add();
+  //         } else {
+  //           customLabel.attr({
+  //             text: `Total<br/><strong>${total}</strong>`,
+  //           });
+  //         }
 
-          customLabel.attr({
-            x,
-            y,
-          });
+  //         const x = series.center[0] + chart.plotLeft;
+  //         const y = series.center[1] + chart.plotTop;
 
-          // Dynamic font size adjust
-          customLabel.css({
-            fontSize: `${series.center[2] / 12}px`,
-          });
-        },
-      },
-    },
-    accessibility: {
-      point: {
-        valueSuffix: "%",
-      },
-    },
-    title: {
-      text: null,
-    },
+  //         customLabel.attr({
+  //           x,
+  //           y,
+  //         });
 
-    tooltip: {
-      pointFormat: "{series.name}: <b>{point.y}</b>",
-    },
-    legend: {
-      enabled: false,
-    },
-    plotOptions: {
-      series: {
-        allowPointSelect: true,
-        cursor: "pointer",
-        borderRadius: 8,
-        dataLabels: [
-          {
-            enabled: true,
-            distance: 20,
-            format: "{point.name}",
-          },
-          {
-            enabled: true,
-            distance: -15,
-            format: "{point.percentage:.0f}%",
-            style: {
-              fontSize: "0.9em",
-            },
-          },
-        ],
-        showInLegend: true,
+  //         // Dynamic font size adjust
+  //         customLabel.css({
+  //           fontSize: `${series.center[2] / 12}px`,
+  //         });
+  //       },
+  //     },
+  //   },
+  //   accessibility: {
+  //     point: {
+  //       valueSuffix: "%",
+  //     },
+  //   },
+  //   title: {
+  //     text: null,
+  //   },
 
-        point: {
-          events: {
-            click: function () {
-              console.log("Clicked Slice:", this.name);
-              console.log("Value:", this.y);
-              setShowTable(true);
-            },
-          },
-        },
-      },
-    },
-    series: [
-      {
-        name: "Employer contribution",
-        colorByPoint: true,
-        innerSize: "75%",
-        data: chartdata?.map((x, y) => ({
-          name: x.gender,
-          y: x.contribution,
-        })),
-      },
-    ],
-  };
+  //   tooltip: {
+  //     pointFormat: "{series.name}: <b>{point.y}</b>",
+  //   },
+  //   legend: {
+  //     enabled: false,
+  //   },
+  //   plotOptions: {
+  //     series: {
+  //       allowPointSelect: true,
+  //       cursor: "pointer",
+  //       borderRadius: 8,
+  //       dataLabels: [
+  //         {
+  //           enabled: true,
+  //           distance: 20,
+  //           format: "{point.name}",
+  //         },
+  //         {
+  //           enabled: true,
+  //           distance: -15,
+  //           format: "{point.percentage:.0f}%",
+  //           style: {
+  //             fontSize: "0.9em",
+  //           },
+  //         },
+  //       ],
+  //       showInLegend: true,
+
+  //       point: {
+  //         events: {
+  //           click: function () {
+  //             console.log("Clicked Slice:", this.name);
+  //             console.log("Value:", this.y);
+  //             setShowTable(true);
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  //   series: [
+  //     {
+  //       name: "Employer contribution",
+  //       colorByPoint: true,
+  //       innerSize: "75%",
+  //       data: chartdata?.map((x, y) => ({
+  //         name: x.gender,
+  //         y: x.contribution,
+  //       })),
+  //     },
+  //   ],
+  // };
 
   const options = {
     chart: {
@@ -215,7 +217,7 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       formatter: function () {
         return `
             <b>${this.point.name}</b><br/>
-            PF value: <b>${this.point.y}</b><br/>
+            PF share: <b>${this.point.y}</b><br/>
             
           `;
       },
@@ -243,6 +245,8 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
               //     data: { companyName: this.name, Year: this.Year },
               //   })
               // );
+              
+            setShowTable(true);
             },
           },
         },
@@ -348,7 +352,7 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
         </Grid>
 
         {showTable && (
-          <ESIDetailed
+          <PFShareDetailed
             selectedYear={selectedYear}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}

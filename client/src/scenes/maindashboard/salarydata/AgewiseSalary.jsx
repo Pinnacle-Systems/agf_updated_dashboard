@@ -40,7 +40,7 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
     },
   });
 
-  console.log(salaryDet, "salaryDet");
+  console.log(salaryDet1, "salaryDet123");
 
   useEffect(() => {
     setFilterBuyer(companyName);

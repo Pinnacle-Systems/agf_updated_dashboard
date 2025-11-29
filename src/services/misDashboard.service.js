@@ -385,6 +385,7 @@ export async function getSalaryAgewise(req, res) {
 
 export async function getAgewiseESI(req, res) {
   const connection = await getConnection(res);
+
   const { filterBuyer = "", filterYear, search = {} } = req.query;
 
   let result = [];
@@ -437,10 +438,10 @@ FROM
 
         CASE 
             WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 18 AND 25 THEN '18 - 25'
-            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 25 AND 35 THEN '25 - 35'
-            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 35 AND 45 THEN '35 - 45'
-            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 45 AND 60 THEN '45 - 60'
-            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) > 60 THEN '60 Above'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 26 AND 35 THEN '26 - 35'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 36 AND 45 THEN '36 - 45'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) BETWEEN 46 AND 60 THEN '45 - 60'
+            WHEN FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE), DD.DOB) / 12) >= 61 THEN '61 +'
         END AS SLAP
 
     FROM HPAYROLL A 
@@ -455,8 +456,7 @@ FROM
         EE.FINYR = '${filterYear}'
         AND A.COMPCODE IN (${filterBuyerList})
         AND A.PCTYPE = 'BUYER'
-        AND A.ESI > 0
-        AND A.PF > 0
+        
         
 ) T
 WHERE SLAP IS NOT NULL
@@ -1476,38 +1476,37 @@ export async function getEmployeesDetail1(req, res) {
 export async function getOrdersInHand(req, res) {
   const connection = await getConnection(res);
   try {
+    let result = [];
     const { filterYear, filterBuyer } = req.query;
 
     const sql = ` 
-SELECT X.SLAP,COUNT(X.SLAP) VAL FROM (
+SELECT X.SLAP,X.PAYCAT,COUNT(X.SLAP) VAL FROM (
 SELECT CASE WHEN X.AGE BETWEEN 18 AND 25 THEN '18 - 25'
-WHEN X.AGE BETWEEN 25 AND 35 THEN '25 - 35'
-WHEN X.AGE BETWEEN 35 AND 45 THEN '35 - 45'
-WHEN X.AGE BETWEEN 45 AND 65 THEN '45 - 60'
-WHEN X.AGE > 60 THEN '60 Above'  END SLAP FROM (
-SELECT MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12 AGE FROM MISTABLE A WHERE A.COMPCODE = '${filterBuyer}'
+WHEN X.AGE BETWEEN 26 AND 35 THEN '26 - 35'
+WHEN X.AGE BETWEEN 36 AND 45 THEN '36 - 45'
+WHEN X.AGE BETWEEN 46 AND 60 THEN '46 - 60'
+WHEN X.AGE >=61 THEN '61 +'  END SLAP,X.PAYCAT FROM (
+SELECT FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AGE,A.PAYCAT FROM MISTABLE A WHERE A.COMPCODE = '${filterBuyer}'
 AND A.DOJ <= (
-SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
+SELECT MIN(AA.STDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) AND (A.DOL IS NULL OR A.DOL <= (
 SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA.STDT AND AA.ENDT
 ) )
 ) X
 ) X
 WHERE X.SLAP IS NOT NULL
-GROUP BY X.SLAP
+GROUP BY X.SLAP,X.PAYCAT
 ORDER BY 1
 `;
-    let result = await connection.execute(sql);
-    result = result.rows.map((row) => ({
-      buyer: row[0],
-      value: row[1],
-      female: row[2],
-      total: row[3],
-    }));
-    return res.json({
-      statusCode: 0,
-      data: result,
-    });
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -1689,7 +1688,6 @@ export async function getYearlyComp(req, res) {
         .join(",");
     }
 
-    // ✅ Add optional company filter
     let companyFilter = "";
     if (filterBuyerList) {
       companyFilter = `AND A.COMPCODE IN (${filterBuyerList})`;
@@ -1766,12 +1764,18 @@ export async function getregionCount(req, res) {
   const connection = await getConnection(res);
 
   try {
-    console.log(currentDt, "currentDt yearly");
+    const { filterBuyer } = req.query;
+
+    let whereClause = "1=1";
+
+    if (filterBuyer) {
+      whereClause += ` AND A.COMPCODE = '${filterBuyer}'`;
+    }
 
     const sql = `
    SELECT 
     COMPCODE,
-
+    
    
     SUM(CASE WHEN STATE = 'TAMILNADU' THEN MALE ELSE 0 END) AS TN_MALE,
     SUM(CASE WHEN STATE = 'TAMILNADU' THEN FEMALE ELSE 0 END) AS TN_FEMALE,
@@ -1786,6 +1790,7 @@ FROM (
     SELECT 
         A.COMPCODE,
         A.STATE,
+        
         CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END MALE,
         CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END FEMALE
     FROM MISTABLE A
@@ -1800,6 +1805,7 @@ FROM (
         WHERE AA.PAYPERIOD = '${currentDt}'
     ))
 ) A
+ WHERE ${whereClause}
 GROUP BY COMPCODE
 ORDER BY COMPCODE
 
@@ -2114,7 +2120,7 @@ ORDER BY A.STDT1, A.STDT
     // HAVING SUM(A.PF) > 0
     // ORDER BY STDT1,STDT
 
-     const queryResult = await connection.execute(sql);
+    const queryResult = await connection.execute(sql);
     result = queryResult.rows.map((row) =>
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
@@ -2666,49 +2672,90 @@ export async function getHeadDetail(req, res) {
   const connection = await getConnection(res);
 
   try {
-    let { compCode, docdate, department } = req.query;
+    let result = [];
+    let { compCode } = req.query;
+
+    const d = new Date();
+    const monthName = month[d.getMonth()];
+    const yearName = d.getFullYear();
+    const lastmonth = month[d.getMonth() - 1];
+    const currentDt = [monthName, yearName].join(" ");
+    const lstMnth = [lastmonth, yearName].join(" ");
     // console.log(compCode, docdate, department, "values list");
 
     // Default compCode
-    compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
+    // compCode = compCode && compCode.trim() !== "" ? compCode : "AGF";
 
-    // Convert docdate to DD/MM/YYYY format
-    if (!docdate || docdate.trim() === "") {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, "0");
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const yyyy = today.getFullYear();
-      docdate = `${dd}/${mm}/${yyyy}`;
-    } else {
-      const d = new Date(docdate); // parse YYYY-MM-DD
-      const dd = String(d.getDate()).padStart(2, "0");
-      const mm = String(d.getMonth() + 1).padStart(2, "0");
-      const yyyy = d.getFullYear();
-      docdate = `${dd}/${mm}/${yyyy}`; // convert to DD/MM/YYYY
-    }
+    // if (!docdate || docdate.trim() === "") {
+    //   const today = new Date();
+    //   const dd = String(today.getDate()).padStart(2, "0");
+    //   const mm = String(today.getMonth() + 1).padStart(2, "0");
+    //   const yyyy = today.getFullYear();
+    //   docdate = `${dd}/${mm}/${yyyy}`;
+    // } else {
+    //   const d = new Date(docdate); // parse YYYY-MM-DD
+    //   const dd = String(d.getDate()).padStart(2, "0");
+    //   const mm = String(d.getMonth() + 1).padStart(2, "0");
+    //   const yyyy = d.getFullYear();
+    //   docdate = `${dd}/${mm}/${yyyy}`; // convert to DD/MM/YYYY
+    // }
 
     const sql = `
-     SELECT * FROM MISTABLE A 
+     SELECT
+      A.IDCARD,
+ A.FNAME,
+ A.GENDER,
+ A.COMPCODE,
+ A.DEPARTMENT,
+ A.DOB,
+ A.DOJ,
+ A.STATE,
+ A.BGF,
+ CC.DESIGNATION,
+ DD.EMPTYPE,
+ A.PAYCAT,
+ FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOB)/12) AS AGE,
+ FLOOR(MONTHS_BETWEEN(TRUNC(SYSDATE),A.DOJ)/12) AS EXP
+     FROM MISTABLE A 
+     JOIN HREMPLOYDETAILS BB ON BB.HREMPLOYMASTID = A.HREMPLOYMASTID
+ JOIN HREMPLOYMAST DD ON DD.HREMPLOYMASTID = A.HREMPLOYMASTID
+JOIN GTDESIGNATIONMAST CC ON CC.GTDESIGNATIONMASTID = BB.DESIGNATION
 WHERE A.COMPCODE = '${compCode}'
-AND A.DOJ <= TO_DATE('${docdate}','DD/MM/YYYY') AND (A.DOL IS NULL OR A.DOL >= TO_DATE('${docdate}','DD/MM/YYYY'))
-AND A.DEPARTMENT = '${department}'
+AND  A.DOJ <= (
+          SELECT MIN(AA.STDT)
+          FROM MONTHLYPAYFRQ AA
+          WHERE AA.PAYPERIOD = '${currentDt}'
+        )
+        AND (A.DOL IS NULL OR A.DOL <= (
+          SELECT MIN(AA.ENDT)
+          FROM MONTHLYPAYFRQ AA
+          WHERE AA.PAYPERIOD = '${currentDt}'
+))
+          GROUP BY 
+A.IDCARD,
+A.FNAME,
+ A.GENDER,
+ A.COMPCODE,
+ A.DEPARTMENT,
+ A.DOB,
+ A.DOJ,
+ A.STATE,
+ A.BGF,
+ A.PAYCAT,
+ CC.DESIGNATION,
+ DD.EMPTYPE
     `;
 
     // console.log(sql, "sql for Det");
+    const queryResult = await connection.execute(sql);
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
 
-    const result = await connection.execute(sql);
-
-    const resp = result.rows.map((row) => ({
-      id: row[0],
-      name: row[1],
-      gender: row[2],
-      doj: row[3],
-      dob: row[4],
-      payCat: row[7],
-      department: row[17],
-    }));
-
-    return res.json({ statusCode: 0, data: resp });
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     console.error("Error fetching head detail:", err);
     return res

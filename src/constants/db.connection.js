@@ -3,10 +3,6 @@ const require = createRequire(import.meta.url);
 const oracledb = require('oracledb');
 oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
 
-console.log(process.env.ORACLE_CLIENT_PATH ,"checking connection");
-
-
-
 // const dbConfig = {
 //       user: "PSSJWIN",
 //       password: "PSSJWIN_OCT2023",
@@ -28,6 +24,7 @@ console.log(process.env.ORACLE_CLIENT_PATH ,"checking connection");
 //       password: "PSSBSA_MAY2023",
 //       connectString: "203.95.216.155:1556/AVT06p",
 // };
+
 const dbConfig = {
       user: "PSSPAYROLL",
       password: "PSSPAYROLL_OCT2024",

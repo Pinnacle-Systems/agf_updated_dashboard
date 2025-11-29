@@ -1,68 +1,62 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Avatar, Box, Grid, Typography, useTheme } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
-import DotsVertical from "mdi-material-ui/DotsVertical";
+import { DropdownWithSearch } from "../../../input/inputcomponent";
 import {
-  DropdownWithSearch,
-  MultiSelectDropdown,
-} from "../../../input/inputcomponent";
-import { useGetCompCodeDataQuery } from "../../../redux/service/commonMasters";
-import { getCommonParams, multiSelectOption } from "../../../utils/hleper";
-import { effect } from "@chakra-ui/system";
-import { useEditable } from "@chakra-ui/react";
-
-import {
-  useGetMisDashboardEsiDetQuery,
-  useGetMisDashboardSalaryDetQuery,
+  useGetEsiPfQuery,
+  useGetHeadCountDetailQuery,
   useGetYearlyCompQuery,
 } from "../../../redux/service/misDashboardService";
-import GenderDistributionChart from "../WeeklyOverview";
-
-import HeadcountDept from "../Headcount/HeadCountDept";
-import DeptHeadCount from "../Headcount/DeptHead";
-import EmployeeByDepartment from "../Headcount/StautusofEmploy";
-import CompAttrition from "../Attrition/CompanyAttrition";
 import { ColorContext } from "../../global/context/ColorContext";
 import { useDispatch } from "react-redux";
-import { IoIosPeople, IoMdFemale } from "react-icons/io";
-import { BiMaleSign } from "react-icons/bi";
+import { useGetFinYrQuery } from "../../../redux/service/poData";
+import { FaUsers, FaUserTie } from "react-icons/fa";
+import DeptHeadCount from "./DeptHead";
+import EmptypeHead from "./EmptypeHead";
+import HeadcountDept from "./HeadCountDept";
+import AgeHead from "./AgeHeadcount";
+import BGhead from "./BloodwiseHead";
+import DesgHead from "./desnhead";
+import RegionHead from "./RegionHead";
+import ExperienceHead from "./ExperienceHead";
 
-const DetailedHeadcount = ({ companyName }) => {
+const DetailedHeadcount = ({ companyName, Year }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const theme = useTheme();
   const [filterBuyer, setfilterBuyer] = useState(companyName);
+  const [selectedYear, setSelectedYear] = useState(Year);
+  const [selectedState, setSelectedState] = useState("");
   const [readOnly, setReadonly] = useState(false);
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
-  const filterBuyer1 = result?.data.map((item) => item.customer);
+  const { data: HeadDetail } = useGetHeadCountDetailQuery({
+    params: { compCode: filterBuyer },
+  });
 
-  const chartData = Object.entries(filterBuyer1).map(([id, company]) => ({
+  const PFyeardata = HeadDetail?.data || [];
+
+  console.log(PFyeardata, "PFyeardata");
+
+  const filterBuyer1 = result?.data?.map((item) => item.customer) || [];
+
+  const chartData = Object.entries(filterBuyer1 || {}).map(([id, company]) => ({
     compname: company,
     id: company,
   }));
-useEffect(()=>{
-  setfilterBuyer(companyName)
-
-},[companyName])
-
+  useEffect(() => {
+    setfilterBuyer(companyName);
+  }, [companyName]);
 
   const optionsArray = Object.values(chartData);
 
+  const handleFilterClick = (type) => {
+    setSelectedState(type);
+  };
+
   useEffect(() => {}, [filterBuyer]);
 
-  console.log("Opened for company:", companyName);
+  const { data: finYr } = useGetFinYrQuery();
 
   const StatBox = ({ icon: Icon, value, label, color }) => (
     <Box
@@ -106,75 +100,179 @@ useEffect(()=>{
   return (
     <>
       <div
-         className="w-full  mx-auto rounded-md shadow-lg px-2 py-1 overflow-y-auto"
+        className=" mt-2"
+        style={{
+          position: "sticky",
+          top: "30px", // set to height of tab list
+          zIndex: 50,
+          backgroundColor: "white",
+        }}
       >
-        <CardContent sx={{ p: 1, my: "auto" }}>
-          <Grid
-            container
-            spacing={3}
-            sx={{
-              color: "black",
-              // py: 1,
-              borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-              // pb: 1,
-            }}
-          >
-            <Grid item md={8}>
-              <CardHeader
-                title={`Overview of Headcount - ${
-                  filterBuyer 
-                }`}
-                titleTypographyProps={{
-                  sx: { fontSize: "1.1rem", fontWeight: 600 },
-                }}
-                // action={
-                //   <Tooltip title="Options">
-                //     <IconButton sx={{ color: "#fff" }}>
-                //       <DotsVertical />
-                //     </IconButton>
-                //   </Tooltip>
-                // }
-              />
-            </Grid>
-            <Grid item md={1}></Grid>
-            <Grid item md={3}>
-              <DropdownWithSearch
-                options={optionsArray || []}
-                labelField={"compname"}
-                // required={true}
-                label={"Select company"}
-                value={filterBuyer}
-                setValue={setfilterBuyer}
-                // disabled={readonly}
-              />
+        <Grid
+          container
+          spacing={0}
+          sx={{
+            backgroundColor: "white",
+            color: "black",
+            p: 0.5,
+            borderBottom: "1px solid #afafaf",
+            borderTop: "1px solid #afafaf",
+          }}
+        >
+          <Grid item md={7}>
+            <Box sx={{ p: 0, backgroundColor: "" }}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 600, textAlign: "start", mt: 0.5, ml: 1 }}
+              >
+                Overview of HeadCount -{filterBuyer}
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item md={5}>
+            <Grid container spacing={1}>
+              <Grid item md={3}>
+                <button
+                  onClick={() => handleFilterClick("Labour")}
+                  className={`flex items-center gap-2 px-5 py-2  text-[11px] font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "Labour"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUserTie size={14} /> Employees
+                </button>
+              </Grid>
+              <Grid item md={3}>
+                <button
+                  onClick={() => handleFilterClick("Staff")}
+                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "Staff"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUsers size={16} /> Staff
+                </button>
+              </Grid>
+              <Grid item md={3}>
+                <button
+                  onClick={() => handleFilterClick("All")}
+                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
+                          ${
+                            selectedState === "All"
+                              ? "bg-blue-600 text-white scale-105"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }
+                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                >
+                  <FaUsers size={16} /> All
+                </button>
+              </Grid>
+              {/* <Grid item md={2}>
+                <DropdownWithSearch
+                  options={finYr?.data || []}
+                  labelField={"finYr"}
+                  // required={true}
+                  label={""}
+                  value={selectedYear}
+                  setValue={setSelectedYear}
+                  className="mt-1"
+                  // disabled={readonly}
+                />
+              </Grid> */}
+
+              <Grid item md={3}>
+                <DropdownWithSearch
+                  options={optionsArray || []}
+                  labelField={"compname"}
+                  // required={true}
+                  label={""}
+                  value={filterBuyer}
+                  setValue={setfilterBuyer}
+                  // disabled={readonly}
+                  className="mt-1"
+                />
+              </Grid>
             </Grid>
           </Grid>
-          <Grid>
-            <HeadcountDept
-              companyName={filterBuyer }
-            />
-          </Grid>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={7}>
-              <DeptHeadCount
-                companyName={filterBuyer }
-              />
-            </Grid>
-            <Grid item md={5}>
-              <EmployeeByDepartment />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <CompanywiseEsi companyName={filterBuyer} /> */}
-            </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <Companywisessalary companyName={filterBuyer} /> */}
-            </Grid>
-            <Grid item xs={12} md={4}>
-              {/* <CompAttrition companyName={companyName} /> */}
-            </Grid>
-          </Grid>
-        </CardContent>
+        </Grid>
       </div>
+
+      <Grid container spacing={1}>
+        <Grid item xs={6} md={5}>
+          <Grid container spacing={1}>
+            <Grid item md={12}>
+              <HeadcountDept
+                companyName={filterBuyer}
+                HeadData={PFyeardata}
+                selectedState={selectedState}
+              />
+            </Grid>
+            <Grid item md={12}>
+              <DeptHeadCount
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                HeadData={PFyeardata}
+                selectedState={selectedState}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={6} md={4}>
+          <BGhead
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+          
+        </Grid>
+        <Grid item xs={6} md={3}>
+          <Grid container spacing={1}>
+            <Grid item md={12}>
+              <EmptypeHead
+                companyName={filterBuyer}
+                HeadData={PFyeardata}
+                selectedState={selectedState}
+              />
+            </Grid>
+            <Grid item md={12}>
+              <AgeHead
+                companyName={filterBuyer}
+                HeadData={PFyeardata}
+                selectedState={selectedState}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <RegionHead
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <ExperienceHead
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+        </Grid>
+        <Grid xs={12} md={6}>
+          <DesgHead
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+        </Grid>
+        
+      </Grid>
     </>
   );
 };

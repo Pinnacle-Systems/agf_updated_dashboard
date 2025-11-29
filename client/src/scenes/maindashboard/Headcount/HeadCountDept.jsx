@@ -57,7 +57,7 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
       sx={{
         p: 1,
         borderRadius: 3,
-        background: "#DE5959",
+        background: "#96b1e8",
         display: "flex",
         alignItems: "center",
         gap: 2,
@@ -70,8 +70,8 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
         sx={{
           //   mr: 3,
           borderRadius: 50,
-          width: 50,
-          height: 50,
+          width: 40,
+          height: 40,
           boxShadow: 3,
           color: "common.black",
           backgroundColor: "white", 
@@ -81,7 +81,7 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
       </Avatar>
 
       <Box>
-        <Typography variant="subtitle2" color="text.secondary">
+        <Typography  color="text.secondary" sx={{fontSize:"10px"}}>
           {label}
         </Typography>
         <Typography variant="h6" fontWeight={600}>
@@ -92,27 +92,28 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
   );
   return (
     <>
-      <div style={{padding:"5px"}}>
+      <div style={{padding:"2px",marginTop:"5px",marginLeft:"5px"}}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={2}>
+
+          <Grid item xs={12} md={4}>
             <StatBox
-              icon={<IoIosPeople size={40} />}
+              icon={<IoIosPeople size={30} />}
               value={detailedpage?.total}
               label="Head Count"
               color={color}
             />
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={4}>
             <StatBox
-              icon={<BiMaleSign size={40} />}
+              icon={<BiMaleSign size={30} />}
               value={detailedpage?.male}
               label="Total Male"
               color={color}
             />
           </Grid>
-          <Grid item xs={12} md={2}>
+          <Grid item xs={12} md={4}>
             <StatBox
-              icon={<IoMdFemale size={40} />}
+              icon={<IoMdFemale size={30} />}
               value={detailedpage?.female}
               label="Total Female"
               color={color}

@@ -16,7 +16,7 @@ export async function login(req, res) {
   try {
     const user = await prisma_Connector.user.findUnique({
       where: { username },
-      include: { Useronpage: true, Useroncompany: true }, // ✅ fixed here
+      include: { Useronpage: true, Useroncompany: true }, 
     });
 
     console.log(user);

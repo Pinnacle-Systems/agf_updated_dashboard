@@ -117,12 +117,12 @@ const Main_Dashboad = () => {
           <HomeAttrition />
         </Grid>
         <Grid item xs={12} md={6} >
-          <HomeRegion />
+          {/* <HomeRegion /> */}
         </Grid>
 
         <Grid item xs={12} md={6} >
           {/* <Table /> */}
-            <HomeOTWages/>
+            {/* <HomeOTWages/> */}
         </Grid>
       </Grid>
     </div>

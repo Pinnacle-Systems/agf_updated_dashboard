@@ -147,6 +147,10 @@ const ESIDetailed = ({
     (sum, row) => sum + (Number(row.ESI) || 0),
     0
   );
+  const totalNetPay1 = filteredData.reduce(
+    (sum, row) => sum + (Number(row.EMPLOYER_CON) || 0),
+    0
+  );
   console.log(totalNetPay, "Total Net Pay");
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
@@ -193,10 +197,19 @@ const ESIDetailed = ({
               {/* Right: Total Netpay */}
               <div className="text-right ml-5 text-[12px]">
                 <p className=" text-gray-500 font-medium">
-                  Total Netpay:{" "}
+                  Total Employee share:{" "}
                   <span className="text-sky-700 pl-2">
                     {" "}
                     ₹{totalNetPay.toLocaleString("en-IN")}
+                  </span>
+                </p>
+              </div>
+              <div className="text-right ml-5 text-[12px]">
+                <p className=" text-gray-500 font-medium">
+                  Total Employer share:{" "}
+                  <span className="text-sky-700 pl-2">
+                    {" "}
+                    ₹{totalNetPay1.toLocaleString("en-IN")}
                   </span>
                 </p>
               </div>

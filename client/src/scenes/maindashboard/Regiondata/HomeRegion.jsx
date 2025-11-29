@@ -22,6 +22,9 @@ const HomeRegion = () => {
     return acc;
   }, {});
 
+  console.log(regiondata,"regiondata");
+  
+
   const years = Object.keys(groupeddata || {});
   const categories = [
     ...new Set(regiondata?.data.map((order) => order.customer)),

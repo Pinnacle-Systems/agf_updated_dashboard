@@ -23,8 +23,8 @@ const AgewiseSalDetail = ({
   selectedBuyer,
   color,
 }) => {
-  console.log(selectGender1,"selectedGender1");
-  
+  console.log(selectGender1, "selectedGender1");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedState, setSelectedState] = useState("");
   const [selectedGender, setSelectedGender] = useState();
@@ -42,7 +42,6 @@ const AgewiseSalDetail = ({
     },
   });
 
-
   const salaryDet = salaryDetData?.data || [];
   console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
@@ -52,7 +51,7 @@ const AgewiseSalDetail = ({
   const handleFilterClick = (type) => {
     setSelectedState(type);
   };
- 
+
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -96,37 +95,41 @@ const AgewiseSalDetail = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-        const filteredData = Array.isArray(salaryDet)
-     ? salaryDet.filter((row) => {
-      return Object.keys(search || {}).every((key) => {
-        const searchValue = (search[key] || "").toString().trim();
-        if (!searchValue) return true; // skip empty search
+  const filteredData = Array.isArray(salaryDet)
+    ? salaryDet
+        .filter((row) => {
+          return Object.keys(search || {}).every((key) => {
+            const searchValue = (search[key] || "").toString().trim();
+            if (!searchValue) return true;
 
-        const rowValue = row[key];
+            const rowValue = row[key];
 
-        if (key === "AGEMON") {
-          const age = Math.floor(Number(rowValue));
+            if (key === "AGEMON") {
+              const age = Math.floor(Number(rowValue));
 
-          // Case 1: Age range "20-30"
-          if (searchValue.includes("-")) {
-            const [minAge, maxAge] = searchValue.split("-").map(Number);
-            return age >= minAge && age <= maxAge;
-          }
+              // Case 1: Age range "20-30"
+              if (searchValue.includes("-")) {
+                const [minAge, maxAge] = searchValue.split("-").map(Number);
+                return age >= minAge && age <= maxAge;
+              }
 
-          // Case 2: "50+"
-          if (searchValue.endsWith("+")) {
-            const minAge = Number(searchValue.replace("+", ""));
-            return age >= minAge;
-          }
+              // Case 2: "50+"
+              if (searchValue.endsWith("+")) {
+                const minAge = Number(searchValue.replace("+", ""));
+                return age >= minAge;
+              }
 
-          // Case 3: exact number
-          return age === Number(searchValue);
-        }
+              // Case 3: exact number
+              return age === Number(searchValue);
+            }
 
-        // Default string filter
-        return rowValue?.toString().toLowerCase().includes(searchValue.toLowerCase());
-      });
-    })
+            // Default string filter
+            return rowValue
+              ?.toString()
+              .toLowerCase()
+              .includes(searchValue.toLowerCase());
+          });
+        })
         .filter((row) => {
           if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
           if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
@@ -143,12 +146,8 @@ const AgewiseSalDetail = ({
         })
     : [];
 
+  console.log(filteredData, "filteredData1");
 
-  
-
-
-    console.log(filteredData,"filteredData1");
-    
   const totalNetPay = filteredData.reduce(
     (sum, row) => sum + (Number(row.NETPAY) || 0),
     0
@@ -349,7 +348,10 @@ const AgewiseSalDetail = ({
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="overflow-x-auto max-h-[450px] " style={{border:"1px solid gray",borderRadius:"16px"}}>
+          <div
+            className="overflow-x-auto max-h-[450px] "
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -364,8 +366,9 @@ const AgewiseSalDetail = ({
               </thead>
               <tbody>
                 {currentRecords.slice(0, 17).map((row, index) => {
-                   const globalIndex = index;  // 0–16
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  const globalIndex = index; // 0–16
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
                     <tr
                       key={index}
@@ -378,7 +381,9 @@ const AgewiseSalDetail = ({
                       <td className="border p-1 text-[10px]">
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">{ Math.floor(row.AGEMON)}</td>
+                      <td className="border p-1 text-[10px]">
+                        {Math.floor(row.AGEMON)}
+                      </td>
                       <td className="border p-1 text-sky-700  text-[10px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
@@ -392,7 +397,10 @@ const AgewiseSalDetail = ({
             </table>
           </div>
 
-          <div className="overflow-x-auto max-h-[450px]" style={{border:"1px solid gray",borderRadius:"16px"}} >
+          <div
+            className="overflow-x-auto max-h-[450px]"
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -407,27 +415,32 @@ const AgewiseSalDetail = ({
               </thead>
               <tbody>
                 {currentRecords.slice(17, 34).map((row, index) => {
-                    const globalIndex = 17 + index;  // 17–33
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                return(
-                  <tr
-                    key={index}
-                    className="text-gray-700 bg-white even:bg-gray-100"
-                  >
-                    <td className="border p-1 text-[10px]">{serialNo}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                    <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                    <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                    <td className="border p-1 text-[10px]">{row.DEPARTMENT}</td>
-                    <td className="border p-1 text-[10px]">{ Math.floor(row.AGEMON)}</td>
-                    <td className="border p-1 text-sky-700 text-[10px] ">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.NETPAY)}
-                    </td>
-                  </tr>
-                )
+                  const globalIndex = 17 + index; // 17–33
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  return (
+                    <tr
+                      key={index}
+                      className="text-gray-700 bg-white even:bg-gray-100"
+                    >
+                      <td className="border p-1 text-[10px]">{serialNo}</td>
+                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
+                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
+                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
+                      <td className="border p-1 text-[10px]">
+                        {row.DEPARTMENT}
+                      </td>
+                      <td className="border p-1 text-[10px]">
+                        {Math.floor(row.AGEMON)}
+                      </td>
+                      <td className="border p-1 text-sky-700 text-[10px] ">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.NETPAY)}
+                      </td>
+                    </tr>
+                  );
                 })}
               </tbody>
             </table>
