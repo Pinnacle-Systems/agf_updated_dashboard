@@ -13,7 +13,7 @@ import EmptypeDetails from '../../../components/EmptypesalayDetails';
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#B435E3", "#E35B5B"];
 
-const EmpType1= ({ companyName, selectedState, salary }) => {
+const EmpType1= ({ companyName, selectedState, salary,selectmonths,selectedYear1 }) => {
     const [search, setSearch] = useState({
         FNAME: "",
         GENDER: "",
@@ -30,6 +30,10 @@ const EmpType1= ({ companyName, selectedState, salary }) => {
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
       })
+      .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
+        })
     : [];
 
   const totalsByComp = filteredData.reduce((acc, emp) => {
@@ -58,9 +62,11 @@ const EmpType1= ({ companyName, selectedState, salary }) => {
    <Card
          sx={{
            backgroundColor: "#f5f5f5",
-           height:337
+           height:337,
+           mt:2,ml:1
    
            // mx:1
+
          }}
        >
          <CardHeader
@@ -122,6 +128,10 @@ const EmpType1= ({ companyName, selectedState, salary }) => {
                 closeTable={() => setShowTable(false)}
                 setSearch={setSearch}
                 search={search}
+                salary={salary}
+                selectedState1={selectedState}
+                selectmonths1={selectmonths}
+                selectedYear={selectedYear1}
                 // selectGender1={selectGender}
               />
             )}

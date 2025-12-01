@@ -27,7 +27,7 @@ const FinYear = ({ selectedYear, selectmonths, setSelectmonths }) => {
     <div className="max-w-md mx-auto">
       <div>
         <select
-          className="border-gray-300 rounded-lg p-1 w-55 h-6 text-gray-500 text-xs"
+          className="border-gray-300  p-1 w-55 h-6.5 text-gray-900 text-xs rounded-md"
           value={selectmonths}
           onChange={(e) => setSelectmonths(e.target.value)}
         >

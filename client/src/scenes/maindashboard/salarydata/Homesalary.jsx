@@ -10,7 +10,7 @@ import {
   CardHeader,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { useGetMisDashboardSalaryDetQuery } from "../../../redux/service/misDashboardService";
+import { useGetMisDashboardSalaryDetQuery, useGetsalarydelQuery, useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
 import { Box } from "@mui/material";
 
 const HomeSalary = () => {
@@ -23,6 +23,19 @@ const HomeSalary = () => {
   } = useGetMisDashboardSalaryDetQuery({ params: {} });
 
   const dispatch = useDispatch();
+
+  const{data:lastmonth}=useGetsallastmonthQuery()
+
+  
+
+  console.log(lastmonth,"lastmonth");
+
+  const Year =lastmonth?.data.find((x)=>x.Year)
+
+  console.log(Year,"Year");
+  
+  
+  
 
   if (isLoading)
     return (
@@ -57,8 +70,8 @@ const HomeSalary = () => {
     }
   );
 
-  const Totalvalue = compList?.map((x) => x.NETPAY);
-  const company = compList?.map((x) => x.COMPCODE);
+  const Totalvalue = lastmonth?.data.map((x) => x.netpay);
+  const company = lastmonth?.data.map((x) => x.customer);
 
   const Sumtotal = Totalvalue?.reduce((sum, total) => sum + total);
 
@@ -102,13 +115,27 @@ const HomeSalary = () => {
       align: "left",
       verticalAlign: "bottom",
     },
+    tooltip: {
+  useHTML: true,
+  shared: true,
+  formatter: function () {
+    const value = this.y.toLocaleString("en-IN");
+
+    return `
+      <b>${this.point.comp || this.key}</b><br/>
+      <span style="color:${this.series.color}">${this.series.name}</span>: 
+      <b>${value}</b>
+    `;
+  },
+}
+,
     plotOptions: {
       series: {
         dataLabels: {
           enabled: true,
           rotation: -45,
           formatter: function () {
-            return this.y.toLocaleString();
+            return this.y.toLocaleString('en-IN');
           },
         },
       },
@@ -123,7 +150,7 @@ const HomeSalary = () => {
     series: [
       {
         name: "Last month salary",
-        data: Totalvalue.map((value, index) => ({
+        data: Totalvalue?.map((value, index) => ({
           y: value,
           comp: company[index],
         })),
@@ -136,7 +163,7 @@ const HomeSalary = () => {
                   id: `SalaryDetail`,
                   name: `SalaryDetail`,
                   component: "SunburstChart",
-                  data: { companyName: company },
+                  data: { companyName: company,Year: Year.Year },
                 })
               );
             },
@@ -180,7 +207,7 @@ const HomeSalary = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Distribution : {Sumtotal.toLocaleString()}
+            OverAll Distribution : {Sumtotal?.toLocaleString('en-IN')}
           </Typography>
         </Box>
       </CardContent>

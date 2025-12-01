@@ -1,9 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-// import { useGetYFActVsPlnQuery } from '../../redux/service/orderManagement';
-// import { useGetBuyerNameQuery, useGetFinYearQuery, useGetMonthQuery } from '../../redux/service/commonMasters';
-// import { ColorContext } from '../global/context/ColorContext';
 import { useContext } from "react";
 import { ColorContext } from '../../global/context/ColorContext';
 import { useGetBuyerNameQuery, useGetMonthQuery } from '../../../redux/service/commonMasters';
@@ -13,9 +10,7 @@ import AttritionDetTable from '../../../components/AttDetTable';
 import ModelMultiSelectChart4 from '../../../components/ModelMultiSelectChart4';
 import CardWrapper1 from '../../../components/CardWrapper';
 import { Card } from '@mui/material';
-// import CardWrapper from '../../components/CardWrapper';
-// import ModelMultiSelectChart3 from '../../components/ModelMultiSelectChart3';
-// import AttritionDetTable from '../../components/AttDetTable';
+
 
 const CompAttrition = ({companyName,selectedYear1}) => {
 
@@ -38,22 +33,13 @@ const CompAttrition = ({companyName,selectedYear1}) => {
     setSelectedBuyer(companyName);
   }, [companyName]);
 
-  // FIX: sync year from parent
+ 
   useEffect(() => {
     setSelectedYear(selectedYear1);
   }, [selectedYear1]);
-    // useEffect(() => {
-    //     if (buyer?.data || month?.data || year?.data) {
-    //         const buyerName = (buyer?.data ? buyer?.data : []).map((item) => item.buyerName);
-    //         const monData = (month?.data ? month?.data : []).map((mon) => mon.month);
-    //         const finYearData = (year?.data ? year?.data : []).map((year) => year.finYear);
-    //         setBuyerNm(buyerName);
-    //         setMonthData(monData);
-    //         setYearData(finYearData);
-    //     }
-    // }, [buyer,month,year]);
+  
     const { data: fabPlVsActFull } = useGetYFActVsPlnQuery({ params: {  filterSupplier: selectedBuyer || '', filterYear: selectedYear || '' } });
-    // const { data: fabPlVsActFull, } = useGetYFActVsPlnQuery({ params: {filterYear: selectedYear || '' } });
+  
     const fabPlVsActFullDt = fabPlVsActFull?.data ? fabPlVsActFull?.data : [];
 
 console.log("API Params →", {

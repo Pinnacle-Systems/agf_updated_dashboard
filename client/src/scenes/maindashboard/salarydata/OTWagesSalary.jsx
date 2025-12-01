@@ -9,7 +9,7 @@ import OTWagesDetail from "../../../components/OTWagessalary";
 
 Variwide(Highcharts);
 
-const OTwagessalary = ({ companyName, selectedState }) => {
+const OTwagessalary = ({ companyName, selectedState, selectmonths,selectedYear1}) => {
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -19,6 +19,11 @@ const OTwagessalary = ({ companyName, selectedState }) => {
   });
   const [showTable, setShowTable] = useState(false);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
+    const [selectedYear, setSelectedYear] = useState(selectedYear1);
+  
+    useEffect(() => {
+        setSelectedYear(selectedYear1);
+      }, [selectedYear1]);
 
   useEffect(() => {
     setFilterBuyer(companyName);
@@ -31,22 +36,29 @@ const OTwagessalary = ({ companyName, selectedState }) => {
     error,
   } = useGetMisDashboardOTWagesDetQuery({ params: {
       filterBuyer: filterBuyer,
+      filterYear:selectedYear
     }, });
-
-  // if (Salarydata?.data?.length === 0)
-  //   return (
-  //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
-  //   );
-
-  const salaryDet = Salarydata?.data || [];
-  const filteredData = Array.isArray(salaryDet)
+    
+    
+    // if (Salarydata?.data?.length === 0)
+    //   return (
+    //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
+    //   );
+    
+    const salaryDet = Salarydata?.data || [];
+    const filteredData = Array.isArray(salaryDet)
     ? salaryDet.filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
+      if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+      if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+      return true;
+    })
+    .filter((row) => {
+      if (!selectmonths) return true;
+      return row.PAYPERIOD === selectmonths;
+    })
     : [];
-
+    
+    console.log(filteredData,"Salarydata147");
   const totalsByComp = filteredData.reduce((acc, emp) => {
     const code = emp.DEPARTMENT || "Unknown";
     acc[code] = (acc[code] || 0) + (emp.OTWAGES || 0);
@@ -115,6 +127,18 @@ const OTwagessalary = ({ companyName, selectedState }) => {
           radius: 4,
           symbol: "circle",
         },
+        dataLabels: {
+          enabled: true,
+          distance: -1,
+          formatter: function () {
+            return `${this.point.y.toLocaleString('en-IN')}`;
+          },
+          style: {
+            color: "#000000",
+            fontWeight: "normal",
+          },
+        },
+        
         point: {
           events: {
             click: function () {
@@ -153,7 +177,7 @@ return<>
    backgroundColor: "#f5f5f5",
         // borderRadius: 3,
         // boxShadow: 4,
-        ml:1
+        mt:2
       }}>
 
   <CardHeader title="Overtime wise salary " titleTypographyProps={{

@@ -13,7 +13,8 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
+import { useGetMisDashboardSalaryDetQuery, useGetsalarydelQuery } from "../redux/service/misDashboardService";
+import FinYear from "./FinYear";
 
 const EmptypeDetails = ({
   closeTable,
@@ -21,33 +22,36 @@ const EmptypeDetails = ({
   setSearch,
   selectGender1,
   selectedBuyer,
+  selectedState1,
   color,
+  salary,
+  selectmonths1,
+  selectedYear
 }) => {
-  console.log(selectGender1,"selectedGender1");
+  console.log(selectedState1,"selectedState1");
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
+  const [selectedState, setSelectedState] = useState(selectedState1);
+  const [selectedGender, setSelectedGender] = useState(selectmonths1);
+  const [selectmonths, setSelectmonths] = useState("");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
   });
   const recordsPerPage = 34;
-  console.log(selectedBuyer, "selectedBuyer for salary");
 
-  const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
-    params: {
-      filterBuyer: selectedBuyer || [],
-      search: search || {},
-    },
-  });
+   useEffect(() => {
+      setSelectedState(selectedState1);
+    }, [selectedState1]);
 
+     useEffect(() => {
+      setSelectmonths(selectmonths1);
+    }, [selectmonths1]);
+  
 
-  const salaryDet = salaryDetData?.data || [];
-  console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
-  }, [salaryDet]);
+  }, [salary]);
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -96,8 +100,8 @@ const EmptypeDetails = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
+  const filteredData = Array.isArray(salary)
+    ? salary
         .filter((row) =>
           Object.keys(search || {}).every((key) => {
             const rowValue = row?.[key]?.toString().toLowerCase() || "";
@@ -118,6 +122,10 @@ const EmptypeDetails = ({
         .filter((row) => {
           const netpay = Number(row?.NETPAY) || 0;
           return netpay >= netpayRange.min && netpay <= netpayRange.max;
+        })
+        .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
         })
     : [];
 
@@ -276,6 +284,15 @@ const EmptypeDetails = ({
                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
               </div>
             ))}
+
+            <div className="flex items-center text-[12px]">
+                          
+                          <FinYear
+                            selectedYear={selectedYear}
+                            selectmonths={selectmonths}
+                            setSelectmonths={setSelectmonths}
+                          />
+                        </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
             <div className="flex items-center text-[12px]">
               <span className="text-gray-500">Min Netpay:</span>

@@ -9,9 +9,9 @@ import SunburstModule from "highcharts/modules/sunburst";
 import SalaryDetail from "../../../components/SalaryDet";
 import DesignationwiseDetails from "../../../components/DesignationwiseDetail";
 
-SunburstModule(Highcharts);
+// SunburstModule(Highcharts);
 
-const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
+const DesignationSalary = ({ companyName, selectedState, salaryDet,selectmonths,selectedYear1 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [search, setSearch] = useState({
@@ -22,11 +22,15 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
+  useEffect(() => {
+      setSelectedYear(selectedYear1);
+    }, [selectedYear1]);
 
   // if (salaryDet?.data?.length === 0)
   //   return (
@@ -39,6 +43,10 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
       })
+      .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
+        })
     : [];
 
   const totalsByComp = filteredData.reduce((acc, emp) => {
@@ -95,6 +103,9 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
         )}</b>`;
       },
     },
+    legend:{
+enabled:false
+    },
 
     plotOptions: {
       series: {
@@ -147,7 +158,6 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet }) => {
       sx={{
          backgroundColor: "#f5f5f5",
       
-        mt:2,
       }}
     >
        <CardHeader

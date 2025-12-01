@@ -23,12 +23,14 @@ const SortedBarChart1 = ({ topItems,setSearch ,setShowTable}) => {
         categoryAxis.renderer.grid.template.disabled = true;
         categoryAxis.renderer.labels.template.fontSize = 10;
         categoryAxis.renderer.labels.template.fill = am4core.color("#666");
-        categoryAxis.renderer.labels.template.maxWidth = 120;
+        categoryAxis.renderer.labels.template.maxWidth = 100;
         categoryAxis.renderer.labels.template.truncate = true;
         categoryAxis.title.text = "Department";
         categoryAxis.title.fontWeight = 600;
         categoryAxis.title.fontSize = 12;
         categoryAxis.title.fill = am4core.color("#333");
+
+
 
         let valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
         valueAxis.max = Math.max(...topItems.map(i => parseFloat(i.Netpay)));
@@ -39,6 +41,7 @@ const SortedBarChart1 = ({ topItems,setSearch ,setShowTable}) => {
         valueAxis.title.fontWeight = 600;
         valueAxis.title.fontSize = 12;
         valueAxis.title.fill = am4core.color("#333");
+        
 
         let series = chart.series.push(new am4charts.ColumnSeries3D());
         series.dataFields.categoryY = "Department";
@@ -77,6 +80,18 @@ const SortedBarChart1 = ({ topItems,setSearch ,setShowTable}) => {
         labelBullet.dx = 5;
         labelBullet.label.fontSize = 12;
         labelBullet.label.fill = am4core.color("#333");
+labelBullet.label.adapter.add("text", function (text, target) {
+  if (target.dataItem && target.dataItem.valueX !== undefined) {
+    return target.dataItem.valueX.toLocaleString("en-IN");
+  }
+  return text;
+});
+
+        chart.maskBullets = false;
+labelBullet.label.truncate = false;
+labelBullet.label.wrap = false;
+labelBullet.label.hideOversized = false;
+labelBullet.label.maxWidth = 300;
 
         series.columns.template.adapter.add("fill", function (fill, target) {
             return chart.colors.getIndex(target.dataItem.index);

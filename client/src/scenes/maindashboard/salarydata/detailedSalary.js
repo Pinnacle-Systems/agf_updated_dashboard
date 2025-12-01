@@ -14,7 +14,7 @@ import SortedBarChart1 from "./designchart";
 
 SunburstModule(Highcharts);
 
-const SunburstChart = ({ companyName, selectedState, salaryDet }) => {
+const SunburstChart = ({ companyName, selectedState, salaryDet,selectmonths }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [search, setSearch] = useState({
@@ -42,6 +42,10 @@ const SunburstChart = ({ companyName, selectedState, salaryDet }) => {
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
       })
+      .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
+        })
     : [];
 
   const totalsByComp = filteredData.reduce((acc, emp) => {
@@ -65,7 +69,7 @@ const SunburstChart = ({ companyName, selectedState, salaryDet }) => {
          backgroundColor: "#f5f5f5",
         // borderRadius: 3,
         // boxShadow: 4,
-        mt:2,
+       
         ml:1
       }}
     >

@@ -36,11 +36,12 @@ const lastMonthYear = lastMonthDate.getFullYear();
 
 const currentDt = [monthName, yearName].join(" ");
 const lstMnth = [lastMonthName, lastMonthYear].join(" ");
+console.log(lstMnth, "lstMnth");
 
 // Convert "September 2025" → "Sep-25"
-const monthShort = lastMonthDate.toLocaleString("en-us", { month: "short" }); // "Sep"
-const yearShort = lastMonthDate.getFullYear().toString().slice(2); // "25"
-const lstMnthPattern = `${monthShort}-${yearShort}`; // "Sep-25"
+// const monthShort = lastMonthDate.toLocaleString("en-us", { month: "short" }); // "Sep"
+// const yearShort = lastMonthDate.getFullYear().toString().slice(2); // "25"
+// const lstMnthPattern = `${monthShort}-${yearShort}`; // "Sep-25"
 
 export async function get(req, res) {
   const connection = await getConnection(res);
@@ -199,6 +200,8 @@ export async function getSalaryAgewise(req, res) {
 
   let result = [];
   let filterBuyerList = "";
+
+  console.log(lstMnth, "lstMnth");
 
   if (filterBuyer && filterBuyer.trim() !== "") {
     filterBuyerList = filterBuyer
@@ -418,19 +421,23 @@ export async function getAgewiseESI(req, res) {
     SLAP,
     PAYCAT,
     FINYR,
+    SUM(NETPAY) AS TOTAL_NETPAY,
     SUM(ESI) AS TOTAL_ESI,
     SUM(PF) AS TOTAL_PF,
     COUNT(EMPID) AS HEADCOUNT,
     STDT,
-    STDT1
+    STDT1,
+    PAYPERIOD
 FROM
 (
     SELECT
         A.EMPID,
+        A.NETPAY,
         A.ESI,
         A.PF,
         EE.FINYR,
         FF.PAYCAT,
+        EE.PAYPERIOD,
         TO_CHAR(EE.STDT,'MM') AS STDT,
         TO_CHAR(EE.STDT,'YY') AS STDT1,
 
@@ -460,7 +467,7 @@ FROM
         
 ) T
 WHERE SLAP IS NOT NULL
-GROUP BY SLAP, PAYCAT, FINYR, STDT, STDT1
+GROUP BY SLAP, PAYCAT, FINYR, STDT, STDT1,PAYPERIOD
 ORDER BY STDT1, STDT, SLAP, PAYCAT
 
 
@@ -570,23 +577,80 @@ export async function getSalarydet(req, res) {
   }
 }
 
+export async function getLastSalarydet(req, res) {
+  const connection = await getConnection(res);
+  const sql = `
+    WITH LAST_MONTH AS (
+    SELECT MAX(EE.STDT) AS LAST_STDT
+    FROM HPAYROLL A
+    JOIN MONTHLYPAYFRQ EE
+      ON EE.PAYPERIOD = A.PAYPERIOD
+     AND EE.COMPCODE = A.COMPCODE
+    WHERE A.PCTYPE = 'BUYER'
+      AND A.NETPAY > 0
+)
+SELECT
+    A.COMPCODE,
+    A.PAYPERIOD,
+    A.FINYR,
+    SUM(A.NETPAY) AS NETPAY,
+    COUNT(A.EMPID) AS HEADCOUNT,
+    A.STDT,
+    A.STDT1
+FROM
+(
+    SELECT
+        A.COMPCODE,
+        A.PAYPERIOD,
+        EE.FINYR,
+        A.NETPAY,
+        A.EMPID,
+        TO_CHAR(EE.STDT,'MM') AS STDT,
+        TO_CHAR(EE.STDT,'YY') AS STDT1
+    FROM HPAYROLL A
+    JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+    JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+    WHERE EE.STDT = (SELECT LAST_STDT FROM LAST_MONTH)
+      AND A.PCTYPE = 'BUYER'
+      AND A.NETPAY > 0
+) A
+GROUP BY
+    A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT, A.STDT1
+ORDER BY
+    A.STDT1, A.STDT
+  `;
+
+  try {
+    const result = await connection.execute(sql);
+    console.log(result, "result");
+
+    let resp = result.rows.map((po) => ({
+      customer: po[0],
+      month: po[1],
+      Year: po[2],
+      netpay: po[3],
+      headCount: po[4],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (error) {
+    console.error("Error executing query:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching salary details",
+      error,
+    });
+  }
+}
+
 export async function getOTwagesdet(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer = "", search = {} } = req.query;
+  const { filterBuyer , search = {},filterYear } = req.query;
 
   let result = [];
-  let filterBuyerList = "";
-
-  if (filterBuyer && filterBuyer.trim() !== "") {
-    filterBuyerList = filterBuyer
-      .split(",")
-      .map((buyer) => `'${buyer.trim()}'`)
-      .join(",");
-  }
-
+  
   let whereClause = "1=1";
-  if (filterBuyerList)
-    whereClause += ` AND DD.COMPCODE IN (${filterBuyerList})`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -600,37 +664,105 @@ export async function getOTwagesdet(req, res) {
     whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
 
   const sql = `
-    SELECT * FROM (
-      SELECT
-        DD.IDCARD EMPID,
-        DD.FNAME,
-        DD.GENDER,
-        DD.DOJ,
-        DD.DEPARTMENT,
-        A.OTWAGES,
-        DD.PAYCAT,
-        DD.COMPCODE
-      FROM MISTABLE DD
-      JOIN HPAYROLL A
-        ON A.EMPID = DD.IDCARD
-        AND A.PCTYPE = 'ACTUAL'
-        AND A.PAYPERIOD = (
-          SELECT MAX(PAYPERIOD)
-          FROM HPAYROLL X
-          JOIN MISTABLE M ON X.EMPID = M.IDCARD
-          WHERE X.PCTYPE = 'ACTUAL'
-          AND M.COMPCODE = DD.COMPCODE
-        )
-      JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
-      JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
-      JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
-      WHERE ${whereClause}
-      GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
-               DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE, A.OTWAGES
-    ) A
-    ORDER BY A.EMPID
-  `;
+SELECT
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
+  A.PAYPERIOD,
+  A.FINYR,
+  A.OTWAGES,
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE
+  
+FROM
+(
+  SELECT
+    DD.IDCARD AS EMPID,
+    DD.FNAME,
+    DD.GENDER,
+    DD.DOJ,
+    DD.DEPARTMENT,
+    DD.PAYCAT,
+    FF.DESIGNATION,
+    A.COMPCODE,
+    A.PAYPERIOD,
+    AA.EMPTYPE,
+    MONTHS_BETWEEN(TRUNC(SYSDATE),DD.DOB)/12 AS AGE,
+    EE.FINYR,
+    A.OTWAGES,
+       TO_CHAR(EE.STDT,'MM') AS STDT,
+    TO_CHAR(EE.STDT,'YY') AS STDT1
+  FROM MISTABLE DD
+  JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
+  JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+  JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+  JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+  JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+  JOIN GTDESIGNATIONMAST FF ON FF.GTDESIGNATIONMASTID = BB.DESIGNATION
+  WHERE EE.FINYR = '${filterYear}'
+  AND A.COMPCODE = '${filterBuyer}'
+  AND ${whereClause}
+  AND A.PCTYPE = 'BUYER'
+  AND A.OTWAGES > 0
+  
+) A
+ 
+GROUP BY
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
+  A.PAYPERIOD,
+  A.FINYR,
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE,
+   A.OTWAGES  
+ORDER BY A.STDT1, A.STDT 
 
+
+
+  `;
+//old one 
+    // SELECT * FROM (
+    //   SELECT
+    //     DD.IDCARD EMPID,
+    //     DD.FNAME,
+    //     DD.GENDER,
+    //     DD.DOJ,
+    //     DD.DEPARTMENT,
+    //     A.OTWAGES,
+    //     DD.PAYCAT,
+    //     DD.COMPCODE
+    //   FROM MISTABLE DD
+    //   JOIN HPAYROLL A
+    //     ON A.EMPID = DD.IDCARD
+    //     AND A.PCTYPE = 'ACTUAL'
+    //     AND A.PAYPERIOD = (
+    //       SELECT MAX(PAYPERIOD)
+    //       FROM HPAYROLL X
+    //       JOIN MISTABLE M ON X.EMPID = M.IDCARD
+    //       WHERE X.PCTYPE = 'ACTUAL'
+    //       AND M.COMPCODE = DD.COMPCODE
+    //     )
+    //   JOIN HREMPLOYDETAILS BB ON A.EMPID = BB.IDCARD
+    //   JOIN HREMPLOYMAST AA ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    //   JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    //   WHERE ${whereClause}
+    //   GROUP BY DD.IDCARD, DD.FNAME, DD.GENDER, DD.DOJ,
+    //            DD.DEPARTMENT, DD.PAYCAT, DD.COMPCODE, A.OTWAGES
+    // ) A
+    // ORDER BY A.EMPID
   try {
     const queryResult = await connection.execute(sql);
     result = queryResult.rows.map((row) =>
@@ -961,6 +1093,55 @@ export async function getattdet(req, res) {
     FROM MISTABLE A
     JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
         AND A.DOL BETWEEN B.STDT AND B.ENDT
+    WHERE ${whereClause}
+    ORDER BY A.COMPCODE, 1, 2, 3`;
+
+  const queryResult = await connection.execute(sql);
+
+  result = queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+
+  res.status(200).json({ success: true, data: result });
+}
+export async function getnewjoin(req, res) {
+  const connection = await getConnection(res);
+  const { filterBuyer, search = {} } = req.query;
+  let result = [];
+  const filterBuyerList = filterBuyer
+    .split(",")
+    .map((buyer) => `'${buyer.trim()}'`)
+    .join(",");
+
+  let whereClause = `A.COMPCODE IN (${filterBuyerList}) 
+                       AND B.PAYPERIOD = '${lstMnth}'`;
+
+  if (search.FNAME)
+    whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+  if (search.GENDER)
+    whereClause += ` AND LOWER(A.GENDER) = LOWER('${search.GENDER}')`;
+  if (search.MIDCARD) whereClause += ` AND A.IDCARD LIKE '%${search.MIDCARD}%'`;
+  if (search.DEPARTMENT)
+    whereClause += ` AND LOWER(A.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+  if (search.COMPCODE)
+    whereClause += ` AND LOWER(A.COMPCODE) LIKE LOWER('%${search.COMPCODE}%')`;
+
+  const sql = `
+    SELECT 
+        A.IDCARD EMPID,
+        A.PAYCAT,
+        A.FNAME,
+        A.GENDER,
+        A.DOJ,
+        A.DEPARTMENT,
+        A.COMPCODE,
+        A.DOL
+    FROM MISTABLE A
+    JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
+        AND A.DOJ BETWEEN B.STDT AND B.ENDT
     WHERE ${whereClause}
     ORDER BY A.COMPCODE, 1, 2, 3`;
 
@@ -2127,6 +2308,136 @@ ORDER BY A.STDT1, A.STDT
         return acc;
       }, {})
     );
+
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSalarydet1(req, res) {
+  const connection = await getConnection(res);
+  try {
+    const { filterCat, filterSupplier, filterYear, search = {} } = req.query;
+    let sql;
+    let result = [];
+
+    let whereClause = "1=1";
+
+    if (search.FNAME)
+      whereClause += ` AND LOWER(DD.FNAME) LIKE LOWER('%${search.FNAME}%')`;
+    if (search.GENDER)
+      whereClause += ` AND LOWER(DD.GENDER) LIKE LOWER('${search.GENDER}%')`;
+    if (search.MIDCARD)
+      whereClause += ` AND DD.IDCARD LIKE '%${search.MIDCARD}%'`;
+    if (search.DEPARTMENT)
+      whereClause += ` AND LOWER(DD.DEPARTMENT) LIKE LOWER('%${search.DEPARTMENT}%')`;
+    if (search.COMPCODE)
+      whereClause += ` AND LOWER(DD.COMPCODE) = LOWER('${search.COMPCODE}')`;
+
+    sql = `
+    SELECT
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
+  A.PAYPERIOD,
+  A.FINYR,
+  A.NETPAY,
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE
+   
+FROM
+(
+  SELECT
+    DD.IDCARD AS EMPID,
+    DD.FNAME,
+    DD.GENDER,
+    DD.DOJ,
+    DD.DEPARTMENT,
+    DD.PAYCAT,
+    FF.DESIGNATION,
+    A.COMPCODE,
+    A.PAYPERIOD,
+    AA.EMPTYPE,
+    MONTHS_BETWEEN(TRUNC(SYSDATE),DD.DOB)/12 AS AGE,
+    EE.FINYR,
+    A.NETPAY,
+    TO_CHAR(EE.STDT,'MM') AS STDT,
+    TO_CHAR(EE.STDT,'YY') AS STDT1
+  FROM MISTABLE DD
+  JOIN HPAYROLL A ON A.EMPID = DD.IDCARD
+  JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+  JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+  JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+  JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+  JOIN GTDESIGNATIONMAST FF ON FF.GTDESIGNATIONMASTID = BB.DESIGNATION
+  WHERE EE.FINYR = '${filterYear}'
+  AND A.COMPCODE = '${filterSupplier}'
+  AND ${whereClause}
+  AND A.PCTYPE = 'BUYER'
+  AND A.NETPAY > 0
+  
+) A
+ 
+GROUP BY
+  A.EMPID,
+  A.FNAME,
+  A.GENDER,
+  A.DOJ,
+  A.DEPARTMENT,
+  A.PAYPERIOD,
+  A.FINYR,
+  A.STDT,
+  A.STDT1,
+  A.DESIGNATION,
+  A.PAYCAT,
+  A.AGE,
+  A.EMPTYPE,
+   A.NETPAY  
+ORDER BY A.STDT1, A.STDT  
+`;
+    // SELECT
+    //   A.COMPCODE,
+    //   A.PAYPERIOD,
+    //   A.FINYR,
+    //   SUM(A.ESI) AS ESI,
+    //   COUNT(A.EMPID) AS HEADCOUNT,A.STDT,A.STDT1
+    //   FROM
+    //   (SELECT
+    //   A.COMPCODE,
+    //   A.PAYPERIOD,
+    //   EE.FINYR,
+    //   A.ESI,
+    //   A.EMPID,TO_CHAR(EE.STDT,'MM') STDT,TO_CHAR(EE.STDT,'YY') STDT1
+    //   FROM HPAYROLL A
+    //   JOIN HREMPLOYMAST AA ON A.EMPID = AA.IDCARDNO
+    //   JOIN HREMPLOYDETAILS BB ON AA.HREMPLOYMASTID = BB.HREMPLOYMASTID
+    //   JOIN HRBANDMAST CC ON CC.HRBANDMASTID = BB.BAND
+    //   JOIN MONTHLYPAYFRQ EE ON EE.PAYPERIOD = A.PAYPERIOD AND EE.COMPCODE = A.COMPCODE
+    //   WHERE EE.FINYR = '${filterYear}'
+    //   AND A.COMPCODE = '${filterSupplier}' AND A.PCTYPE = 'BUYER' AND A.ESI > 0
+    //   ) A
+    //   GROUP BY A.COMPCODE, A.FINYR, A.PAYPERIOD, A.STDT,A.STDT1
+    //   ORDER BY STDT1,STDT
+    const queryResult = await connection.execute(sql)
+    result = queryResult.rows.map((row) =>
+      queryResult.metaData.reduce((acc, column, index) => {
+        acc[column.name] = row[index];
+        return acc;
+      }, {})
+    );
+
+    console.log(result,"resultsalry");
+    
 
     res.status(200).json({ success: true, data: result });
   } catch (err) {

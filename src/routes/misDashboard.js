@@ -11,7 +11,9 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getregionCount,
     getOTwagesdet,
     getSalaryAgewise,
-    getAgewiseESI} from '../services/misDashboard.service.js';
+    getAgewiseESI,
+    getLastSalarydet,
+    getSalarydet1} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -27,11 +29,17 @@ router.get('/otwagesdet',getOTwagesdet);
 
 router.get ('/salaryDet',getSalarydet)
 
+router.get ('/salaryDet1',getSalarydet1)
+
+router.get ('/lastsalaryDet',getLastSalarydet)
+
 router.get ('/pfDet', getpfdet )
 
 router.get ('/esiDet', getesidet )
 
 router.get ('/AttDet', getattdet )
+
+router.get ('/getNewjoin', getattdet )
 
 router.get ('/AttDetTable', getattdetTable )
 

@@ -29,7 +29,7 @@ const DeptmentESI = ({
     setFilterBuyer(companyName);
   }, [companyName]);
 
-  // FIX: sync year from parent
+ 
   useEffect(() => {
     setSelectedYear(selectedYear1);
   }, [selectedYear1]);

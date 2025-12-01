@@ -78,7 +78,7 @@ const HomeAttrition = () => {
           events: {
             click: function () {
               const companyName = this.category;
-              console.log("Clicked:", companyName);
+              // console.log("Clicked:", companyName);
 
               dispatch(
                 push({

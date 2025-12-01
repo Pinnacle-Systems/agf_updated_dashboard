@@ -3,6 +3,7 @@ import { Box, Card, CardHeader, Chip, Stack, useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
 import {
+  useGetAgewiseEsiQuery,
   useGetMisDashboardSalaryDetQuery,
   useGetSalaryAgewiseQuery,
 } from "../../../redux/service/misDashboardService";
@@ -17,7 +18,7 @@ import AgewiseSalDetail from "../../../components/AgewiseDetail";
 
 SunburstModule(Highcharts);
 
-const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
+const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selectedYear1}) => {
   const chartColors = ["#FFA726", "#42A5F5", "#66BB6A", "#AB47BC", "#FF7043"]; // same as chart colors
 
   // console.log(companyName, selectedState,"companyName, selectedState");
@@ -33,14 +34,25 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
   });
   const [showTable, setShowTable] = useState(false);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
+  const [selectedYear, setSelectedYear] = useState(selectedYear1);
 
-  const { data: salaryDet1, isLoading } = useGetSalaryAgewiseQuery({
-    params: {
-      filterBuyer: filterBuyer,
-    },
-  });
+  // const { data: salaryDet1, isLoading } = useGetSalaryAgewiseQuery({
+  //   params: {
+  //     filterBuyer: filterBuyer,
+  //   },
+  // });
+  useEffect(() => {
+      setSelectedYear(selectedYear1);
+    }, [selectedYear1]);
 
-  console.log(salaryDet1, "salaryDet123");
+
+  const { data: Agesalary, isLoading } = useGetAgewiseEsiQuery({
+      params: {
+        filterBuyer: filterBuyer,
+        filterYear: selectedYear,
+      },
+    });
+ 
 
   useEffect(() => {
     setFilterBuyer(companyName);
@@ -53,14 +65,18 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
   //     <Card sx={{ p: 2, textAlign: "center", m: 20 }}>No data available</Card>
   //   );
 
-  const filteredData = Array.isArray(salaryDet1?.data)
-    ? salaryDet1?.data.filter((row) => {
+  const filteredData = Array.isArray(Agesalary?.data)
+    ? Agesalary?.data.filter((row) => {
         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
       })
+      .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
+        })
     : [];
-  console.log(filteredData, "filteredData");
+  console.log(filteredData, "salaryDet123");
 
   const totalsByComp = filteredData?.reduce((acc, emp) => {
     const code = emp.SLAP || "Unknown";
@@ -71,17 +87,7 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
     Department: x,
     Netpay: y,
   }));
-  // console.log(Chartdata,"Chartdata");
 
-  // const DEPARTMENT = filteredData.reduce((arr, emp) => {
-  //   if (!arr[emp.DEPARTMENT]) {
-  //     arr[emp.DEPARTMENT] = [];
-  //   }
-  //   arr[emp.DEPARTMENT].push(emp);
-  //   return arr;
-  // }, {});
-
-  //   console.log(totalsByComp, "DEPARTMENT");
 
   const options = {
     chart: {
@@ -121,10 +127,10 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
         size: "100%",
 
         dataLabels: {
-          enabled: false,
-          distance: 1,
+          enabled: true,
+          distance: -1,
           formatter: function () {
-            return `${this.point.name}`;
+            return `${this.point.y.toLocaleString('en-IN')}`;
           },
           style: {
             color: "#000000",
@@ -154,7 +160,7 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
       pointFormatter: function () {
         return `
                     <span style="color:${this.color}">\u25CF</span>
-                    <span style="color: #2d2d2d;"> Total Netpay: <b>${this.y.toLocaleString()}</b></span><br/>
+                    <span style="color: #2d2d2d;"> Total Netpay: <b>${this.y.toLocaleString('en-IN')}</b></span><br/>
                  
                 `;
       },
@@ -371,7 +377,8 @@ const AgeSalary = ({ companyName, selectedState, salaryDet }) => {
     <Card
       sx={{
         backgroundColor: "#f5f5f5",
-        height:337
+        height:337,
+        mt:2
 
         // mx:1
       }}
