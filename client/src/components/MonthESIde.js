@@ -27,24 +27,23 @@ const ESIDetailed = ({
   selectedBuyer,
   selectedYear,
   color,
+  selectedState,
+  selectmonths,
+  setSelectedState,
+  setSelectmonths,
+  ESIdata,
+  autoFocusBuyer
 }) => {
-  // console.log(
-  //   selectGender1,
-  //   selectedBuyer,
-  //   setSearch,
-  //   search,
-  //   "selectedGender1"
-  // );
-
+  console.log(selectmonths, "selectedGender1");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
-  const [selectmonths, setSelectmonths] = useState("");
+  // const [selectedState, setSelectedState] = useState("");
+  const [selectedGender, setSelectedGender] = useState("Both");
+  // const [selectmonths, setSelectmonths] = useState("");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
   });
-  const recordsPerPage = 34;
+  const recordsPerPage = 32;
   console.log(selectedBuyer, "selectedBuyer for salary");
 
   // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
@@ -54,16 +53,16 @@ const ESIDetailed = ({
   //   },
   // });
 
-  const { data: ESIyeardata } = useGetEsiPf1Query({
-    params: { filterSupplier: selectedBuyer, filterYear: selectedYear },
-  });
+  // const { data: ESIyeardata } = useGetEsiPf1Query({
+  //   params: { filterSupplier: selectedBuyer, filterYear: selectedYear },
+  // });
 
-  const salaryDet = ESIyeardata?.data || [];
+  // const salaryDet = ESIyeardata?.data || [];
 
-  console.log(salaryDet, "salaryDet inside");
+  // console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
-  }, [salaryDet]);
+  }, [ESIdata]);
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -112,8 +111,8 @@ const ESIDetailed = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
+  const filteredData = Array.isArray(ESIdata)
+    ? ESIdata
         .filter((row) =>
           Object.keys(search || {}).every((key) => {
             const rowValue = row[key]?.toString().toLowerCase() || "";
@@ -169,7 +168,7 @@ const ESIDetailed = ({
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
   console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", salaryDet.length);
+  console.log("ESI Data count:", ESIdata.length);
   console.log("Filtered count:", filteredData.length);
 
   return (
@@ -319,6 +318,7 @@ const ESIDetailed = ({
                 selectedYear={selectedYear}
                 selectmonths={selectmonths}
                 setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
               />
             </div>
 
@@ -387,7 +387,7 @@ const ESIDetailed = ({
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(0, 17).map((row, index) => {
+                {currentRecords.slice(0, 16).map((row, index) => {
                   const globalIndex = index; // 0–16
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
@@ -396,7 +396,48 @@ const ESIDetailed = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+
+<td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      {/* <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.EMPLOYER_CON}
+                      </td> */}
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.EMPLOYER_CON)}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.ESI)}
+                      </td>
+
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.EMPID}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
@@ -411,7 +452,7 @@ const ESIDetailed = ({
                           style: "currency",
                           currency: "INR",
                         }).format(row.ESI)}
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })}
@@ -436,8 +477,8 @@ const ESIDetailed = ({
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(17, 34).map((row, index) => {
-                  const globalIndex = 17 + index; // 17–33
+                {currentRecords.slice(16, 32).map((row, index) => {
+                  const globalIndex = 16 + index; // 17–33
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
@@ -445,17 +486,40 @@ const ESIDetailed = ({
                       key={index}
                       className="text-gray-700 bg-white even:bg-gray-100"
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">
+                      {/* <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.EMPLOYER_CON}
+                      </td> */}
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.EMPLOYER_CON)}
                       </td>
-                      <td className="border p-1 text-sky-700 text-[10px] ">
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",

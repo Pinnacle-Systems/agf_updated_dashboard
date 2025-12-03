@@ -13,7 +13,10 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetMisDashboardSalaryDetQuery, useGetsalarydelQuery } from "../redux/service/misDashboardService";
+import {
+  useGetMisDashboardSalaryDetQuery,
+  useGetsalarydelQuery,
+} from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
 
 const EmptypeDetails = ({
@@ -22,32 +25,34 @@ const EmptypeDetails = ({
   setSearch,
   selectGender1,
   selectedBuyer,
-  selectedState1,
+  selectedState,
   color,
   salary,
-  selectmonths1,
-  selectedYear
+  selectmonths,
+  selectedYear,
+  setSelectmonths,
+  setSelectedState,
+  autoFocusBuyer,
 }) => {
-  console.log(selectedState1,"selectedState1");
-  
+  console.log(selectedState, "selectedState1");
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState(selectedState1);
-  const [selectedGender, setSelectedGender] = useState(selectmonths1);
-  const [selectmonths, setSelectmonths] = useState("");
+
+  const [selectedGender, setSelectedGender] = useState("Both");
+
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
   });
-  const recordsPerPage = 34;
+  const recordsPerPage = 36;
 
-   useEffect(() => {
-      setSelectedState(selectedState1);
-    }, [selectedState1]);
+  //  useEffect(() => {
+  //     setSelectedState(selectedState1);
+  //   }, [selectedState1]);
 
-     useEffect(() => {
-      setSelectmonths(selectmonths1);
-    }, [selectmonths1]);
-  
+  //  useEffect(() => {
+  //   setSelectmonths(selectmonths);
+  // }, [selectmonths]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -56,7 +61,7 @@ const EmptypeDetails = ({
   const handleFilterClick = (type) => {
     setSelectedState(type);
   };
- 
+
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -129,8 +134,8 @@ const EmptypeDetails = ({
         })
     : [];
 
-    console.log(filteredData,"filteredData1");
-    
+  console.log(filteredData, "filteredData1");
+
   const totalNetPay = filteredData.reduce(
     (sum, row) => sum + (Number(row.NETPAY) || 0),
     0
@@ -269,7 +274,7 @@ const EmptypeDetails = ({
         </div>
 
         <div className="flex justify-between items-start">
-          <div className="grid grid-cols-6 gap-2 mb-3">
+          <div className="grid grid-cols-7 gap-2 mb-3">
             {["EMPID", "FNAME", "DEPARTMENT", "EMPTYPE"].map((key) => (
               <div key={key} className="relative">
                 <input
@@ -286,13 +291,13 @@ const EmptypeDetails = ({
             ))}
 
             <div className="flex items-center text-[12px]">
-                          
-                          <FinYear
-                            selectedYear={selectedYear}
-                            selectmonths={selectmonths}
-                            setSelectmonths={setSelectmonths}
-                          />
-                        </div>
+              <FinYear
+                selectedYear={selectedYear}
+                selectmonths={selectmonths}
+                setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
+              />
+            </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
             <div className="flex items-center text-[12px]">
               <span className="text-gray-500">Min Netpay:</span>
@@ -344,17 +349,17 @@ const EmptypeDetails = ({
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-1 text-left">S.No</th>
-                  <th className="border p-1 text-left">ID Card</th>
-                  <th className="border p-1 text-left">Name</th>
-                  <th className="border p-1 text-left">Gender</th>
-                  <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">EmpType</th>
-                  <th className="border p-1 text-left">Netpay</th>
+                  <th className="border p-1 text-left w-[25px]">S.No</th>
+                  <th className="border p-1 text-left w-[60px]">ID Card</th>
+                  <th className="border p-1 text-left w-[150px] whitespace-nowrap overflow-hidden">Name</th>
+                  <th className="border p-1 text-left w-[30px]">Gender</th>
+                  <th className="border p-1 text-left w-[150px]">Department</th>
+                  <th className="border p-1 text-left w-[30px]">EmpType</th>
+                  <th className="border p-1 text-left w-[25px]">Netpay</th>
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(0, 17).map((row, index) => {
+                {currentRecords.slice(0, 18).map((row, index) => {
                    const globalIndex = index;  // 0–16
   const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
@@ -362,15 +367,15 @@ const EmptypeDetails = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                      <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
+                      <td className=" p-1 text-[10px] w-[60px]">{row.EMPID}</td>
+                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">{row.FNAME}</td>
+                      <td className=" p-1 text-[10px] w-[30px]">{row.GENDER}</td>
+                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">{row.EMPTYPE}</td>
-                      <td className="border p-1 text-sky-700  text-[10px]">
+                      <td className=" p-1 text-[10px] w-[30px]">{row.EMPTYPE}</td>
+                      <td className=" p-1 text-sky-700  text-[10px] w-[25px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",
@@ -387,36 +392,38 @@ const EmptypeDetails = ({
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-1 text-left">S.No</th>
-                  <th className="border p-1 text-left">ID Card</th>
-                  <th className="border p-1 text-left">Name</th>
-                  <th className="border p-1 text-left">Gender</th>
-                  <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">EmpType</th>
-                  <th className="border p-1 text-left">Netpay</th>
+                  <th className="border p-1 text-left w-[25px]">S.No</th>
+                  <th className="border p-1 text-left w-[60px]">ID Card</th>
+                  <th className="border p-1 text-left w-[150px] whitespace-nowrap overflow-hidden">Name</th>
+                  <th className="border p-1 text-left w-[30px]">Gender</th>
+                  <th className="border p-1 text-left w-[150px]">Department</th>
+                  <th className="border p-1 text-left w-[30px]">EmpType</th>
+                  <th className="border p-1 text-left w-[25px]">Netpay</th>
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(17, 34).map((row, index) => {
-                    const globalIndex = 17 + index;  // 17–33
+                {currentRecords.slice(18, 36).map((row, index) => {
+                    const globalIndex = 18 + index;  // 17–33
   const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                 return(
                   <tr
                     key={index}
                     className="text-gray-700 bg-white even:bg-gray-100"
                   >
-                    <td className="border p-1 text-[10px]">{serialNo}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                    <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                    <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                    <td className="border p-1 text-[10px]">{row.DEPARTMENT}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPTYPE}</td>
-                    <td className="border p-1 text-sky-700 text-[10px] ">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.NETPAY)}
-                    </td>
+                    <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
+                      <td className=" p-1 text-[10px] w-[60px]">{row.EMPID}</td>
+                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">{row.FNAME}</td>
+                      <td className=" p-1 text-[10px] w-[30px]">{row.GENDER}</td>
+                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">
+                        {row.DEPARTMENT}
+                      </td>
+                      <td className=" p-1 text-[10px] w-[30px]">{row.EMPTYPE}</td>
+                      <td className=" p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.NETPAY)}
+                      </td>
                   </tr>
                 )
                 })}
@@ -424,6 +431,7 @@ const EmptypeDetails = ({
             </table>
           </div>
         </div>
+        
 
         {/* Pagination */}
 

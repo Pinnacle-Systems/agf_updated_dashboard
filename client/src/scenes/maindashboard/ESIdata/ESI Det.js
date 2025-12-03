@@ -201,7 +201,7 @@ const HomeESI = () => {
 
   const { data: ESIdata, isLoading, isError } = useGetEsilastmonthQuery();
 
-  console.log(ESIdata,"ESIdata");
+  // console.log(ESIdata,"ESIdata");
   
 
   if (isLoading) return <CircularProgress />;
@@ -210,7 +210,7 @@ const HomeESI = () => {
 
   const chartData1 = ESIdata.data.map((e) => e.customer);
 
-  const month = ESIdata.data[0]?.month;
+  // const month = ESIdata.data[0]?.month;
   const year = ESIdata.data.map((e) => e.Year);
 
   const colors = chartData1.map(
@@ -223,7 +223,12 @@ const HomeESI = () => {
     color: colors[i],
     headCount: item.headCount,
     Year: year[i],
+    month:item.month
+    
   }));
+
+  // console.log(formattedData,"formattedData");
+  
 
   const totalESI = ESIdata.data
     .map((x) => Number(x.esi ?? 0))
@@ -238,7 +243,7 @@ const HomeESI = () => {
       spacing: [0, 0, 0, 0],     
     },
     title: {
-      text: `ESI<br>shares of<br>${month}`,
+      text: `ESI<br>shares of<br>Latest month`,
       align: "center",
       verticalAlign: "middle",
       y:70,
@@ -249,8 +254,9 @@ const HomeESI = () => {
         return `
           <b>${this.point.name}</b><br/>
           ESI Share: <b>${this.point.percentage.toFixed(1)}%</b><br/>
-          Amount: <b>${this.point.y}</b><br/>
-          Head Count: <b>${this.point.headCount}</b>
+          Amount: <b>${this.point.y.toLocaleString("en-IN")}</b><br/>
+          Head Count: <b>${this.point.headCount}</b><br/>
+          Month: <b>${this.point.month}</b>
         `;
       },
     },
@@ -269,12 +275,14 @@ const HomeESI = () => {
         point: {
           events: {
             click: function () {
+              // console.log(this.month,"thismontyh");
+              
               dispatch(
                 push({
                   id: "ESIDetail",
                   name: "ESIDetail",
                   component: "DetailedDashBoard",
-                  data: { companyName: this.name, Year: this.Year },
+                  data: { companyName: this.name, Year: this.Year ,autoFocusBuyer: true,selectedmonth:this.month},
                 })
               );
             },

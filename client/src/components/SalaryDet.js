@@ -14,6 +14,7 @@ import {
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
+import FinYear from "./FinYear";
 
 const SalaryDetail = ({
   closeTable,
@@ -22,29 +23,26 @@ const SalaryDetail = ({
   selectGender1,
   selectedBuyer,
   color,
+  selectedState,
+  selectmonths,
+  setSelectedState,
+  setSelectmonths,
+  selectedYear,
+  salaryDet,
+  autoFocusBuyer,
 }) => {
-  console.log(selectGender1,"selectedGender1");
   
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
+
+  const [selectedGender, setSelectedGender] = useState("Both");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
   });
   const recordsPerPage = 34;
-  console.log(selectedBuyer, "selectedBuyer for salary");
+  console.log(salaryDet, "selectedBuyer for salary");
 
-  const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
-    params: {
-      filterBuyer: selectedBuyer || [],
-      search: search || {},
-    },
-  });
-
-
-  const salaryDet = salaryDetData?.data || [];
-  console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
   }, [salaryDet]);
@@ -52,7 +50,7 @@ const SalaryDetail = ({
   const handleFilterClick = (type) => {
     setSelectedState(type);
   };
- 
+
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -63,7 +61,7 @@ const SalaryDetail = ({
     }
 
     const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Company", "Netpay"],
+      ["ID Card", "Name", "Gender", "Department", "Designation", "Netpay"],
     ];
 
     const data = filteredData.map((row) => [
@@ -71,7 +69,7 @@ const SalaryDetail = ({
       row.FNAME,
       row.GENDER,
       row.DEPARTMENT,
-      row.COMPCODE,
+      row.DESIGNATION,
       row.NETPAY,
     ]);
 
@@ -119,10 +117,14 @@ const SalaryDetail = ({
           const netpay = Number(row?.NETPAY) || 0;
           return netpay >= netpayRange.min && netpay <= netpayRange.max;
         })
+        .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
+        })
     : [];
 
-    console.log(filteredData,"filteredData1");
-    
+  console.log(filteredData, "filteredData1");
+
   const totalNetPay = filteredData.reduce(
     (sum, row) => sum + (Number(row.NETPAY) || 0),
     0
@@ -261,8 +263,8 @@ const SalaryDetail = ({
         </div>
 
         <div className="flex justify-between items-start">
-          <div className="grid grid-cols-6 gap-2 mb-3">
-            {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+          <div className="grid grid-cols-7 gap-2 mb-3">
+            {["EMPID", "FNAME", "DEPARTMENT", "DESIGNATION"].map((key) => (
               <div key={key} className="relative">
                 <input
                   type="text"
@@ -276,6 +278,14 @@ const SalaryDetail = ({
                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
               </div>
             ))}
+            <div className="flex items-center text-[12px]">
+              <FinYear
+                selectedYear={selectedYear}
+                selectmonths={selectmonths}
+                setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
+              />
+            </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
             <div className="flex items-center text-[12px]">
               <span className="text-gray-500">Min Netpay:</span>
@@ -323,7 +333,10 @@ const SalaryDetail = ({
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="overflow-x-auto max-h-[450px] " style={{border:"1px solid gray",borderRadius:"16px"}}>
+          <div
+            className="overflow-x-auto max-h-[450px] "
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -332,28 +345,48 @@ const SalaryDetail = ({
                   <th className="border p-1 text-left">Name</th>
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody>
                 {currentRecords.slice(0, 17).map((row, index) => {
-                   const globalIndex = index;  // 0–16
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  const globalIndex = index; // 0–16
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
                     <tr
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">{row.COMPCODE}</td>
-                      <td className="border p-1 text-sky-700  text-[10px]">
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",
@@ -366,7 +399,10 @@ const SalaryDetail = ({
             </table>
           </div>
 
-          <div className="overflow-x-auto max-h-[450px]" style={{border:"1px solid gray",borderRadius:"16px"}} >
+          <div
+            className="overflow-x-auto max-h-[450px]"
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -375,33 +411,55 @@ const SalaryDetail = ({
                   <th className="border p-1 text-left">Name</th>
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">Netpay</th>
                 </tr>
               </thead>
               <tbody>
                 {currentRecords.slice(17, 34).map((row, index) => {
-                    const globalIndex = 17 + index;  // 17–33
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                return(
-                  <tr
-                    key={index}
-                    className="text-gray-700 bg-white even:bg-gray-100"
-                  >
-                    <td className="border p-1 text-[10px]">{serialNo}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                    <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                    <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                    <td className="border p-1 text-[10px]">{row.DEPARTMENT}</td>
-                    <td className="border p-1 text-[10px]">{row.COMPCODE}</td>
-                    <td className="border p-1 text-sky-700 text-[10px] ">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.NETPAY)}
-                    </td>
-                  </tr>
-                )
+                  const globalIndex = 17 + index; // 17–33
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  return (
+                   <tr
+                      key={index}
+                      className="text-gray-800 bg-white even:bg-gray-100 "
+                    >
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.NETPAY)}
+                      </td>
+                    </tr>
+                  );
                 })}
               </tbody>
             </table>

@@ -8,7 +8,15 @@ import EsiDetail from "../../../components/EsiDet";
 import ESIDetailed from "../../../components/MonthESIde";
 import SalaryDetail from "../../../components/SalaryDet";
 
-const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
+const DetailedESI = ({
+  companyName,
+  selectedYear1,
+  ESIdata,
+  selectedState,
+  setSelectmonths,
+  selectmonths,
+  setSelectedState,
+}) => {
   // console.log("ESIdata", ESIdata);
   // console.log(companyName,selectedYear1, "selectedYear1");
   const [search, setSearch] = useState({
@@ -20,7 +28,7 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
   });
   const [showTable, setShowTable] = useState(false);
 
-  const [selectedYear, setSelectedYear] = useState(selectedYear1);
+  // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   useEffect(() => {
@@ -28,9 +36,9 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
   }, [companyName]);
 
   // FIX: sync year from parent
-  useEffect(() => {
-    setSelectedYear(selectedYear1);
-  }, [selectedYear1]);
+  // useEffect(() => {
+  //   setSelectedYear(selectedYear1);
+  // }, [selectedYear1]);
   const filteredData = Array.isArray(ESIdata)
     ? ESIdata.filter((row) => {
         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
@@ -38,65 +46,55 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
         return true;
       })
     : [];
- 
-    const groupdata = filteredData?.reduce((acc, emp) => {
-        const code = emp.PAYPERIOD || "Unknown";
-        acc[code] = (acc[code] || 0) + (emp.ESI || 0);
-        
-        return acc;
-    }, {});
 
-    
-    
+  const groupdata = filteredData?.reduce((acc, emp) => {
+    const code = emp.PAYPERIOD || "Unknown";
+    acc[code] = (acc[code] || 0) + (emp.ESI || 0);
+
+    return acc;
+  }, {});
+
   const Chartdata = Object.entries(groupdata).map(([x, y]) => ({
-        month: x,
-        esi: y,
-        // percent: ((y / totalNetPay) * 100).toFixed(2),
-        // color:getRandomColor()
-    }));
-    
-    // console.log(Chartdata,"ESIyeardata");
-   const pfData = Chartdata?.map((item) => item.esi);
-  const headCount = Chartdata?.map((item) => item.month);
+    month: x,
+    esi: y,
+    // percent: ((y / totalNetPay) * 100).toFixed(2),
+    // color:getRandomColor()
+  }));
 
+  // console.log(Chartdata,"ESIyeardata");
+  const pfData = Chartdata?.map((item) => item.esi);
+  const headCount = Chartdata?.map((item) => item.month);
 
   const options = {
     chart: {
-    backgroundColor: "#f5f5f5",
+      backgroundColor: "#f5f5f5",
       marginTop: 10,
-      marginBottom: 100, 
+      marginBottom: 100,
       type: "line",
-      height: 320,
-    
+      height: 250,
+
       borderRadius: 10,
     },
     xAxis: {
-      
-      categories: Chartdata?.map((order) => {
-        const month = new Date(order.month);
-        const monthAbbr = month.toLocaleString("default", { month: "short" });
-        const year = month.getFullYear().toString().slice(-2);
-        return `${monthAbbr} ${year}`;
-      }),
+      categories: headCount,
       title: {
         text: "Month",
         style: { fontSize: "10px" },
       },
       labels: {
-        
-        style: {  
-      fontSize: "10px" },
+        style: {
+          fontSize: "10px",
+        },
       },
     },
     yAxis: {
-        
       min: 0,
       title: {
         text: "Amount (ESI)",
         style: { fontSize: "10px" },
       },
       labels: {
-        style: { fontSize: "10px"},
+        style: { fontSize: "10px" },
       },
     },
     tooltip: {
@@ -110,7 +108,7 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
         let monthName = this.x;
 
         return `<b>Month:</b> ${monthName} <br/>
-                        <b>ESI Value:</b> ${pf} <br/>
+                        <b>ESI Value:</b> ${pf.toLocaleString("en-IN")} <br/>
                        `;
       },
     },
@@ -127,14 +125,13 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
         point: {
           events: {
             click: function () {
-              
-              const Month=this.category
-              
-              
+              const Month = this.category;
+
               // setSearch((prev) => ({
               //   ...prev,
               //   PAYPERIOD: Month,
               // }));
+              setSelectmonths(Month);
 
               setShowTable(true);
             },
@@ -166,27 +163,33 @@ const DetailedESI = ({ companyName, selectedYear1, ESIdata,selectedState }) => {
           backgroundColor: "#f5f5f5",
         }}
       >
-         <CardHeader
-                title="Month wise ESI"
-                titleTypographyProps={{
-                  sx: { fontSize: ".9rem", fontWeight: 600 },
-                }}
-                sx={{
-                  p: 1,
-                  borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-                }}
-              />
+        <CardHeader
+          title="Employee Contribution"
+          titleTypographyProps={{
+            sx: { fontSize: ".9rem", fontWeight: 600 },
+          }}
+          sx={{
+            p: 1,
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          }}
+        />
         <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
         {showTable && (
           <ESIDetailed
-          selectedYear={selectedYear}
+            selectedYear={selectedYear1}
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
-           />
+            ESIdata={ESIdata}
+            selectedState={selectedState}
+            selectmonths={selectmonths}
+            setSelectedState={setSelectedState}
+            setSelectmonths={setSelectmonths}
+            autoFocusBuyer={true}
+          />
         )}
       </Card>
     </>

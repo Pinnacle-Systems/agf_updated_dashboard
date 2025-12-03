@@ -13,7 +13,10 @@ import {
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetEsiPf1Query, useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
+import {
+  useGetEsiPf1Query,
+  useGetMisDashboardSalaryDetQuery,
+} from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
 
 const AgewiseESIlDetail = ({
@@ -24,13 +27,19 @@ const AgewiseESIlDetail = ({
   selectedBuyer,
   selectedYear,
   color,
+  ESIdata,
+  selectedState,
+  setSelectedState,
+  setSelectmonths,
+  selectmonths,
+  autoFocusBuyer,
 }) => {
-  console.log(selectGender1,"selectedGender1");
-  
+  console.log(selectGender1, "selectedGender1");
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
-   const [selectmonths, setSelectmonths] = useState("");
+  // const [selectedState, setSelectedState] = useState("");
+  const [selectedGender, setSelectedGender] = useState("Both");
+  // const [selectmonths, setSelectmonths] = useState("");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
@@ -45,24 +54,23 @@ const AgewiseESIlDetail = ({
     },
   });
 
+  // const { data: ESIyeardata } = useGetEsiPf1Query({
+  //   params: {
+  //     filterSupplier: selectedBuyer,
+  //     filterYear: selectedYear,
+  //   },
+  // });
 
-   const { data: ESIyeardata } = useGetEsiPf1Query({
-      params: {
-        filterSupplier: selectedBuyer,
-        filterYear: selectedYear,
-      },
-    });
-
-  const salaryDet = ESIyeardata?.data || [];
-  console.log(salaryDet, "salaryDet inside");
+  // const salaryDet = ESIyeardata?.data || [];
+  // console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
-  }, [salaryDet]);
+  }, [ESIdata]);
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
   };
- 
+
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
@@ -72,9 +80,7 @@ const AgewiseESIlDetail = ({
       return;
     }
 
-    const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Age", "ESI"],
-    ];
+    const headers = [["ID Card", "Name", "Gender", "Department", "Age", "ESI"]];
 
     const data = filteredData.map((row) => [
       row.EMPID,
@@ -106,35 +112,37 @@ const AgewiseESIlDetail = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-        const filteredData = Array.isArray(salaryDet)
-     ? salaryDet.filter((row) => {
-      return Object.keys(search || {}).every((key) => {
-        const searchValue = (search[key] || "").toString().trim();
-        if (!searchValue) return true; 
+  const filteredData = Array.isArray(ESIdata)
+    ? ESIdata
+        .filter((row) => {
+          return Object.keys(search || {}).every((key) => {
+            const searchValue = (search[key] || "").toString().trim();
+            if (!searchValue) return true;
 
-        const rowValue = row[key];
+            const rowValue = row[key];
 
-        if (key === "AGE") {
-          const age = Math.floor(rowValue);
+            if (key === "AGE") {
+              const age = Math.floor(rowValue);
 
-          
-          if (searchValue.includes("-")) {
-            const [minAge, maxAge] = searchValue.split("-").map(Number);
-            return age >= minAge && age <= maxAge;
-          }
+              if (searchValue.includes("-")) {
+                const [minAge, maxAge] = searchValue.split("-").map(Number);
+                return age >= minAge && age <= maxAge;
+              }
 
-       
-          if (searchValue.endsWith("Above")) {
-            const minAge = Number(searchValue.replace("Above", ""));
-            return age >= minAge;
-          }
+              if (searchValue.endsWith("Above")) {
+                const minAge = Number(searchValue.replace("Above", ""));
+                return age >= minAge;
+              }
 
-          return age === Number(searchValue);
-        }
+              return age === Number(searchValue);
+            }
 
-        return rowValue?.toString().toLowerCase().includes(searchValue.toLowerCase());
-      });
-    })
+            return rowValue
+              ?.toString()
+              .toLowerCase()
+              .includes(searchValue.toLowerCase());
+          });
+        })
         .filter((row) => {
           if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
           if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
@@ -155,12 +163,8 @@ const AgewiseESIlDetail = ({
         })
     : [];
 
+  console.log(filteredData, "filteredData1");
 
-  
-
-
-    console.log(filteredData,"filteredData1");
-    
   const totalNetPay = filteredData.reduce(
     (sum, row) => sum + (Number(row.ESI) || 0),
     0
@@ -315,13 +319,13 @@ const AgewiseESIlDetail = ({
               </div>
             ))}
             <div className="flex items-center text-[12px]">
-                          
-                          <FinYear
-                            selectedYear={selectedYear}
-                            selectmonths={selectmonths}
-                            setSelectmonths={setSelectmonths}
-                          />
-                        </div>
+              <FinYear
+                selectedYear={selectedYear}
+                selectmonths={selectmonths}
+                setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
+              />
+            </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
             <div className="flex items-center text-[12px]">
               <span className="text-gray-500">Min Netpay:</span>
@@ -369,7 +373,10 @@ const AgewiseESIlDetail = ({
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="overflow-x-auto max-h-[450px] " style={{border:"1px solid gray",borderRadius:"16px"}}>
+          <div
+            className="overflow-x-auto max-h-[450px] "
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -384,22 +391,60 @@ const AgewiseESIlDetail = ({
               </thead>
               <tbody>
                 {currentRecords.slice(0, 17).map((row, index) => {
-                   const globalIndex = index;  // 0–16
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  const globalIndex = index; // 0–16
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
                     <tr
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.EMPID}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
                       <td className="border p-1 text-[10px]">
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">{ Math.floor(row.AGE)}</td>
+                      <td className="border p-1 text-[10px]">
+                        {Math.floor(row.AGE)}
+                      </td>
                       <td className="border p-1 text-sky-700  text-[10px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.ESI)}
+                      </td> */}
+
+
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {Math.floor(row.AGE)}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",
@@ -412,7 +457,10 @@ const AgewiseESIlDetail = ({
             </table>
           </div>
 
-          <div className="overflow-x-auto max-h-[450px]" style={{border:"1px solid gray",borderRadius:"16px"}} >
+          <div
+            className="overflow-x-auto max-h-[450px]"
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
@@ -427,27 +475,49 @@ const AgewiseESIlDetail = ({
               </thead>
               <tbody>
                 {currentRecords.slice(17, 34).map((row, index) => {
-                    const globalIndex = 17 + index;  // 17–33
-  const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                return(
-                  <tr
-                    key={index}
-                    className="text-gray-700 bg-white even:bg-gray-100"
-                  >
-                    <td className="border p-1 text-[10px]">{serialNo}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                    <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                    <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                    <td className="border p-1 text-[10px]">{row.DEPARTMENT}</td>
-                    <td className="border p-1 text-[10px]">{ Math.floor(row.AGE)}</td>
-                    <td className="border p-1 text-sky-700 text-[10px] ">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.ESI)}
-                    </td>
-                  </tr>
-                )
+                  const globalIndex = 17 + index; // 17–33
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  return (
+                    <tr
+                      key={index}
+                      className="text-gray-700 bg-white even:bg-gray-100"
+                    >
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {Math.floor(row.AGE)}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.ESI)}
+                      </td>
+                    </tr>
+                  );
                 })}
               </tbody>
             </table>

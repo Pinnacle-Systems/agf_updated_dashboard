@@ -13,8 +13,11 @@ import AgewiseESIlDetail from "../../../components/AgeESIdetail";
 const AgeESI = ({
   companyName,
   selectedYear1,
-
+  setSelectmonths,
+  selectmonths,
+  setSelectedState,
   selectedState,
+  ESIdata
 }) => {
   const [search, setSearch] = useState({
     FNAME: "",
@@ -37,7 +40,7 @@ const AgeESI = ({
 
   console.log(salaryDet1, "ESIsalaryDet21");
 
-  const ESIdata = salaryDet1?.data || [];
+  const ESIdata1 = salaryDet1?.data || [];
 
   useEffect(() => {
     setFilterBuyer(companyName);
@@ -46,11 +49,14 @@ const AgeESI = ({
   useEffect(() => {
     setSelectedYear(selectedYear1);
   }, [selectedYear1]);
-  const filteredData = Array.isArray(ESIdata)
-    ? ESIdata.filter((row) => {
+  const filteredData = Array.isArray(ESIdata1)
+    ? ESIdata1.filter((row) => {
         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
+      }).filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
       })
     : [];
 
@@ -77,33 +83,34 @@ const AgeESI = ({
     options: {
       chart: {
         type: "pie",
+        height: 290,
         events: {
           dataPointSelection: (event, chartContext, config) => {
             const index = config.dataPointIndex;
             const value = pfData[index];
             const label = headCount[index];
 
+
+            // setSelectmonths(selectmonths)
             setSearch((prev) => ({
               ...prev,
               AGE: label,
             }));
             setShowTable(true);
-
-            
           },
         },
       },
       labels: headCount,
       legend: {
         position: "right",
-        fontSize: "14px",
+        fontSize: "11px",
         itemMargin: {
           horizontal: 10, // spacing width
-          vertical: 4, // spacing height
+          vertical: 10, // spacing height
         },
         markers: {
-          width: 14,
-          height: 14,
+          width: 11,
+          height: 11,
         },
       },
       dataLabels: {
@@ -135,11 +142,12 @@ const AgeESI = ({
           // borderRadius: 3,
           // boxShadow: 4,
           //  mt:2,
-          height: 275,
+          ml:1,
+          height:300
         }}
       >
         <CardHeader
-          title="Age wise ESI "
+          title="Age wise"
           titleTypographyProps={{
             sx: { fontSize: ".9rem", fontWeight: 600 },
           }}
@@ -149,7 +157,7 @@ const AgeESI = ({
           }}
         />
         <Box>
-          <Chart options={options.options} series={options.series} type="pie" />
+          <Chart options={options.options} series={options.series} type="pie"/>
         </Box>
         {showTable && (
           <AgewiseESIlDetail
@@ -158,6 +166,13 @@ const AgeESI = ({
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
+            selectedState={selectedState}
+            setSelectedState={setSelectedState}
+            setSelectmonths={setSelectmonths}
+            selectmonths={selectmonths}
+            ESIdata={ESIdata}
+            autoFocusBuyer={true}
+
           />
         )}
       </Card>

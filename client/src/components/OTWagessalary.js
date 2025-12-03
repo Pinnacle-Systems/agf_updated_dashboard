@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaTimes,
   FaChevronLeft,
@@ -14,21 +14,28 @@ import {
 import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
+import FinYear from "./FinYear";
 
 const OTWagesDetail = ({
+  selectedYear,
   salaryDet,
   closeTable,
   search,
   setSearch,
-  selectGender1,
   selectedBuyer,
-  color,
+  selectedState,
+   selectmonths,
+  setSelectedState,
+  setSelectmonths,
+  autoFocusBuyer
+  
 }) => {
-  console.log(selectGender1,"selectedGender1");
+ 
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
+   const buyerRef = useRef(null);
+  
+  const [selectedGender, setSelectedGender] = useState("Both");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
@@ -36,16 +43,12 @@ const OTWagesDetail = ({
   const recordsPerPage = 34;
   console.log(selectedBuyer, "selectedBuyer for salary");
 
-  // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
-  //   params: {
-  //     filterBuyer: selectedBuyer || [],
-  //     search: search || {},
-  //   },
-  // });
+//   useEffect(() => {
+//   if (autoFocusBuyer && buyerRef.current) {
+//     buyerRef.current.focus();
+//   }
+// }, [autoFocusBuyer, selectmonths]);
 
-
-  // const salaryDet = salaryDetData?.data || [];
-  // console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
   }, [salaryDet]);
@@ -64,7 +67,7 @@ const OTWagesDetail = ({
     }
 
     const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Company", "Netpay"],
+      ["ID Card", "Name", "Gender", "Department", "Designation", "Netpay"],
     ];
 
     const data = filteredData.map((row) => [
@@ -72,7 +75,7 @@ const OTWagesDetail = ({
       row.FNAME,
       row.GENDER,
       row.DEPARTMENT,
-      row.COMPCODE,
+      row.DESIGNATION,
       row.OTWAGES,
     ]);
 
@@ -119,6 +122,10 @@ const OTWagesDetail = ({
         .filter((row) => {
           const netpay = Number(row?.OTWAGES) || 0;
           return netpay >= netpayRange.min && netpay <= netpayRange.max;
+        })
+        .filter((row) => {
+          if (!selectmonths) return true;
+          return row.PAYPERIOD === selectmonths;
         })
     : [];
 
@@ -262,8 +269,8 @@ const OTWagesDetail = ({
         </div>
 
         <div className="flex justify-between items-start">
-          <div className="grid grid-cols-6 gap-2 mb-3">
-            {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+          <div className="grid grid-cols-7 gap-2 mb-3">
+            {["EMPID", "FNAME", "DEPARTMENT", "DESIGNATION"].map((key) => (
               <div key={key} className="relative">
                 <input
                   type="text"
@@ -277,6 +284,15 @@ const OTWagesDetail = ({
                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
               </div>
             ))}
+             <div className="flex items-center text-[12px]">
+                          
+                          <FinYear
+                            selectedYear={selectedYear}
+                            selectmonths={selectmonths}
+                            setSelectmonths={setSelectmonths}
+                            autoFocusBuyer={autoFocusBuyer}
+                          />
+                        </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
             <div className="flex items-center text-[12px]">
               <span className="text-gray-500">Min Netpay:</span>
@@ -333,7 +349,7 @@ const OTWagesDetail = ({
                   <th className="border p-1 text-left">Name</th>
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">OTWages</th>
                 </tr>
               </thead>
@@ -346,20 +362,56 @@ const OTWagesDetail = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.EMPID}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
                       <td className="border p-1 text-[10px]">
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">{row.COMPCODE}</td>
+                      <td className="border p-1 text-[10px]">{row.DESIGNATION}</td>
                       <td className="border p-1 text-sky-700  text-[10px]">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",
                         }).format(row.OTWAGES)}
+                      </td> */}
+
+                      
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
                       </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.OTWAGES)}
+                      </td>
+                    
                     </tr>
                   );
                 })}
@@ -376,7 +428,7 @@ const OTWagesDetail = ({
                   <th className="border p-1 text-left">Name</th>
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
-                  <th className="border p-1 text-left">Company</th>
+                  <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">OTWages</th>
                 </tr>
               </thead>
@@ -389,18 +441,39 @@ const OTWagesDetail = ({
                     key={index}
                     className="text-gray-700 bg-white even:bg-gray-100"
                   >
-                    <td className="border p-1 text-[10px]">{serialNo}</td>
-                    <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                    <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                    <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                    <td className="border p-1 text-[10px]">{row.DEPARTMENT}</td>
-                    <td className="border p-1 text-[10px]">{row.COMPCODE}</td>
-                    <td className="border p-1 text-sky-700 text-[10px] ">
-                      {new Intl.NumberFormat("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      }).format(row.OTWAGES)}
-                    </td>
+                    <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.OTWAGES)}
+                      </td>
                   </tr>
                 )
                 })}

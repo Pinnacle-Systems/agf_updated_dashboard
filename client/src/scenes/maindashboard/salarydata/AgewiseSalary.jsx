@@ -18,11 +18,16 @@ import AgewiseSalDetail from "../../../components/AgewiseDetail";
 
 SunburstModule(Highcharts);
 
-const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selectedYear1}) => {
+const AgeSalary = ({
+  companyName,
+  selectedState,
+  salaryDet,
+  selectmonths,
+  selectedYear1,
+  setSelectedState,
+  setSelectmonths
+}) => {
   const chartColors = ["#FFA726", "#42A5F5", "#66BB6A", "#AB47BC", "#FF7043"]; // same as chart colors
-
-  // console.log(companyName, selectedState,"companyName, selectedState");
-
   const theme = useTheme();
   const dispatch = useDispatch();
   const [search, setSearch] = useState({
@@ -36,23 +41,17 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
   const [filterBuyer, setFilterBuyer] = useState(companyName);
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
 
-  // const { data: salaryDet1, isLoading } = useGetSalaryAgewiseQuery({
-  //   params: {
-  //     filterBuyer: filterBuyer,
-  //   },
-  // });
-  useEffect(() => {
-      setSelectedYear(selectedYear1);
-    }, [selectedYear1]);
 
+  useEffect(() => {
+    setSelectedYear(selectedYear1);
+  }, [selectedYear1]);
 
   const { data: Agesalary, isLoading } = useGetAgewiseEsiQuery({
-      params: {
-        filterBuyer: filterBuyer,
-        filterYear: selectedYear,
-      },
-    });
- 
+    params: {
+      filterBuyer: filterBuyer,
+      filterYear: selectedYear,
+    },
+  });
 
   useEffect(() => {
     setFilterBuyer(companyName);
@@ -66,17 +65,18 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
   //   );
 
   const filteredData = Array.isArray(Agesalary?.data)
-    ? Agesalary?.data.filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
+    ? Agesalary?.data
+        .filter((row) => {
+          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+          return true;
+        })
+        .filter((row) => {
           if (!selectmonths) return true;
           return row.PAYPERIOD === selectmonths;
         })
     : [];
-  console.log(filteredData, "salaryDet123");
+  // console.log(filteredData, "salaryDet123");
 
   const totalsByComp = filteredData?.reduce((acc, emp) => {
     const code = emp.SLAP || "Unknown";
@@ -87,7 +87,6 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
     Department: x,
     Netpay: y,
   }));
-
 
   const options = {
     chart: {
@@ -122,15 +121,17 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
     plotOptions: {
       pie: {
         innerSize: 100,
-        depth: 60,
+        depth: 50,
+         
         center: ["50%", "50%"],
         size: "100%",
 
         dataLabels: {
           enabled: true,
           distance: -1,
+          crop: false,
           formatter: function () {
-            return `${this.point.y.toLocaleString('en-IN')}`;
+            return `${this.point.y.toLocaleString("en-IN")}`;
           },
           style: {
             color: "#000000",
@@ -143,7 +144,7 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
               const dept = this.name;
               setSearch((prev) => ({
                 ...prev,
-                AGEMON: dept,
+                AGE: dept,
               }));
               setShowTable(true);
             },
@@ -160,7 +161,9 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
       pointFormatter: function () {
         return `
                     <span style="color:${this.color}">\u25CF</span>
-                    <span style="color: #2d2d2d;"> Total Netpay: <b>${this.y.toLocaleString('en-IN')}</b></span><br/>
+                    <span style="color: #2d2d2d;"> Total Netpay: <b>${this.y.toLocaleString(
+                      "en-IN"
+                    )}</b></span><br/>
                  
                 `;
       },
@@ -377,8 +380,8 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
     <Card
       sx={{
         backgroundColor: "#f5f5f5",
-        height:337,
-        mt:2
+        height: 337,
+        mt: 2,
 
         // mx:1
       }}
@@ -419,7 +422,7 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
               style={{
                 height: 12,
                 width: 12,
-                backgroundColor: chartColors[index], // dynamic chart colors
+                backgroundColor: chartColors[index], 
                 borderRadius: "50%",
                 display: "inline-block",
                 marginRight: 6,
@@ -436,6 +439,13 @@ const AgeSalary = ({ companyName, selectedState, salaryDet,selectmonths ,selecte
           closeTable={() => setShowTable(false)}
           setSearch={setSearch}
           search={search}
+          salaryDet1={salaryDet}
+          selectedState={selectedState}
+          selectmonths={selectmonths}
+          setSelectedState={setSelectedState}
+          setSelectmonths={setSelectmonths}
+          selectedYear={selectedYear}
+          autoFocusBuyer={true}
           // selectGender1={selectGender}
         />
       )}

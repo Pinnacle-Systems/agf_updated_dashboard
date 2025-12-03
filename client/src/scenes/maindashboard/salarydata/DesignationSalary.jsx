@@ -11,7 +11,7 @@ import DesignationwiseDetails from "../../../components/DesignationwiseDetail";
 
 // SunburstModule(Highcharts);
 
-const DesignationSalary = ({ companyName, selectedState, salaryDet,selectmonths,selectedYear1 }) => {
+const DesignationSalary = ({ companyName, selectedState, salaryDet,selectmonths,selectedYear1,setSelectedState,setSelectmonths }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [search, setSearch] = useState({
@@ -151,17 +151,18 @@ enabled:false
     ],
   };
 
-  console.log(opt, "opt");
+  // console.log(opt, "opt");
 
   return (
     <Card
       sx={{
          backgroundColor: "#f5f5f5",
+         ml:1
       
       }}
     >
        <CardHeader
-              title="Designation wise Salary"
+              title="Designation wise "
               titleTypographyProps={{
                 sx: { fontSize: ".9rem", fontWeight: 600 },
               }}
@@ -173,14 +174,22 @@ enabled:false
       <HighchartsReact highcharts={Highcharts} options={opt} />
 
       {showTable && (
-        <DesignationwiseDetails
-          selectedBuyer={[filterBuyer]}
-          closeTable={() => setShowTable(false)}
-          setSearch={setSearch}
-          search={search}
-          // selectGender1={selectGender}
-        />
-      )}
+              <SalaryDetail
+                selectedBuyer={[filterBuyer]}
+                closeTable={() => setShowTable(false)}
+                setSearch={setSearch}
+                search={search}
+                salaryDet={salaryDet}
+                selectedState={selectedState}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
+                setSelectmonths={setSelectmonths}
+                selectedYear={selectedYear1}
+                autoFocusBuyer={true}
+      
+                // selectGender1={selectGender}
+              />
+            )}
     </Card>
   );
 };

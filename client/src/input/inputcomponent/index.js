@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { FaChevronLeft, FaChevronRight} from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { MultiSelect } from "react-multi-select-component";
 import RequiredLabel from "../inputindex";
 export const ReusableTable = ({
@@ -9,9 +9,9 @@ export const ReusableTable = ({
   onView,
   onEdit,
   onDelete,
-  emptyStateMessage = 'No data available',
+  emptyStateMessage = "No data available",
   rowActions = true,
-  width
+  width,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math?.ceil(data?.length / itemsPerPage);
@@ -33,16 +33,18 @@ export const ReusableTable = ({
     return (
       <div className=" w-full flex flex-col sm:flex-row justify-between items-center p-2 bg-white border-t border-gray-200">
         <div className="text-sm text-gray-600 mb-2 sm:mb-0">
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, data?.length)} of {data?.length} entries
+          Showing {indexOfFirstItem + 1} to{" "}
+          {Math.min(indexOfLastItem, data?.length)} of {data?.length} entries
         </div>
         <div className="flex gap-1">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${currentPage === 1
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-white text-gray-600 hover:bg-gray-100'
-              }`}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-600 hover:bg-gray-100"
+            }`}
           >
             <FaChevronLeft className="inline" />
           </button>
@@ -63,10 +65,11 @@ export const ReusableTable = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-md ${currentPage === pageNum
-                  ? 'bg-indigo-800 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
-                  }`}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === pageNum
+                    ? "bg-indigo-800 text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
               >
                 {pageNum}
               </button>
@@ -80,10 +83,11 @@ export const ReusableTable = ({
           {totalPages > 5 && currentPage < totalPages - 2 && (
             <button
               onClick={() => handlePageChange(totalPages)}
-              className={`px-3 py-1 rounded-md ${currentPage === totalPages
-                ? 'bg-indigo-800 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-100'
-                }`}
+              className={`px-3 py-1 rounded-md ${
+                currentPage === totalPages
+                  ? "bg-indigo-800 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-100"
+              }`}
             >
               {totalPages}
             </button>
@@ -92,10 +96,11 @@ export const ReusableTable = ({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${currentPage === totalPages
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-white text-gray-600 hover:bg-gray-100'
-              }`}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-600 hover:bg-gray-100"
+            }`}
           >
             <FaChevronRight className="inline" />
           </button>
@@ -116,116 +121,134 @@ export const ReusableTable = ({
   //   }
   // }, [activeSearchCol]);
 
-
   return (
     <>
-    <div className="flex flex-col w-full h-[78Vh] overflow-auto">
+      <div className="flex flex-col w-full h-[78Vh] overflow-auto">
         <div className="h-[100vh] rounded-lg bg-[#F1F1F0] shadow-sm">
-      <div className="h-[68vh]">
-        <table className="">
-          <thead className="bg-gray-200 text-gray-800 ">
-
-
-            <tr>
-              {columns?.map((column, index) => (
-                <th
-                  key={index}
-                  className={`${column.className ? column.className : ""
-                    } py-2 px-1.5 font-medium text-[13px] ${column.header !== "" ? "border border-white/50" : ""
-                    } text-start`}
-                >
-                  <span>{column.header}</span>
-                </th>
-              ))}
-              <td className="border border-white/50 font-medium text-[13px]"></td>
-            </tr>
-
-
-
-
-
-          </thead>
-          <tbody>
-            {currentItems?.length === 0 ? (
-              <tr>
-                <td colSpan={columns?.length + (rowActions ? 1 : 0)} className="px-4 py-4 text-center text-gray-500">
-                  {emptyStateMessage}
-                </td>
-              </tr>
-            ) : (
-              currentItems?.map((item, index) => (
-
-                <tr
-                  key={item.id}
-                  className={`hover:bg-gray-50 transition-colors border-b   border-gray-200 text-[12px] ${index % 2 === 0 ? "bg-white" : "bg-gray-100"
-                    }`}
-                >
-
-                  {columns?.map((column, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className={` ${column.className ? column.className : ""} ${column.header !== "" ? 'border-r border-white/50' : ''} h-7 text-start`}
+          <div className="h-[68vh]">
+            <table className="">
+              <thead className="bg-gray-200 text-gray-800 ">
+                <tr>
+                  {columns?.map((column, index) => (
+                    <th
+                      key={index}
+                      className={`${
+                        column.className ? column.className : ""
+                      } py-2 px-1.5 font-medium text-[13px] ${
+                        column.header !== "" ? "border border-white/50" : ""
+                      } text-start`}
                     >
-                      {column.accessor(item, index)}
-                    </td>
+                      <span>{column.header}</span>
+                    </th>
                   ))}
-                  {rowActions && (
-                    <td className=" w-[30px] border-gray-200 gap-1 px-2   h-8 justify-end">
-                      <div className="flex">
-                       {onView && (
+                  <td className="border border-white/50 font-medium text-[13px]"></td>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems?.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns?.length + (rowActions ? 1 : 0)}
+                      className="px-4 py-4 text-center text-gray-500"
+                    >
+                      {emptyStateMessage}
+                    </td>
+                  </tr>
+                ) : (
+                  currentItems?.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className={`hover:bg-gray-50 transition-colors border-b   border-gray-200 text-[12px] ${
+                        index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                      }`}
+                    >
+                      {columns?.map((column, colIndex) => (
+                        <td
+                          key={colIndex}
+                          className={` ${
+                            column.className ? column.className : ""
+                          } ${
+                            column.header !== ""
+                              ? "border-r border-white/50"
+                              : ""
+                          } h-7 text-start`}
+                        >
+                          {column.accessor(item, index)}
+                        </td>
+                      ))}
+                      {rowActions && (
+                        <td className=" w-[30px] border-gray-200 gap-1 px-2   h-8 justify-end">
+                          <div className="flex">
+                            {onView && (
                               <button
                                 className="text-blue-600  flex items-center   px-1  bg-blue-50 rounded"
                                 onClick={() => onView(item.id)}
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
                                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                    clipRule="evenodd"
+                                  />
                                 </svg>
                               </button>
                             )}
-                        {onEdit && (
-                          <button
-                            className="text-green-600 gap-1 px-1   bg-green-50 rounded"
-                            onClick={() => onEdit(item.id)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                          </button>
-                        )}
-                        {onDelete && (
-                          <button
-                            className=" text-red-800 flex items-center gap-1 px-1  bg-red-50 rounded"
-                            onClick={() => onDelete(item.id)}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            {/* <span className="text-xs">delete</span> */}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                            {onEdit && (
+                              <button
+                                className="text-green-600 gap-1 px-1   bg-green-50 rounded"
+                                onClick={() => onEdit(item.id)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                              </button>
+                            )}
+                            {onDelete && (
+                              <button
+                                className=" text-red-800 flex items-center gap-1 px-1  bg-red-50 rounded"
+                                onClick={() => onDelete(item.id)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                {/* <span className="text-xs">delete</span> */}
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="h-[10vh]">
+            <Pagination />
+          </div>
+        </div>
       </div>
-      <div className="h-[10vh]">
-        <Pagination />
-      </div>
-      </div>
-      </div>
-
-
     </>
-
-
-
-
-
   );
 };
 
@@ -241,24 +264,31 @@ export const handleOnChange = (event, setValue) => {
 
   setValue(
     valueBeforeCursor +
-    inputValue.slice(inputSelectionStart, inputSelectionEnd) +
-    valueAfterCursor
+      inputValue.slice(inputSelectionStart, inputSelectionEnd) +
+      valueAfterCursor
   );
 
   // Set the cursor position to the end of the input value
   setTimeout(() => {
     event.target.setSelectionRange(
       valueBeforeCursor.length +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
       valueBeforeCursor.length +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd).length
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length
     );
   });
 };
 
-export function ReusableInput(
-  { setValue, label, type, value, className = "", placeholder, readOnly, disabled }
-) {
+export function ReusableInput({
+  setValue,
+  label,
+  type,
+  value,
+  className = "",
+  placeholder,
+  readOnly,
+  disabled,
+}) {
   return (
     <div className="mb-2">
       {label && (
@@ -270,386 +300,416 @@ export function ReusableInput(
         type={type}
         value={value}
         onChange={(e) =>
-          type === "number" ? setValue(e.target.value) : handleOnChange(e, setValue)
+          type === "number"
+            ? setValue(e.target.value)
+            : handleOnChange(e, setValue)
         }
         placeholder={placeholder}
         readOnly={readOnly}
         disabled={disabled}
         className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
           focus:border-indigo-300 focus:outline-none transition-all duration-200
-          hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
+          hover:border-slate-400 ${
+            readOnly || disabled ? "bg-slate-100" : ""
           } ${className}`}
       />
     </div>
   );
 }
 
-export const DropdownInput = forwardRef(({
-  name,
-  beforeChange = () => { },
-  onBlur = null,
-  options,
-  value,
-  setValue,
-  defaultValue,
-  className = "",
-  readOnly = false,
-  required = false,
-  disabled = false,
-  clear = false,
-  tabIndex = null,
-  autoFocus = false,
-  width = "full",
-  country,
-  openOnFocus = false,   // new prop
-}, ref) => {
+export const DropdownInput = forwardRef(
+  (
+    {
+      name,
+      beforeChange = () => {},
+      onBlur = null,
+      options,
+      value,
+      setValue,
+      defaultValue,
+      className = "",
+      readOnly = false,
+      required = false,
+      disabled = false,
+      clear = false,
+      tabIndex = null,
+      autoFocus = false,
+      width = "full",
+      country,
+      openOnFocus = false, // new prop
+    },
+    ref
+  ) => {
+    const handleOnChange = (e) => {
+      setValue(e.target.value);
+    };
 
+    const isDisabled = readOnly || disabled;
 
-  const handleOnChange = (e) => {
-    setValue(e.target.value);
-  };
+    useEffect(() => {
+      if (ref?.current && openOnFocus) {
+        ref.current.focus();
+      }
+    }, [openOnFocus]);
 
-  const isDisabled = readOnly || disabled;
-
-  useEffect(() => {
-    if (ref?.current && openOnFocus) {
-      ref.current.focus();
-
-    }
-  }, [openOnFocus]);
-
-
-  return (
-    <div className={`mb-2 ${width}`}>
-      {name && (
-        <label className="block text-xs font-bold text-slate-700 mb-1">
-          {required ? <RequiredLabel name={name} /> : name}
-        </label>
-      )}
-      <select
-        ref={ref}
-        onBlur={onBlur}
-        autoFocus={autoFocus}
-        tabIndex={tabIndex ?? undefined}
-        defaultValue={defaultValue}
-        required={required}
-        className={`w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg
+    return (
+      <div className={`mb-2 ${width}`}>
+        {name && (
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            {required ? <RequiredLabel name={name} /> : name}
+          </label>
+        )}
+        <select
+          ref={ref}
+          onBlur={onBlur}
+          autoFocus={autoFocus}
+          tabIndex={tabIndex ?? undefined}
+          defaultValue={defaultValue}
+          required={required}
+          className={`w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg
           focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
           transition-all duration-150 shadow-sm
           ${className}`}
-        value={value}
-        onChange={(e) => {
-          beforeChange();
-          handleOnChange(e);
-        }}
-        onFocus={(e) => {
-          if (openOnFocus) {
-            e.target.click();
+          value={value}
+          onChange={(e) => {
+            beforeChange();
+            handleOnChange(e);
+          }}
+          onFocus={(e) => {
+            if (openOnFocus) {
+              e.target.click();
+            }
+          }}
+          disabled={isDisabled}
+        >
+          <option value="" hidden={!clear} className="text-gray-800">
+            Select
+          </option>
+          {options?.map((option, index) => (
+            <option
+              key={index}
+              value={option.value}
+              className="text-xs py-1 text-gray-800"
+            >
+              {option.show}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+);
+
+export const DropdownWithSearch = forwardRef(
+  (
+    {
+      className,
+      options,
+      value,
+      setValue,
+      readOnly,
+      disabled,
+      required = false,
+      labelField,
+      label,
+      nextRef = null,
+      classNameForOptions, // 👈 next input ref
+    },
+    ref
+  ) => {
+    // 👈 next input ref
+    // console.log(classNameForOptions, "classNameForOptions")
+
+    const [currentIndex, setCurrentIndex] = useState("");
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+      if (ref?.current && isFirstRender.current) {
+        ref.current.focus();
+        isFirstRender.current = false;
+      }
+    }, []);
+
+    useEffect(() => {
+      if (!isFirstRender.current && ref?.current === document.activeElement) {
+        ref.current.blur();
+      }
+    }, [value]);
+    useEffect(() => setCurrentIndex(Date.now()), []);
+
+    useEffect(() => {
+      const dropDownElement = document.getElementById(
+        `dropdown${currentIndex}`
+      );
+      if (!dropDownElement) return;
+
+      const handleKeyDown = (ev) => {
+        if (ev.key === "Enter" || ev.key === "Tab") {
+          if (nextRef?.current) {
+            nextRef.current.focus();
+            ev.preventDefault();
           }
-        }}
-        disabled={isDisabled}
-      >
-        <option value="" hidden={!clear} className="text-gray-800">
-          Select
-        </option>
-        {options?.map((option, index) => (
-          <option
-            key={index}
-            value={option.value}
-            className="text-xs py-1 text-gray-800"
-          >
-            {option.show}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-});
-
-export const DropdownWithSearch = forwardRef(({
-  className,
-  options,
-  value,
-  setValue,
-  readOnly,
-  disabled,
-  required = false,
-  labelField,
-  label,
-  nextRef = null,
-  classNameForOptions  // 👈 next input ref
-}, ref) => {
-
-  // 👈 next input ref
-  // console.log(classNameForOptions, "classNameForOptions")
-
-  const [currentIndex, setCurrentIndex] = useState("");
-  useEffect(() => setCurrentIndex(Date.now()), []);
-
-  useEffect(() => {
-    const dropDownElement = document.getElementById(`dropdown${currentIndex}`);
-    if (!dropDownElement) return;
-
-    const handleKeyDown = (ev) => {
-      if (ev.key === "Enter" || ev.key === "Tab") {
-        if (nextRef?.current) {
-          nextRef.current.focus();
-          ev.preventDefault();
         }
-      }
-    };
+      };
 
-    dropDownElement.addEventListener("keydown", handleKeyDown);
+      dropDownElement.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      dropDownElement.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentIndex, nextRef]);
+      return () => {
+        dropDownElement.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [currentIndex, nextRef]);
 
-  return (
-    <div id={`dropdown${currentIndex}`} className={` mb-2`}>
-      {label && (
-        <label className="block text-xs font-bold text-slate-700 mb-1">
-          {required ? <RequiredLabel name={label} /> : `${label}`}
-        </label>
-      )}
-      <select
-        ref={ref}
-        className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+    return (
+      <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+        {label && (
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            {required ? <RequiredLabel name={label} /> : `${label}`}
+          </label>
+        )}
+        <select
+          ref={ref}
+          className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
     hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value || ""}
-        onChange={(e) => setValue(e.target.value)}
-      >
-        <option value="">Select</option>
-        {(options || []).map((option) => (
-          <option
-            key={option.id}
-            value={option.id}
-          >
-            <span></span>   {option[labelField]}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-});
-export const DropdownWithSearch3 = forwardRef(({
-  className,
-  options,
-  value,
-  setValue,
-  readOnly,
-  disabled,
-  required = false,
-  labelField,
-  label,
-  nextRef = null,
-  classNameForOptions  // 👈 next input ref
-}, ref) => {
+          disabled={disabled}
+          readOnly={readOnly}
+          value={value || ""}
+          onChange={(e) => setValue(e.target.value)}
+        >
+          <option value="">Select</option>
+          {(options || []).map((option) => (
+            <option key={option.id} value={option.id}>
+              <span></span> {option[labelField]}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+);
+export const DropdownWithSearch3 = forwardRef(
+  (
+    {
+      className,
+      options,
+      value,
+      setValue,
+      readOnly,
+      disabled,
+      required = false,
+      labelField,
+      label,
+      nextRef = null,
+      classNameForOptions, // 👈 next input ref
+    },
+    ref
+  ) => {
+    // 👈 next input ref
+    // console.log(classNameForOptions, "classNameForOptions")
 
-  // 👈 next input ref
-  // console.log(classNameForOptions, "classNameForOptions")
+    const [currentIndex, setCurrentIndex] = useState("");
+    useEffect(() => setCurrentIndex(Date.now()), []);
 
-  const [currentIndex, setCurrentIndex] = useState("");
-  useEffect(() => setCurrentIndex(Date.now()), []);
+    useEffect(() => {
+      const dropDownElement = document.getElementById(
+        `dropdown${currentIndex}`
+      );
+      if (!dropDownElement) return;
 
-  useEffect(() => {
-    const dropDownElement = document.getElementById(`dropdown${currentIndex}`);
-    if (!dropDownElement) return;
-
-    const handleKeyDown = (ev) => {
-      if (ev.key === "Enter" || ev.key === "Tab") {
-        if (nextRef?.current) {
-          nextRef.current.focus();
-          ev.preventDefault();
+      const handleKeyDown = (ev) => {
+        if (ev.key === "Enter" || ev.key === "Tab") {
+          if (nextRef?.current) {
+            nextRef.current.focus();
+            ev.preventDefault();
+          }
         }
-      }
-    };
+      };
 
-    dropDownElement.addEventListener("keydown", handleKeyDown);
+      dropDownElement.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      dropDownElement.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentIndex, nextRef]);
+      return () => {
+        dropDownElement.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [currentIndex, nextRef]);
 
-  return (
-    <div id={`dropdown${currentIndex}`} className={` mb-2`}>
-      {label && (
-        <label className="block text-xs font-bold text-slate-700 mb-1">
-          {required ? <RequiredLabel name={label} /> : `${label}`}
-        </label>
-      )}
-      <select
-        ref={ref}
-        className={`w-full px-5 py-5 text-xs border border-slate-300 rounded-md 
+    return (
+      <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+        {label && (
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            {required ? <RequiredLabel name={label} /> : `${label}`}
+          </label>
+        )}
+        <select
+          ref={ref}
+          className={`w-full px-5 py-5 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
     hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value || ""}
-        onChange={(e) => setValue(e.target.value)}
-      >
-        <option value="">Select</option>
-        {(options || []).map((option) => (
-          <option
-            key={option.id}
-            value={option.id}
-          >
-            <span></span>   {option[labelField]}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-});
-export const DropdownWithSearch2 = forwardRef(({
-  className,
-  options,
-  value,
-  setValue,
-  readOnly,
-  disabled,
-  required = false,
-  labelField,
-  label,
-  nextRef = null,
-  classNameForOptions  // 👈 next input ref
-}, ref) => {
+          disabled={disabled}
+          readOnly={readOnly}
+          value={value || ""}
+          onChange={(e) => setValue(e.target.value)}
+        >
+          <option value="">Select</option>
+          {(options || []).map((option) => (
+            <option key={option.id} value={option.id}>
+              <span></span> {option[labelField]}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+);
+export const DropdownWithSearch2 = forwardRef(
+  (
+    {
+      className,
+      options,
+      value,
+      setValue,
+      readOnly,
+      disabled,
+      required = false,
+      labelField,
+      label,
+      nextRef = null,
+      classNameForOptions, // 👈 next input ref
+    },
+    ref
+  ) => {
+    // 👈 next input ref
+    // console.log(classNameForOptions, "classNameForOptions")
 
-  // 👈 next input ref
-  // console.log(classNameForOptions, "classNameForOptions")
+    const [currentIndex, setCurrentIndex] = useState("");
+    useEffect(() => setCurrentIndex(Date.now()), []);
 
-  const [currentIndex, setCurrentIndex] = useState("");
-  useEffect(() => setCurrentIndex(Date.now()), []);
+    useEffect(() => {
+      const dropDownElement = document.getElementById(
+        `dropdown${currentIndex}`
+      );
+      if (!dropDownElement) return;
 
-  useEffect(() => {
-    const dropDownElement = document.getElementById(`dropdown${currentIndex}`);
-    if (!dropDownElement) return;
-
-    const handleKeyDown = (ev) => {
-      if (ev.key === "Enter" || ev.key === "Tab") {
-        if (nextRef?.current) {
-          nextRef.current.focus();
-          ev.preventDefault();
+      const handleKeyDown = (ev) => {
+        if (ev.key === "Enter" || ev.key === "Tab") {
+          if (nextRef?.current) {
+            nextRef.current.focus();
+            ev.preventDefault();
+          }
         }
-      }
-    };
+      };
 
-    dropDownElement.addEventListener("keydown", handleKeyDown);
+      dropDownElement.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      dropDownElement.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentIndex, nextRef]);
+      return () => {
+        dropDownElement.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [currentIndex, nextRef]);
 
-  return (
-    <div id={`dropdown${currentIndex}`} className={` mb-2`}>
-      {label && (
-        <label className="block text-xs font-bold text-slate-700 mb-1">
-          {required ? <RequiredLabel name={label} /> : `${label}`}
-        </label>
-      )}
-      <select
-        ref={ref}
-        className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+    return (
+      <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+        {label && (
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            {required ? <RequiredLabel name={label} /> : `${label}`}
+          </label>
+        )}
+        <select
+          ref={ref}
+          className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
     hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value || ""}
-        onChange={(e) => setValue(e.target.value)}
-      >
-        <option value="">Select</option>
-        {(options || []).map((option) => (
-          <option
-            key={option.companyName}
-            value={option.companyName}
-          >
-            <span></span>   {option[labelField]}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-});
-export const DropdownWithSearch1 = forwardRef(({
-  className,
-  options,
-  value,
-  setValue,
-  readOnly,
-  disabled,
-  required = false,
-  labelField,
-  label,
-  nextRef = null,
-  classNameForOptions  // 👈 next input ref
-}, ref) => {
+          disabled={disabled}
+          readOnly={readOnly}
+          value={value || ""}
+          onChange={(e) => setValue(e.target.value)}
+        >
+          <option value="">Select</option>
+          {(options || []).map((option) => (
+            <option key={option.companyName} value={option.companyName}>
+              <span></span> {option[labelField]}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+);
+export const DropdownWithSearch1 = forwardRef(
+  (
+    {
+      className,
+      options,
+      value,
+      setValue,
+      readOnly,
+      disabled,
+      required = false,
+      labelField,
+      label,
+      nextRef = null,
+      classNameForOptions, // 👈 next input ref
+    },
+    ref
+  ) => {
+    // 👈 next input ref
+    // console.log(classNameForOptions, "classNameForOptions")
 
-  // 👈 next input ref
-  // console.log(classNameForOptions, "classNameForOptions")
+    const [currentIndex, setCurrentIndex] = useState("");
+    useEffect(() => setCurrentIndex(Date.now()), []);
 
-  const [currentIndex, setCurrentIndex] = useState("");
-  useEffect(() => setCurrentIndex(Date.now()), []);
+    useEffect(() => {
+      const dropDownElement = document.getElementById(
+        `dropdown${currentIndex}`
+      );
+      if (!dropDownElement) return;
 
-  useEffect(() => {
-    const dropDownElement = document.getElementById(`dropdown${currentIndex}`);
-    if (!dropDownElement) return;
-
-    const handleKeyDown = (ev) => {
-      if (ev.key === "Enter" || ev.key === "Tab") {
-        if (nextRef?.current) {
-          nextRef.current.focus();
-          ev.preventDefault();
+      const handleKeyDown = (ev) => {
+        if (ev.key === "Enter" || ev.key === "Tab") {
+          if (nextRef?.current) {
+            nextRef.current.focus();
+            ev.preventDefault();
+          }
         }
-      }
-    };
+      };
 
-    dropDownElement.addEventListener("keydown", handleKeyDown);
+      dropDownElement.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      dropDownElement.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentIndex, nextRef]);
+      return () => {
+        dropDownElement.removeEventListener("keydown", handleKeyDown);
+      };
+    }, [currentIndex, nextRef]);
 
-  return (
-    <div id={`dropdown${currentIndex}`} className={` mb-2`}>
-      {label && (
-        <label className="block text-xs font-bold text-slate-700 mb-1">
-          {required ? <RequiredLabel name={label} /> : `${label}`}
-        </label>
-      )}
-      <select
-        ref={ref}
-        className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+    return (
+      <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+        {label && (
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            {required ? <RequiredLabel name={label} /> : `${label}`}
+          </label>
+        )}
+        <select
+          ref={ref}
+          className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
     hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
-        disabled={disabled}
-        readOnly={readOnly}
-        value={value || ""}
-        onChange={(e) => setValue(e.target.value)}
-      >
-        <option value="">Select</option>
-        {(options || []).map((option) => (
-          <option
-            key={option.EMPID}
-            value={option.EMPID}
-          >
-            <span></span>   {option[labelField]}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-});
+          disabled={disabled}
+          readOnly={readOnly}
+          value={value || ""}
+          onChange={(e) => setValue(e.target.value)}
+        >
+          <option value="">Select</option>
+          {(options || []).map((option) => (
+            <option key={option.EMPID} value={option.EMPID}>
+              <span></span> {option[labelField]}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+);
 
 export const MultiSelectDropdown = ({
   name,
@@ -667,37 +727,37 @@ export const MultiSelectDropdown = ({
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      minHeight: '15px',
-      height: '15px',
-      fontSize: '12px',
-      borderRadius: '0.5rem', // rounded-lg
-      outline: 'none',
-      transition: 'all 150ms', // transition-all duration-150
-      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', // shadow-sm
-      padding: '0.25rem', // p-1
-      borderColor: state.isFocused ? '' : '#cbd5e1', // focus:border-blue-500
-      boxShadow: state.isFocused ? '0 0 0 1px #3b82f6' : undefined, // focus:ring-1 focus:ring-blue-500
-      '&:hover': {
-        borderColor: '#94a3b8'
-      }
+      minHeight: "15px",
+      height: "15px",
+      fontSize: "12px",
+      borderRadius: "0.5rem", // rounded-lg
+      outline: "none",
+      transition: "all 150ms", // transition-all duration-150
+      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", // shadow-sm
+      padding: "0.25rem", // p-1
+      borderColor: state.isFocused ? "" : "#cbd5e1", // focus:border-blue-500
+      boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : undefined, // focus:ring-1 focus:ring-blue-500
+      "&:hover": {
+        borderColor: "#94a3b8",
+      },
     }),
     valueContainer: (provided) => ({
       ...provided,
-      height: '15px',
-      padding: '0 8px'
+      height: "15px",
+      padding: "0 8px",
     }),
     input: (provided) => ({
       ...provided,
-      margin: '0px',
+      margin: "0px",
     }),
     indicatorsContainer: (provided) => ({
       ...provided,
-      height: '15px',
+      height: "15px",
     }),
     option: (provided) => ({
       ...provided,
-      fontSize: '14px',
-      padding: '8px 12px'
+      fontSize: "14px",
+      padding: "8px 12px",
     }),
   };
 
@@ -707,13 +767,12 @@ export const MultiSelectDropdown = ({
     >
       <span className="mb-2">
         {required ? <RequiredLabel name={label ? label : name} /> : name}
-  
       </span>
       {/* {console.log(options, "options")} */}
       <MultiSelect
         options={options}
         value={selected}
-        onChange={readOnly ? () => { } : setSelected}
+        onChange={readOnly ? () => {} : setSelected}
         labelledBy="Select"
         hasSelectAll={false}
         // styles={{
@@ -751,9 +810,6 @@ export const MultiSelectDropdown = ({
         // }}
         styles={customSelectStyles}
       />
-
-
-
     </div>
   );
 };

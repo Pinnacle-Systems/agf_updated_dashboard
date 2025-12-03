@@ -33,11 +33,11 @@ const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
   const openTabs = useSelector((state) => state.openTabs);
   useEffect(() => {
-  const container = document.querySelector(".active-tab-container");
-  if (container) {
-    container.scrollTop = 0;
-  }
-}, [openTabs.tabs]);
+    const container = document.querySelector(".active-tab-container");
+    if (container) {
+      container.scrollTop = 0;
+    }
+  }, [openTabs.tabs]);
   const dispatch = useDispatch();
   const [showHidden, setShowHidden] = useState(false);
   const ref = useOutsideClick(() => {
@@ -62,10 +62,14 @@ const ActiveTabList = () => {
       <DetailedDashBoard
         companyName={tabData?.companyName}
         Year={tabData?.Year}
+         autoFocusBuyer={tabData?.autoFocusBuyer}
+         selectedmonth={tabData?.selectedmonth}
       />
     ),
     PFDetails: (tabData) => (
-      <PFIndex companyName={tabData?.companyName} Year={tabData?.Year} />
+      <PFIndex companyName={tabData?.companyName} Year={tabData?.Year}
+      autoFocusBuyer={tabData?.autoFocusBuyer}
+         selectedmonth={tabData?.selectedmonth} />
     ),
     Headcount: (tabData) => (
       <DetailedHeadcount companyName={tabData?.companyName} />
@@ -74,14 +78,19 @@ const ActiveTabList = () => {
       <DetailedAttribution
         companyName={tabData?.companyName}
         Year={tabData?.Year}
+        autoFocusBuyer={tabData?.autoFocusBuyer}
+         selectedmonth={tabData?.selectedmonth}
       />
     ),
     SalaryDetail: (tabData) => (
-      <SalaryIndex companyName={tabData?.companyName} Year={tabData?.Year} />
-      
+      <SalaryIndex
+        companyName={tabData?.companyName}
+        Year={tabData?.Year}
+        selectedmonth={tabData?.selectedmonth}
+        autoFocusBuyer={tabData?.autoFocusBuyer}
+      />
     ),
-    HRDashBoard:<HRDashboard/>
-
+    HRDashBoard: <HRDashboard />,
   };
 
   console.log(openTabs, "openTabs");

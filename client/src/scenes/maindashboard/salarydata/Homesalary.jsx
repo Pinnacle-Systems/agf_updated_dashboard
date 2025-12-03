@@ -12,29 +12,35 @@ import {
 import { useDispatch } from "react-redux";
 import { useGetMisDashboardSalaryDetQuery, useGetsalarydelQuery, useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
 import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
 
 const HomeSalary = () => {
   const theme = useTheme();
-  const {
-    data: Salarydata,
-    isLoading,
-    isError,
-    error,
-  } = useGetMisDashboardSalaryDetQuery({ params: {} });
+  // const {
+  //   data: Salarydata,
+  //   isLoading,
+  //   isError,
+  //   error,
+  // } = useGetMisDashboardSalaryDetQuery({ params: {} });
+
+  const [selectedmonth,setSelectedmonth]=useState("")
+ 
 
   const dispatch = useDispatch();
 
-  const{data:lastmonth}=useGetsallastmonthQuery()
+  const{data:lastmonth,isLoading,isError,error}=useGetsallastmonthQuery()
 
-  
 
   console.log(lastmonth,"lastmonth");
+  
 
   const Year =lastmonth?.data.find((x)=>x.Year)
 
-  console.log(Year,"Year");
-  
-  
+  useEffect(()=>{
+    setSelectedmonth(Year?.month)
+  },[Year])
+ 
+ 
   
 
   if (isLoading)
@@ -51,24 +57,24 @@ const HomeSalary = () => {
       </Typography>
     );
 
-  const employees = Salarydata?.data || [];
+  // const employees = Salarydata?.data || [];
 
-  // console.log(employees, "Home Salary");
 
-  const totalsByComp = employees.reduce((acc, emp) => {
-    const code = emp.COMPCODE || "Unknown";
-    acc[code] = (acc[code] || 0) + (emp.NETPAY || 0);
-    return acc;
-  }, {});
 
-  const compList = Object.entries(totalsByComp).map(
-    ([code, total], index, arr) => {
-      const prevTotal = index > 0 ? arr[index - 1][1] : total;
-      const trendDir = total >= prevTotal ? "up" : "down";
-      const color = trendDir === "up" ? "success.main" : "error.main";
-      return { COMPCODE: code, NETPAY: total, trendDir, color };
-    }
-  );
+  //  const totalsByComp = employees.reduce((acc, emp) => {
+  //   const code = emp.COMPCODE || "Unknown";
+  //   acc[code] = (acc[code] || 0) + (emp.NETPAY || 0);
+  //   return acc;
+  // }, {});
+
+  // const compList = Object.entries(totalsByComp).map(
+  //   ([code, total], index, arr) => {
+  //     const prevTotal = index > 0 ? arr[index - 1][1] : total;
+  //     const trendDir = total >= prevTotal ? "up" : "down";
+  //     const color = trendDir === "up" ? "success.main" : "error.main";
+  //     return { COMPCODE: code, NETPAY: total, trendDir, color };
+  //   }
+  // );
 
   const Totalvalue = lastmonth?.data.map((x) => x.netpay);
   const company = lastmonth?.data.map((x) => x.customer);
@@ -81,11 +87,7 @@ const HomeSalary = () => {
       height: 250,
       zoomType: null,
       enabled: true,
-      // spacingTop: 0,
-      // spacingBottom: 0,
-      // spacingLeft: 0,
-      // spacingRight: 0,
-    },
+         },
 
     title: {
       text: null,
@@ -97,9 +99,7 @@ const HomeSalary = () => {
     },
 
     xAxis: {
-      // minPadding: 0,
-      // maxPadding: 0,
-
+     
       title: { text: "Company", style: { fontSize: "12px" } },
       labels: { style: { fontSize: "10px" } },
       categories: company,
@@ -122,8 +122,8 @@ const HomeSalary = () => {
     const value = this.y.toLocaleString("en-IN");
 
     return `
-      <b>${this.point.comp || this.key}</b><br/>
-      <span style="color:${this.series.color}">${this.series.name}</span>: 
+      <b>${this.point.month || this.key}</b><br/>
+      <span style="color:${this.series.color}">Netpay</span>: 
       <b>${value}</b>
     `;
   },
@@ -149,21 +149,24 @@ const HomeSalary = () => {
 
     series: [
       {
-        name: "Last month salary",
-        data: Totalvalue?.map((value, index) => ({
-          y: value,
-          comp: company[index],
+        name:  `Lastest Month Netpay`,
+        data: lastmonth?.data.map((value, index) => ({
+          name:value.customer,
+          y: value.netpay,
+          month:value.month,
         })),
         point: {
           events: {
             click: function () {
               const company = this.category;
+              // console.log(this.month,"this");
+              
               dispatch(
                 push({
                   id: `SalaryDetail`,
                   name: `SalaryDetail`,
-                  component: "SunburstChart",
-                  data: { companyName: company,Year: Year.Year },
+                  component: "SalaryIndex",
+                  data: { companyName: company,Year: Year.Year,selectedmonth:this.month,autoFocusBuyer: true}
                 })
               );
             },
@@ -173,7 +176,7 @@ const HomeSalary = () => {
     ],
   };
 
-  return (
+  return ( 
     <Card
       sx={{
           borderRadius: 3,

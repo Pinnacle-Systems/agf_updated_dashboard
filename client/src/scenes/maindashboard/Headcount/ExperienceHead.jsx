@@ -22,32 +22,48 @@ const ExperienceHead = ({ companyName, selectedState, HeadData }) => {
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
-  const { data: Expdata } = useGetOverAllSupplierContributionQuery({ filterBuyer: filterBuyer });
+  const { data: Expdata } = useGetOverAllSupplierContributionQuery({
+    filterBuyer: filterBuyer,
+  });
 
-//   const filteredData = Array.isArray(Expdata?.data)
-//     ? Expdata?.data.filter((row) => {
-//         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-//         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-//         return true;
-//       })
-//     : [];
+  //   const filteredData = Array.isArray(Expdata?.data)
+  //     ? Expdata?.data.filter((row) => {
+  //         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+  //         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+  //         return true;
+  //       })
+  //     : [];
 
-//   const totalsByComp = filteredData.reduce((acc, emp) => {
-//     const code = emp.SLAP || "Unknown";
-//     acc[code] = (acc[code] || 0) + (emp.VAL || 0);
-//     return acc;
-//   }, {});
+  //   const totalsByComp = filteredData.reduce((acc, emp) => {
+  //     const code = emp.SLAP || "Unknown";
+  //     acc[code] = (acc[code] || 0) + (emp.VAL || 0);
+  //     return acc;
+  //   }, {});
 
-//   const Chartdata = Object.entries(totalsByComp).map(([x, y]) => ({
-//     Agerange: x,
-//     Headcount: y,
-//   }));
+  //   const Chartdata = Object.entries(totalsByComp).map(([x, y]) => ({
+  //     Agerange: x,
+  //     Headcount: y,
+  //   }));
 
-const xdata=Expdata?.data.map((x)=>x.supplier)
-const ydata=Expdata?.data.map((x)=>x.poQty)
+  const xdata = Expdata?.data.map((x) => x.supplier);
+  const ydata = Expdata?.data.map((x) => x.poQty);
 
   console.log(Expdata, "Expdata");
-  const colorArray = ["#8A37DE", "#005E72", "#E5181C", "#056028", "#1F2937"];
+  const colorArray = [
+    "#8A37DE",
+    "#005E72",
+    "#E5181C",
+    "#056028",
+    "#1F2937",
+    "#F44F5E",
+    "#E55A89",
+    "#D863B1",
+    "#CA6CD8",
+    "#B57BED",
+    "#8D95EB",
+    "#62ACEA",
+    "#4BC3E6",
+  ];
 
   const options = {
     chart: {
@@ -60,7 +76,7 @@ const ydata=Expdata?.data.map((x)=>x.poQty)
         depth: 50,
         viewDistance: 25,
       },
-      marginBottom:50,
+      marginBottom: 50,
       backgroundColor: "#FFFFFF",
       borderRadius: "10px",
     },
@@ -94,28 +110,28 @@ const ydata=Expdata?.data.map((x)=>x.poQty)
     plotOptions: {
       column: { depth: 25, colorByPoint: true, borderRadius: 5 },
       series: {
-      point: {
-        events: {
-          click: function () {
-            console.log("Clicked:", this.category, this.y);
-setSearch((prev) => ({
+        point: {
+          events: {
+            click: function () {
+              console.log("Clicked:", this.category, this.y);
+              setSearch((prev) => ({
                 ...prev,
                 EXP: this.category,
               }));
 
-            setShowTable(true)
-            // You can call any function here:
-            // handleClick(this.category, this.y)
+              setShowTable(true);
+              // You can call any function here:
+              // handleClick(this.category, this.y)
+            },
           },
         },
       },
-    },
     },
     colors: colorArray,
     series: [
       {
         name: "",
-        data:ydata,
+        data: ydata,
         dataLabels: {
           enabled: true,
           style: { fontSize: "10px", color: "#333" },
@@ -128,7 +144,6 @@ setSearch((prev) => ({
     <>
       <Card
         sx={{
-            
           backgroundColor: "#f5f5f5",
         }}
       >
@@ -146,14 +161,14 @@ setSearch((prev) => ({
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
 
-       {showTable && (
+        {showTable && (
           <ExpHeadDetail
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
             HeadData={HeadData}
-           />
+          />
         )}
       </Card>
     </>
