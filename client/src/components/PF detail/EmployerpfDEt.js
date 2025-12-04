@@ -29,6 +29,12 @@ const PFShareDetailed = ({
   selectedBuyer,
   selectedYear,
   color,
+  PFdata,
+  selectedState,
+  setSelectedState,
+  setSelectmonths,
+  selectmonths,
+  autoFocusBuyer,
 }) => {
   // console.log(
   //   selectGender1,
@@ -39,9 +45,9 @@ const PFShareDetailed = ({
   // );
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
-  const [selectmonths, setSelectmonths] = useState("");
+ 
+  const [selectedGender, setSelectedGender] = useState("Both");
+ 
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
@@ -56,16 +62,16 @@ const PFShareDetailed = ({
   //   },
   // });
 
-  const { data: ESIyeardata } = useGetEsiPfQuery({
-    params: { filterSupplier: selectedBuyer, filterYear: selectedYear },
-  });
+  // const { data: ESIyeardata } = useGetEsiPfQuery({
+  //   params: { filterSupplier: selectedBuyer, filterYear: selectedYear },
+  // });
 
-  const salaryDet = ESIyeardata?.data || [];
+  // const salaryDet = ESIyeardata?.data || [];
 
-  console.log(salaryDet, "salaryDet inside");
+  // console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
-  }, [salaryDet]);
+  }, [PFdata]);
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -114,8 +120,8 @@ const PFShareDetailed = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
+  const filteredData = Array.isArray(PFdata)
+    ? PFdata
         .filter((row) =>
           Object.keys(search || {}).every((key) => {
             const rowValue = row[key]?.toString().toLowerCase() || "";
@@ -149,6 +155,10 @@ const PFShareDetailed = ({
     (sum, row) => sum + (Number(row.PF) || 0),
     0
   );
+  const totalNetPay1 = filteredData.reduce(
+    (sum, row) => sum + (Number(Math.round(row.EMPLOYER_CON)) || 0),
+    0
+  );
   console.log(totalNetPay, "Total Net Pay");
 
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
@@ -166,9 +176,9 @@ const PFShareDetailed = ({
     }),
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
-  console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", salaryDet.length);
-  console.log("Filtered count:", filteredData.length);
+  // console.log("Selected Month:", selectmonths);
+  // console.log("ESI Data count:", PFdata.length);
+  // console.log("Filtered count:", filteredData.length);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -199,6 +209,15 @@ const PFShareDetailed = ({
                   <span className="text-sky-700 pl-2">
                     {" "}
                     ₹{totalNetPay.toLocaleString("en-IN")}
+                  </span>
+                </p>
+              </div>
+              <div className="text-right ml-5 text-[12px]">
+                <p className=" text-gray-500 font-medium">
+                  Total Employer share:{" "}
+                  <span className="text-sky-700 pl-2">
+                    {" "}
+                    ₹{totalNetPay1.toLocaleString("en-IN")}
                   </span>
                 </p>
               </div>
@@ -308,6 +327,7 @@ const PFShareDetailed = ({
                 selectedYear={selectedYear}
                 selectmonths={selectmonths}
                 setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
               />
             </div>
 
@@ -360,7 +380,7 @@ const PFShareDetailed = ({
 
         <div className="grid grid-cols-2 gap-6">
           <div
-            className="overflow-x-auto max-h-[450px] "
+            className="overflow-x-auto max-h-[455px] "
             style={{ border: "1px solid gray", borderRadius: "16px" }}
           >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
@@ -385,7 +405,42 @@ const PFShareDetailed = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                     
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.EMPLOYER_CON)}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.PF)}
+                      </td>
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.EMPID}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
@@ -400,7 +455,7 @@ const PFShareDetailed = ({
                           style: "currency",
                           currency: "INR",
                         }).format(row.PF)}
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })}
@@ -409,7 +464,7 @@ const PFShareDetailed = ({
           </div>
 
           <div
-            className="overflow-x-auto max-h-[450px]"
+            className="overflow-x-auto max-h-[455px]"
             style={{ border: "1px solid gray", borderRadius: "16px" }}
           >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
@@ -434,17 +489,35 @@ const PFShareDetailed = ({
                       key={index}
                       className="text-gray-700 bg-white even:bg-gray-100"
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">
-                        {row.EMPLOYER_CON}
+                     
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.EMPLOYER_CON)}
                       </td>
-                      <td className="border p-1 text-sky-700 text-[10px] ">
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",

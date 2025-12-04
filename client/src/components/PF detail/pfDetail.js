@@ -25,6 +25,12 @@ const PFDetailedCom = ({
   selectedBuyer,
   selectedYear,
   color,
+  PFdata,
+  selectedState,
+  setSelectedState,
+  setSelectmonths,
+  selectmonths,
+  autoFocusBuyer,
 }) => {
   // console.log(
   //   selectGender1,
@@ -35,9 +41,9 @@ const PFDetailedCom = ({
   // );
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedGender, setSelectedGender] = useState();
-  const [selectmonths, setSelectmonths] = useState("");
+  // const [selectedState, setSelectedState] = useState("");
+  const [selectedGender, setSelectedGender] = useState("Both");
+  // const [selectmonths, setSelectmonths] = useState("");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
@@ -52,20 +58,20 @@ const PFDetailedCom = ({
   //   },
   // });
 
-  const { data: ESIyeardata } = useGetEsiPfQuery({
-    params: {
-      filterSupplier: selectedBuyer,
-      filterYear: selectedYear,
-      search: search || {},
-    },
-  });
+  // const { data: ESIyeardata } = useGetEsiPfQuery({
+  //   params: {
+  //     filterSupplier: selectedBuyer,
+  //     filterYear: selectedYear,
+  //     search: search || {},
+  //   },
+  // });
 
-  const salaryDet = ESIyeardata?.data || [];
+  // const salaryDet = ESIyeardata?.data || [];
 
-  console.log(ESIyeardata, "salaryDet inside");
+  // console.log(ESIyeardata, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
-  }, [salaryDet]);
+  }, [PFdata]);
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -114,8 +120,8 @@ const PFDetailedCom = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
+  const filteredData = Array.isArray(PFdata)
+    ? PFdata
         .filter((row) =>
           Object.keys(search || {}).every((key) => {
             const rowValue = row[key]?.toString().toLowerCase() || "";
@@ -166,9 +172,9 @@ const PFDetailedCom = ({
     }),
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
-  console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", salaryDet.length);
-  console.log("Filtered count:", filteredData.length);
+  // console.log("Selected Month:", selectmonths);
+  // console.log("ESI Data count:", PFdata.length);
+  // console.log("Filtered count:", filteredData.length);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -307,6 +313,7 @@ const PFDetailedCom = ({
                 selectedYear={selectedYear}
                 selectmonths={selectmonths}
                 setSelectmonths={setSelectmonths}
+                autoFocusBuyer={autoFocusBuyer}
               />
             </div>
             {/* <div className="flex items-center gap-4 text-[12px] "> */}
@@ -369,7 +376,7 @@ const PFDetailedCom = ({
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
                   <th className="border p-1 text-left">Designation</th>
-                  <th className="border p-1 text-left">PF</th>
+                  <th className="border p-1 text-middle">PF</th>
                 </tr>
               </thead>
               <tbody>
@@ -382,7 +389,41 @@ const PFDetailedCom = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.PF)}
+                      </td>
+
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.EMPID}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
@@ -397,7 +438,7 @@ const PFDetailedCom = ({
                           style: "currency",
                           currency: "INR",
                         }).format(row.PF)}
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })}
@@ -418,7 +459,7 @@ const PFDetailedCom = ({
                   <th className="border p-1 text-left">Gender</th>
                   <th className="border p-1 text-left">Department</th>
                   <th className="border p-1 text-left">Designation</th>
-                  <th className="border p-1 text-left">PF</th>
+                  <th className="border p-1 text-middle">PF</th>
                 </tr>
               </thead>
               <tbody>
@@ -431,17 +472,34 @@ const PFDetailedCom = ({
                       key={index}
                       className="text-gray-700 bg-white even:bg-gray-100"
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DESIGNATION}
                       </td>
-                      <td className="border p-1 text-sky-700 text-[10px] ">
+                      <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",

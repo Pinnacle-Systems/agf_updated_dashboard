@@ -80,7 +80,7 @@ const EmpType1 = ({
       }}
     >
       <CardHeader
-        title="Employee Type wise Salary"
+        title="Employee Type wise "
         titleTypographyProps={{
           sx: { fontSize: ".9rem", fontWeight: 600 },
         }}

@@ -11,7 +11,15 @@ import { Title } from "@mui/icons-material";
 import PfDetail from "../../../components/PfDet";
 import PFDetailedCom from "../../../components/PF detail/pfDetail";
 
-const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
+const DetailedPF = ({
+  companyName,
+  selectedYear1,
+  setSelectmonths,
+  selectmonths,
+  setSelectedState,
+  selectedState,
+  PFdata,
+}) => {
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -21,7 +29,7 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
   });
   const [showTable, setShowTable] = useState(false);
 
-  const [selectedYear, setSelectedYear] = useState(selectedYear1);
+  // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   //     const { data: PFyeardata } = useGetEsiPfQuery(
@@ -39,16 +47,18 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
     setFilterBuyer(companyName);
   }, [companyName]);
 
-  
-  useEffect(() => {
-    setSelectedYear(selectedYear1);
-  }, [selectedYear1]);
+  // useEffect(() => {
+  //   setSelectedYear(selectedYear1);
+  // }, [selectedYear1]);
 
   const filteredData = Array.isArray(PFdata)
     ? PFdata.filter((row) => {
         if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
         if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
         return true;
+      }).filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
       })
     : [];
 
@@ -66,13 +76,13 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
     // color:getRandomColor()
   }));
   const pfData = Chartdata?.map((item) => item.pf);
-  const Xdata=Chartdata?.map((item)=>item.dept)
+  const Xdata = Chartdata?.map((item) => item.dept);
 
   const options = {
     chart: {
       backgroundColor: "#f5f5f5",
       marginTop: 10,
-      marginBottom: 100, 
+      marginBottom: 100,
       type: "line",
       height: 250,
       borderRadius: 10,
@@ -84,7 +94,7 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
         style: { fontSize: "10px" },
       },
       labels: {
-        style: { fontSize: "10px"},
+        style: { fontSize: "10px" },
       },
     },
     yAxis: {
@@ -103,7 +113,7 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       style: { fontSize: "10px" },
       formatter: function () {
         let index = this.points[0].point.index;
-        
+
         let pf = pfData[index];
         let monthName = this.x;
 
@@ -120,15 +130,17 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
           symbol: "circle",
         },
         dataLabels: {
+          enabled: true,
+          rotation: -75,
           style: { fontSize: "10px" },
         },
         point: {
           events: {
             click: function () {
-                setSearch((prev) => ({
-              ...prev,
-              DEPARTMENT: this.category,
-            }));
+              setSearch((prev) => ({
+                ...prev,
+                DEPARTMENT: this.category,
+              }));
               setShowTable(true);
             },
           },
@@ -139,7 +151,7 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       text: null,
     },
     legend: {
-      enabled:false,
+      enabled: false,
       itemStyle: { fontSize: "10px" },
     },
     series: [
@@ -156,31 +168,37 @@ const DetailedPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       <Card
         sx={{
           // mt: 2,
-          // ml: 1,
+          ml: 1,
           backgroundColor: "#f5f5f5",
         }}
       >
-         <CardHeader
-                title="Department wise PF"
-                titleTypographyProps={{
-                  sx: { fontSize: ".9rem", fontWeight: 600 },
-                }}
-                sx={{
-                  p: 1,
-                  borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-                }}
-              />
+        <CardHeader
+          title="Department wise "
+          titleTypographyProps={{
+            sx: { fontSize: ".9rem", fontWeight: 600 },
+          }}
+          sx={{
+            p: 1,
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          }}
+        />
         <HighchartsReact highcharts={Highcharts} options={options} />
 
         {showTable && (
-                  <PFDetailedCom
-                  selectedYear={selectedYear}
-                    selectedBuyer={[filterBuyer]}
-                    closeTable={() => setShowTable(false)}
-                    setSearch={setSearch}
-                    search={search}
-                  />
-                )}
+          <PFDetailedCom
+            selectedYear={selectedYear1}
+            selectedBuyer={[filterBuyer]}
+            closeTable={() => setShowTable(false)}
+            setSearch={setSearch}
+            search={search}
+            PFdata={PFdata}
+            selectedState={selectedState}
+            selectmonths={selectmonths}
+            setSelectedState={setSelectedState}
+            setSelectmonths={setSelectmonths}
+            autoFocusBuyer={true}
+          />
+        )}
       </Card>
     </>
   );

@@ -99,7 +99,7 @@ const SunburstChart = ({
         depth: 50,
         viewDistance: 25,
       },
-      marginBottom: 120,
+      marginBottom: 150,
       marginLeft: 30,
       backgroundColor: "#f5f5f5",
       borderRadius: "10px",

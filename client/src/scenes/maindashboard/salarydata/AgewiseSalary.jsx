@@ -387,7 +387,7 @@ const AgeSalary = ({
       }}
     >
       <CardHeader
-        title="Age wise Salary"
+        title="Age wise "
         titleTypographyProps={{
           sx: { fontSize: ".9rem", fontWeight: 600 },
         }}

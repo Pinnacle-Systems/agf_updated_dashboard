@@ -282,7 +282,7 @@ const OTwagessalary = ({
         }}
       >
         <CardHeader
-          title="Overtime wise salary "
+          title="Overtime Wages "
           titleTypographyProps={{
             sx: { fontSize: ".9rem", fontWeight: 600 },
           }}

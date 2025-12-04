@@ -14,15 +14,17 @@ import MonthPF from "./MonthPF";
 import DesignPF from "./DesignPF";
 import EmployerPF from "./EmployerPF";
 import AgePF from "./AgswisePF";
+import FinYear from "../../../components/FinYear";
+import CompPF from "./compPF";
 
-const PFIndex = ({ companyName, Year }) => {
+const PFIndex = ({ companyName, Year, selectedmonth, autoFocusBuyer }) => {
   const { color } = useContext(ColorContext);
   const dispatch = useDispatch();
   const theme = useTheme();
   const [filterBuyer, setfilterBuyer] = useState(companyName);
   const [selectedYear, setSelectedYear] = useState(Year);
-  const [selectedState, setSelectedState] = useState("");
-  const [readOnly, setReadonly] = useState(false);
+  const [selectedState, setSelectedState] = useState("All");
+  const [selectmonths, setSelectmonths] = useState("");
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
@@ -43,6 +45,14 @@ const PFIndex = ({ companyName, Year }) => {
     compname: company,
     id: company,
   }));
+
+  useEffect(() => {
+    setSelectmonths(selectedmonth || "");
+  }, [selectedmonth, companyName]);
+
+  // useEffect(() => {
+  //   setSelectmonths(selectedmonth);
+  // }, [filterBuyer]);
   useEffect(() => {
     setfilterBuyer(companyName);
   }, [companyName]);
@@ -99,10 +109,10 @@ const PFIndex = ({ companyName, Year }) => {
   return (
     <>
       <div
-        className=" mt-2"
+        className="mt-2"
         style={{
           position: "sticky",
-          top: "30px", // set to height of tab list
+          top: 30,
           zIndex: 50,
           backgroundColor: "white",
         }}
@@ -119,84 +129,90 @@ const PFIndex = ({ companyName, Year }) => {
           }}
         >
           <Grid item md={5}>
-            <Box sx={{ p: 0, backgroundColor: "" }}>
+            <Box sx={{ p: 0 }}>
               <Typography
                 variant="h4"
                 sx={{ fontWeight: 600, textAlign: "start", mt: 0.5, ml: 1 }}
               >
-                Overview of PF Contribution -{filterBuyer}
+                Overview of PF Contribution - {filterBuyer}
               </Typography>
             </Box>
           </Grid>
 
           <Grid item md={7}>
             <Grid container spacing={1}>
-              <Grid item md={2}>
-                <button
-                  onClick={() => handleFilterClick("Labour")}
-                  className={`flex items-center gap-2 px-5 py-2  text-[11px] font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "Labour"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUserTie size={14} /> Employees
-                </button>
-              </Grid>
-              <Grid item md={2}>
-                <button
-                  onClick={() => handleFilterClick("Staff")}
-                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "Staff"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUsers size={16} /> Staff
-                </button>
-              </Grid>
-              <Grid item md={2}>
-                <button
-                  onClick={() => handleFilterClick("All")}
-                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "All"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUsers size={16} /> All
-                </button>
-              </Grid>
-              <Grid item md={2}>
-                <DropdownWithSearch
-                  options={finYr?.data || []}
-                  labelField={"finYr"}
-                  // required={true}
-                  label={""}
-                  value={selectedYear}
-                  setValue={setSelectedYear}
-                  className="mt-1"
-                  // disabled={readonly}
-                />
+              <Grid item md={6}>
+                <Grid container spacing={1}>
+                  <Grid item md={4}>
+                    <button
+                      onClick={() => handleFilterClick("Labour")}
+                      className={`flex items-center gap-2 px-5 py-2 text-[11px] font-semibold rounded-full shadow-md transition-all ${
+                        selectedState === "Labour"
+                          ? "bg-blue-600 text-white scale-105"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      <FaUserTie size={14} /> Employees
+                    </button>
+                  </Grid>
+                  <Grid item md={4}>
+                    <button
+                      onClick={() => handleFilterClick("Staff")}
+                      className={`flex items-center gap-2 px-5 py-2 ml-6 text-xs font-semibold rounded-full shadow-md transition-all ${
+                        selectedState === "Staff"
+                          ? "bg-blue-600 text-white scale-105"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      <FaUsers size={16} /> Staff
+                    </button>
+                  </Grid>
+                  <Grid item md={4}>
+                    <button
+                      onClick={() => handleFilterClick("All")}
+                      className={`flex items-center gap-2 px-5 py-2 ml-4 text-xs font-semibold rounded-full shadow-md transition-all ${
+                        selectedState === "All"
+                          ? "bg-blue-600 text-white scale-105"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      <FaUsers size={16} /> All
+                    </button>
+                  </Grid>
+                </Grid>
               </Grid>
 
-              <Grid item md={3}>
-                <DropdownWithSearch
-                  options={optionsArray || []}
-                  labelField={"compname"}
-                  // required={true}
-                  label={""}
-                  value={filterBuyer}
-                  setValue={setfilterBuyer}
-                  // disabled={readonly}
-                  className="mt-1"
-                />
+              <Grid item md={6}>
+                <Grid container spacing={1}>
+                  <Grid item md={3}>
+                    <DropdownWithSearch
+                      options={finYr?.data || []}
+                      labelField={"finYr"}
+                      label={""}
+                      value={selectedYear}
+                      setValue={setSelectedYear}
+                      className="mt-1"
+                    />
+                  </Grid>
+                  <Grid item md={5} sx={{ mt: 0.5, borderRadius: 5 }}>
+                    <FinYear
+                      selectedYear={selectedYear}
+                      selectmonths={selectmonths}
+                      setSelectmonths={setSelectmonths}
+                      autoFocusBuyer={autoFocusBuyer}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <DropdownWithSearch
+                      options={chartData || []}
+                      labelField={"compname"}
+                      label={""}
+                      value={filterBuyer}
+                      setValue={setfilterBuyer}
+                      className="mt-1"
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -204,54 +220,79 @@ const PFIndex = ({ companyName, Year }) => {
       </div>
 
       <Grid container spacing={1}>
-        <Grid item xs={12} md={5}>
-          <Grid container spacing={1}>
-            <Grid item md={12}>
-              <EmployerPF
-                selectedYear1={selectedYear}
+        <Grid item xs={12} md={4}>
+          <MonthPF
+            selectedYear1={selectedYear}
                 companyName={filterBuyer}
                 PFdata={PFyeardata}
                 selectedState={selectedState}
-              />
-            </Grid>
-            <Grid item md={12}>
-              <AgePF selectedYear1={selectedYear}
-                companyName={filterBuyer}
-                PFdata={PFyeardata}
-                selectedState={selectedState}/>
-
-            </Grid>
-          </Grid>
-        </Grid>
-
-        <Grid item xs={12} md={7}>
-          <DesignPF
-            selectedYear1={selectedYear}
-            companyName={filterBuyer}
-            PFdata={PFyeardata}
-            selectedState={selectedState}
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
           />
         </Grid>
-        <Grid item xs={12} md={5}>
-             <MonthPF
-                selectedYear1={selectedYear}
+        <Grid item xs={12} md={4}>
+          <EmployerPF
+            selectedYear1={selectedYear}
                 companyName={filterBuyer}
                 PFdata={PFyeardata}
                 selectedState={selectedState}
-              />
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
+          />
         </Grid>
-        <Grid item xs={12} md={7}>
-          
-              <DetailedPF
+        <Grid item xs={12} md={4}>
+          <Grid container spacing={1}>
+            <Grid item md={12}>
+              <CompPF
                 selectedYear1={selectedYear}
                 companyName={filterBuyer}
                 PFdata={PFyeardata}
                 selectedState={selectedState}
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
               />
-            
+            </Grid>
+            <Grid item md={12}>
+              <AgePF
+                selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                PFdata={PFyeardata}
+                selectedState={selectedState}
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
+              />
+            </Grid>
           </Grid>
         </Grid>
-     
+
+        <Grid item xs={12} md={12}>
+          <DetailedPF
+            selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                PFdata={PFyeardata}
+                selectedState={selectedState}
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={12}>
+          <DesignPF
+            selectedYear1={selectedYear}
+                companyName={filterBuyer}
+                PFdata={PFyeardata}
+                selectedState={selectedState}
+                setSelectmonths={setSelectmonths}
+                selectmonths={selectmonths}
+                setSelectedState={setSelectedState}
+          />
+        </Grid>
+      </Grid>
     </>
   );
 };

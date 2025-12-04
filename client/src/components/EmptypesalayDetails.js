@@ -44,7 +44,7 @@ const EmptypeDetails = ({
     min: 0,
     max: Infinity,
   });
-  const recordsPerPage = 36;
+  const recordsPerPage = 34;
 
   //  useEffect(() => {
   //     setSelectedState(selectedState1);
@@ -349,17 +349,17 @@ const EmptypeDetails = ({
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-1 text-left w-[25px]">S.No</th>
-                  <th className="border p-1 text-left w-[60px]">ID Card</th>
-                  <th className="border p-1 text-left w-[150px] whitespace-nowrap overflow-hidden">Name</th>
-                  <th className="border p-1 text-left w-[30px]">Gender</th>
-                  <th className="border p-1 text-left w-[150px]">Department</th>
-                  <th className="border p-1 text-left w-[30px]">EmpType</th>
-                  <th className="border p-1 text-left w-[25px]">Netpay</th>
+                  <th className="border p-1 text-left ">S.No</th>
+                  <th className="border p-1 text-left ">ID Card</th>
+                  <th className="border p-1 text-left ">Name</th>
+                  <th className="border p-1 text-left ">Gender</th>
+                  <th className="border p-1 text-left ">Department</th>
+                  <th className="border p-1 text-left ">EmpType</th>
+                  <th className="border p-1 text-middle ">Netpay</th>
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(0, 18).map((row, index) => {
+                {currentRecords.slice(0, 17).map((row, index) => {
                    const globalIndex = index;  // 0–16
   const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
@@ -367,7 +367,7 @@ const EmptypeDetails = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
+                      {/* <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
                       <td className=" p-1 text-[10px] w-[60px]">{row.EMPID}</td>
                       <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">{row.FNAME}</td>
                       <td className=" p-1 text-[10px] w-[30px]">{row.GENDER}</td>
@@ -376,6 +376,40 @@ const EmptypeDetails = ({
                       </td>
                       <td className=" p-1 text-[10px] w-[30px]">{row.EMPTYPE}</td>
                       <td className=" p-1 text-sky-700  text-[10px] w-[25px]">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.NETPAY)}
+                      </td> */}
+
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]"style={{ maxWidth: "30px" }}>
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[30px] text-right" style={{ maxWidth: "30px" }}>
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",
@@ -392,33 +426,52 @@ const EmptypeDetails = ({
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-1 text-left w-[25px]">S.No</th>
-                  <th className="border p-1 text-left w-[60px]">ID Card</th>
-                  <th className="border p-1 text-left w-[150px] whitespace-nowrap overflow-hidden">Name</th>
-                  <th className="border p-1 text-left w-[30px]">Gender</th>
-                  <th className="border p-1 text-left w-[150px]">Department</th>
-                  <th className="border p-1 text-left w-[30px]">EmpType</th>
-                  <th className="border p-1 text-left w-[25px]">Netpay</th>
+                  <th className="border p-1 text-left ">S.No</th>
+                  <th className="border p-1 text-left">ID Card</th>
+                  <th className="border p-1 text-left ">Name</th>
+                  <th className="border p-1 text-left ">Gender</th>
+                  <th className="border p-1 text-left">Department</th>
+                  <th className="border p-1 text-left ">EmpType</th>
+                  <th className="border p-1 text-middle ">Netpay</th>
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(18, 36).map((row, index) => {
-                    const globalIndex = 18 + index;  // 17–33
+                {currentRecords.slice(17, 34).map((row, index) => {
+                    const globalIndex = 17 + index;  // 17–33
   const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                 return(
                   <tr
                     key={index}
                     className="text-gray-700 bg-white even:bg-gray-100"
                   >
-                    <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
-                      <td className=" p-1 text-[10px] w-[60px]">{row.EMPID}</td>
-                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">{row.FNAME}</td>
-                      <td className=" p-1 text-[10px] w-[30px]">{row.GENDER}</td>
-                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">
+                    <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.EMPID}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]"style={{ maxWidth: "30px" }}>
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className=" p-1 text-[10px] w-[30px]">{row.EMPTYPE}</td>
-                      <td className=" p-1 text-sky-700  text-[10px] w-[25px]">
+                      <td
+                        className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+                      <td className="border p-1 text-sky-700  text-[10px] w-[30px] text-right" style={{ maxWidth: "30px" }}>
                         {new Intl.NumberFormat("en-IN", {
                           style: "currency",
                           currency: "INR",

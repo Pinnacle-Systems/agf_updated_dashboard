@@ -12,7 +12,15 @@ import { IoIosPeople, IoMdFemale } from "react-icons/io";
 import { BiMaleSign } from "react-icons/bi";
 import PFShareDetailed from "../../../components/PF detail/EmployerpfDEt";
 
-const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
+const EmployerPF = ({
+  companyName,
+  selectedYear1,
+  PFdata,
+  selectedState,
+  setSelectmonths,
+  selectmonths,
+  setSelectedState,
+}) => {
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -40,17 +48,17 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       })
     : [];
 
-      console.log(PFdata, "PFdata");
+  console.log(PFdata, "PFdata");
   const groupdata = filteredData?.reduce((acc, emp) => {
-    const code = emp.GENDER || "Unknown";
+    const code = emp.PAYPERIOD || "Unknown";
     acc[code] = (acc[code] || 0) + (Math.round(emp.EMPLOYER_CON) || 0);
 
     return acc;
   }, {});
 
   const chartdata = Object.entries(groupdata).map(([x, y]) => ({
-    gender: x,
-    contribution: y,
+    month: x,
+    pf: y,
   }));
 
   const colourdata = chartdata?.map((x) => x.gender);
@@ -76,108 +84,60 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
     () => "#" + Math.floor(Math.random() * 16777215).toString(16)
   );
 
-  const maledata = chartdata?.find((x) => x.gender === "MALE");
-  const femaledata = chartdata?.find((x) => x.gender === "FEMALE");
+  const Xdata = chartdata?.map((x) => x.month);
+  const Ydata = chartdata?.map((x) => x.pf);
 
+  console.log(Ydata, "chartdatapf");
 
-  // const option = {
+  // const options = {
   //   chart: {
   //     backgroundColor: "#f5f5f5",
-  //     type: "pie",
-  //     height: 238,
-  //     custom: {},
-
-  //     events: {
-  //       render() {
-  //         const chart = this;
-  //         const series = chart.series[0];
-
-  //         // Get total value
-  //         const total = chart.options.chart.custom.total ?? 0;
-
-  //         let customLabel = chart.customLabel;
-
-  //         if (!customLabel) {
-  //           customLabel = chart.customLabel = chart.renderer
-  //             .label(
-  //               `<br/><strong>${total}</strong>`,
-  //               0,
-  //               0,
-  //               null,
-  //               null,
-  //               null,
-  //               null,
-  //               null,
-  //               "center"
-  //             )
-  //             .css({
-  //               color: "#000",
-  //               textAnchor: "middle",
-  //             })
-  //             .add();
-  //         } else {
-  //           customLabel.attr({
-  //             text: `Total<br/><strong>${total}</strong>`,
-  //           });
-  //         }
-
-  //         const x = series.center[0] + chart.plotLeft;
-  //         const y = series.center[1] + chart.plotTop;
-
-  //         customLabel.attr({
-  //           x,
-  //           y,
-  //         });
-
-  //         // Dynamic font size adjust
-  //         customLabel.css({
-  //           fontSize: `${series.center[2] / 12}px`,
-  //         });
-  //       },
-  //     },
-  //   },
-  //   accessibility: {
-  //     point: {
-  //       valueSuffix: "%",
-  //     },
+  //     height: 100,
+  //     plotBackgroundColor: null,
+  //     plotBorderWidth: 0,
+  //     plotShadow: true,
+  //     spacing: [0, 0, 0, 0],
   //   },
   //   title: {
   //     text: null,
+  //     align: "center",
+  //     verticalAlign: "middle",
+  //     y: 70,
+  //     style: { fontSize: ".9em" },
   //   },
-
   //   tooltip: {
-  //     pointFormat: "{series.name}: <b>{point.y}</b>",
-  //   },
-  //   legend: {
-  //     enabled: false,
+  //     formatter: function () {
+  //       return `
+  //           <b>${this.point.name}</b><br/>
+  //           PF share: <b>${this.point.y}</b><br/>
+
+  //         `;
+  //     },
   //   },
   //   plotOptions: {
-  //     series: {
-  //       allowPointSelect: true,
-  //       cursor: "pointer",
-  //       borderRadius: 8,
-  //       dataLabels: [
-  //         {
-  //           enabled: true,
-  //           distance: 20,
-  //           format: "{point.name}",
-  //         },
-  //         {
-  //           enabled: true,
-  //           distance: -15,
-  //           format: "{point.percentage:.0f}%",
-  //           style: {
-  //             fontSize: "0.9em",
-  //           },
-  //         },
-  //       ],
-  //       showInLegend: true,
-
+  //     pie: {
+  //       dataLabels: {
+  //         enabled: false,
+  //         distance: -50,
+  //         style: { fontWeight: "bold", color: "white" },
+  //       },
+  //       startAngle: -90,
+  //       endAngle: 90,
+  //       center: ["50%", "100%"],
+  //       size: "180%",
+  //       innerSize: "60%",
   //       point: {
   //         events: {
   //           click: function () {
-  //             console.log("Clicked Slice:", this.name);
-  //             console.log("Value:", this.y);
+  //             // dispatch(
+  //             //   push({
+  //             //     id: "ESIDetail",
+  //             //     name: "ESIDetail",
+  //             //     component: "DetailedDashBoard",
+  //             //     data: { companyName: this.name, Year: this.Year },
+  //             //   })
+  //             // );
+
   //             setShowTable(true);
   //           },
   //         },
@@ -186,82 +146,84 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
   //   },
   //   series: [
   //     {
-  //       name: "Employer contribution",
-  //       colorByPoint: true,
-  //       innerSize: "75%",
-  //       data: chartdata?.map((x, y) => ({
+  //       type: "pie",
+  //       name: "PF share",
+  //       innerSize: "50%",
+  //       data: chartdata?.map((x, i) => ({
   //         name: x.gender,
   //         y: x.contribution,
+  //         color: colors[i],
   //       })),
   //     },
   //   ],
   // };
-
-  const options = {
+  const option = {
     chart: {
+      type: "bar",
+      height: 420,
+      marginBottom: 50,
       backgroundColor: "#f5f5f5",
-      height: 100,
-      plotBackgroundColor: null,
-      plotBorderWidth: 0,
-      plotShadow: true,
-      spacing: [0, 0, 0, 0],
     },
     title: {
       text: null,
-      align: "center",
-      verticalAlign: "middle",
-      y: 70,
-      style: { fontSize: ".9em" },
+      align: "left",
+    },
+    xAxis: {
+      categories: Xdata,
+      labels: {
+        style: { fontSize: "10px" },
+      },
     },
     tooltip: {
       formatter: function () {
-        return `
-            <b>${this.point.name}</b><br/>
-            PF share: <b>${this.point.y}</b><br/>
-            
-          `;
+        return `<small>${this.x}</small></br>
+    <small>Pf share:${this.y.toLocaleString("en-IN")}</small>
+  `;
       },
     },
+    yAxis: {
+      min: 0,
+      title: {
+        text: "",
+      },
+      labels: {
+        style: { fontSize: "10px" },
+      },
+    },
+    legend: {
+      // reversed: true
+      enabled: false,
+    },
     plotOptions: {
-      pie: {
+      series: {
+        stacking: "normal",
+        pointWidth: 20,
         dataLabels: {
-          enabled: false,
-          distance: -50,
-          style: { fontWeight: "bold", color: "white" },
+          enabled: true,
+          style: {
+            fontSize: "8px",
+          },
+          formatter: function () {
+            return this.y.toLocaleString("en-IN");
+          },
         },
-        startAngle: -90,
-        endAngle: 90,
-        center: ["50%", "100%"],
-        size: "180%",
-        innerSize: "60%",
         point: {
           events: {
             click: function () {
-              // dispatch(
-              //   push({
-              //     id: "ESIDetail",
-              //     name: "ESIDetail",
-              //     component: "DetailedDashBoard",
-              //     data: { companyName: this.name, Year: this.Year },
-              //   })
-              // );
-              
-            setShowTable(true);
+              console.log(this.category, "Clicked");
+              setSelectmonths(this.category)
+
+              setShowTable(true);
             },
           },
         },
       },
     },
+
     series: [
       {
-        type: "pie",
-        name: "PF share",
-        innerSize: "50%",
-        data: chartdata?.map((x, i) => ({
-          name: x.gender,
-          y: x.contribution,
-          color: colors[i],
-        })),
+        name: "PF value",
+        data: Ydata,
       },
     ],
   };
@@ -310,8 +272,7 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
       <Card
         sx={{
           mt: 2,
-          ml: 1,
-        
+
           backgroundColor: "#f5f5f5",
         }}
       >
@@ -325,7 +286,10 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
             borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
           }}
         />
-        <Grid container spacing={1}>
+        <Box>
+          <HighchartsReact highcharts={Highcharts} options={option} />
+        </Box>
+        {/* <Grid container spacing={1}>
           <Grid item md={4}>
             <Box sx={{ml:1,mt:2}}>
               <StatBox
@@ -346,10 +310,10 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
           </Grid>
           <Grid item md={4}>
             <Box>
-              <HighchartsReact highcharts={Highcharts} options={options} />
+              <HighchartsReact highcharts={Highcharts} options={option} />
             </Box>
           </Grid>
-        </Grid>
+        </Grid> */}
 
         {showTable && (
           <PFShareDetailed
@@ -358,6 +322,12 @@ const EmployerPF = ({ companyName, selectedYear1, PFdata, selectedState }) => {
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
+            setSelectmonths={setSelectmonths}
+            selectmonths={selectmonths}
+            setSelectedState={setSelectedState}
+            selectedState={selectedState}
+            autoFocusBuyer={true}
+             PFdata={PFdata}
           />
         )}
       </Card>

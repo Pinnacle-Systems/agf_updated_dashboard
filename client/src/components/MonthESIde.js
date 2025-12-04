@@ -32,7 +32,7 @@ const ESIDetailed = ({
   setSelectedState,
   setSelectmonths,
   ESIdata,
-  autoFocusBuyer
+  autoFocusBuyer,
 }) => {
   console.log(selectmonths, "selectedGender1");
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,14 +112,13 @@ const ESIDetailed = ({
   };
 
   const filteredData = Array.isArray(ESIdata)
-    ? ESIdata
-        .filter((row) =>
-          Object.keys(search || {}).every((key) => {
-            const rowValue = row[key]?.toString().toLowerCase() || "";
-            const searchValue = search[key]?.toString().toLowerCase() || "";
-            return rowValue.includes(searchValue);
-          })
-        )
+    ? ESIdata.filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row[key]?.toString().toLowerCase() || "";
+          const searchValue = search[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
         .filter((row) => {
           if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
           if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
@@ -313,7 +312,6 @@ const ESIDetailed = ({
             ))}
 
             <div className="flex items-center text-[12px]">
-             
               <FinYear
                 selectedYear={selectedYear}
                 selectmonths={selectmonths}
@@ -337,7 +335,6 @@ const ESIDetailed = ({
                 className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
-            
 
             <div className="flex items-center  text-[12px]">
               <span className="text-gray-500">Max Netpay:</span>
@@ -396,8 +393,7 @@ const ESIDetailed = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-
-<td className="border p-1 text-[10px] w-[25px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
                         {serialNo}
                       </td>
                       <td className="border p-1 text-[10px] w-[60px]">

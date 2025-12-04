@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import PfDetail from "../../../components/PfDet";
 import Highcharts from "highcharts";
 import PFDetailedCom from "../../../components/PF detail/pfDetail";
+import PFShareDetailed from "../../../components/PF detail/EmployerpfDEt";
 
-const MonthPF=({ companyName, selectedYear1, PFdata, selectedState })=>{
+const MonthPF=({ companyName, selectedYear1, PFdata, selectedState,setSelectedState,setSelectmonths,selectmonths })=>{
 const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -15,7 +16,7 @@ const [search, setSearch] = useState({
   });
   const [showTable, setShowTable] = useState(false);
 
-  const [selectedYear, setSelectedYear] = useState(selectedYear1);
+  // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   //     const { data: PFyeardata } = useGetEsiPfQuery(
@@ -34,9 +35,9 @@ const [search, setSearch] = useState({
   }, [companyName]);
 
   
-  useEffect(() => {
-    setSelectedYear(selectedYear1);
-  }, [selectedYear1]);
+  // useEffect(() => {
+  //   setSelectedYear(selectedYear1);
+  // }, [selectedYear1]);
 
   const filteredData = Array.isArray(PFdata)
     ? PFdata.filter((row) => {
@@ -65,20 +66,16 @@ const [search, setSearch] = useState({
 const option= {
     chart: {
         type: 'area',
-        height:250,
+        height:420,
         marginLeft:70,
-        marginBottom:50
+        marginBottom:100,
+        backgroundColor: "#f5f5f5",
     },
     title: {
         text: null
     },
     xAxis: {
-        categories: Chartdata?.map((order) => {
-        const month = new Date(order.month);
-        const monthAbbr = month.toLocaleString("default", { month: "short" });
-        const year = month.getFullYear().toString().slice(-2);
-        return `${monthAbbr} ${year}`;
-      }),  
+        categories: Month,  
         title: { text:"month" ,style:{fontSize: "9px"}},
         labels: {
         style: { fontSize: "10px"},
@@ -87,7 +84,7 @@ const option= {
     },
     yAxis: {
         title: {
-            text: 'PF',
+            text: 'Amount(PF)',
             style:{fontSize: "10px"}
         },
         labels: {
@@ -105,7 +102,7 @@ const option= {
         let monthName = this.x;
 
         return `<b>Month:</b> ${monthName} <br/>
-                        <b>PF Value:</b> ${pf} <br/>
+                        <b>PF Value:</b> ${pf.toLocaleString('en-IN')} <br/>
                         `;
       },
         // pointFormat: 'PF: <b>{point.y}</b><br/>Month: <b>{point.category}</b>'
@@ -122,6 +119,7 @@ series: {
       point: {
         events: {
           click: function () {
+            setSelectmonths(this.category)
             setShowTable(true)
           },
         },
@@ -133,7 +131,7 @@ series: {
       itemStyle: { fontSize: "11px" },
     },
     series: [{
-        name: 'PF',
+        name: 'Amount(PF)',
         data: pfData               
     }]
 }
@@ -141,13 +139,13 @@ series: {
 return<>
 <Card
         sx={{
-          // mt: 2,
+          mt: 2,
           ml: 1,
           backgroundColor: "#f5f5f5",
         }}
       >
          <CardHeader
-                title="Month wise PF"
+                title="Employee Contribution "
                 titleTypographyProps={{
                   sx: { fontSize: ".9rem", fontWeight: 600 },
                 }}
@@ -158,15 +156,21 @@ return<>
               />
         <HighchartsReact highcharts={Highcharts} options={option} />
 
-        {showTable && (
-                  <PFDetailedCom
-                  selectedYear={selectedYear}
-                    selectedBuyer={[filterBuyer]}
-                    closeTable={() => setShowTable(false)}
-                    setSearch={setSearch}
-                    search={search}
-                  />
-                )}
+         {showTable && (
+          <PFShareDetailed
+            selectedYear={selectedYear1}
+            selectedBuyer={[filterBuyer]}
+            closeTable={() => setShowTable(false)}
+            setSearch={setSearch}
+            search={search}
+            setSelectmonths={setSelectmonths}
+            selectmonths={selectmonths}
+            setSelectedState={setSelectedState}
+            selectedState={selectedState}
+            autoFocusBuyer={true}
+             PFdata={PFdata}
+          />
+        )}
       </Card>
 
 </>

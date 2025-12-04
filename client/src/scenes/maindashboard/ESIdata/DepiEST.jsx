@@ -66,9 +66,9 @@ const DeptmentESI = ({
   const options = {
     chart: {
       type: "column",
-      marginBottom: 80,
+      marginBottom: 120,
       backgroundColor: "#f5f5f5",
-      height: 260,
+      height: 300,
     },
     title: {
       text: null,

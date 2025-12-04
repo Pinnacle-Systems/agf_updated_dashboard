@@ -1,6 +1,7 @@
 import {
   Card,
   CardHeader,
+  CircularProgress,
   IconButton,
   Typography,
   useTheme,
@@ -20,10 +21,33 @@ const HomePF = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { data: pfdata } = useGetEPFlastmonthQuery();
+  const { data: pfdata  ,isLoading, isError} = useGetEPFlastmonthQuery();
 
-  const year = pfdata?.data.map((item) => item.Year);
-  console.log(pfdata, "PFdata");
+  if (isLoading) return <CircularProgress />;
+    if (isError) return <div>Error loading data</div>;
+    if (!pfdata?.data?.length) return <div>No data found</div>;
+  
+    const chartData1 = pfdata.data.map((e) => e.customer);
+  
+    // const month = ESIdata.data[0]?.month;
+    // const year = pfdata.data.map((e) => e.Year);
+  
+    const colors = chartData1.map(
+      () => "#" + Math.floor(Math.random() * 16777215).toString(16)
+    );
+    const year = pfdata?.data.map((item) => item.Year);
+  
+    // const formattedData = pfdata.data.map((item, i) => ({
+    //   name: item.customer,
+    //   y: item.pf,
+    //   color: colors[i],
+    //   headCount: item.headCount,
+    //   Year: year[i],
+    //   month:item.month
+      
+    // }));
+
+  // console.log(pfdata, "PFdata");
 
   const totalvalue = pfdata?.data.map((item) => item.pf);
   const headcount = totalvalue?.reduce((sum, val) => sum + val, 0);
@@ -87,7 +111,7 @@ const HomePF = () => {
                   id: "PFDetails",
                   name: "PFDetails",
                   component: "PFIndex",
-                  data: { companyName, Year },
+                  data: { companyName, Year,autoFocusBuyer: true,selectedmonth:this.month },
                 })
               );
             },
@@ -104,8 +128,9 @@ const HomePF = () => {
       pointFormatter: function () {
         return `
                     <span style="color:${this.color}">\u25CF</span>
-                    <span style="color: #2d2d2d;"> PF Amount: <b>${this.y.toLocaleString()}</b></span><br/>
-                    <span style="color: #2d2d2d;"> headCount: <b>${this.count.toLocaleString()}</b></span><br/>
+                    <span style="color: #2d2d2d;"> PF Amount: <b>${this.y.toLocaleString('en-IN')}</b></span><br/>
+                    <span style="color: #2d2d2d;"> headCount: <b>${this.count.toLocaleString('en-IN')}</b></span><br/>
+                    <span style="color: #2d2d2d;"> headCount: <b>${this.month}</b></span><br/>
                 `;
       },
     },
@@ -117,6 +142,7 @@ const HomePF = () => {
           y: item.pf,
           count: item.headCount,
           Year: year[index],
+          month:item.month
         })),
       },
     ],
@@ -170,7 +196,7 @@ const HomePF = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Contribution : {headcount?.toLocaleString()}
+            OverAll Contribution : {headcount?.toLocaleString('en-IN')}
           </Typography>
         </Box>
       </Card>

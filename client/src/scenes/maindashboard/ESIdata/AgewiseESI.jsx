@@ -9,6 +9,7 @@ import HighchartsReact from "highcharts-react-official";
 import Chart from "react-apexcharts";
 import EsiDetail from "../../../components/EsiDet";
 import AgewiseESIlDetail from "../../../components/AgeESIdetail";
+import Highcharts from "highcharts";
 
 const AgeESI = ({
   companyName,
@@ -17,7 +18,7 @@ const AgeESI = ({
   selectmonths,
   setSelectedState,
   selectedState,
-  ESIdata
+  ESIdata,
 }) => {
   const [search, setSearch] = useState({
     FNAME: "",
@@ -65,7 +66,7 @@ const AgeESI = ({
     acc[code] = (acc[code] || 0) + (emp.TOTAL_ESI || 0);
     return acc;
   }, {});
-  console.log(groupdata, "groupdata");
+  console.log(filteredData, "groupdata");
 
   const Chartdata = Object.entries(groupdata).map(([x, y]) => ({
     slap: x,
@@ -89,7 +90,6 @@ const AgeESI = ({
             const index = config.dataPointIndex;
             const value = pfData[index];
             const label = headCount[index];
-
 
             // setSelectmonths(selectmonths)
             setSearch((prev) => ({
@@ -133,6 +133,72 @@ const AgeESI = ({
       // ],
     },
   };
+  const option = {
+  chart: {
+    type: "pie",
+    height: 300,
+  },
+  title: {
+    text: null,
+  },
+
+  tooltip: {
+    headerFormat: "",
+    pointFormat:
+      '<span style="color:{point.color}">\u25cf</span> ' +
+      "{point.name}: <b>{point.percentage:.1f}%</b>",
+  },
+
+  accessibility: {
+    point: {
+      valueSuffix: "%",
+    },
+  },
+
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      borderWidth: 2,
+      cursor: "pointer",
+
+      dataLabels: {
+        enabled: true,
+        format: "<b>{point.name}</b><br>{point.y}",
+        distance: 20,
+      },
+
+     
+      point: {
+        events: {
+          click: function () {
+            console.log("Clicked:", this.name, this.y);
+            
+               setSearch((prev) => ({
+                ...prev,
+                AGE: this.name,
+              }));
+
+              setShowTable(true);
+          },
+        },
+      },
+    },
+  },
+
+  series: [
+    {
+     
+      animation: {
+        duration: 2000,
+      },
+      colorByPoint: true,
+      data: Chartdata?.map((item) => ({
+        name: item.slap,
+        y: item.esi,
+      })),
+    },
+  ],
+};
 
   return (
     <>
@@ -142,8 +208,7 @@ const AgeESI = ({
           // borderRadius: 3,
           // boxShadow: 4,
           //  mt:2,
-          ml:1,
-          height:300
+          ml: 1,
         }}
       >
         <CardHeader
@@ -157,7 +222,8 @@ const AgeESI = ({
           }}
         />
         <Box>
-          <Chart options={options.options} series={options.series} type="pie"/>
+          <HighchartsReact highcharts={Highcharts} options={option} />
+          {/* <Chart options={options.options} series={options.series} type="pie"/> */}
         </Box>
         {showTable && (
           <AgewiseESIlDetail
@@ -172,7 +238,6 @@ const AgeESI = ({
             selectmonths={selectmonths}
             ESIdata={ESIdata}
             autoFocusBuyer={true}
-
           />
         )}
       </Card>
