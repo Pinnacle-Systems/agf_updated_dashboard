@@ -94,7 +94,10 @@ const DeptmentESI = ({
       enabled: false,
     },
     tooltip: {
-      pointFormat: "ESI:<b>{point.y} </b>",
+      // pointFormat: "ESI:<b>{point.y} </b>",
+      formatter: function () {
+    return `<small>${this.point.name}</small></br><smal>ESI:${this.y.toLocaleString("en-IN")}</smal>`; 
+  }
     },
     plotOptions: {
       series: {
@@ -153,10 +156,9 @@ const DeptmentESI = ({
   enabled: true,
   rotation: -90,
   color: "#FFFFFF",
-    // crop: false,          // 👈 prevents hiding when bar is small
-  // overflow: "none",     // 👈 forces label to render outside
+
   inside: true,
-  // inside: true,
+ 
   verticalAlign: "top",
   y: -20,
   style: {
@@ -164,7 +166,7 @@ const DeptmentESI = ({
     
   },
   formatter: function () {
-    return this.y.toLocaleString(); // 👈 Format with commas
+    return this.y.toLocaleString('en-IN');
   },
 },
 

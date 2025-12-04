@@ -79,60 +79,60 @@ const AgeESI = ({
   const pfData = Chartdata?.map((item) => item.esi);
   const headCount = Chartdata?.map((item) => item.slap);
 
-  const options = {
-    series: pfData,
-    options: {
-      chart: {
-        type: "pie",
-        height: 290,
-        events: {
-          dataPointSelection: (event, chartContext, config) => {
-            const index = config.dataPointIndex;
-            const value = pfData[index];
-            const label = headCount[index];
+  // const options = {
+  //   series: pfData,
+  //   options: {
+  //     chart: {
+  //       type: "pie",
+  //       height: 290,
+  //       events: {
+  //         dataPointSelection: (event, chartContext, config) => {
+  //           const index = config.dataPointIndex;
+  //           const value = pfData[index];
+  //           const label = headCount[index];
 
-            // setSelectmonths(selectmonths)
-            setSearch((prev) => ({
-              ...prev,
-              AGE: label,
-            }));
-            setShowTable(true);
-          },
-        },
-      },
-      labels: headCount,
-      legend: {
-        position: "right",
-        fontSize: "11px",
-        itemMargin: {
-          horizontal: 10, // spacing width
-          vertical: 10, // spacing height
-        },
-        markers: {
-          width: 11,
-          height: 11,
-        },
-      },
-      dataLabels: {
-        style: {
-          fontSize: "10px",
-        },
-      },
-      // responsive: [
-      //   {
-      //     breakpoint: 480,
-      //     options: {
-      //       chart: {
-      //         width: 200,
-      //       },
-      //       legend: {
-      //         position: "bottom",
-      //       },
-      //     },
-      //   },
-      // ],
-    },
-  };
+  //           // setSelectmonths(selectmonths)
+  //           setSearch((prev) => ({
+  //             ...prev,
+  //             AGE: label,
+  //           }));
+  //           setShowTable(true);
+  //         },
+  //       },
+  //     },
+  //     labels: headCount,
+  //     legend: {
+  //       position: "right",
+  //       fontSize: "11px",
+  //       itemMargin: {
+  //         horizontal: 10, // spacing width
+  //         vertical: 10, // spacing height
+  //       },
+  //       markers: {
+  //         width: 11,
+  //         height: 11,
+  //       },
+  //     },
+  //     dataLabels: {
+  //       style: {
+  //         fontSize: "10px",
+  //       },
+  //     },
+  //     // responsive: [
+  //     //   {
+  //     //     breakpoint: 480,
+  //     //     options: {
+  //     //       chart: {
+  //     //         width: 200,
+  //     //       },
+  //     //       legend: {
+  //     //         position: "bottom",
+  //     //       },
+  //     //     },
+  //     //   },
+  //     // ],
+  //   },
+  // };
   const option = {
   chart: {
     type: "pie",
@@ -163,8 +163,11 @@ const AgeESI = ({
 
       dataLabels: {
         enabled: true,
-        format: "<b>{point.name}</b><br>{point.y}",
-        distance: 20,
+        // format: "<b>{point.name}</b><br>",
+        // distance: 20,
+        formatter: function () {
+    return `<b>${this.point.name}</b></br>${this.y.toLocaleString("en-IN")}`; 
+  }
       },
 
      

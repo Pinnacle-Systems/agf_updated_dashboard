@@ -165,11 +165,14 @@ const AgePF = ({
         borderWidth: 2,
         cursor: "pointer",
 
-        dataLabels: {
-          enabled: true,
-          format: "<b>{point.name}</b><br>{point.y}",
-          distance: 20,
-        },
+         dataLabels: {
+        enabled: true,
+        // format: "<b>{point.name}</b><br>",
+        // distance: 20,
+        formatter: function () {
+    return `<b>${this.point.name}</b></br>${this.y.toLocaleString("en-IN")}`; 
+  }
+      },
 
         point: {
           events: {

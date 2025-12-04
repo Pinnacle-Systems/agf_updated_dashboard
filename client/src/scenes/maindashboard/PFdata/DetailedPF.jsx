@@ -118,7 +118,7 @@ const DetailedPF = ({
         let monthName = this.x;
 
         return `<b>Dept:</b> ${monthName} <br/>
-                        <b>PF Value:</b> ${pf} <br/>
+                        <b>PF Value:</b> ${pf.toLocaleString('en-IN')} <br/>
                         `;
       },
     },
@@ -133,6 +133,9 @@ const DetailedPF = ({
           enabled: true,
           rotation: -75,
           style: { fontSize: "10px" },
+          formatter: function () {
+    return this.y.toLocaleString('en-IN');
+  },
         },
         point: {
           events: {
