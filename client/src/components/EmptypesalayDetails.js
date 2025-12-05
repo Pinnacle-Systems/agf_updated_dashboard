@@ -344,7 +344,7 @@ const EmptypeDetails = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px] " style={{border:"1px solid gray",borderRadius:"16px"}}>
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">

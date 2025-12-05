@@ -12,7 +12,7 @@ const DashboardHeader = () => {
 const params=getCommonParams()
 
 const{isSuperAdmin,employeeId}=params
-console.log(employeeId);
+// console.log(employeeId);
 
 
 

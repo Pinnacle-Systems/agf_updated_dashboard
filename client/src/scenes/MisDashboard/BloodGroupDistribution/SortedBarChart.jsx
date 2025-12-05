@@ -94,7 +94,7 @@ const SortedBarChart = ({ topItems, setSearch, setShowTable }) => {
       id="sidechartdiv"
       style={{
         width: "100%",
-        height: "362px",
+        height: "310px",
         backgroundColor: "#f5f5f5",
         borderRadius: "12px",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",

@@ -115,7 +115,7 @@ const Sidebar = () => {
     
   });
   setPermissions(permissionMap);
-  console.log(isSuperAdmin);
+  // console.log(isSuperAdmin);
 
   return (
     <SidebarContainer>

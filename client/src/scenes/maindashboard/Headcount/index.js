@@ -215,14 +215,39 @@ const DetailedHeadcount = ({ companyName, Year }) => {
               />
             </Grid>
             <Grid item md={12}>
-              <DeptHeadCount
-                selectedYear1={selectedYear}
-                companyName={filterBuyer}
-                HeadData={PFyeardata}
-                selectedState={selectedState}
-              />
+              <Grid container spacing={1}>
+                <Grid item md={5}>
+                  <EmptypeHead
+                    companyName={filterBuyer}
+                    HeadData={PFyeardata}
+                    selectedState={selectedState}
+                  />
+                </Grid>
+                <Grid item md={7}>
+                  <AgeHead
+                    companyName={filterBuyer}
+                    HeadData={PFyeardata}
+                    selectedState={selectedState}
+                  />
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
+        </Grid>
+        <Grid item md={7}>
+          <DeptHeadCount
+            selectedYear1={selectedYear}
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+        </Grid>
+        <Grid md={12}>
+        <DesgHead
+          companyName={filterBuyer}
+          HeadData={PFyeardata}
+          selectedState={selectedState}
+        />
         </Grid>
         <Grid item xs={6} md={4}>
           <BGhead
@@ -230,9 +255,8 @@ const DetailedHeadcount = ({ companyName, Year }) => {
             HeadData={PFyeardata}
             selectedState={selectedState}
           />
-          
         </Grid>
-        <Grid item xs={6} md={3}>
+        {/* <Grid item xs={6} md={3}>
           <Grid container spacing={1}>
             <Grid item md={12}>
               <EmptypeHead
@@ -249,23 +273,16 @@ const DetailedHeadcount = ({ companyName, Year }) => {
               />
             </Grid>
           </Grid>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Grid> */}
+        <Grid item xs={12} md={4}>
           <RegionHead
             companyName={filterBuyer}
             HeadData={PFyeardata}
             selectedState={selectedState}
           />
         </Grid>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={4}>
           <ExperienceHead
-            companyName={filterBuyer}
-            HeadData={PFyeardata}
-            selectedState={selectedState}
-          />
-        </Grid>
-        <Grid xs={12} md={6}>
-          <DesgHead
             companyName={filterBuyer}
             HeadData={PFyeardata}
             selectedState={selectedState}

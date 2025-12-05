@@ -76,9 +76,9 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
   const options = {
     chart: {
       type: "column",
-      marginBottom: 70,
+      marginBottom: 150,
       backgroundColor: "#f5f5f5",
-      height: 250,
+      height: 400,
     },
     title: {
       text: null,
@@ -92,6 +92,7 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
           fontSize: "8px",
           fontFamily: "Verdana, sans-serif",
         },
+        rotation:90
       },
     },
     yAxis: {

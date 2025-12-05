@@ -19,7 +19,7 @@ const HeadCount = () => {
 
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
-  console.log(result, "result");
+  // console.log(result, "result");
 ;
 
   const categories = result?.data.map((item) => item.customer);
@@ -34,7 +34,7 @@ const HeadCount = () => {
       events: {
         dataPointSelection: (event, chartContext, config) => {
           const company = categories[config.dataPointIndex];
-          console.log(company,"compamnu");
+          // console.log(company,"compamnu");
           
           dispatch(
             push({
@@ -47,6 +47,20 @@ const HeadCount = () => {
         },
       },
     },
+
+    tooltip: {
+  y: {
+    formatter: function (value) {
+      return value.toLocaleString();   // format number with commas
+    }
+  },
+  x: {
+    formatter: function (value) {
+      return value; // category (company name)
+    }
+  }
+},
+
     grid: {
       padding: {
         bottom: -35,
@@ -103,9 +117,21 @@ const HeadCount = () => {
                  }}
       >
         <CardHeader
-          title="Employees Strenght on Date"
+          title="Employee Strength as on date"
           titleTypographyProps={{
             sx: { fontSize: "1rem", fontWeight: 600 },
+          }}
+          // action={
+          //   <IconButton
+          //     size="small"
+          //     aria-label="settings"
+          //     sx={{ color: "text.secondary" }}
+          //   >
+          //     <DotsVertical />
+          //   </IconButton>
+          // }
+          sx={{
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
           }}
         />
         <Box sx={{ "& .apexcharts-bar-area:hover": { cursor: "pointer" } }}>
@@ -129,7 +155,7 @@ const HeadCount = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Head Count : {headcount}
+            OverAll Head Count : {headcount?.toLocaleString('en-IN')}
           </Typography>
         </Box>
       </Card>

@@ -108,7 +108,7 @@ const pieData1 = [
   const options = {
     chart: {
       backgroundColor: "#f5f5f5",
-      height: 122,
+      height: 150,
       plotBackgroundColor: null,
       plotBorderWidth: 0,
       plotShadow: true,
@@ -178,7 +178,7 @@ const pieData1 = [
   const options1 = {
     chart: {
       backgroundColor: "#f5f5f5",
-      height: 120,
+      height: 150,
       plotBackgroundColor: null,
       plotBorderWidth: 0,
       plotShadow: true,
@@ -206,6 +206,9 @@ const pieData1 = [
           enabled: false,
           distance: -50,
           style: { fontWeight: "bold", color: "white" },
+          formatter: function () {
+            return `${this.point.y.toLocaleString("en-IN")}`;
+          },
         },
         startAngle: -90,
         endAngle: 90,

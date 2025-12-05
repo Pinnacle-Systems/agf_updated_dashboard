@@ -49,7 +49,7 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
     chart: {
       type: "pie",
       backgroundColor: "transparent",
-      height:195,
+      height:270,
       marginBottom:0,
       marginTop:0
     },
@@ -128,7 +128,7 @@ setSearch((prev) => ({
     <>
       <Card
         sx={{
-          
+        
           backgroundColor: "#f5f5f5",
         }}
       >

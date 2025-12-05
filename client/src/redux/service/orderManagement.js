@@ -126,6 +126,20 @@ const ordManagement = createApi({
             },
             providesTags: ['ordManagement'],
         }),
+
+        getLastAttr: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: `${ORD_MANAGEMENT}/getlastAttdet`,
+                    method: 'GET',
+                    params,
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                }
+            },
+            providesTags: ['ordManagement'],
+        }),
         getOrderStsBuyerWise: builder.query({
             query: ({ params }) => {
                 return {
@@ -167,6 +181,7 @@ export const {
     useGetPreBudgetQuery,
     useGetOrderStsBuyerWiseQuery,
     useGetPlanedVsActualSalesQuery,
+    useGetLastAttrQuery
 } = ordManagement;
 
 export default ordManagement;

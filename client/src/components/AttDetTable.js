@@ -16,48 +16,37 @@ import * as XLSX from "xlsx";
 import { useGetMisDashboardAttDetTableQuery } from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
 
-const AttritionDetTable = ({
-   setOpenpopup,
-  selectedBuyer,
-  selectedYear
-}) => {
+const AttritionDetTable = ({ setOpenpopup, selectedBuyer, selectedYear }) => {
+  console.log(setOpenpopup, selectedBuyer, selectedYear, "Attribution value");
 
-  console.log( setOpenpopup,
-  selectedBuyer,
-  selectedYear,"Attribution value");
-  
   const [currentPage, setCurrentPage] = useState(1);
-     const [selectedState,setSelectedState] = useState('')
-     const [selectmonths,setSelectmonths] = useState('')
-      console.log(selectedYear,"filterYear")
-     const [selectedGender,setSelectedGender] = useState('')
-    const [search, setSearch] = useState({
-              FNAME: "",
-              GENDER: "",
-              MIDCARD: "",
-              DEPARTMENT: "",
-              COMPCODE: "",
-            })
+  const [selectedState, setSelectedState] = useState("");
+  const [selectmonths, setSelectmonths] = useState("");
+  console.log(selectedYear, "filterYear");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [search, setSearch] = useState({
+    FNAME: "",
+    GENDER: "",
+    MIDCARD: "",
+    DEPARTMENT: "",
+    COMPCODE: "",
+  });
   const recordsPerPage = 20;
-  console.log(selectedBuyer,"selectedBuyer for salary")
- 
+  console.log(selectedBuyer, "selectedBuyer for salary");
 
-  const { data: salaryDetData  } = useGetMisDashboardAttDetTableQuery({
+  const { data: salaryDetData } = useGetMisDashboardAttDetTableQuery({
     params: {
-        filterBuyer: selectedBuyer ||[] ,  
-        search: search || {}   ,
-        filterYear: selectedYear            
-    }
-});
+      filterBuyer: selectedBuyer || [],
+      search: search || {},
+      filterYear: selectedYear,
+    },
+  });
 
-
-const salaryDet = salaryDetData?.data || []
-  console.log(salaryDet,"salaryDet inside")
+  const salaryDet = salaryDetData?.data || [];
+  console.log(salaryDet, "salaryDet inside");
   useEffect(() => {
     setCurrentPage(1);
   }, [salaryDet]);
-
-  
 
   const handleFilterClick = (type) => {
     setSelectedState(type);
@@ -72,7 +61,17 @@ const salaryDet = salaryDetData?.data || []
       return;
     }
 
-    const headers = [["ID Card", "Name", "Gender", "Department", "Company","Date of Left","Reason"]];
+    const headers = [
+      [
+        "ID Card",
+        "Name",
+        "Gender",
+        "Department",
+        "Company",
+        "Date of Left",
+        "Reason",
+      ],
+    ];
 
     const data = filteredData.map((row) => [
       row.EMPID,
@@ -80,8 +79,8 @@ const salaryDet = salaryDetData?.data || []
       row.GENDER,
       row.DEPARTMENT,
       row.COMPCODE,
-      row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-',
-      row.REASON
+      row.DOL ? new Date(row.DOL).toLocaleDateString("en-IN") : "-",
+      row.REASON,
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -106,31 +105,30 @@ const salaryDet = salaryDetData?.data || []
   };
 
   const filteredData = Array.isArray(salaryDet)
-  ? salaryDet
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row?.[key]?.toString().toLowerCase() || "";
-          const searchValue = search?.[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
+    ? salaryDet
+        .filter((row) =>
+          Object.keys(search || {}).every((key) => {
+            const rowValue = row?.[key]?.toString().toLowerCase() || "";
+            const searchValue = search?.[key]?.toString().toLowerCase() || "";
+            return rowValue.includes(searchValue);
+          })
+        )
+        .filter((row) => {
+          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+          return true;
         })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      }).filter ((row)=>{
-        if(!selectmonths) return true;
-        return row?.PAYPERIOD === selectmonths
-      })
-     
-  : [];
+        .filter((row) => {
+          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+          return true;
+        })
+        .filter((row) => {
+          if (!selectmonths) return true;
+          return row?.PAYPERIOD === selectmonths;
+        })
+    : [];
 
-  
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
 
@@ -139,13 +137,11 @@ const salaryDet = salaryDetData?.data || []
     currentPage * recordsPerPage
   );
 
- 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-  <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
-
+      <div className="bg-white p-6 rounded-lg shadow-2xl w-[1280px] max-w-[1280px] relative">
         <button
-          onClick={()=>setOpenpopup(false)}
+          onClick={() => setOpenpopup(false)}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
         >
           <FaTimes size={20} />
@@ -153,7 +149,8 @@ const salaryDet = salaryDetData?.data || []
 
         <div className="text-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800 uppercase">
-          Attrition Breakup -  <span className="text-blue-600">{selectedBuyer}</span>
+            Attrition Breakup -{" "}
+            <span className="text-blue-600">{selectedBuyer}</span>
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
             Total Records: {totalRecords}
@@ -233,22 +230,19 @@ const salaryDet = salaryDetData?.data || []
           >
             <IoMaleFemale size={16} className="text-green-500" /> Both
           </button>
-      
-          <div>
-  
-</div>
-<button
-  onClick={downloadExcel}
-  className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
-  title="Download Excel"
->
-  <img
-    src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
-    alt="Download Excel"
-    className="w-8 h-8 rounded-lg"
-  />
-</button>
 
+          <div></div>
+          <button
+            onClick={downloadExcel}
+            className="absolute top-22 right-10 p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
+            title="Download Excel"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
+              alt="Download Excel"
+              className="w-8 h-8 rounded-lg"
+            />
+          </button>
         </div>
 
         <div className="grid grid-cols-5 gap-2 mb-3">
@@ -266,7 +260,11 @@ const salaryDet = salaryDetData?.data || []
               <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
             </div>
           ))}
-           <FinYear selectedYear=  {selectedYear} selectmonths= {selectmonths} setSelectmonths={ setSelectmonths} />
+          <FinYear
+            selectedYear={selectedYear}
+            selectmonths={selectmonths}
+            setSelectmonths={setSelectmonths}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -281,7 +279,6 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Company</th>
                   <th className="border p-2 text-left">Date of Left</th>
                   <th className="border p-2 text-left">Reason</th>
-
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -296,11 +293,13 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-'}
-</td>
+                      {row.DOL
+                        ? new Date(row.DOL).toLocaleDateString("en-IN")
+                        : "-"}
+                    </td>
                     <td className="border p-2 text-red-500 font-semibold">
-                    {row.REASON || "N/A"} 
-                  </td>
+                      {row.REASON || "N/A"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -318,7 +317,6 @@ const salaryDet = salaryDetData?.data || []
                   <th className="border p-2 text-left">Company</th>
                   <th className="border p-2 text-left">Date of Left</th>
                   <th className="border p-2 text-left">Reason</th>
-
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -333,11 +331,13 @@ const salaryDet = salaryDetData?.data || []
                     <td className="border p-2">{row.DEPARTMENT}</td>
                     <td className="border p-2">{row.COMPCODE}</td>
                     <td className="border p-2">
-  {row.DOL ? new Date(row.DOL).toLocaleDateString('en-IN') : '-'}
-</td>
+                      {row.DOL
+                        ? new Date(row.DOL).toLocaleDateString("en-IN")
+                        : "-"}
+                    </td>
                     <td className="border p-2 text-red-500 font-semibold">
-                    {row.REASON || "N/A"} 
-                  </td>
+                      {row.REASON || "N/A"}
+                    </td>
                   </tr>
                 ))}
               </tbody>

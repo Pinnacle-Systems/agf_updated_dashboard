@@ -29,6 +29,7 @@ const month = [
 const d = new Date();
 const monthName = month[d.getMonth()];
 const yearName = d.getFullYear();
+// console.log(yearName,"yEARNAMWE");
 
 const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate());
 const lastMonthName = month[lastMonthDate.getMonth()];
@@ -37,6 +38,31 @@ const lastMonthYear = lastMonthDate.getFullYear();
 const currentDt = [monthName, yearName].join(" ");
 const lstMnth = [lastMonthName, lastMonthYear].join(" ");
 console.log(lstMnth, "lstMnth");
+
+function getFinYear1(monthName, year) {
+  const mIndex = month.indexOf(monthName); // 0–11
+
+  let startYear, endYear;
+
+  // Jan=0, Feb=1, Mar=2 → previous FY
+  if (mIndex <= 2) {
+    startYear = year - 1;
+    endYear = year;
+  } else {
+    startYear = year;
+    endYear = year + 1;
+  }
+
+  const shortStart = startYear.toString().slice(-2);
+  const shortEnd = endYear.toString().slice(-2);
+
+  return `${shortStart}-${shortEnd}`;
+}
+
+const currentFinYear = getFinYear1(monthName, yearName);
+// const lastFinYear = getFinYear(lastMonthName, lastMonthYear);
+
+// console.log(currentFinYear,"currentFinYear");
 
 // Convert "September 2025" → "Sep-25"
 // const monthShort = lastMonthDate.toLocaleString("en-us", { month: "short" }); // "Sep"
@@ -201,7 +227,7 @@ export async function getSalaryAgewise(req, res) {
   let result = [];
   let filterBuyerList = "";
 
-  console.log(lstMnth, "lstMnth");
+  // console.log(lstMnth, "lstMnth");
 
   if (filterBuyer && filterBuyer.trim() !== "") {
     filterBuyerList = filterBuyer
@@ -626,7 +652,7 @@ A.STDT1, A.STDT
 
   try {
     const result = await connection.execute(sql);
-    console.log(result, "result");
+    // console.log(result, "result");
 
     let resp = result.rows.map((po) => ({
       customer: po[0],
@@ -1058,7 +1084,7 @@ export async function getesidet(req, res) {
 
 export async function getattdet(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer, search = {} } = req.query;
+  const { filterBuyer,filterYear, search = {} } = req.query;
   let result = [];
   const filterBuyerList = filterBuyer
     .split(",")
@@ -1066,7 +1092,7 @@ export async function getattdet(req, res) {
     .join(",");
 
   let whereClause = `A.COMPCODE IN (${filterBuyerList}) 
-                       AND B.PAYPERIOD = '${lstMnth}'`;
+                       AND B.FINYR = '${filterYear}'`;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -1085,6 +1111,7 @@ export async function getattdet(req, res) {
         A.FNAME,
         A.GENDER,
         A.DOJ,
+        B.PAYPERIOD,
         A.DEPARTMENT,
         (SELECT LISTAGG(C.REMARKS, ',') WITHIN GROUP (ORDER BY C.REMARKS)
          FROM EMPDESGENTRY C 
@@ -1111,15 +1138,12 @@ export async function getattdet(req, res) {
 }
 export async function getnewjoin(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer, search = {} } = req.query;
+  const { filterBuyer, filterYear, search = {} } = req.query;
   let result = [];
-  const filterBuyerList = filterBuyer
-    .split(",")
-    .map((buyer) => `'${buyer.trim()}'`)
-    .join(",");
 
-  let whereClause = `A.COMPCODE IN (${filterBuyerList}) 
-                       AND B.PAYPERIOD = '${lstMnth}'`;
+  let whereClause = `A.COMPCODE = '${filterBuyer}' 
+  AND B.FINYR = '${filterYear}'
+                       `;
 
   if (search.FNAME)
     whereClause += ` AND LOWER(A.FNAME) LIKE LOWER('%${search.FNAME}%')`;
@@ -1140,7 +1164,9 @@ export async function getnewjoin(req, res) {
         A.DOJ,
         A.DEPARTMENT,
         A.COMPCODE,
-        A.DOL
+        A.DOL,
+        A.STATE,
+        B.PAYPERIOD
     FROM MISTABLE A
     JOIN MONTHLYPAYFRQ B ON B.COMPCODE = A.COMPCODE 
         AND A.DOJ BETWEEN B.STDT AND B.ENDT
@@ -1875,7 +1901,7 @@ export async function getYearlyComp(req, res) {
     if (filterBuyerList) {
       companyFilter = `AND A.COMPCODE IN (${filterBuyerList})`;
     }
-    console.log(currentDt, "currentDt yearly");
+    // console.log(currentDt, "currentDt yearly");
 
     const sql = `
       SELECT A.COMPCODE,
@@ -2438,7 +2464,7 @@ ORDER BY A.STDT1, A.STDT
       }, {})
     );
 
-    console.log(result, "resultsalry");
+    // console.log(result, "resultsalry");
 
     res.status(200).json({ success: true, data: result });
   } catch (err) {
@@ -2637,7 +2663,7 @@ ORDER BY
 A.STDT1, A.STDT`;
 
     const result = await connection.execute(sql);
-    console.log(result, "result");
+    // console.log(result, "result");
 
     let resp = result.rows.map((po) => ({
       customer: po[0],
@@ -2703,7 +2729,7 @@ ORDER BY
 A.STDT1, A.STDT`;
 
     const result = await connection.execute(sql);
-    console.log(result, "result");
+    // console.log(result, "result");
 
     let resp = result.rows.map((po) => ({
       customer: po[0],

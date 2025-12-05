@@ -133,7 +133,7 @@ const BGhead = ({ companyName, selectedState, HeadData }) => {
     <>
       <Card
         sx={{
-          mt: 1,
+          ml:1,
           backgroundColor: "#f5f5f5",
         }}
       >

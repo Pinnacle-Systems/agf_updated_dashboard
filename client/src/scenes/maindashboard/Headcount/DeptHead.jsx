@@ -67,9 +67,9 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
 
   const option = {
     chart: {
-      height: 300,
+      height: 332,
       type: "spline",
-      marginBottom: 100,
+      marginBottom: 120,
       backgroundColor: "#f5f5f5",
     },
     title: {
@@ -143,7 +143,7 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
   return (
     <Card
             sx={{
-              ml: 1,
+              mt:1,
               backgroundColor: "#f5f5f5",
             }}
           >

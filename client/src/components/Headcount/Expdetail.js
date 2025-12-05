@@ -37,7 +37,7 @@ const ExpHeadDetail = ({
     min: 0,
     max: Infinity,
   });
-  const recordsPerPage = 38;
+  const recordsPerPage = 34;
   console.log(HeadData, "selectedBuyer for salary");
 
   // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
@@ -187,7 +187,7 @@ const ExpHeadDetail = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="bg-white p-4 rounded-lg shadow-2xl w-[1500px] max-w-[1500px]  h-[650px] max-h-[650px] relative">
+      <div className="bg-white p-4 rounded-lg shadow-2xl w-[1500px] max-w-[1500px]  h-[5900px] max-h-[590px] relative">
         <button
           onClick={closeTable}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -391,7 +391,7 @@ const ExpHeadDetail = ({
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(0, 19).map((row, index) => {
+                {currentRecords.slice(0, 17).map((row, index) => {
                   const globalIndex = index; // 0–16
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
@@ -400,7 +400,7 @@ const ExpHeadDetail = ({
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
                       <td className="border p-1 text-[10px]">{row.IDCARD}</td>
                       <td className="border p-1 text-[10px]">{row.FNAME}</td>
                       <td className="border p-1 text-[10px]">{row.GENDER}</td>
@@ -421,7 +421,61 @@ const ExpHeadDetail = ({
                       </td>
                       <td className="border p-1 text-[10px] ">
                         {row.EMPTYPE}
+                      </td> */}
+
+
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
                       </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.IDCARD}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                       <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[15px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "15px" }}
+                      >
+                        {row.EXP}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.STATE}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.BGF || "N/A"}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+                     
                     </tr>
                   );
                 })}
@@ -449,8 +503,8 @@ const ExpHeadDetail = ({
                 </tr>
               </thead>
               <tbody>
-                {currentRecords.slice(19, 38).map((row, index) => {
-                  const globalIndex = 19 + index; // 17–33
+                {currentRecords.slice(17, 34).map((row, index) => {
+                  const globalIndex = 17 + index; // 17–33
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
@@ -458,26 +512,55 @@ const ExpHeadDetail = ({
                       key={index}
                       className="text-gray-700 bg-white even:bg-gray-100"
                     >
-                      <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.IDCARD}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
+                     <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.IDCARD}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-                      <td className="border p-1 text-[10px]">
+                       <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DESIGNATION}
                       </td>
-                     <td className="border p-1 text-[10px] ">
+                      <td
+                        className="border p-1 text-[10px] w-[15px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "15px" }}
+                      >
                         {row.EXP}
                       </td>
-                      <td className="border p-1 text-[10px] ">
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
                         {row.STATE}
                       </td>
-                      <td className="border p-1 text-[10px] ">
-                        {row.BGF}
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.BGF|| "N/A"}
                       </td>
-                      <td className="border p-1 text-[10px] ">
+                      <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
                         {row.EMPTYPE}
                       </td>
                     </tr>

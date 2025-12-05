@@ -336,7 +336,7 @@ const HomeESI = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Contribution : {totalESI}
+            OverAll Contribution : {totalESI.toLocaleString('en-IN')}
           </Typography>
         </Box>
       </CardContent>

@@ -1,31 +1,33 @@
-import React, { useEffect, useState, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useContext } from "react";
 import { Card, CardHeader } from "@mui/material";
 import { ColorContext } from "../../global/context/ColorContext";
-import { useGetYFActVsPlnQuery } from "../../../redux/service/orderManagement";
 import {
-  useGetBuyerNameQuery,
-  useGetMonthQuery,
-} from "../../../redux/service/commonMasters";
-import { useGetFinYearQuery } from "../../../redux/service/misDashboardService";
+  useGetLastAttrQuery,
+  useGetYFActVsPlnQuery,
+} from "../../../redux/service/orderManagement";
+
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
 
 const HomeAttrition = () => {
   const dispatch = useDispatch();
 
-  const { color } = useContext(ColorContext);
-
-  const { data: fabPlVsActFull } = useGetYFActVsPlnQuery({
+ const { data: fabPlVsActFull } = useGetYFActVsPlnQuery({
     params: {},
   });
+
+  const { data: LastAttrition } = useGetLastAttrQuery({
+    params: {},
+  });
+  // console.log(LastAttrition, "LastAttrition");
 
   const sumByCompany = (fabPlVsActFull?.data || []).reduce((acc, item) => {
     acc[item.company] = (acc[item.company] || 0) + item.attrition;
     return acc;
   }, {});
+  // console.log(sumByCompany, "sumByCompany");
 
   const chartData = Object.entries(sumByCompany).map(([company, total]) => ({
     name: company,
@@ -45,7 +47,8 @@ const HomeAttrition = () => {
     },
 
     xAxis: {
-      categories: categories,
+      categories: LastAttrition?.data.map(item => item.company),
+      
       title: { text: "Company", style: { fontSize: "10px" } },
       labels: { style: { fontSize: "10px" } },
     },
@@ -60,10 +63,8 @@ const HomeAttrition = () => {
       shared: true,
       style: { fontSize: "10px" },
       formatter: function () {
-        let tooltip = `<b>${this.x}</b><br/>`;
-        const index = this.points[0].point.index;
-        tooltip += `<b>Attrition:</b> ${seriesData[index]}`;
-        return tooltip;
+        return `<b>${this.point.month}</b></br>
+        <b>Attrition:${this.point.y}</b>`
       },
     },
 
@@ -78,14 +79,16 @@ const HomeAttrition = () => {
           events: {
             click: function () {
               const companyName = this.category;
-              // console.log("Clicked:", companyName);
+              const companyName1 = this.month;
+
+              // console.log("Clicked:", companyName1);
 
               dispatch(
                 push({
                   id: "Attrition",
                   name: "Attrition",
                   component: "DetailedAttribution",
-                  data: { companyName },
+                  data: { companyName,Year:this.year,selectedmonth:this.month ,autoFocusBuyer:true},
                 })
               );
             },
@@ -99,7 +102,13 @@ const HomeAttrition = () => {
     series: [
       {
         name: "Attrition",
-        data: seriesData,
+        data: LastAttrition?.data.map((item, index) => ({
+          name: item.company,
+          y: item.attrition,
+          year: item.finyr,
+          month: item.payPeriod,
+        })),
+
         color: "#FF0000",
         marker: {
           fillColor: "#FF0000",
@@ -120,8 +129,20 @@ const HomeAttrition = () => {
       <CardHeader
         title="Attrition Breakup"
         titleTypographyProps={{
-          sx: { fontSize: "1rem", fontWeight: 600 },
-        }}
+            sx: { fontSize: "1rem", fontWeight: 600 },
+          }}
+          // action={
+          //   <IconButton
+          //     size="small"
+          //     aria-label="settings"
+          //     sx={{ color: "text.secondary" }}
+          //   >
+          //     <DotsVertical />
+          //   </IconButton>
+          // }
+          sx={{
+            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          }}
       />
 
       <div style={{ height: "320px" }}>

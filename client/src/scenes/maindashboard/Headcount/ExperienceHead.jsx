@@ -68,7 +68,7 @@ const ExperienceHead = ({ companyName, selectedState, HeadData }) => {
   const options = {
     chart: {
       type: "column",
-      height: 250,
+      height: 305,
       options3d: {
         enabled: true,
         alpha: 7,

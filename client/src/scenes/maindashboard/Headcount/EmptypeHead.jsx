@@ -77,13 +77,12 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
    <Card
          sx={{
            backgroundColor: "#f5f5f5",
-           height:160,
-   
-           mt:1
+           ml:1,
+           height:310
          }}
        >
          <CardHeader
-           title="Employee Type wise Headcount"
+           title="Employee Type"
            titleTypographyProps={{
              sx: { fontSize: ".9rem", fontWeight: 600 },
            }}
@@ -94,15 +93,15 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
          />
           <Grid container spacing={1} >
 
-            <Grid item md={6}>
-              <ResponsiveContainer width="100%" height={120}>
+            <Grid item md={12}>
+              <ResponsiveContainer width="100%" height={150} style={{}}>
               <PieChart>
                 <Pie
                   data={Chartdata}
                   dataKey="headcount"
                   nameKey="Emptype"
-                  innerRadius={30}
-                  outerRadius={50}
+                  innerRadius={50}
+                  outerRadius={70}
                   paddingAngle={1}
                   onClick={(data, index) => handlePieClick(data, index)}
                 >
@@ -120,9 +119,9 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
 
             </Grid>
 
-            <Grid item md={6} sx={{mt:3}}>
+            <Grid item md={12}>
               {Chartdata.map((item, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mt:1 }}>
+              <Box key={index} sx={{ display: 'flex', alignItems: 'center', p:.8 ,ml:2}}>
                 <Box
                   sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color, mr: 1.5 }}
                 />

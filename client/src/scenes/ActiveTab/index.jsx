@@ -93,7 +93,7 @@ const ActiveTabList = () => {
     HRDashBoard: <HRDashboard />,
   };
 
-  console.log(openTabs, "openTabs");
+  // console.log(openTabs, "openTabs");
 
   const innerWidth = window.innerWidth;
   const itemsToShow = innerWidth / 130;

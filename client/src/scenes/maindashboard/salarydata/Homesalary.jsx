@@ -31,7 +31,7 @@ const HomeSalary = () => {
   const{data:lastmonth,isLoading,isError,error}=useGetsallastmonthQuery()
 
 
-  console.log(lastmonth,"lastmonth");
+  // console.log(lastmonth,"lastmonth");
   
 
   const Year =lastmonth?.data.find((x)=>x.Year)

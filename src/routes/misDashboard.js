@@ -13,7 +13,8 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getSalaryAgewise,
     getAgewiseESI,
     getLastSalarydet,
-    getSalarydet1} from '../services/misDashboard.service.js';
+    getSalarydet1,
+    getnewjoin} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -39,7 +40,7 @@ router.get ('/esiDet', getesidet )
 
 router.get ('/AttDet', getattdet )
 
-router.get ('/getNewjoin', getattdet )
+router.get ('/getNewjoin', getnewjoin )
 
 router.get ('/AttDetTable', getattdetTable )
 

@@ -1,12 +1,62 @@
 import { getConnection } from "../constants/db.connection.js";
-export async function get(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
-        console.log(filterYear, 'filterYear');
 
-        const sql =
-            `
+const month = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const d = new Date();
+const monthName = month[d.getMonth()];
+const yearName = d.getFullYear();
+// console.log(yearName, "yEARNAMWE");
+
+const lastMonthDate = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate());
+const lastMonthName = month[lastMonthDate.getMonth()];
+const lastMonthYear = lastMonthDate.getFullYear();
+
+const currentDt = [monthName, yearName].join(" ");
+const lstMnth = [lastMonthName, lastMonthYear].join(" ");
+// console.log(currentDt, "lstMnth");
+
+function getFinYear1(monthName, year) {
+  const mIndex = month.indexOf(monthName); // 0–11
+
+  let startYear, endYear;
+
+  // Jan=0, Feb=1, Mar=2 → previous FY
+  if (mIndex <= 2) {
+    startYear = year - 1;
+    endYear = year;
+  } else {
+    startYear = year;
+    endYear = year + 1;
+  }
+
+  const shortStart = startYear.toString().slice(-2);
+  const shortEnd = endYear.toString().slice(-2);
+
+  return `${shortStart}-${shortEnd}`;
+}
+
+const currentFinYear = getFinYear1(monthName, yearName);
+// console.log(currentFinYear,"currentFinYear1");
+
+export async function get(req, res) {
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
+    // console.log(filterYear, 'filterYear');
+
+    const sql = `
             SELECT 
             COUNT(A.ORDERNO) AS NOOFORD,
             A.FINYR,
@@ -31,38 +81,32 @@ export async function get(req, res) {
           GROUP BY A.FINYR
           ORDER BY NOOFORD
           
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      orders: po[0],
+      finYR: po[1],
+      shipDone: po[2],
+      inHand: po[3],
+      canceled: po[4],
+    }));
 
-            orders: po[0],
-            finYR: po[1],
-            shipDone: po[2],
-            inHand: po[3],
-            canceled: po[4]
-        }))
-
-        return res.json({ statusCode: 0, data: resp })
-
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 
 export async function getShippedData(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
 
-
-        const sql =
-            `
+    const sql = `
             SELECT COUNT(A.ORDERNO) NOOFORD,A.FINYR,
             (
             SELECT COUNT(B.ORDERNO) NOOFORD FROM MISORDSALESVAL B 
@@ -85,38 +129,31 @@ export async function getShippedData(req, res) {
             GROUP BY A.FINYR
             ORDER BY 1
             
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      shipped: po[0],
+      finYR: po[1],
+      plNotTaken: po[2],
+      plTaken: po[3],
+      ocrPend: po[4],
+    }));
 
-            shipped: po[0],
-            finYR: po[1],
-            plNotTaken: po[2],
-            plTaken: po[3],
-            ocrPend: po[4]
-
-        }))
-
-        return res.json({ statusCode: 0, data: resp })
-
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 export async function getOcrPending(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
 
-
-        const sql =
-            `
+    const sql = `
             SELECT COUNT(A.ORDERNO) NOOFORD,A.FINYR,
             (SELECT COUNT(B.ORDERNO) NOOFORD FROM MISORDSALESVAL B 
            WHERE B.COCR = 'NO' AND B.SHIPQTY > 0  AND B.STATUS NOT IN ('Completed','Cancel') 
@@ -134,39 +171,31 @@ export async function getOcrPending(req, res) {
            ORDER BY 1
            
             
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      ocrPend: po[0],
+      finYr: po[1],
+      cutOcrPend: po[2],
+      proOcrPend: po[3],
+      fabOcrPend: po[4],
+    }));
 
-            ocrPend: po[0],
-            finYr: po[1],
-            cutOcrPend: po[2],
-            proOcrPend: po[3],
-            fabOcrPend: po[4]
-
-
-        }))
-
-        return res.json({ statusCode: 0, data: resp })
-
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 export async function getWIPData(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
 
-
-        const sql =
-            `
+    const sql = `
             SELECT  COUNT(A.ORDERNO) NOOFORD,
             (SELECT COUNT(B.ORDERNO) NOOFORD FROM MISORDSALESVAL B 
            WHERE B.FABST = 'NO'  AND B.STATUS NOT IN ('Completed','Cancel') AND  B.FINYR = '${filterYear}'
@@ -182,39 +211,30 @@ export async function getWIPData(req, res) {
            AND A.FINYR = '${filterYear}' GROUP BY A.FINYR
            
             
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      noOfOrd: po[0],
+      wipFab: po[1],
+      wipCut: po[2],
+      wipPro: po[3],
+    }));
 
-            noOfOrd: po[0],
-            wipFab: po[1],
-            wipCut: po[2],
-            wipPro: po[3],
-
-
-
-        }))
-
-        return res.json({ statusCode: 0, data: resp })
-
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 export async function getPreBudget(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
 
-
-        const sql =
-            `
+    const sql = `
             SELECT 
             A.FINYR,
              COUNT(A.ORDERNO) NOOFORD,
@@ -229,40 +249,32 @@ export async function getPreBudget(req, res) {
             A.FINYR
         ORDER BY 
             A.FINYR
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      finYr: po[0],
+      noOfOrd: po[1],
+      approved: po[2],
+      appPending: po[3],
+      cancelAfterApp: po[4],
+    }));
 
-
-            finYr: po[0],
-            noOfOrd: po[1],
-            approved: po[2],
-            appPending: po[3],
-            cancelAfterApp: po[4],
-
-
-        }))
-
-        return res.json({ statusCode: 0, data: resp })
-
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 // chart data
 export async function getProfitLossData(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterYear } = req.query;
-        console.log(filterYear, 'filterYear');
-        const sql =
-            `
+  const connection = await getConnection(res);
+  try {
+    const { filterYear } = req.query;
+    // console.log(filterYear, 'filterYear');
+    const sql = `
             SELECT customer, PROFIT
             FROM (
                 SELECT customer, SUM(ACTPROFIT) AS PROFIT
@@ -272,35 +284,32 @@ export async function getProfitLossData(req, res) {
                 ORDER BY PROFIT DESC
             ) p
             WHERE  PROFIT IS NOT NULL
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
-
-            customer: po[0],
-            profit: po[1],
-        }))
-        return res.json({ statusCode: 0, data: resp })
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      customer: po[0],
+      profit: po[1],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 export async function getCapPlanData(req, res) {
-    const connection = await getConnection(res);
+  const connection = await getConnection(res);
 
-    try {
-        const { getByMonth, clickedMonth, filterCom } = req.query;
+  try {
+    const { getByMonth, clickedMonth, filterCom } = req.query;
 
-        // Log the query parameters to check their values
-        console.log('Query Parameters:', { clickedMonth, filterCom });
+    // Log the query parameters to check their values
+    // console.log('Query Parameters:', { clickedMonth, filterCom });
 
-        if (clickedMonth !== undefined) {
-            const sql = `
+    if (clickedMonth !== undefined) {
+      const sql = `
                 SELECT A.CUSTOMER, A.BUYERPONO, A.ORDERNO, SUM(A.ORDERQTY) ORDERQTY, SUM(A.OVALUE) OVALUE FROM (
                     SELECT A.CUSTOMER, A.BUYERPONO, A.ORDERNO, A.ORDERQTY ORDERQTY, (A.ORDERQTY * A.BUYERPRICE * A.CONVALUE) OVALUE 
                     FROM MISORDSALESVAL A 
@@ -309,18 +318,18 @@ export async function getCapPlanData(req, res) {
                 GROUP BY A.CUSTOMER, A.BUYERPONO, A.ORDERNO
                 ORDER BY 1, 2, 3, 4
             `;
-            const result = await connection.execute(sql, { clickedMonth });
-            const resp = result.rows.map(po => ({
-                customer: po[0],
-                buyerPo: po[1],
-                ordNo: po[2],
-                oQty: po[3],
-                Oval: po[4]
-            }));
-            return res.json({ statusCode: 0, data: resp });
-        } else if (filterCom !== undefined) {
-            let sql
-            sql = `
+      const result = await connection.execute(sql, { clickedMonth });
+      const resp = result.rows.map((po) => ({
+        customer: po[0],
+        buyerPo: po[1],
+        ordNo: po[2],
+        oQty: po[3],
+        Oval: po[4],
+      }));
+      return res.json({ statusCode: 0, data: resp });
+    } else if (filterCom !== undefined) {
+      let sql;
+      sql = `
                 SELECT B.*, A.PLANDELMON MONTH, A.ORDERQTY BOOKED, A.BUYERDELDATE FROM (
                     SELECT SUM(A.ORDERQTY) ORDERQTY, A.PLANDELMON, MAX(A.BUYERDELDATE) BUYERDELDATE 
                     FROM MISORDSALESVAL A 
@@ -354,55 +363,51 @@ export async function getCapPlanData(req, res) {
                 ) B
                 ORDER BY BUYERDELDATE
             `;
-            console.log('SQL Query:', sql);
-            const result = await connection.execute(sql);
-            const resp = result.rows.map(po => ({
-                company: po[0],
-                capacity: po[1],
-                month: po[2],
-                booked: po[3]
-            }));
-            return res.json({ statusCode: 0, data: resp });
-        } else {
-            return res.status(400).json({ error: 'Invalid query parameters' });
-        }
-
-    } catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        await connection.close();
+      // console.log('SQL Query:', sql);
+      const result = await connection.execute(sql);
+      const resp = result.rows.map((po) => ({
+        company: po[0],
+        capacity: po[1],
+        month: po[2],
+        booked: po[3],
+      }));
+      return res.json({ statusCode: 0, data: resp });
+    } else {
+      return res.status(400).json({ error: "Invalid query parameters" });
     }
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 
-
-
 export async function getFabStsData(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { itemWise, modalContent, month } = req.query;
-        if (itemWise) {
-            const sql = `SELECT * FROM MISFABSTATUS A  WHERE A.PLANDELMON = '${month}' AND A.STATUS = '${modalContent}'
-        ORDER BY 1,2,3,4,5,6,7`
-            console.log(sql);
-            const result = await connection.execute(sql)
-            let resp = result.rows.map(po => ({
-                ordNo: po[0],
-                fabric: po[1],
-                pDesign: po[2],
-                pDia: po[3],
-                pkDia: po[4],
-                reqQty: po[5],
-                inQty: po[6],
-                balQty: po[7],
-                plnMnth: po[8],
-                plDt: po[9],
-                sts: po[10],
-            }))
-            return res.json({ statusCode: 0, data: resp })
-        } else {
-            const sql =
-                `
+  const connection = await getConnection(res);
+  try {
+    const { itemWise, modalContent, month } = req.query;
+    if (itemWise) {
+      const sql = `SELECT * FROM MISFABSTATUS A  WHERE A.PLANDELMON = '${month}' AND A.STATUS = '${modalContent}'
+        ORDER BY 1,2,3,4,5,6,7`;
+      // console.log(sql);
+      const result = await connection.execute(sql);
+      let resp = result.rows.map((po) => ({
+        ordNo: po[0],
+        fabric: po[1],
+        pDesign: po[2],
+        pDia: po[3],
+        pkDia: po[4],
+        reqQty: po[5],
+        inQty: po[6],
+        balQty: po[7],
+        plnMnth: po[8],
+        plDt: po[9],
+        sts: po[10],
+      }));
+      return res.json({ statusCode: 0, data: resp });
+    } else {
+      const sql = `
         SELECT A.PLANDELMON,A.NOOFORD,B.NOOFORD REC,A.NOOFORD-NVL(B.NOOFORD,0) BAL FROM (
             SELECT COUNT(A.ORDERNO) NOOFORD,A.PLANDELMON,MAX(A.PLANDT) DELDATE FROM MISFABSTATUS A 
             WHERE A.PLANDELMON IN (
@@ -431,34 +436,30 @@ export async function getFabStsData(req, res) {
             GROUP BY A.PLANDELMON
             ) B ON A.PLANDELMON = B.PLANDELMON
             ORDER BY DELDATE
- `
-            const result = await connection.execute(sql)
-            let resp = result.rows.map(po => ({
-                month: po[0],
-                ord: po[1],
-                rec: po[2],
-                pend: po[3]
-            }))
-            return res.json({ statusCode: 0, data: resp })
-        }
+ `;
+      const result = await connection.execute(sql);
+      let resp = result.rows.map((po) => ({
+        month: po[0],
+        ord: po[1],
+        rec: po[2],
+        pend: po[3],
+      }));
+      return res.json({ statusCode: 0, data: resp });
     }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
+export async function getAttrition(req, res) {
+  const connection = await getConnection(res);
 
-export async function getYFActVsPln(req, res) {
-    const connection = await getConnection(res);
+  let { filterSupplier, filterYear } = req.query;
 
-let {filterSupplier, filterYear } = req.query;
-   
-
-    try {
-        if (!filterYear || filterYear.trim() === "") {
+  try {
+    if (!filterYear || filterYear.trim() === "") {
       const d = new Date();
       const year = d.getFullYear();
       const month = d.getMonth() + 1;
@@ -469,72 +470,145 @@ let {filterSupplier, filterYear } = req.query;
         filterYear = `${String(year - 1).slice(2)}-${String(year).slice(2)}`;
       }
     }
-        
-        console.log(filterSupplier, 'fil');
-        console.log(filterYear, 'fil');
-        let supplierCondition = "";
+
+    // console.log(filterSupplier, 'fil');
+    // console.log(filterYear, 'fil');
+    let supplierCondition = "";
     if (filterSupplier && filterSupplier.trim() !== "") {
       const supplierArray = filterSupplier.split(",");
-      const supplierList = supplierArray.map(s => `'${s.trim()}'`).join(",");
+      const supplierList = supplierArray.map((s) => `'${s.trim()}'`).join(",");
       supplierCondition = `AND A.COMPCODE IN (${supplierList})`;
     }
 
-        // Split the filterSupplier string into an array
-        // const supplierArray = filterSupplier.split(',');
-        // const sepComName = supplierArray.join('');
-        // const supplierList = supplierArray.map(supplier => `'${supplier}'`).join(',');
+    // Split the filterSupplier string into an array
+    // const supplierArray = filterSupplier.split(',');
+    // const sepComName = supplierArray.join('');
+    // const supplierList = supplierArray.map(supplier => `'${supplier}'`).join(',');
 
-        const sql = `
-            SELECT B.PAYPERIOD, B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION 
+    const sql = `
+            SELECT PAYPERIOD, STDT,FINYR, COMPCODE, ATTRITION
+FROM (
+    SELECT 
+        B.PAYPERIOD,
+        B.STDT,
+        A.COMPCODE,
+        B.FINYR,
+        COUNT(*) AS ATTRITION,
+        ROW_NUMBER() OVER (
+            PARTITION BY A.COMPCODE 
+            ORDER BY B.STDT DESC
+        ) AS RN
+    FROM MISTABLE A
+    JOIN MONTHLYPAYFRQ B
+        ON A.COMPCODE = B.COMPCODE
+    WHERE 
+        A.DOL BETWEEN B.STDT AND B.ENDT
+        AND B.FINYR = '${currentFinYear}' 
+    GROUP BY 
+        B.PAYPERIOD, B.STDT, A.COMPCODE,B.FINYR
+)
+WHERE RN = 1
+ORDER BY COMPCODE
+        `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      payPeriod: po[0],
+     stdt : po[1],
+      finyr: po[2],
+      company: po[3],
+      attrition: po[4],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getYFActVsPln(req, res) {
+  const connection = await getConnection(res);
+
+  let { filterSupplier, filterYear } = req.query;
+
+  try {
+    if (!filterYear || filterYear.trim() === "") {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+
+      if (month >= 4) {
+        filterYear = `${String(year).slice(2)}-${String(year + 1).slice(2)}`;
+      } else {
+        filterYear = `${String(year - 1).slice(2)}-${String(year).slice(2)}`;
+      }
+    }
+
+    // console.log(filterSupplier, 'fil');
+    // console.log(filterYear, 'fil');
+    let supplierCondition = "";
+    if (filterSupplier && filterSupplier.trim() !== "") {
+      const supplierArray = filterSupplier.split(",");
+      const supplierList = supplierArray.map((s) => `'${s.trim()}'`).join(",");
+      supplierCondition = `AND A.COMPCODE IN (${supplierList})`;
+    }
+
+    // Split the filterSupplier string into an array
+    // const supplierArray = filterSupplier.split(',');
+    // const sepComName = supplierArray.join('');
+    // const supplierList = supplierArray.map(supplier => `'${supplier}'`).join(',');
+
+    const sql = `
+            SELECT B.PAYPERIOD, B.FINYR,B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION 
             FROM MISTABLE A
             JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
             AND B.FINYR = '${filterYear}' 
            
             AND A.DOL BETWEEN B.STDT AND B.ENDT
-            ${supplierCondition}
-            GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE
+            AND A.COMPCODE = '${filterSupplier}'
+            GROUP BY B.PAYPERIOD, B.FINYR, B.STDT, A.COMPCODE
             ORDER BY 2
         `;
 
+    //old filter list
 
-            //old filter list
+    // SELECT B.PAYPERIOD, B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION
+    //     FROM MISTABLE A
+    //     JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE
+    //     AND B.FINYR = '${filterYear}'
+    //     AND A.COMPCODE IN (${supplierList})
+    //     AND A.DOL BETWEEN B.STDT AND B.ENDT
+    //     GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE
+    //     ORDER BY 2
+    // console.log(sql, '416');
 
-        // SELECT B.PAYPERIOD, B.STDT ,A.COMPCODE,  COUNT(*) ATTRITION 
-        //     FROM MISTABLE A
-        //     JOIN MONTHLYPAYFRQ B ON A.COMPCODE = B.COMPCODE 
-        //     AND B.FINYR = '${filterYear}' 
-        //     AND A.COMPCODE IN (${supplierList})
-        //     AND A.DOL BETWEEN B.STDT AND B.ENDT
-        //     GROUP BY B.PAYPERIOD, B.STDT, A.COMPCODE
-        //     ORDER BY 2
-        console.log(sql, '416');
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      payPeriod: po[0],
+      finyr: po[1],
+      stdt: po[2],
+      company: po[3],
+      attrition: po[4],
+    }));
 
-        const result = await connection.execute(sql);
-        let resp = result.rows.map(po => ({
-            payPeriod: po[0],
-            stdt: po[1],
-            company:po[2],
-            attrition: po[3],
-        }));
-
-        return res.json({ statusCode: 0, data: resp });
-    } catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    } finally {
-        await connection.close();
-    }
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 
-
-
 export async function getOrderStatusBuyerWise(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { } = req.query;
+  const connection = await getConnection(res);
+  try {
+    const {} = req.query;
 
-        const sql =
-            `
+    const sql = `
             SELECT A.FINYR,A.CUSTOMER,SUM(NOOFORD) NOOFORD,SUM(PLTAKEN) PLTAKEN,SUM(CANORD) CANORD,SUM(OCRCOM) OCRCOM,SUM(OCRFOR) OCRFOR,SUM(ACTIVE) ACTIVE FROM 
             (SELECT A.FINYR,A.CUSTOMER,COUNT(A.ORDERNO) NOOFORD,0 PLTAKEN,0 CANORD,0 OCRCOM,0 OCRFOR,0 ACTIVE FROM MISORDSALESVAL A
             GROUP BY A.FINYR,A.CUSTOMER
@@ -562,59 +636,50 @@ export async function getOrderStatusBuyerWise(req, res) {
             ) A
             GROUP BY A.FINYR,A.CUSTOMER
             ORDER BY 1,2
-     `
+     `;
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
-
-            year: po[0],
-            customer: po[1],
-            orderQty: po[2],
-            plTaken: po[3],
-            cancelOrder: po[4],
-            ocrCom: po[5],
-            ocrFor: po[6],
-            active: po[7],
-
-
-        }))
-        return res.json({ statusCode: 0, data: resp })
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      year: po[0],
+      customer: po[1],
+      orderQty: po[2],
+      plTaken: po[3],
+      cancelOrder: po[4],
+      ocrCom: po[5],
+      ocrFor: po[6],
+      active: po[7],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }
 export async function getPlanedVsActualSalesVal(req, res) {
-    const connection = await getConnection(res)
-    try {
-        const { filterMonth, filterSupplier, filterYear } = req.query;
-        let sql
-        if (filterMonth || filterYear || filterSupplier) {
-            sql =
-                `
+  const connection = await getConnection(res);
+  try {
+    const { filterMonth, filterSupplier, filterYear } = req.query;
+    let sql;
+    if (filterMonth || filterYear || filterSupplier) {
+      sql = `
         SELECT A.ORDERNO,A.PLANSALESVAL,A.ACTSALVAL, A.finyr FROM MISORDSALESVAL A
         WHERE A.CUSTOMER = '${filterSupplier}' AND A.PLANDELMON = '${filterMonth}' AND FINYR ='${filterYear}'
- `
-        }
+ `;
+    }
 
-        const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
-
-            orderNo: po[0],
-            planSalesVal: po[1],
-            actSalesVal: po[2],
-        }))
-        return res.json({ statusCode: 0, data: resp })
-    }
-    catch (err) {
-        console.error('Error retrieving data:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-    finally {
-        await connection.close()
-    }
+    const result = await connection.execute(sql);
+    let resp = result.rows.map((po) => ({
+      orderNo: po[0],
+      planSalesVal: po[1],
+      actSalesVal: po[2],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
 }

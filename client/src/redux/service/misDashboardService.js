@@ -116,6 +116,19 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardNewjoin: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/getNewjoin",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardAttDetTable: builder.query({
             query: ({ params }) => {
                 return {
@@ -559,7 +572,8 @@ export const {
     useGetSalaryAgewiseQuery,
     useGetAgewiseEsiQuery,
     useGetsallastmonthQuery,
-    useGetsalarydelQuery
+    useGetsalarydelQuery,
+    useGetMisDashboardNewjoinQuery
     } = MisDashboard;
 
 export default MisDashboard;
