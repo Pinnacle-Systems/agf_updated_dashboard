@@ -307,6 +307,9 @@ const RegionHead = ({
     const filtered = HeadData?.filter(row => {
       const bgf = row?.STATE?.toLowerCase();
       console.log(search, "searchsearch")
+      if(param == "NA"){
+        return !bgf
+      }
 
       return bgf == param.toLocaleLowerCase();
     });

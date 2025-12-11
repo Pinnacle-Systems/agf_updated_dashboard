@@ -122,7 +122,7 @@ const DetailedHeadcount = ({ companyName, Year }) => {
             borderTop: "1px solid #afafaf",
           }}
         >
-          <Grid item md={5}>
+          <Grid item md={11}>
             <Box sx={{ p: 0, backgroundColor: "" }}>
               <Typography
                 variant="h4"
@@ -132,7 +132,17 @@ const DetailedHeadcount = ({ companyName, Year }) => {
               </Typography>
             </Box>
           </Grid>
-        
+          <Grid item md={1}>
+            <DropdownWithSearch
+              options={chartData || []}
+              labelField={"compname"}
+              label={""}
+              value={filterBuyer}
+              setValue={setfilterBuyer}
+              className="mt-1"
+            />
+          </Grid>
+
         </Grid>
       </div>
       <div className="p-3">
