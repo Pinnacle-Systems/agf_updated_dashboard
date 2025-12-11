@@ -38,6 +38,7 @@ export async function get_Role(req, res) {
   const connection = await getConnection(res);
   try {
     const result = await prisma_Connector.role.findMany({});
+    console.log(result,'result')
     return res.status(201).json(result);
   } catch (err) {
     console.error("Error retrieving data:", err);

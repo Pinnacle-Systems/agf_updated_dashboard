@@ -14,7 +14,8 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getAgewiseESI,
     getLastSalarydet,
     getSalarydet1,
-    getnewjoin} from '../services/misDashboard.service.js';
+    getnewjoin,
+    getStateWiseHeadCount} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -97,5 +98,8 @@ router.get('/getEsilastmonth',getESIlastmonth)
 router.get('/getPFlastmonth',getPFlastmonth)
 
 router.put('/execute-procedure', executeProcedure)
+
+router.get('/stateWiseHeadCount', getStateWiseHeadCount)
+
 
 export default router;

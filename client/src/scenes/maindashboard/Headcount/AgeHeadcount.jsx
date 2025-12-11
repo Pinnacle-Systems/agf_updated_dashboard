@@ -26,10 +26,10 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
 
   const filteredData = Array.isArray(Agedata?.data)
     ? Agedata?.data.filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
+      if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+      if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+      return true;
+    })
     : [];
 
   const totalsByComp = filteredData.reduce((acc, emp) => {
@@ -49,9 +49,9 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
     chart: {
       type: "pie",
       backgroundColor: "transparent",
-      height:270,
-      marginBottom:0,
-      marginTop:0
+      height: 270,
+      marginBottom: 0,
+      marginTop: 0
     },
     title: {
       text: null,
@@ -63,7 +63,7 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
     // },
     tooltip: {
       pointFormat:
-        "<b>{point.name}</b>: {point.y} Employees<br/>({point.percentage:.1f}%)",
+        "<b>{point.name}</b> : {point.y} Employees <br/>({point.percentage:.1f}%)",
     },
     accessibility: {
       point: {
@@ -77,7 +77,7 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
         borderRadius: 1,
         dataLabels: {
           enabled: true,
-          distance: -12, 
+          distance: -35,
           format: "{point.name} </br>{point.percentage:.1f}%",
           style: {
             fontSize: "10px",
@@ -85,18 +85,18 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
           },
         },
         point: {
-      events: {
-        click: function () {
-          console.log("Clicked:", this.name, "Value:", this.y);
-setSearch((prev) => ({
+          events: {
+            click: function () {
+              console.log("Clicked:", this.name, "Value:", this.y);
+              setSearch((prev) => ({
                 ...prev,
                 AGE: this.name,
               }));
-          
-          setShowTable(true);
+
+              setShowTable(true);
+            },
+          },
         },
-      },
-    },
       },
     },
     colors: [
@@ -128,8 +128,10 @@ setSearch((prev) => ({
     <>
       <Card
         sx={{
-        
+
           backgroundColor: "#f5f5f5",
+          height: 330,
+          marginTop: 1
         }}
       >
         <CardHeader
@@ -145,17 +147,17 @@ setSearch((prev) => ({
         <Box>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </Box>
-   {showTable && (
+        {showTable && (
           <HeadDetailedCom
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
             HeadData={HeadData}
-           />
+          />
         )}
 
-       
+
       </Card>
     </>
   );

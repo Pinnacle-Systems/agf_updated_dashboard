@@ -1084,7 +1084,7 @@ export async function getesidet(req, res) {
 
 export async function getattdet(req, res) {
   const connection = await getConnection(res);
-  const { filterBuyer,filterYear, search = {} } = req.query;
+  const { filterBuyer, filterYear, search = {} } = req.query;
   let result = [];
   const filterBuyerList = filterBuyer
     .split(",")
@@ -1928,7 +1928,7 @@ export async function getYearlyComp(req, res) {
       GROUP BY A.COMPCODE
       
     `;
-
+    console.log(sql, "sqlgetYearlyComp")
     const result = await connection.execute(sql);
 
     const resp = result.rows.map((po) => ({
@@ -2019,6 +2019,8 @@ GROUP BY COMPCODE
 ORDER BY COMPCODE
 
     `;
+
+    console.log(sql, "getregionCount")
 
     const result = await connection.execute(sql);
 
@@ -3088,7 +3090,7 @@ A.FNAME,
  DD.EMPTYPE
     `;
 
-    // console.log(sql, "sql for Det");
+    console.log(sql, "getHeadDetail");
     const queryResult = await connection.execute(sql);
     result = queryResult.rows.map((row) =>
       queryResult.metaData.reduce((acc, column, index) => {
@@ -3103,6 +3105,94 @@ A.FNAME,
     return res
       .status(500)
       .json({ statusCode: 1, message: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getStateWiseHeadCount(req, res) {
+
+  console.log(111111, "getStateWiseHeadCount")
+
+
+  const month = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const d = new Date();
+  const monthName = month[d.getMonth()];
+  const yearName = d.getFullYear();
+  const lastmonth = month[d.getMonth() - 1];
+  const currentDt = [monthName, yearName].join(" ");
+  const lstMnth = [lastmonth, yearName].join(" ");
+
+  const connection = await getConnection(res);
+
+  try {
+    const { filterBuyer } = req.query;
+
+    let whereClause
+    if (filterBuyer) {
+      whereClause = `${filterBuyer}`;
+    }
+
+    const sql = `
+
+
+
+SELECT
+    A.COMPCODE,
+       NVL(TRIM(A.STATE), 'NA') AS STATE,
+    SUM(CASE WHEN A.GENDER = 'MALE' THEN 1 ELSE 0 END) AS MALE,
+    SUM(CASE WHEN A.GENDER = 'FEMALE' THEN 1 ELSE 0 END) AS FEMALE,
+    SUM(CASE WHEN A.GENDER IN ('MALE','FEMALE') THEN 1 ELSE 0 END) AS TOTAL
+FROM MISTABLE A
+WHERE A.DOJ <= (
+        SELECT MIN(AA.STDT)
+        FROM MONTHLYPAYFRQ AA
+        WHERE AA.PAYPERIOD = '${currentDt}'
+    )
+  AND (A.DOL IS NULL OR A.DOL <= (
+        SELECT MIN(AA.ENDT)
+        FROM MONTHLYPAYFRQ AA
+        WHERE AA.PAYPERIOD = '${currentDt}'
+    ))
+  AND 1 = 1
+  AND A.COMPCODE = '${whereClause}'
+GROUP BY A.COMPCODE,  NVL(TRIM(A.STATE), 'NA')
+ORDER BY NVL(TRIM(A.STATE), 'NA')
+
+`;
+
+    console.log(sql, "getStateWiseHeadCount")
+
+    const result = await connection.execute(sql);
+
+    const resp = result.rows.map((po) => ({
+      COMPCODE: po[0],
+      STATE: po[1],
+      MALE: po[2],
+      FEMALE: po[3],
+      TOTAL: po[4]
+
+
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();
   }

@@ -31,7 +31,9 @@ const DetailedHeadcount = ({ companyName, Year }) => {
   const { data: result } = useGetYearlyCompQuery({ params: {} });
 
   const { data: HeadDetail } = useGetHeadCountDetailQuery({
-    params: { compCode: filterBuyer },
+    params: {
+      compCode: filterBuyer, filterYear: selectedYear,
+    },
   });
 
   const PFyeardata = HeadDetail?.data || [];
@@ -54,7 +56,7 @@ const DetailedHeadcount = ({ companyName, Year }) => {
     setSelectedState(type);
   };
 
-  useEffect(() => {}, [filterBuyer]);
+  useEffect(() => { }, [filterBuyer]);
 
   const { data: finYr } = useGetFinYrQuery();
 
@@ -106,6 +108,7 @@ const DetailedHeadcount = ({ companyName, Year }) => {
           top: "30px", // set to height of tab list
           zIndex: 50,
           backgroundColor: "white",
+          padding: 3
         }}
       >
         <Grid
@@ -119,7 +122,7 @@ const DetailedHeadcount = ({ companyName, Year }) => {
             borderTop: "1px solid #afafaf",
           }}
         >
-          <Grid item md={7}>
+          <Grid item md={5}>
             <Box sx={{ p: 0, backgroundColor: "" }}>
               <Typography
                 variant="h4"
@@ -129,167 +132,90 @@ const DetailedHeadcount = ({ companyName, Year }) => {
               </Typography>
             </Box>
           </Grid>
-
-          <Grid item md={5}>
+        
+        </Grid>
+      </div>
+      <div className="p-3">
+        <Grid item md={6}>
+          <HeadcountDept
+            companyName={filterBuyer}
+            HeadData={PFyeardata}
+            selectedState={selectedState}
+          />
+        </Grid>
+        <Grid container spacing={1}>
+          <Grid item xs={6} md={12}>
             <Grid container spacing={1}>
-              <Grid item md={3}>
-                <button
-                  onClick={() => handleFilterClick("Labour")}
-                  className={`flex items-center gap-2 px-5 py-2  text-[11px] font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "Labour"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUserTie size={14} /> Employees
-                </button>
-              </Grid>
-              <Grid item md={3}>
-                <button
-                  onClick={() => handleFilterClick("Staff")}
-                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "Staff"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUsers size={16} /> Staff
-                </button>
-              </Grid>
-              <Grid item md={3}>
-                <button
-                  onClick={() => handleFilterClick("All")}
-                  className={`flex items-center gap-2 px-5 py-2  ml-4  text-xs font-semibold rounded-full shadow-md transition-all 
-                          ${
-                            selectedState === "All"
-                              ? "bg-blue-600 text-white scale-105"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                          }
-                          focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                >
-                  <FaUsers size={16} /> All
-                </button>
-              </Grid>
-              {/* <Grid item md={2}>
-                <DropdownWithSearch
-                  options={finYr?.data || []}
-                  labelField={"finYr"}
-                  // required={true}
-                  label={""}
-                  value={selectedYear}
-                  setValue={setSelectedYear}
-                  className="mt-1"
-                  // disabled={readonly}
-                />
-              </Grid> */}
 
-              <Grid item md={3}>
-                <DropdownWithSearch
-                  options={optionsArray || []}
-                  labelField={"compname"}
-                  // required={true}
-                  label={""}
-                  value={filterBuyer}
-                  setValue={setfilterBuyer}
-                  // disabled={readonly}
-                  className="mt-1"
-                />
+              <Grid item md={12}>
+                <Grid container spacing={1}>
+                  <Grid item md={4}>
+                    <EmptypeHead
+                      companyName={filterBuyer}
+                      HeadData={PFyeardata}
+                      selectedState={selectedState}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+                    <AgeHead
+                      companyName={filterBuyer}
+                      HeadData={PFyeardata}
+                      selectedState={selectedState}
+                    />
+                  </Grid>
+                  <Grid item md={4}>
+
+                    <ExperienceHead
+                      companyName={filterBuyer}
+                      HeadData={PFyeardata}
+                      selectedState={selectedState}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
+          <Grid item md={12}>
+            <DeptHeadCount
+              selectedYear1={selectedYear}
+              companyName={filterBuyer}
+              HeadData={PFyeardata}
+              selectedState={selectedState}
+            />
+          </Grid>
+          <Grid md={12}>
+            <DesgHead
+              companyName={filterBuyer}
+              HeadData={PFyeardata}
+              selectedState={selectedState}
+            />
+          </Grid>
+          <Grid item xs={6} md={12}>
+            <BGhead
+              companyName={filterBuyer}
+              HeadData={PFyeardata}
+              selectedState={selectedState}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={12}>
+            <RegionHead
+              companyName={filterBuyer}
+              HeadData={PFyeardata}
+              selectedState={selectedState}
+            />
+          </Grid>
+          {/* <Grid item xs={12} md={4}>
+            <ExperienceHead
+              companyName={filterBuyer}
+              HeadData={PFyeardata}
+              selectedState={selectedState}
+            />
+          </Grid> */}
+
         </Grid>
       </div>
 
-      <Grid container spacing={1}>
-        <Grid item xs={6} md={5}>
-          <Grid container spacing={1}>
-            <Grid item md={12}>
-              <HeadcountDept
-                companyName={filterBuyer}
-                HeadData={PFyeardata}
-                selectedState={selectedState}
-              />
-            </Grid>
-            <Grid item md={12}>
-              <Grid container spacing={1}>
-                <Grid item md={5}>
-                  <EmptypeHead
-                    companyName={filterBuyer}
-                    HeadData={PFyeardata}
-                    selectedState={selectedState}
-                  />
-                </Grid>
-                <Grid item md={7}>
-                  <AgeHead
-                    companyName={filterBuyer}
-                    HeadData={PFyeardata}
-                    selectedState={selectedState}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item md={7}>
-          <DeptHeadCount
-            selectedYear1={selectedYear}
-            companyName={filterBuyer}
-            HeadData={PFyeardata}
-            selectedState={selectedState}
-          />
-        </Grid>
-        <Grid md={12}>
-        <DesgHead
-          companyName={filterBuyer}
-          HeadData={PFyeardata}
-          selectedState={selectedState}
-        />
-        </Grid>
-        <Grid item xs={6} md={4}>
-          <BGhead
-            companyName={filterBuyer}
-            HeadData={PFyeardata}
-            selectedState={selectedState}
-          />
-        </Grid>
-        {/* <Grid item xs={6} md={3}>
-          <Grid container spacing={1}>
-            <Grid item md={12}>
-              <EmptypeHead
-                companyName={filterBuyer}
-                HeadData={PFyeardata}
-                selectedState={selectedState}
-              />
-            </Grid>
-            <Grid item md={12}>
-              <AgeHead
-                companyName={filterBuyer}
-                HeadData={PFyeardata}
-                selectedState={selectedState}
-              />
-            </Grid>
-          </Grid>
-        </Grid> */}
-        <Grid item xs={12} md={4}>
-          <RegionHead
-            companyName={filterBuyer}
-            HeadData={PFyeardata}
-            selectedState={selectedState}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <ExperienceHead
-            companyName={filterBuyer}
-            HeadData={PFyeardata}
-            selectedState={selectedState}
-          />
-        </Grid>
-        
-      </Grid>
     </>
   );
 };

@@ -27,7 +27,9 @@ const ExpHeadDetail = ({
   color,
   HeadData
 }) => {
-  
+
+
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedState, setSelectedState] = useState("");
@@ -38,7 +40,7 @@ const ExpHeadDetail = ({
     max: Infinity,
   });
   const recordsPerPage = 34;
-  console.log(HeadData, "selectedBuyer for salary");
+  console.log(HeadData, "HeadData");
 
   // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
   //   params: {
@@ -47,17 +49,17 @@ const ExpHeadDetail = ({
   //   },
   // });
 
-//   const { data: ESIyeardata } = useGetEsiPfQuery({
-//     params: {
-//       filterSupplier: selectedBuyer,
-//       filterYear: selectedYear,
-//       search: search || {},
-//     },
-//   });
+  //   const { data: ESIyeardata } = useGetEsiPfQuery({
+  //     params: {
+  //       filterSupplier: selectedBuyer,
+  //       filterYear: selectedYear,
+  //       search: search || {},
+  //     },
+  //   });
 
-//   const salaryDet = ESIyeardata?.data || [];
+  //   const salaryDet = ESIyeardata?.data || [];
 
-  console.log(HeadData, "salaryDet inside");
+  console.log(search, "searchsearch");
   useEffect(() => {
     setCurrentPage(1);
   }, [HeadData]);
@@ -111,51 +113,51 @@ const ExpHeadDetail = ({
 
   const filteredData = Array.isArray(HeadData)
     ? HeadData
-        .filter((row) =>
-          Object.keys(search || {}).every((key) => {
-             const searchValue = (search[key] || "").toString().trim();
-            if (!searchValue) return true;
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const searchValue = (search[key] || "").toString().trim();
+          if (!searchValue) return true;
 
-            const rowValue = row[key];
+          const rowValue = row[key];
 
-            if (key === "EXP") {
-              const age = rowValue;
+          if (key == "EXP") {
+            const age = rowValue;
 
-             
-              if (searchValue.includes("-")) {
-                const [minAge, maxAge] = searchValue.split("-").map(Number);
-                return age >= minAge && age <= maxAge;
-              }
+            // console.log(age,"ageage")
 
-              
-              if (searchValue.endsWith("+")) {
-                const minAge = Number(searchValue.replace("+", ""));
-                return age >= minAge;
-              }
-
-             
-              return age === Number(searchValue);
+            if (searchValue.includes("-")) {
+              const [minAge, maxAge] = searchValue.split("-").map(Number);
+              return age >= minAge && age <= maxAge;
             }
 
-            
-            return rowValue
-              ?.toString()
-              .toLowerCase()
-              .includes(searchValue.toLowerCase());
-          })
-        )
-        .filter((row) => {
-          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-          return true;
+
+            if (searchValue.endsWith("+")) {
+              const minAge = Number(searchValue.replace("+", ""));
+              return age >= minAge;
+            }
+
+
+            return age === Number(searchValue);
+          }
+
+          return rowValue
+            ?.toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase());
         })
-        .filter((row) => {
-          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-          return true;
-        })
-        
-        
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+
+
     : [];
 
   console.log(filteredData, "filteredData1");
@@ -224,11 +226,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => handleFilterClick("Labour")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-        ${
-          selectedState === "Labour"
-            ? "bg-blue-600 text-white scale-105"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }
+        ${selectedState === "Labour"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
         focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUserTie size={14} /> Employees
@@ -237,11 +238,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => handleFilterClick("Staff")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-xs font-semibold rounded-full shadow-md transition-all 
-        ${
-          selectedState === "Staff"
-            ? "bg-blue-600 text-white scale-105"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }
+        ${selectedState === "Staff"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
         focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUsers size={14} /> Staff
@@ -250,11 +250,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => handleFilterClick("All")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-        ${
-          selectedState === "All"
-            ? "bg-blue-600 text-white scale-105"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }
+        ${selectedState === "All"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
         focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 All
@@ -265,11 +264,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => handleGenderFilter("Male")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${
-                  selectedGender === "Male"
+                ${selectedGender === "Male"
                     ? "bg-blue-600 text-white scale-105"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 <FaMars size={14} className="text-blue-500" /> Male
               </button>
@@ -277,22 +275,20 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => handleGenderFilter("Female")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${
-                  selectedGender === "Female"
+                ${selectedGender === "Female"
                     ? "bg-blue-600 text-white scale-105"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 <FaVenus size={14} className="text-pink-500" /> Female
               </button>
               <button
                 onClick={() => handleGenderFilter("Both")}
                 className={`flex items-center gap-2 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${
-                  selectedGender === "Both"
+                ${selectedGender === "Both"
                     ? "bg-blue-600 text-white scale-105"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 <IoMaleFemale size={14} className="text-green-500" /> Both
               </button>
@@ -302,7 +298,7 @@ const ExpHeadDetail = ({
 
         <div className="flex justify-between items-start">
           <div className="grid grid-cols-8 gap-1 mb-3">
-            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION","EXP","STATE","BGF","EMPTYPE"].map((key) => (
+            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION", "EXP", "STATE","EMPTYPE"].map((key) => (
               <div key={key} className="relative">
                 <input
                   type="text"
@@ -385,9 +381,10 @@ const ExpHeadDetail = ({
                   <th className="border p-1 text-left">Department</th>
                   <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">Exp</th>
-                  <th className="border p-1 text-left">State</th>
-                  <th className="border p-1 text-left">BLG</th>
+                  {/* <th className="border p-1 text-left">State</th> */}
                   <th className="border p-1 text-left">EmpType</th>
+                  {/* <th className="border p-1 text-left">BLG</th>
+                 */}
                 </tr>
               </thead>
               <tbody>
@@ -445,7 +442,7 @@ const ExpHeadDetail = ({
                       >
                         {row.DEPARTMENT}
                       </td>
-                       <td
+                      <td
                         className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "100px" }}
                       >
@@ -457,13 +454,19 @@ const ExpHeadDetail = ({
                       >
                         {row.EXP}
                       </td>
-                      <td
+                      {/* <td
                         className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "20px" }}
                       >
                         {row.STATE}
-                      </td>
+                      </td> */}
                       <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+                      {/* <td
                         className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "20px" }}
                       >
@@ -475,7 +478,7 @@ const ExpHeadDetail = ({
                       >
                         {row.EMPTYPE}
                       </td>
-                     
+                      */}
                     </tr>
                   );
                 })}
@@ -497,9 +500,10 @@ const ExpHeadDetail = ({
                   <th className="border p-1 text-left">Department</th>
                   <th className="border p-1 text-left">Designation</th>
                   <th className="border p-1 text-left">Exp</th>
-                  <th className="border p-1 text-left">State</th>
-                  <th className="border p-1 text-left">BLG</th>
+                  {/* <th className="border p-1 text-left">State</th> */}
                   <th className="border p-1 text-left">EmpType</th>
+                  {/* <th className="border p-1 text-left">BLG</th>
+                */}
                 </tr>
               </thead>
               <tbody>
@@ -512,7 +516,7 @@ const ExpHeadDetail = ({
                       key={index}
                       className="text-gray-700 bg-white even:bg-gray-100"
                     >
-                     <td className="border p-1 text-[10px] w-[25px]">
+                      <td className="border p-1 text-[10px] w-[25px]">
                         {serialNo}
                       </td>
                       <td className="border p-1 text-[10px] w-[60px]">
@@ -533,7 +537,7 @@ const ExpHeadDetail = ({
                       >
                         {row.DEPARTMENT}
                       </td>
-                       <td
+                      <td
                         className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "100px" }}
                       >
@@ -545,13 +549,19 @@ const ExpHeadDetail = ({
                       >
                         {row.EXP}
                       </td>
-                      <td
+                      {/* <td
                         className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "20px" }}
                       >
                         {row.STATE}
-                      </td>
+                      </td> */}
                       <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+                      {/* <td
                         className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
                         style={{ maxWidth: "20px" }}
                       >
@@ -562,7 +572,7 @@ const ExpHeadDetail = ({
                         style={{ maxWidth: "25px" }}
                       >
                         {row.EMPTYPE}
-                      </td>
+                      </td> */}
                     </tr>
                   );
                 })}
@@ -582,11 +592,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepBackward size={16} />
               </button>
@@ -594,11 +603,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronLeft size={16} />
               </button>
@@ -612,11 +620,10 @@ const ExpHeadDetail = ({
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronRight size={16} />
               </button>
@@ -624,11 +631,10 @@ const ExpHeadDetail = ({
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepForward size={16} />
               </button>

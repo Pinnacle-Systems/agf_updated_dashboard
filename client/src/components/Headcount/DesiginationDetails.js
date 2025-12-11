@@ -17,7 +17,7 @@ import { useGetEsiPf1Query, useGetEsiPfQuery } from "../../redux/service/misDash
 import FinYear from "../FinYear";
 
 
-const HeadDetailedCom = ({
+const DesiginationDetail = ({
   closeTable,
   search,
   setSearch,
@@ -26,8 +26,10 @@ const HeadDetailedCom = ({
   selectedYear,
   color,
   HeadData,
-  selectedGender, setSelectedGender
-
+  selectedGender,
+  setSelectedGender,
+  allData,
+  setFilteredHeadData
 }) => {
 
 
@@ -39,7 +41,7 @@ const HeadDetailedCom = ({
     max: Infinity,
   });
   const recordsPerPage = 34;
-  console.log(selectedBuyer, "selectedBuyer for salary");
+  console.log(HeadData, "HeadData");
 
   // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
   //   params: {
@@ -110,7 +112,8 @@ const HeadDetailedCom = ({
     XLSX.writeFile(wb, "Employee_Details.xlsx");
   };
 
-  const filteredData = Array.isArray(HeadData)
+  console.log(search, "searchsearch")
+  let filteredData = Array.isArray(HeadData)
     ? HeadData
       .filter((row) =>
         Object.keys(search || {}).every((key) => {
@@ -303,15 +306,72 @@ const HeadDetailedCom = ({
                   type="text"
                   placeholder={`Search ${key}...`}
                   value={search[key] || ""}
-                  onChange={(e) =>
+                  // onChange={(e) =>
+                  //   setSearch({ ...search, [key]: e.target.value })
+
+                  // }
+                  onChange={(e) => {
+                     const  value =  e.target.value
                     setSearch({ ...search, [key]: e.target.value })
-                  }
+                    // if (!value || value.trim() === "") {
+                    //   // If input is empty, show all data
+                    //   setFilteredHeadData(allData);
+                    // } else {
+                    //   // Apply filtering based on this key
+                    //   const filtered = allData.filter(row => {
+                    //     const rowValue = row[key];
+                    //     return rowValue
+                    //       ?.toString()
+                    //       .toLowerCase()
+                    //       .includes(value.toLowerCase());
+                    //   });
+
+                    //   setFilteredHeadData(filtered);
+                    // }
+                  }}
                   className="w-full h-6 p-1 pl-8 text-gray-900 text-[11px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
                 />
                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
               </div>
             ))}
+            {/* <div className="flex items-center text-[12px]">
+              
+              <FinYear
+                selectedYear={selectedYear}
+                selectmonths={selectmonths}
+                setSelectmonths={setSelectmonths}
+              />
+            </div> */}
+            {/* <div className="flex items-center gap-4 text-[12px] "> */}
+            {/* <div className="flex items-center text-[12px]">
+              <span className="text-gray-500">Min Netpay:</span>
+              <input
+                type="number"
+                value={netpayRange.min}
+                onChange={(e) =>
+                  setNetpayRange({
+                    ...netpayRange,
+                    min: Number(e.target.value),
+                  })
+                }
+                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div> */}
 
+            {/* <div className="flex items-center  text-[12px]">
+              <span className="text-gray-500">Max Netpay:</span>
+              <input
+                type="number"
+                value={netpayRange.max === Infinity ? "" : netpayRange.max}
+                onChange={(e) =>
+                  setNetpayRange({
+                    ...netpayRange,
+                    max: Number(e.target.value),
+                  })
+                }
+                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div> */}
           </div>
           <div className="right-0">
             <button
@@ -558,6 +618,6 @@ const HeadDetailedCom = ({
   );
 };
 
-export default HeadDetailedCom;
+export default DesiginationDetail;
 
 // export default ESIDetailed;

@@ -99,7 +99,7 @@ const chartData = Object.entries(filterBuyer1).map(([id,company]) => ({
             <StatBox
               icon={<IoIosPeople size={30} />}
               value={detailedpage?.total}
-              label="Head Count"
+              label="Total Head Count"
               color={color}
             />
           </Grid>

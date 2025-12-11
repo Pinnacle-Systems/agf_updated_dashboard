@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL, MIS_DASHBOARD } from "../../constants/apiUrl";
 
 
-const MisDashboard = createApi({    
+const MisDashboard = createApi({
     reducerPath: 'MisDashboard',
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
@@ -48,7 +48,7 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-        
+
         getMisDashboardSalaryDet: builder.query({
             query: ({ params }) => {
                 return {
@@ -63,7 +63,7 @@ const MisDashboard = createApi({
             providesTags: ['MisDashboard'],
         }),
 
-         getMisDashboardOTWagesDet: builder.query({
+        getMisDashboardOTWagesDet: builder.query({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/otwagesdet",
@@ -300,7 +300,7 @@ const MisDashboard = createApi({
             providesTags: ['MisDashboard'],
         }),
 
-         getRegioncount: builder.query({
+        getRegioncount: builder.query({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/getregioncount",
@@ -313,13 +313,13 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-        
+
         executeProcedure: builder.mutation({
-                    query: () => ({
-                      url: MIS_DASHBOARD + "/execute-procedure",
-                      method:  "PUT",
-                    }),
-                  }),
+            query: () => ({
+                url: MIS_DASHBOARD + "/execute-procedure",
+                method: "PUT",
+            }),
+        }),
         getBuyerWiseRevenue: builder.query({
             query: ({ params }) => {
                 return {
@@ -372,7 +372,7 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-         getsalarydel: builder.query({
+        getsalarydel: builder.query({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/salaryDet1",
@@ -406,12 +406,12 @@ const MisDashboard = createApi({
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
                     },
-                    
+
                 }
             },
             providesTags: ['MisDashboard'],
         }),
-         getsallastmonth: builder.query({
+        getsallastmonth: builder.query({
             query: () => {
                 return {
                     url: MIS_DASHBOARD + "/lastsalaryDet",
@@ -419,7 +419,7 @@ const MisDashboard = createApi({
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
                     },
-                    
+
                 }
             },
             providesTags: ['MisDashboard'],
@@ -432,12 +432,12 @@ const MisDashboard = createApi({
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
                     },
-                    
+
                 }
             },
             providesTags: ['MisDashboard'],
         }),
-         getLeaveAvb: builder.query({
+        getLeaveAvb: builder.query({
             query: ({ params }) => {
                 return {
                     url: MIS_DASHBOARD + "/leaveAvailable",
@@ -450,86 +450,100 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-      getlongAbsent: builder.query({
-  query: ({ params }) => {
-    return {
-      url: MIS_DASHBOARD + "/LongAbsent",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-      params
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
-  getFullPrasent: builder.query({
-  query: ({ params }) => {
-    return {
-      url: MIS_DASHBOARD + "/FullPrasent",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-      params
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
-  getPayPeriod: builder.query({
-  query: ({ params }) => {
-    return {
-      url: MIS_DASHBOARD + "/PayPeriod",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-      params
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
-  getFinYear: builder.query({
-  query: () => {
-    return {
-      url: MIS_DASHBOARD + "/finYear",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      }
-      
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
-  getHeadCount: builder.query({
-  query: ({ params }) => {
-    return {
-      url: MIS_DASHBOARD + "/headCount",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-      params
-      
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
-  getHeadCountDetail: builder.query({
-  query: ({ params }) => {
-    return {
-      url: MIS_DASHBOARD + "/HeadDetail",
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
-      params
-      
-    }
-  },
-  providesTags: ['MisDashboard'],
-}),
+        getlongAbsent: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/LongAbsent",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getFullPrasent: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/FullPrasent",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getPayPeriod: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/PayPeriod",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getFinYear: builder.query({
+            query: () => {
+                return {
+                    url: MIS_DASHBOARD + "/finYear",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    }
+
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getHeadCount: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/headCount",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getHeadCountDetail: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/HeadDetail",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getStateWiseHeadCount: builder.query({
+            query: ({ params }) => {
+                return {
+                    url: MIS_DASHBOARD + "/stateWiseHeadCount",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
     }),
 })
 
@@ -573,7 +587,8 @@ export const {
     useGetAgewiseEsiQuery,
     useGetsallastmonthQuery,
     useGetsalarydelQuery,
-    useGetMisDashboardNewjoinQuery
-    } = MisDashboard;
+    useGetMisDashboardNewjoinQuery,
+    useGetStateWiseHeadCountQuery
+} = MisDashboard;
 
 export default MisDashboard;

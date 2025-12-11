@@ -145,6 +145,8 @@ const ExperienceHead = ({ companyName, selectedState, HeadData }) => {
       <Card
         sx={{
           backgroundColor: "#f5f5f5",
+          height: 330,
+          marginTop: 1
         }}
       >
         <CardHeader

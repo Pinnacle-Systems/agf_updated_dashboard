@@ -312,9 +312,12 @@ SELECT MIN(AA.ENDT) STDT FROM MONTHLYPAYFRQ AA WHERE TO_DATE(SYSDATE) BETWEEN AA
 ) X
 WHERE X.SLAP IS NOT NULL
 GROUP BY X.SLAP
-ORDER BY 1
+ORDER BY TO_NUMBER(REGEXP_SUBSTR(SLAP, '^\d+'))
+
+
      `
 
+     console.log(sql,"sqlsqlsql")
         const result = await connection.execute(sql)
         let resp = result.rows.map(po => ({
 

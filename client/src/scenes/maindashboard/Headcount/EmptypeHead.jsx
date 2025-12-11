@@ -52,7 +52,7 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
     deptHeadcount[dept] = groupeddata[dept].length;
   });
 
-  console.log(deptHeadcount);
+  console.log(groupeddata,"groupeddata");
 
   console.log(deptHeadcount,"totalsByComp");
   
@@ -62,6 +62,9 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
     headcount: netpay,
     color: COLORS[index % COLORS.length],
   }));
+
+    console.log(Chartdata,"Chartdata");
+
 
   const handlePieClick=(data, index)=>{
 
@@ -78,11 +81,12 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
          sx={{
            backgroundColor: "#f5f5f5",
            ml:1,
-           height:310
+           height:330,
+           marginTop :1
          }}
        >
          <CardHeader
-           title="Employee Type"
+           title="Employee Type Wise HeadCount"
            titleTypographyProps={{
              sx: { fontSize: ".9rem", fontWeight: 600 },
            }}
@@ -111,7 +115,7 @@ const EmptypeHead= ({ companyName, selectedState, HeadData }) => {
                 </Pie>
 
                 <Tooltip
-                  formatter={(value, name) => [`₹ ${value.toLocaleString("en-IN")}`, name]}
+                  formatter={(value, name) => [` ${value.toLocaleString("en-IN")}`, name]}
                   contentStyle={{ backgroundColor: '#fff', borderRadius: 1, border: '1px solid #ccc' }}
                 />
               </PieChart>

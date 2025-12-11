@@ -10,6 +10,7 @@ import {
 } from "../../../redux/service/misDashboardService";
 import { useTheme } from "@emotion/react";
 import HeadDetailedCom from "../../../components/Headcount/HeadDetail";
+import DesiginationDetail from "../../../components/Headcount/DesiginationDetails";
 
 // Initialize Highcharts drilldown safely
 if (typeof Highcharts === "object") {
@@ -23,10 +24,13 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
     MIDCARD: "",
     DEPARTMENT: "",
     COMPCODE: "",
+    DESIGNATION: "",
   });
   const [showTable, setShowTable] = useState(false);
 
   const [filterBuyer, setFilterBuyer] = useState(companyName);
+  const [filterHeadData, setFilteredHeadData] = useState([])
+  const [selectedGender, setSelectedGender] = useState();
 
   useEffect(() => {
     setFilterBuyer(companyName);
@@ -34,10 +38,10 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
 
   const filteredData = Array.isArray(HeadData)
     ? HeadData.filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
+      if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+      if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+      return true;
+    })
     : [];
 
   const groupeddata = filteredData?.reduce((acc, item) => {
@@ -50,7 +54,7 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
     return acc;
   }, {});
 
-  console.log(groupeddata, "groupeddataas");
+  console.log(groupeddata, "groupeddatA");
 
   const deptHeadcount = {};
 
@@ -58,7 +62,10 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
     deptHeadcount[dept] = groupeddata[dept].length;
   });
 
-  console.log(deptHeadcount, "groupeddataas");
+  console.log(deptHeadcount, "deptHeadcount");
+  const totalCount = Object.values(deptHeadcount).reduce((sum, val) => sum + val, 0);
+  console.log(totalCount, "totalCount");
+
 
   const fortmatdata = Object.entries(deptHeadcount).map(([x, y]) => ({
     department: x,
@@ -92,7 +99,7 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
           fontSize: "8px",
           fontFamily: "Verdana, sans-serif",
         },
-        rotation:90
+        rotation: 90
       },
     },
     yAxis: {
@@ -119,6 +126,8 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
                 ...prev,
                 DESIGNATION: desg,
               }));
+              filterDataBySearch(desg)
+              // setSelectedGender(this.series.name)
               setShowTable(true);
             },
           },
@@ -171,12 +180,39 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
     ],
   };
 
+  const filterDataBySearch = (param) => {
+    console.log(param, "paramparam")
+    const filtered = HeadData?.filter(row => {
+      const bgf = row?.DESIGNATION?.toLowerCase();
+      console.log(search, "searchsearch")
+
+      return bgf == param.toLocaleLowerCase();
+    });
+    setFilteredHeadData(filtered);
+  }
+
+
+  // useEffect(() => {
+  //   if (!search?.DESIGNATION) return;
+
+  //   const filtered = HeadData?.filter(row => {
+  //     const bgf = row?.DESIGNATION?.toLowerCase();
+
+
+
+  //     return bgf == search?.DESIGNATION?.toLocaleLowerCase();
+  //   });
+
+  //   setFilteredHeadData(filtered);
+  // }, [search]); 
+
   return (
     <Card
       sx={{
-        ml:2,
-        mt:1,
+        ml: 2,
+        mt: 1,
         backgroundColor: "#f5f5f5",
+        paddingX: 1
       }}
     >
       <CardHeader
@@ -193,15 +229,19 @@ const DesgHead = ({ companyName, selectedState, HeadData }) => {
         <HighchartsReact highcharts={Highcharts} options={options} />
       </Box>
 
-     {showTable && (
-               <HeadDetailedCom
-                 selectedBuyer={[filterBuyer]}
-                 closeTable={() => setShowTable(false)}
-                 setSearch={setSearch}
-                 search={search}
-                 HeadData={HeadData}
-                />
-             )}
+      {showTable && (
+        <DesiginationDetail
+          selectedBuyer={[filterBuyer]}
+          closeTable={() => setShowTable(false)}
+          setSearch={setSearch}
+          search={search}
+          HeadData={filterHeadData}
+          selectedGender={selectedGender}
+          setSelectedGender={setSelectedGender}
+          allData= {HeadData}
+          setFilteredHeadData={setFilteredHeadData}
+        />
+      )}
     </Card>
   );
 };

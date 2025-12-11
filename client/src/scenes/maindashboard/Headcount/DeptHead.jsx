@@ -27,6 +27,8 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
   const [showTable, setShowTable] = useState(false);
 
   const [filterBuyer, setFilterBuyer] = useState(companyName);
+  const [filterHeadData, setFilteredHeadData] = useState([])
+  const [selectedGender, setSelectedGender] = useState();
 
 
 
@@ -36,34 +38,65 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
 
   const filteredData = Array.isArray(HeadData)
     ? HeadData.filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
+      if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+      if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+      return true;
+    })
     : [];
 
-    const groupdata1 = filteredData?.reduce((acc, emp) => {
-    const dept = emp.DEPARTMENT || "Unknown";
+  // const groupdata1 = filteredData?.reduce((acc, emp) => {
+  //   const dept = emp.DEPARTMENT || "Unknown";
+  //   const gender = (emp.GENDER || "Unknown").trim().toLowerCase();
+
+  //   const normalizedGender =
+  //     gender === "male" ? "Male" : gender === "female" ? "Female" : "Other";
+
+  //   if (!acc[dept]) {
+  //     acc[dept] = { Male: 0, Female: 0 };
+  //   }
+
+  //   acc[dept][normalizedGender] += 1;
+
+  //   return acc;
+  // }, {});
+
+  const groupdata1 = filteredData?.reduce((acc, emp) => {
+    // Clean department name
+    let dept = (emp.DEPARTMENT || "Unknown").trim();
+
+    // Normalize department safely (case-insensitive)
+    dept = dept.toLowerCase();
+
+    // If you want exact department separation, do NOT merge similar words
+    // Final formatting (first letter capital)
+    dept = dept.charAt(0).toUpperCase() + dept.slice(1);
+
+    // Normalize gender
     const gender = (emp.GENDER || "Unknown").trim().toLowerCase();
-
     const normalizedGender =
-      gender === "male" ? "Male" : gender === "female" ? "Female" : "Other";
+      gender === "male" ? "Male" :
+        gender === "female" ? "Female" : "Other";
 
+    // Create dept bucket if not exists
     if (!acc[dept]) {
-      acc[dept] = { Male: 0, Female: 0 };
+      acc[dept] = { Male: 0, Female: 0, Other: 0 };
     }
 
+    // Count
     acc[dept][normalizedGender] += 1;
 
     return acc;
   }, {});
 
-  console.log(groupdata1, "depatmet");
+
 
   const departments = Object.keys(groupdata1 || []);
 
   const maleCounts = departments.map((dept) => groupdata1[dept].Male || 0);
   const femaleCounts = departments.map((dept) => groupdata1[dept].Female || 0);
+
+  console.log(groupdata1, "depatmet");
+
 
   const option = {
     chart: {
@@ -82,7 +115,7 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
         description: "Months of the year",
       },
       labels: {
-        style: { fontSize: "8px"},
+        style: { fontSize: "8px" },
       },
     },
     yAxis: {
@@ -90,9 +123,9 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
         text: "HeadCount", style: { fontSize: "10px" },
       },
       labels: {
-        style: { fontSize: "10px"},
+        style: { fontSize: "10px" },
       },
-      
+
     },
     tooltip: {
       crosshairs: true,
@@ -100,25 +133,27 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
     },
     plotOptions: {
       series: {
-      cursor: "pointer",
+        cursor: "pointer",
 
-      point: {
-        events: {
-          click: function () {
-            setSearch((prev) => ({
+        point: {
+          events: {
+            click: function () {
+              setSearch((prev) => ({
                 ...prev,
                 DEPARTMENT: this.category,
               }));
+              setSelectedGender(this.series.name)
+              filterDataBySearch(this.category)
 
-            setShowTable(true)
-            console.log("Department:", this.category);
-            console.log("Gender:", this.series.name);
-            console.log("Headcount:", this.y);
+              setShowTable(true)
+              console.log("Department:", this.category);
+              console.log("Gender:", this.series.name);
+              console.log("Headcount:", this.y);
 
+            },
           },
         },
       },
-    },
       spline: {
         marker: {
           radius: 4,
@@ -139,40 +174,71 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
       },
     ],
   };
+const filterDataBySearch = (param) => {
+  console.log(param,"paramparam")
+  const filtered = HeadData?.filter(row => {
+    const bgf = row?.DEPARTMENT?.toLowerCase();
+    console.log(search, "searchsearch")
+
+    return bgf == param.toLocaleLowerCase();
+  });
+  setFilteredHeadData(filtered);
+}
+
+
+  // useEffect(() => {
+  //   if (!search?.DEPARTMENT || showTable) return;
+
+  //   const filtered = HeadData?.filter(row => {
+  //     const bgf = row?.DEPARTMENT?.toLowerCase();
+  //     console.log(search, "searchsearch")
+
+
+
+  //     return bgf == search?.DEPARTMENT?.toLocaleLowerCase();
+  //   });
+
+  //   setFilteredHeadData(filtered);
+  // }, [search]);
+
+
 
   return (
     <Card
-            sx={{
-              mt:1,
-              backgroundColor: "#f5f5f5",
-            }}
-          >
-             <CardHeader
-                    title="Department wise HeadCount-Male vs Female"
-                    titleTypographyProps={{
-                      sx: { fontSize: ".9rem", fontWeight: 600 },
-                    }}
-                    sx={{
-                      p: 1,
-                      borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-                    }}
-                  />
+      sx={{
+        ml: 1,
+        mt: 1,
+        backgroundColor: "#f5f5f5",
+      }}
+    >
+      <CardHeader
+        title="Department wise HeadCount-Male vs Female"
+        titleTypographyProps={{
+          sx: { fontSize: ".9rem", fontWeight: 600 },
+        }}
+        sx={{
+          p: 1,
+          borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+        }}
+      />
       <Box>
         <HighchartsReact highcharts={Highcharts} options={option} />
       </Box>
 
-    
-        {showTable && (
-          <HeadDetailedCom
-            selectedBuyer={[filterBuyer]}
-            closeTable={() => setShowTable(false)}
-            setSearch={setSearch}
-            search={search}
-            HeadData={HeadData}
-           />
-        )}
 
-     
+      {showTable && (
+        <HeadDetailedCom
+          selectedBuyer={[filterBuyer]}
+          closeTable={() => setShowTable(false)}
+          setSearch={setSearch}
+          search={search}
+          HeadData={filterHeadData}
+          selectedGender={selectedGender}
+          setSelectedGender={setSelectedGender}
+        />
+      )}
+
+
     </Card>
   );
 };

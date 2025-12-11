@@ -17,7 +17,7 @@ import { useGetEsiPf1Query, useGetEsiPfQuery } from "../../redux/service/misDash
 import FinYear from "../FinYear";
 
 
-const HeadDetailedCom = ({
+const BloodGroupDetails = ({
   closeTable,
   search,
   setSearch,
@@ -25,21 +25,22 @@ const HeadDetailedCom = ({
   selectedBuyer,
   selectedYear,
   color,
-  HeadData,
-  selectedGender, setSelectedGender
-
+  HeadData
 }) => {
+
+
 
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedState, setSelectedState] = useState("");
+  const [selectedGender, setSelectedGender] = useState();
   const [selectmonths, setSelectmonths] = useState("");
   const [netpayRange, setNetpayRange] = useState({
     min: 0,
     max: Infinity,
   });
   const recordsPerPage = 34;
-  console.log(selectedBuyer, "selectedBuyer for salary");
+  console.log(HeadData, "HeadData");
 
   // const { data: salaryDetData } = useGetMisDashboardSalaryDetQuery({
   //   params: {
@@ -58,7 +59,7 @@ const HeadDetailedCom = ({
 
   //   const salaryDet = ESIyeardata?.data || [];
 
-  console.log(HeadData, "salaryDet inside");
+  console.log(search, "searchsearch");
   useEffect(() => {
     setCurrentPage(1);
   }, [HeadData]);
@@ -77,7 +78,7 @@ const HeadDetailedCom = ({
     }
 
     const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Designation", "Age"],
+      ["ID Card", "Name", "Gender", "Department", "Designation", "Experience"],
     ];
 
     const data = filteredData.map((row) => [
@@ -86,7 +87,7 @@ const HeadDetailedCom = ({
       row.GENDER,
       row.DEPARTMENT,
       row.DESIGNATION,
-      row.AGE,
+      row.EXP,
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -119,26 +120,42 @@ const HeadDetailedCom = ({
 
           const rowValue = row[key];
 
-          if (key === "AGE") {
+          if (key == "EXP") {
             const age = rowValue;
 
-            // Case 1: Age range "20-30"
+            // console.log(age,"ageage")
+
             if (searchValue.includes("-")) {
               const [minAge, maxAge] = searchValue.split("-").map(Number);
               return age >= minAge && age <= maxAge;
             }
 
-            // Case 2: "50+"
+
             if (searchValue.endsWith("+")) {
               const minAge = Number(searchValue.replace("+", ""));
               return age >= minAge;
             }
 
-            // Case 3: exact number
+
             return age === Number(searchValue);
           }
+          if (key == "BGF") {
+            if (searchValue.toLowerCase().includes("na")) {
+              // return rows where BGF is null or empty
+              return rowValue === null || rowValue === "";
+            }
+            else {
+              return rowValue
+                ?.toString()
+                .toLowerCase()
+                .includes(searchValue.toLowerCase());
+            }
+            // for other values, use case-insensitive includes
 
-          // Default string filter
+          }
+
+
+          console.log(rowValue, 'rowValue')
           return rowValue
             ?.toString()
             .toLowerCase()
@@ -162,7 +179,7 @@ const HeadDetailedCom = ({
   console.log(filteredData, "filteredData1");
 
   const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.AGE) || 0),
+    (sum, row) => sum + (Number(row.EXP) || 0),
     0
   );
   console.log(totalNetPay, "Total Net Pay");
@@ -177,8 +194,8 @@ const HeadDetailedCom = ({
 
   const { minNetPay, maxNetPay } = currentRecords.reduce(
     (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.AGE),
-      maxNetPay: Math.max(acc.maxNetPay, item.AGE),
+      minNetPay: Math.min(acc.minNetPay, item.EXP),
+      maxNetPay: Math.max(acc.maxNetPay, item.EXP),
     }),
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
@@ -188,7 +205,7 @@ const HeadDetailedCom = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-      <div className="bg-white p-4 rounded-lg shadow-2xl w-[1500px] max-w-[1500px]  h-[590px] max-h-[590px] relative">
+      <div className="bg-white p-4 rounded-lg shadow-2xl w-[1500px] max-w-[1500px]  h-[5900px] max-h-[590px] relative">
         <button
           onClick={closeTable}
           className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -296,8 +313,8 @@ const HeadDetailedCom = ({
         </div>
 
         <div className="flex justify-between items-start">
-          <div className="grid grid-cols-7 gap-2 mb-3">
-            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION", "AGE"].map((key) => (
+          <div className="grid grid-cols-8 gap-1 mb-3">
+            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION", "EXP", "STATE", "BGF", "EMPTYPE"].map((key) => (
               <div key={key} className="relative">
                 <input
                   type="text"
@@ -311,7 +328,44 @@ const HeadDetailedCom = ({
                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
               </div>
             ))}
+            {/* <div className="flex items-center text-[12px]">
+              
+              <FinYear
+                selectedYear={selectedYear}
+                selectmonths={selectmonths}
+                setSelectmonths={setSelectmonths}
+              />
+            </div> */}
+            {/* <div className="flex items-center gap-4 text-[12px] "> */}
+            {/* <div className="flex items-center text-[12px]">
+              <span className="text-gray-500">Min Netpay:</span>
+              <input
+                type="number"
+                value={netpayRange.min}
+                onChange={(e) =>
+                  setNetpayRange({
+                    ...netpayRange,
+                    min: Number(e.target.value),
+                  })
+                }
+                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div> */}
 
+            {/* <div className="flex items-center  text-[12px]">
+              <span className="text-gray-500">Max Netpay:</span>
+              <input
+                type="number"
+                value={netpayRange.max === Infinity ? "" : netpayRange.max}
+                onChange={(e) =>
+                  setNetpayRange({
+                    ...netpayRange,
+                    max: Number(e.target.value),
+                  })
+                }
+                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div> */}
           </div>
           <div className="right-0">
             <button
@@ -330,125 +384,134 @@ const HeadDetailedCom = ({
 
         <div className="grid grid-cols-2 gap-6">
           <div
-            className="overflow-x-auto max-h-[450px] "
-            style={{ border: "1px solid gray", borderRadius: "16px" }}
-          >
-            {/* <table className="w-full border-collapse border border-gray-300 text-[11px]">
-                <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                  <tr>
-                    <th className="border p-1 text-left ">S.No</th>
-                    <th className="border p-1 text-left ">ID Card</th>
-                    <th className="border p-1 text-left ">Name</th>
-                    <th className="border p-1 text-left ">Gender</th>
-                    <th className="border p-1 text-left ">Department</th>
-                    <th className="border p-1 text-left ">Designation</th>
-                    <th className="border p-1 text-left ">Age</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentRecords.slice(0, 17).map((row, index) => {
-                    const globalIndex = index; // 0–16
-                    const serialNo =
-                      (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                    return (
-                      <tr
-                        key={index}
-                        className="text-gray-800 bg-white even:bg-gray-100 "
-                      >
-                        <td className="border p-1 text-[10px] w-[2px]">{serialNo}</td>
-                        <td className="border p-1 text-[10px] w-[15px]">{row.IDCARD}</td>
-                        <td className="border p-1 text-[10px] w-[45px]"
-                          style={{ maxWidth: "100px" }}
-
-                        >{row.FNAME}</td>
-                        <td className="border p-1 text-[10px] w-[20px]">{row.GENDER}</td>
-                        <td className="border p-1 text-[10px] w-[40px]">
-                          {row.DEPARTMENT}
-                        </td>
-                        <td className="border p-1 text-[10px]  w-[40px]">
-                          {row.DESIGNATION}
-                        </td>
-                        <td className="border p-1 text-[10px]  w-[5px]">
-                          {row.AGE}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table> */}
-            <div className=" table-fixed  max-h-[450px] overflow-y-auto overflow-x-hidden w-full">
-              <table className="min-w-full border-collapse border border-gray-300 text-[11px]">
-                <thead className="bg-gray-100 text-gray-800 sticky top-0 z-10 tracking-wider">
-                  <tr>
-                    <th className="border p-1 text-left w-[40px]">S.No</th>
-                    <th className="border p-1 text-left w-[60px]">ID Card</th>
-                    <th className="border p-1 text-left w-[200px]">Name</th>
-                    <th className="border p-1 text-left w-[40px]">Gender</th>
-                    <th className="border p-1 text-left w-[150px]">Department</th>
-                    <th className="border p-1 text-left  w-[150px] ">Designation</th>
-                    <th className="border p-1 text-left w-[40px]">Age</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {currentRecords.slice(0, 17).map((row, index) => {
-                    const serialNo =
-                      (currentPage - 1) * recordsPerPage + index + 1;
-
-                    return (
-                      <tr key={index} className="text-gray-800 bg-white even:bg-gray-100">
-                        <td className="border p-1 text-[10px] w-[40px] text-center">
-                          {serialNo}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[60px]">
-                          {row.IDCARD}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[200px] truncate">
-                          {row.FNAME}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[40px] text-center">
-                          {row.GENDER}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[150px] truncate">
-                          {row.DEPARTMENT}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[150px] truncate">
-                          {row.DESIGNATION}
-                        </td>
-
-                        <td className="border p-1 text-[10px] w-[40px] text-center">
-                          {row.AGE}
-                        </td>
-                      </tr>
-
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-
-          </div>
-
-          <div
-            className="overflow-x-auto max-h-[450px]"
+            className="overflow-x-auto max-h-[510px] "
             style={{ border: "1px solid gray", borderRadius: "16px" }}
           >
             <table className="w-full border-collapse border border-gray-300 text-[11px]">
               <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                 <tr>
-                  <th className="border p-1 text-left w-[40px]">S.No</th>
-                  <th className="border p-1 text-left w-[60px]">ID Card</th>
-                  <th className="border p-1 text-left w-[200px]">Name</th>
-                  <th className="border p-1 text-left w-[40px]">Gender</th>
-                  <th className="border p-1 text-left w-[150px]">Department</th>
-                  <th className="border p-1 text-left  w-[150px] ">Designation</th>
-                  <th className="border p-1 text-left w-[40px]">Age</th>
+                  <th className="border p-1 text-left">S.No</th>
+                  <th className="border p-1 text-left">ID Card</th>
+                  <th className="border p-1 text-left">Name</th>
+                  <th className="border p-1 text-left">Gender</th>
+                  <th className="border p-1 text-left">Department</th>
+                  <th className="border p-1 text-left">Designation</th>
+                  <th className="border p-1 text-left">Exp</th>
+                  <th className="border p-1 text-left">State</th>
+                  <th className="border p-1 text-left">BLG</th>
+                  <th className="border p-1 text-left">EmpType</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentRecords.slice(0, 17).map((row, index) => {
+                  const globalIndex = index; // 0–16
+                  const serialNo =
+                    (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                  return (
+                    <tr
+                      key={index}
+                      className="text-gray-800 bg-white even:bg-gray-100 "
+                    >
+                      {/* <td className="border p-1 text-[10px]">{serialNo}</td>
+                      <td className="border p-1 text-[10px]">{row.IDCARD}</td>
+                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
+                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
+                      <td className="border p-1 text-[10px]">
+                        {row.DEPARTMENT}
+                      </td>
+                      <td className="border p-1 text-[10px]">
+                        {row.DESIGNATION}
+                      </td>
+                      <td className="border p-1 text-[10px] ">
+                        {row.EXP}
+                      </td>
+                      <td className="border p-1 text-[10px] ">
+                        {row.STATE}
+                      </td>
+                      <td className="border p-1 text-[10px] ">
+                        {row.BGF}
+                      </td>
+                      <td className="border p-1 text-[10px] ">
+                        {row.EMPTYPE}
+                      </td> */}
+
+
+                      <td className="border p-1 text-[10px] w-[25px]">
+                        {serialNo}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[60px]">
+                        {row.IDCARD}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.FNAME}
+                      </td>
+                      <td className="border p-1 text-[10px] w-[30px]">
+                        {row.GENDER}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DEPARTMENT}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
+                        {row.DESIGNATION}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[15px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "15px" }}
+                      >
+                        {row.EXP}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.STATE}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.BGF || "N/A"}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
+                        {row.EMPTYPE}
+                      </td>
+
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            className="overflow-x-auto max-h-[510px]"
+            style={{ border: "1px solid gray", borderRadius: "16px" }}
+          >
+            <table className="w-full border-collapse border border-gray-300 text-[11px]">
+              <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
+                <tr>
+                  <th className="border p-1 text-left">S.No</th>
+                  <th className="border p-1 text-left">ID Card</th>
+                  <th className="border p-1 text-left">Name</th>
+                  <th className="border p-1 text-left">Gender</th>
+                  <th className="border p-1 text-left">Department</th>
+                  <th className="border p-1 text-left">Designation</th>
+                  <th className="border p-1 text-left">Exp</th>
+                  <th className="border p-1 text-left">State</th>
+                  <th className="border p-1 text-left">BLG</th>
+                  <th className="border p-1 text-left">EmpType</th>
                 </tr>
               </thead>
               <tbody>
@@ -457,33 +520,60 @@ const HeadDetailedCom = ({
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
-                    <tr key={index} className="text-gray-800 bg-white even:bg-gray-100">
-                      <td className="border p-1 text-[10px] w-[40px] text-center">
+                    <tr
+                      key={index}
+                      className="text-gray-700 bg-white even:bg-gray-100"
+                    >
+                      <td className="border p-1 text-[10px] w-[25px]">
                         {serialNo}
                       </td>
-
                       <td className="border p-1 text-[10px] w-[60px]">
                         {row.IDCARD}
                       </td>
-
-                      <td className="border p-1 text-[10px] w-[200px] truncate">
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.FNAME}
                       </td>
-
-                      <td className="border p-1 text-[10px] w-[40px] text-center">
+                      <td className="border p-1 text-[10px] w-[30px]">
                         {row.GENDER}
                       </td>
-
-                      <td className="border p-1 text-[10px] w-[150px] truncate">
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DEPARTMENT}
                       </td>
-
-                      <td className="border p-1 text-[10px] w-[150px] truncate">
+                      <td
+                        className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "100px" }}
+                      >
                         {row.DESIGNATION}
                       </td>
-
-                      <td className="border p-1 text-[10px] w-[40px] text-center">
-                        {row.AGE}
+                      <td
+                        className="border p-1 text-[10px] w-[15px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "15px" }}
+                      >
+                        {row.EXP}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.STATE}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[20px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "20px" }}
+                      >
+                        {row.BGF || "N/A"}
+                      </td>
+                      <td
+                        className="border p-1 text-[10px] w-[25px] whitespace-nowrap overflow-hidden text-ellipsis "
+                        style={{ maxWidth: "25px" }}
+                      >
+                        {row.EMPTYPE}
                       </td>
                     </tr>
                   );
@@ -558,6 +648,6 @@ const HeadDetailedCom = ({
   );
 };
 
-export default HeadDetailedCom;
+export default BloodGroupDetails;
 
 // export default ESIDetailed;
