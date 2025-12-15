@@ -302,6 +302,8 @@ const RegionHead = ({
   );
 
 
+  console.log(HeadData?.filter?.(i  => !i.STATE),"FILTEREEEEE");
+  
   const filterDataBySearch = (param) => {
     console.log(param, "paramparam")
     const filtered = HeadData?.filter(row => {
