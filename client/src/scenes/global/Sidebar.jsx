@@ -18,6 +18,7 @@ import {
   Person as PersonIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
+import OpacityIcon from "@mui/icons-material/Opacity";
 import { useDispatch, useSelector } from "react-redux";
 import { push } from "../../redux/features/opentabs";
 import { useGetUsersQuery } from "../../redux/service/user";
@@ -85,7 +86,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const { color } = useContext(ColorContext);
   const { setPermissions } = useContext(PermissionContext);
- 
+
   const params = getCommonParams();
   const { userId, isSuperAdmin, roleId } = params;
 
@@ -94,7 +95,7 @@ const Sidebar = () => {
   const { data: allData, refetch: Getrefetch } = useGetRoleQuery();
 
   const Rolename = allData?.find((item) => item.id === roleId)?.rolename;
-  
+
 
   const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery(
     { params: { userId } },
@@ -103,7 +104,7 @@ const Sidebar = () => {
 
 
 
- 
+
   const permissionMap = {};
   allPages?.forEach((p) => {
     permissionMap[p.link] = {
@@ -112,7 +113,7 @@ const Sidebar = () => {
       edit: p.edit,
       delete: p.delete,
     };
-    
+
   });
   setPermissions(permissionMap);
   // console.log(isSuperAdmin);
@@ -336,7 +337,7 @@ const Sidebar = () => {
           </>
         )}
 
-    
+
         {Rolename === "Admin" && (
           <Tooltip
             title="User"
@@ -398,7 +399,7 @@ const Sidebar = () => {
             </>
           </Tooltip>
         )}
-        
+
         {allPages?.map((page) => (
           <Tooltip
             key={page.id}
@@ -415,6 +416,7 @@ const Sidebar = () => {
                 {page.link === "User" && <PersonIcon sx={{ color }} />}
                 {page.link === "MISDashboard" && <PersonIcon sx={{ color }} />}
                 {page.link === "HRDashboard" && <PersonIcon sx={{ color }} />}
+                {page.link === "FREE LOOK DYEING" && <OpacityIcon   sx={{ color }} />}
               </StyledListItemIcon>
 
               <ListItemText

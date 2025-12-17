@@ -1,8 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import dotenv from 'dotenv';
+import express from "express";
+import cors from "cors";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import dotenv from "dotenv";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -12,8 +12,7 @@ import { createRequire } from "module";
 // import { PrismaClient } from './src/generated/prisma/client.js';
 
 const require = createRequire(import.meta.url);
-const oracledb = require('oracledb');
-
+const oracledb = require("oracledb");
 
 console.log("oracledb 90");
 
@@ -28,14 +27,15 @@ import {
   ordManagement,
   misDashboardERP,
   user,
-  role
-} from "./src/routes/index.js"
-import { PrismaClient } from '@prisma/client';
+  role,
+  freeLookFabric,
+} from "./src/routes/index.js";
+import { PrismaClient } from "@prisma/client";
 
 export const prisma_Connector = new PrismaClient();
 
-const app = express()
-app.use(express.json())
+const app = express();
+app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -50,42 +50,43 @@ app.use((req, res, next) => {
 });
 app.use(cors());
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const path = __dirname + '/client/build/';
+const path = __dirname + "/client/build/";
 
 app.use(express.static(path));
 
-app.get('/', function (req, res) {
+app.get("/", function (req, res) {
   res.sendFile(path + "index.html");
 });
 
-BigInt.prototype['toJSON'] = function () {
+BigInt.prototype["toJSON"] = function () {
   return parseInt(this.toString());
 };
 
-app.use('/poRegister', poRegister)
+app.use("/poRegister", poRegister);
 
-app.use('/commonMast', commonMast)
+app.use("/commonMast", commonMast);
 
-app.use('/supplier', supplier)
+app.use("/supplier", supplier);
 
-app.use('/poData', poData)
+app.use("/poData", poData);
 
-app.use('/misDashboard', misDashboard)
+app.use("/misDashboard", misDashboard);
 
-app.use('/misDashboardERP', misDashboardERP)
+app.use("/misDashboardERP", misDashboardERP);
 
-app.use('/ordManagement', ordManagement)
+app.use("/ordManagement", ordManagement);
 
-app.use('/users', user)
+app.use("/users", user);
 
-app.use('/role',role)
+app.use("/role", role);
+
+app.use("/freeLookFabric", freeLookFabric);
 
 // const PORT = 9008;
-const PORT = process.env.PORT || 9000 ;
+const PORT = process.env.PORT || 9000;
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
@@ -98,5 +99,3 @@ io.on("connection", socketMain);
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
-

@@ -7,3 +7,4 @@ export { default as misDashboardServiceERP} from './misDashboardServiceERP'
 export { default as ordManagement } from './orderManagement'
 export { default as UsersApi } from './user'
 export { default as RoleApi } from './Rolemaster.js'
+export { default as freeLookFabric } from "./freeLookFabric.js"

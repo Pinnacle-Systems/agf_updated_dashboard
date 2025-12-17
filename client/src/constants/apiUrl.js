@@ -12,3 +12,4 @@ export const ORD_MANAGEMENT = '/ordManagement'
 export const LOGIN_API = "users/login"
 export const USERS_API = "users"
 export const ROLE_API ="role"
+export const FREE_LOOK_FABRIC = "/freeLookFabric"

@@ -12,6 +12,7 @@ import { PermissionContext } from "./scenes/global/context/PermissionContext.js"
 import { ToastContainer } from "react-toastify";
 
 import ScrollToTop from "./components/ScrollTop.js";
+import { FreeLookDying } from "./scenes/index.js";
 
 function App({ isCollapsed }) {
   const [theme, colorMode] = useMode();
@@ -23,7 +24,7 @@ function App({ isCollapsed }) {
     window.location.href = "/";
   };
 
-    return (
+  return (
     <>
       <Router>
         <ColorModeContext.Provider value={colorMode}>
@@ -63,7 +64,8 @@ function App({ isCollapsed }) {
                             width: "100%",
                           }}
                         >
-                          <ActiveTabList/>
+                          <ActiveTabList />
+                          {/* <FreeLookDying/> */}
                         </div>
                       </div>
                     </div>

@@ -6,7 +6,7 @@ import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../icons";
 import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
-import { MisDashboard } from "../../scenes";
+import { FreeLookDyeing, MisDashboard } from "../../scenes";
 import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
 // import OutlinedCard from "../Users/Users";
@@ -28,6 +28,7 @@ import DetailedDashBoard from "../maindashboard/ESIdata/index.js";
 import PFIndex from "../maindashboard/PFdata/index.js";
 import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 import HRDashboard from "../hrdashboard/index.js";
+import FabricInward from "../FreelookDyeing/FabricInward/FabricInward.jsx"
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -62,14 +63,14 @@ const ActiveTabList = () => {
       <DetailedDashBoard
         companyName={tabData?.companyName}
         Year={tabData?.Year}
-         autoFocusBuyer={tabData?.autoFocusBuyer}
-         selectedmonth={tabData?.selectedmonth}
+        autoFocusBuyer={tabData?.autoFocusBuyer}
+        selectedmonth={tabData?.selectedmonth}
       />
     ),
     PFDetails: (tabData) => (
       <PFIndex companyName={tabData?.companyName} Year={tabData?.Year}
-      autoFocusBuyer={tabData?.autoFocusBuyer}
-         selectedmonth={tabData?.selectedmonth} />
+        autoFocusBuyer={tabData?.autoFocusBuyer}
+        selectedmonth={tabData?.selectedmonth} />
     ),
     Headcount: (tabData) => (
       <DetailedHeadcount companyName={tabData?.companyName} />
@@ -79,7 +80,7 @@ const ActiveTabList = () => {
         companyName={tabData?.companyName}
         Year={tabData?.Year}
         autoFocusBuyer={tabData?.autoFocusBuyer}
-         selectedmonth={tabData?.selectedmonth}
+        selectedmonth={tabData?.selectedmonth}
       />
     ),
     SalaryDetail: (tabData) => (
@@ -91,6 +92,14 @@ const ActiveTabList = () => {
       />
     ),
     HRDashBoard: <HRDashboard />,
+    "FREE LOOK DYEING"
+      : <FreeLookDyeing />,
+    FabricInward: (tabData) => (
+      <FabricInward
+        year={tabData?.year}
+        finYear={tabData?.finYear}
+      />
+    ),
   };
 
   // console.log(openTabs, "openTabs");
@@ -169,9 +178,8 @@ const ActiveTabList = () => {
             {hiddenTabs.map((tab) => (
               <li
                 key={tab.id}
-                className={`flex justify-between hover:bg-blue-200  ${
-                  tab.active ? "bg-red-300" : "bg-gray-300"
-                } `}
+                className={`flex justify-between hover:bg-blue-200  ${tab.active ? "bg-red-300" : "bg-gray-300"
+                  } `}
               >
                 <button
                   className=" text-gray-500"
