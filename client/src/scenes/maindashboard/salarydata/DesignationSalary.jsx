@@ -24,7 +24,7 @@ const DesignationSalary = ({ companyName, selectedState, salaryDet,selectmonths,
   const [showTable, setShowTable] = useState(false);
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
-
+  let excelTitle = "Salary Distribution Designation wise Report"
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
@@ -186,7 +186,7 @@ enabled:false
                 setSelectmonths={setSelectmonths}
                 selectedYear={selectedYear1}
                 autoFocusBuyer={true}
-      
+                excelTitle={excelTitle}
                 // selectGender1={selectGender}
               />
             )}

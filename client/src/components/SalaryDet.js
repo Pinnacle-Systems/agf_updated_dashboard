@@ -15,7 +15,8 @@ import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
-
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 const SalaryDetail = ({
   closeTable,
   search,
@@ -30,8 +31,9 @@ const SalaryDetail = ({
   selectedYear,
   salaryDet,
   autoFocusBuyer,
+  excelTitle
 }) => {
-  
+
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -54,73 +56,159 @@ const SalaryDetail = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = () => {
+  // const downloadExcel = () => {
+  //   if (filteredData.length === 0) {
+  //     alert("No data to export!");
+  //     return;
+  //   }
+
+  //   const headers = [
+  //     ["ID Card", "Name", "Gender", "Department", "Designation", "Netpay"],
+  //   ];
+
+  //   const data = filteredData.map((row) => [
+  //     row.EMPID,
+  //     row.FNAME,
+  //     row.GENDER,
+  //     row.DEPARTMENT,
+  //     row.DESIGNATION,
+  //     row.NETPAY,
+  //   ]);
+
+  //   const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+
+  //   // Apply style to header row
+  //   const headerRange = XLSX.utils.decode_range(ws["!ref"]);
+  //   for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+  //     const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
+  //     if (!ws[cell_address]) continue;
+
+  //     ws[cell_address].s = {
+  //       fill: { fgColor: { rgb: "FFFF00" } },
+  //       font: { bold: true, color: { rgb: "000000" } },
+  //       alignment: { horizontal: "center", vertical: "center" },
+  //     };
+  //   }
+
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+
+  //   XLSX.writeFile(wb, "Employee_Details.xlsx");
+  // };
+
+
+  const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
       return;
     }
 
-    const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Designation", "Netpay"],
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
+
+    // 1️⃣ Define columns first
+    worksheet.columns = [
+      { header: "ID Card", key: "EMPID", width: 15 },
+      { header: "Name", key: "FNAME", width: 35 },
+      { header: "Gender", key: "GENDER", width: 14 },
+      { header: "Department", key: "DEPARTMENT", width: 30 },
+      { header: "Designation", key: "DESIGNATION", width: 35 },
+      { header: "Netpay", key: "NETPAY", width: 15 },
     ];
 
-    const data = filteredData.map((row) => [
-      row.EMPID,
-      row.FNAME,
-      row.GENDER,
-      row.DEPARTMENT,
-      row.DESIGNATION,
-      row.NETPAY,
-    ]);
+    // 2️⃣ Insert Title row above headers
+    worksheet.insertRow(1, [excelTitle || "Salary Distribution Report"]); // fallback title
 
-    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+    worksheet.mergeCells("A1:F1"); // merge across all columns
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 16 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
 
-    // Apply style to header row
-    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cell_address]) continue;
+    // 3️⃣ Style header row (row 2)
+    const headerRow = worksheet.getRow(2);
+    headerRow.height = 26;
 
-      ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } },
-        font: { bold: true, color: { rgb: "000000" } },
-        alignment: { horizontal: "center", vertical: "center" },
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" }, // gray background
       };
-    }
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+    // 4️⃣ Add data rows starting from row 3
+    filteredData.forEach((row) => {
+      worksheet.addRow({
+        EMPID: row.EMPID,
+        FNAME: row.FNAME,
+        GENDER: row.GENDER,
+        DEPARTMENT: row.DEPARTMENT,
+        DESIGNATION: row.DESIGNATION,
+        NETPAY: row.NETPAY, // keep as number
+      });
+    });
 
-    XLSX.writeFile(wb, "Employee_Details.xlsx");
+    // 5️⃣ Apply alignment ONLY to data rows
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 2) return; // skip title and header
+
+      row.height = 22;
+
+      row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("DESIGNATION").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("NETPAY").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+    });
+
+    // 6️⃣ NETPAY → always show 2 decimals
+    worksheet.getColumn("NETPAY").numFmt = "#,##0.00";
+
+    // 7️⃣ Freeze header (row 2)
+    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+
+    // 8️⃣ Export
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
   };
 
   const filteredData = Array.isArray(salaryDet)
     ? salaryDet
-        .filter((row) =>
-          Object.keys(search || {}).every((key) => {
-            const rowValue = row?.[key]?.toString().toLowerCase() || "";
-            const searchValue = search?.[key]?.toString().toLowerCase() || "";
-            return rowValue.includes(searchValue);
-          })
-        )
-        .filter((row) => {
-          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-          return true;
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
         })
-        .filter((row) => {
-          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-          return true;
-        })
-        .filter((row) => {
-          const netpay = Number(row?.NETPAY) || 0;
-          return netpay >= netpayRange.min && netpay <= netpayRange.max;
-        })
-        .filter((row) => {
-          if (!selectmonths) return true;
-          return row.PAYPERIOD === selectmonths;
-        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.NETPAY) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
     : [];
 
   console.log(filteredData, "filteredData1");
@@ -186,11 +274,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => handleFilterClick("Labour")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Labour"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Labour"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUserTie size={14} /> Employees
@@ -199,11 +286,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => handleFilterClick("Staff")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-xs font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Staff"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Staff"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUsers size={14} /> Staff
@@ -212,11 +298,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => handleFilterClick("All")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "All"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "All"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 All
@@ -227,11 +312,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => handleGenderFilter("Male")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Male"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Male"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <FaMars size={14} className="text-blue-500" /> Male
               </button>
@@ -239,22 +323,20 @@ const SalaryDetail = ({
               <button
                 onClick={() => handleGenderFilter("Female")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Female"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Female"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <FaVenus size={14} className="text-pink-500" /> Female
               </button>
               <button
                 onClick={() => handleGenderFilter("Both")}
                 className={`flex items-center gap-2 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Both"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Both"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <IoMaleFemale size={14} className="text-green-500" /> Both
               </button>
@@ -421,7 +503,7 @@ const SalaryDetail = ({
                   const serialNo =
                     (currentPage - 1) * recordsPerPage + globalIndex + 1;
                   return (
-                   <tr
+                    <tr
                       key={index}
                       className="text-gray-800 bg-white even:bg-gray-100 "
                     >
@@ -477,11 +559,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepBackward size={16} />
               </button>
@@ -489,11 +570,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronLeft size={16} />
               </button>
@@ -507,11 +587,10 @@ const SalaryDetail = ({
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronRight size={16} />
               </button>
@@ -519,11 +598,10 @@ const SalaryDetail = ({
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepForward size={16} />
               </button>

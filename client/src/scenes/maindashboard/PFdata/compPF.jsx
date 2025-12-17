@@ -28,6 +28,7 @@ const CompPF = ({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
+let excelTitle = "PF Employer vs Employee Contribution Report"
 
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
@@ -435,7 +436,7 @@ const CompPF = ({
             setSelectedState={setSelectedState}
             selectedState={selectedState}
             autoFocusBuyer={true}
-             PFdata={PFdata}
+             PFdata={PFdata} excelTitle={excelTitle}
           />
         )}
       </Card>

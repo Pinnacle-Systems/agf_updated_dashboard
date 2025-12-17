@@ -32,7 +32,7 @@ const EmployerPF = ({
 
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
-
+let excelTitle = "PF Employer Contribution Report"
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
@@ -327,7 +327,7 @@ const EmployerPF = ({
             setSelectedState={setSelectedState}
             selectedState={selectedState}
             autoFocusBuyer={true}
-             PFdata={PFdata}
+             PFdata={PFdata} excelTitle={excelTitle}
           />
         )}
       </Card>

@@ -15,7 +15,7 @@ const [search, setSearch] = useState({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
-
+  let excelTitle = "Salary Distribution Month wise Report"
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
@@ -186,7 +186,7 @@ return<>
           setSelectmonths={setSelectmonths}
           selectedYear={selectedYear1}
           autoFocusBuyer={true}
-
+          excelTitle={excelTitle}
           // selectGender1={selectGender}
         />
       )}
