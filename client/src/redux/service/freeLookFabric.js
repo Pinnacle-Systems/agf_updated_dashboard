@@ -47,6 +47,45 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricOutwardDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/getFabricOutward`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricOutwardCusDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricOutwardCustomer`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardByCusName: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardByCusName`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
   }),
 });
 
@@ -54,6 +93,9 @@ export const {
   useGetFabricDetailQuery,
   useGetFabricInwardDetailQuery,
   useGetFabricInwardCusDetailQuery,
+  useGetFabricOutwardDetailQuery,
+  useGetFabricOutwardCusDetailQuery,
+  useGetFabricInwardByCusNameQuery,
 } = freeLookFabric;
 
 export default freeLookFabric;

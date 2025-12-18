@@ -2,14 +2,14 @@ import { Box, Card, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useMemo, useState } from 'react'
-import { useGetFabricInwardCusDetailQuery } from "../../../redux/service/freeLookFabric";
+import { useGetFabricOutwardCusDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
 const CustomerDetails = ({ year, finYear, category, setCategory }) => {
     const [fYear, setFYear] = useState(year);
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState(false)
-    const { data: fabricData } = useGetFabricInwardCusDetailQuery({
+    const { data: fabricData } = useGetFabricOutwardCusDetailQuery({
         params: {
             finyear: fYear,
             category: category
@@ -168,12 +168,8 @@ const CustomerDetails = ({ year, finYear, category, setCategory }) => {
                 point: {
                     events: {
                         click: function () {
-                            const customer = this.name;
-                            const year = this.Year;
-
-                            console.log("Clicked:", customer, year);
-
-                            setCategory?.(customer); // optional
+                            setShowTable(true)
+                            setCustName(this.name) // optional
                         },
                     },
                 },
@@ -197,7 +193,7 @@ const CustomerDetails = ({ year, finYear, category, setCategory }) => {
 
         series: [
             {
-                name: "Fabric Inward",
+                name: "Fabric Outward",
                 data: rows.map((item) => ({
                     name: item.customer,
                     y: Number(item.count || 0),   // main value

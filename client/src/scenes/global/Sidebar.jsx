@@ -416,7 +416,7 @@ const Sidebar = () => {
                 {page.link === "User" && <PersonIcon sx={{ color }} />}
                 {page.link === "MISDashboard" && <PersonIcon sx={{ color }} />}
                 {page.link === "HRDashboard" && <PersonIcon sx={{ color }} />}
-                {page.link === "FREE LOOK DYEING" && <OpacityIcon   sx={{ color }} />}
+                {page.link === "Free Look Dyeing" && <OpacityIcon   sx={{ color }} />}
               </StyledListItemIcon>
 
               <ListItemText

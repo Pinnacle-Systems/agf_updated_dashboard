@@ -29,6 +29,7 @@ import PFIndex from "../maindashboard/PFdata/index.js";
 import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 import HRDashboard from "../hrdashboard/index.js";
 import FabricInward from "../FreelookDyeing/FabricInward/FabricInward.jsx"
+import FabricOutward from "../FreelookDyeing/FabricOutward/FabricOutward.jsx"
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -92,7 +93,7 @@ const ActiveTabList = () => {
       />
     ),
     HRDashBoard: <HRDashboard />,
-    "FREE LOOK DYEING"
+    "Free Look Dyeing"
       : <FreeLookDyeing />,
     FabricInward: (tabData) => (
       <FabricInward
@@ -100,6 +101,12 @@ const ActiveTabList = () => {
         finYear={tabData?.finYear}
       />
     ),
+    FabricOutward: (tabData) => (
+      <FabricOutward
+        year={tabData?.year}
+        finYear={tabData?.finYear}
+      />
+    )
   };
 
   // console.log(openTabs, "openTabs");

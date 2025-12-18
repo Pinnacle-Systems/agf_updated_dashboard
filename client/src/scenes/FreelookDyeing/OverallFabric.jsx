@@ -227,7 +227,7 @@ const OverallFabric = () => {
                                         id: "FabricOutward",
                                         name: "FabricOutward",
                                         component: "FabricOutward",
-                                        data: { finYear: fYear },
+                                        data: { year: fYear, finYear },
                                     })
                                 );
                             }
@@ -247,7 +247,7 @@ const OverallFabric = () => {
         },
 
         series: pieSeries,
-    }), [pieSeries, dispatch, fYear, finYear]);
+    }), [pieSeries, dispatch, fYear]);
 
     return (
         <div>
