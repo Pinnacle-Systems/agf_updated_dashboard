@@ -34,7 +34,7 @@ const SunburstChart = ({
   });
   const [showTable, setShowTable] = useState(false);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
-
+  let excelTitle = "Salary Distribution Department wise Report"
   useEffect(() => {
     setFilterBuyer(companyName);
   }, [companyName]);
@@ -46,15 +46,15 @@ const SunburstChart = ({
 
   const filteredData = Array.isArray(salaryDet)
     ? salaryDet
-        .filter((row) => {
-          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-          return true;
-        })
-        .filter((row) => {
-          if (!selectmonths) return true;
-          return row.PAYPERIOD === selectmonths;
-        })
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
     : [];
 
   const totalsByComp = filteredData.reduce((acc, emp) => {
@@ -115,10 +115,10 @@ const SunburstChart = ({
     },
     xAxis: {
       categories: Xdata,
-      labels: { style: { fontSize: "10px", color: "#6B7280" },rotation:90 },
+      labels: { style: { fontSize: "10px", color: "#6B7280" }, rotation: 90 },
       title: {
         text: null,
-        style: { fontSize: "12px", fontWeight: "bold", color: "#374151",},
+        style: { fontSize: "12px", fontWeight: "bold", color: "#374151", },
         margin: 30,
       },
     },
@@ -133,17 +133,17 @@ const SunburstChart = ({
     plotOptions: {
       column: { depth: 25, colorByPoint: true, borderRadius: 5 },
       dataLabels: {
-          enabled: true,
-          distance: -1,
-          formatter: function () {
-            return `${this.point.y.toLocaleString("en-IN")}`;
-          },
-          style: {
-            color: "#000000",
-            fontWeight: "normal",
-          },
-          
+        enabled: true,
+        distance: -1,
+        formatter: function () {
+          return `${this.point.y.toLocaleString("en-IN")}`;
         },
+        style: {
+          color: "#000000",
+          fontWeight: "normal",
+        },
+
+      },
       series: {
         dataLabels: {
           // rotation:90,
@@ -223,8 +223,8 @@ const SunburstChart = ({
           setSelectmonths={setSelectmonths}
           selectedYear={selectedYear1}
           autoFocusBuyer={true}
-
-          // selectGender1={selectGender}
+          excelTitle={excelTitle}
+        // selectGender1={selectGender}
         />
       )}
     </Card>

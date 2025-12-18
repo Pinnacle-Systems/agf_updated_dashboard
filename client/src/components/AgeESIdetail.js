@@ -18,7 +18,8 @@ import {
   useGetMisDashboardSalaryDetQuery,
 } from "../redux/service/misDashboardService";
 import FinYear from "./FinYear";
-
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 const AgewiseESIlDetail = ({
   closeTable,
   search,
@@ -74,93 +75,168 @@ const AgewiseESIlDetail = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = () => {
+  const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
       return;
     }
 
-    const headers = [["ID Card", "Name", "Gender", "Department", "Age", "ESI"]];
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
 
-    const data = filteredData.map((row) => [
-      row.EMPID,
-      row.FNAME,
-      row.GENDER,
-      row.DEPARTMENT,
-      row.AGE,
-      row.ESI,
+    /* =======================
+       1️⃣ TITLE ROW
+    ======================= */
+    worksheet.addRow(["ESI Contribution Age wise Report"]);
+    worksheet.mergeCells(1, 1, 1, 6);
+
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 16 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
+
+    /* =======================
+       2️⃣ HEADER ROW
+    ======================= */
+    worksheet.addRow([
+      "ID Card",
+      "Name",
+      "Gender",
+      "Department",
+      "Age",
+      "ESI",
     ]);
 
-    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+    const headerRow = worksheet.getRow(2);
+    headerRow.height = 24;
 
-    // Apply style to header row
-    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cell_address]) continue;
-
-      ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } },
-        font: { bold: true, color: { rgb: "000000" } },
-        alignment: { horizontal: "center", vertical: "center" },
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
       };
-    }
+      // 🔹 Gray background for headers
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" }, // light gray
+      };
+    });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+    /* =======================
+       3️⃣ COLUMN WIDTHS
+    ======================= */
+    worksheet.columns = [
+      { width: 15 },
+      { width: 35 },
+      { width: 14 },
+      { width: 30 },
+      { width: 10 },
+      { width: 15 },
+    ];
 
-    XLSX.writeFile(wb, "Employee_Details.xlsx");
+    /* =======================
+       4️⃣ DATA ROWS
+    ======================= */
+    filteredData.forEach((row) => {
+      worksheet.addRow([
+        row.EMPID,
+        row.FNAME,
+        row.GENDER,
+        row.DEPARTMENT,
+        row.AGE !== null && row.AGE !== undefined ? Math.trunc(row.AGE) : "",
+        row.ESI,
+      ]);
+    });
+
+    /* =======================
+       5️⃣ DATA ALIGNMENT
+    ======================= */
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 2) return; // skip title + header
+
+      row.height = 22;
+
+      row.getCell(1).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(2).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(3).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(4).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(5).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+    });
+
+    /* =======================
+       6️⃣ NUMBER FORMAT
+    ======================= */
+    worksheet.getColumn(6).numFmt = "#,##0.00"; // ESI → 80.00
+
+    /* =======================
+       7️⃣ FREEZE ROWS
+    ======================= */
+    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+
+    /* =======================
+       8️⃣ EXPORT
+    ======================= */
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
   };
+
+
 
   const filteredData = Array.isArray(ESIdata)
     ? ESIdata
-        .filter((row) => {
-          return Object.keys(search || {}).every((key) => {
-            const searchValue = (search[key] || "").toString().trim();
-            if (!searchValue) return true;
+      .filter((row) => {
+        return Object.keys(search || {}).every((key) => {
+          const searchValue = (search[key] || "").toString().trim();
+          if (!searchValue) return true;
 
-            const rowValue = row[key];
+          const rowValue = row[key];
 
-            if (key === "AGE") {
-              const age = Math.floor(rowValue);
+          if (key === "AGE") {
+            const age = Math.floor(rowValue);
 
-              if (searchValue.includes("-")) {
-                const [minAge, maxAge] = searchValue.split("-").map(Number);
-                return age >= minAge && age <= maxAge;
-              }
-
-              if (searchValue.endsWith("Above")) {
-                const minAge = Number(searchValue.replace("Above", ""));
-                return age >= minAge;
-              }
-
-              return age === Number(searchValue);
+            if (searchValue.includes("-")) {
+              const [minAge, maxAge] = searchValue.split("-").map(Number);
+              return age >= minAge && age <= maxAge;
             }
 
-            return rowValue
-              ?.toString()
-              .toLowerCase()
-              .includes(searchValue.toLowerCase());
-          });
-        })
-        .filter((row) => {
-          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-          return true;
-        })
-        .filter((row) => {
-          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-          return true;
-        })
-        .filter((row) => {
-          const netpay = Number(row?.ESI) || 0;
-          return netpay >= netpayRange.min && netpay <= netpayRange.max;
-        })
-        .filter((row) => {
-          if (!selectmonths) return true;
-          return row.PAYPERIOD === selectmonths;
-        })
+            if (searchValue.endsWith("Above")) {
+              const minAge = Number(searchValue.replace("Above", ""));
+              return age >= minAge;
+            }
+
+            return age === Number(searchValue);
+          }
+
+          return rowValue
+            ?.toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase());
+        });
+      })
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.ESI) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
     : [];
 
   console.log(filteredData, "filteredData1");
@@ -226,11 +302,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => handleFilterClick("Labour")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Labour"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Labour"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUserTie size={14} /> Employees
@@ -239,11 +314,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => handleFilterClick("Staff")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-xs font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Staff"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Staff"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 <FaUsers size={14} /> Staff
@@ -252,11 +326,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => handleFilterClick("All")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "All"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "All"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
               >
                 All
@@ -267,11 +340,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => handleGenderFilter("Male")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Male"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Male"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <FaMars size={14} className="text-blue-500" /> Male
               </button>
@@ -279,22 +351,20 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => handleGenderFilter("Female")}
                 className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Female"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Female"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <FaVenus size={14} className="text-pink-500" /> Female
               </button>
               <button
                 onClick={() => handleGenderFilter("Both")}
                 className={`flex items-center gap-2 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Both"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+              ${selectedGender === "Both"
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 <IoMaleFemale size={14} className="text-green-500" /> Both
               </button>
@@ -535,11 +605,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepBackward size={16} />
               </button>
@@ -547,11 +616,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${
-                  currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronLeft size={16} />
               </button>
@@ -565,11 +633,10 @@ const AgewiseESIlDetail = ({
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaChevronRight size={16} />
               </button>
@@ -577,11 +644,10 @@ const AgewiseESIlDetail = ({
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${
-                  currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
-                }`}
+                className={`p-2 rounded-md ${currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
+                  }`}
               >
                 <FaStepForward size={16} />
               </button>

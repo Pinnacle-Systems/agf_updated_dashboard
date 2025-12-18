@@ -26,6 +26,7 @@ const CompESI = ({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
+  let excelTitle = "ESI  Employer Vs Employee   Contribution Report"
 
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
@@ -430,6 +431,7 @@ const CompESI = ({
             setSelectedState={setSelectedState}
             setSelectmonths={setSelectmonths}
             autoFocusBuyer={true}
+            excelTitle={excelTitle}
           />
         )}
       </Card>

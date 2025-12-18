@@ -15,7 +15,7 @@ const DeptESI = ({
   selectmonths,
 }) => {
   console.log(selectedState, "selectedState");
-
+  let excelTitle = "ESI Contribution Designation wise Report"
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -171,6 +171,7 @@ const DeptESI = ({
             setSelectmonths={setSelectmonths}
             setSelectedState={setSelectedState}
             autoFocusBuyer={true}
+            excelTitle={excelTitle}
           />
         )}
       </Card>

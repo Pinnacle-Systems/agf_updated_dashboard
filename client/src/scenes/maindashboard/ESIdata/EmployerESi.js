@@ -28,7 +28,7 @@ const EmployerESI = ({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
-
+  let excelTitle = "ESI Employee Contribution Report"
   // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
@@ -437,7 +437,7 @@ const EmployerESI = ({
             selectmonths={selectmonths}
             setSelectedState={setSelectedState}
             setSelectmonths={setSelectmonths}
-            autoFocusBuyer={true}
+            autoFocusBuyer={true} excelTitle={excelTitle}
           />
         )}
       </Card>

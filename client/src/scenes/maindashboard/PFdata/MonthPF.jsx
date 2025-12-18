@@ -15,6 +15,7 @@ const [search, setSearch] = useState({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
+let excelTitle = "PF Employee Contribution Report"
 
   // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
@@ -168,7 +169,7 @@ return<>
             setSelectedState={setSelectedState}
             selectedState={selectedState}
             autoFocusBuyer={true}
-             PFdata={PFdata}
+             PFdata={PFdata} excelTitle={excelTitle}
           />
         )}
       </Card>
