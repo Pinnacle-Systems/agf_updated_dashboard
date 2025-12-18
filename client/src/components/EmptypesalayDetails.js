@@ -20,6 +20,8 @@ import {
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const EmptypeDetails = ({
   closeTable,
   search,
@@ -117,7 +119,7 @@ const EmptypeDetails = ({
     // 1️⃣ Define columns (headers will appear in row 1 for now)
     worksheet.columns = [
       { header: "ID Card", key: "EMPID", width: 15 },
-      { header: "Name", key: "FNAME", width: 35 },
+      { header: "Name", key: "FNAME", width: 40 },
       { header: "Gender", key: "GENDER", width: 14 },
       { header: "Department", key: "DEPARTMENT", width: 30 },
       { header: "EmpType", key: "EMPTYPE", width: 16 },
@@ -128,12 +130,30 @@ const EmptypeDetails = ({
     worksheet.insertRow(1, ["Salary Distribution Employee Type Wise Report"]); // Row 1
     worksheet.mergeCells("A1:F1"); // Merge across all columns
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
 
+
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "Salary",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
+
+
+
+
+
     // 3️⃣ Move headers to row 2 (they are automatically there)
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
 
     headerRow.eachCell((cell) => {
@@ -166,7 +186,7 @@ const EmptypeDetails = ({
 
     // 5️⃣ Apply alignment ONLY to data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title and header
+      if (rowNumber <= 3) return; // skip title and header
 
       row.height = 22;
 
@@ -186,7 +206,7 @@ const EmptypeDetails = ({
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), "Salary Distribution Employee Type Wise Report.xlsx");
   };
   const filteredData = Array.isArray(salary)
     ? salary

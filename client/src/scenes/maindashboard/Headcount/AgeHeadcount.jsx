@@ -14,7 +14,7 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
-
+  let excelTitle = "Age wise HeadCount Report"
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   useEffect(() => {
@@ -153,7 +153,7 @@ const AgeHead = ({ companyName, selectedState, HeadData }) => {
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
             search={search}
-            HeadData={HeadData}
+            HeadData={HeadData} excelTitle={excelTitle}
           />
         )}
 

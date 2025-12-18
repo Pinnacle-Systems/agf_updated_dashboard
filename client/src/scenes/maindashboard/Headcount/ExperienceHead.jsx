@@ -16,7 +16,7 @@ const ExperienceHead = ({ companyName, selectedState, HeadData }) => {
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
-
+let excelTitle ="Experience Wise HeadCount Report"
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ const ExperienceHead = ({ companyName, selectedState, HeadData }) => {
             selectedBuyer={[filterBuyer]}
             closeTable={() => setShowTable(false)}
             setSearch={setSearch}
-            search={search}
+            search={search} excelTitle={excelTitle}
             HeadData={HeadData}
           />
         )}

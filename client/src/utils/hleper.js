@@ -1,6 +1,57 @@
 import moment from "moment";
 import secureLocalStorage from "react-secure-storage";
 
+
+export const addInsightsRow = ({
+  worksheet,
+  startRow = 2,
+  totalColumns,
+
+  dynamicField = "",
+  selectedBuyer = [],
+  selectedGender = "",
+  selectedState = "",
+  selectedMonth,
+}) => {
+  const buyerText =
+    Array.isArray(selectedBuyer) && selectedBuyer.length
+      ? selectedBuyer.join(", ")
+      : "All";
+
+  const insightText =
+    `${dynamicField} Insights  -  ${buyerText}    |    ` +
+    `Employee Category :  ${selectedState}    |    ` +
+    `Gender :  ${selectedGender}    |    ` +
+    `Month :  ${selectedMonth || ""}`;
+
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
+
+  // 🔒 MUST match title merge range (A1:F1 → A2:F2)
+  const lastColumnLetter =
+    worksheet.getColumn(totalColumns)._letter;
+
+  worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
+
+  const cell = worksheet.getCell(`A${startRow}`);
+
+  cell.font = { bold: true, size: 12 };
+  cell.alignment = {
+    horizontal: "left",
+    vertical: "middle",
+    wrapText: false,
+    indent: 1, // spacing from left
+  };
+
+  worksheet.getRow(startRow).height = 30;
+};
+
+
+
+
+
+
+
 export const currentDate = (date) => moment(date).format("DD/MM/YYYY ");
 // import { IMAGE_UPLOAD_URL } from "../Constants";
 
@@ -362,12 +413,12 @@ export const getCommonParams = () => ({
   isSuperAdmin: secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "superAdmin"
   ),
-   employeeId: secureLocalStorage.getItem(
+  employeeId: secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "employeeId"
   ),
-  roleId : secureLocalStorage.getItem(
-        sessionStorage.getItem("sessionId") + "roleId"
-      )
+  roleId: secureLocalStorage.getItem(
+    sessionStorage.getItem("sessionId") + "roleId"
+  )
 });
 
 export function convertSpaceToUnderScore(str) {
@@ -466,8 +517,8 @@ export async function classListData(data) {
       num = num
         ? parseInt(num, 10)
         : order[prefix] !== undefined
-        ? order[prefix]
-        : Infinity;
+          ? order[prefix]
+          : Infinity;
 
       return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
     };

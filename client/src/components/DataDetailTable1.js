@@ -15,7 +15,8 @@ import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetMisDashboardEmployeeDetailQuery } from "../redux/service/misDashboardService";
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
-
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 const DataDetailTable = ({
   closeTable,
   setOpenpopup,
@@ -52,70 +53,115 @@ const DataDetailTable = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = () => {
+  const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
       return;
     }
 
-    const headers = [["ID Card", "Name", "Gender", "Department", "Company"]];
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
 
-    const data = filteredData.map((row) => [
-      row.MIDCARD,
-      row.FNAME,
-      row.GENDER,
-      row.DEPARTMENT,
-      row.COMPCODE,
-    ]);
+    // 1️⃣ Define columns
+    worksheet.columns = [
+      { header: "ID Card", key: "MIDCARD", width: 15 },
+      { header: "Name", key: "FNAME", width: 35 },
+      { header: "Gender", key: "GENDER", width: 14 },
+      { header: "Department", key: "DEPARTMENT", width: 35 },
+      { header: "Company", key: "COMPCODE", width: 20 },
+    ];
 
-    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+    // 2️⃣ Title row
+    worksheet.insertRow(1, ["Employee Strength As On Date"]);
+    worksheet.mergeCells("A1:E1");
 
-    // Apply style to header row
-    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cell_address]) continue;
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 16 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
 
-      ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } },
-        font: { bold: true, color: { rgb: "000000" } },
-        alignment: { horizontal: "center", vertical: "center" },
+    // 3️⃣ Header row (row 2)
+    const headerRow = worksheet.getRow(2);
+    headerRow.height = 26;
+
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" }, // gray background
       };
-    }
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+    // 4️⃣ Add data rows (start from row 3)
+    filteredData.forEach((row) => {
+      worksheet.addRow({
+        MIDCARD: row.MIDCARD,
+        FNAME: row.FNAME,
+        GENDER: row.GENDER,
+        DEPARTMENT: row.DEPARTMENT,
+        COMPCODE: row.COMPCODE,
+      });
+    });
 
-    XLSX.writeFile(wb, "Employee_Details.xlsx");
+    // 5️⃣ Align ONLY data rows
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 2) return; // skip title & header
+
+      row.height = 22;
+
+      row.getCell("MIDCARD").alignment = { horizontal: "right", vertical: "middle",indent:1 };
+      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle" ,indent:1};
+      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle",indent:1 };
+      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle",indent:1 };
+      row.getCell("COMPCODE").alignment = { horizontal: "left", vertical: "middle" ,indent:1};
+    });
+
+    // 6️⃣ Freeze header
+    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+
+    // 7️⃣ Export
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(
+      new Blob([buffer]),
+      "Employee Strength As On Date.xlsx"
+    );
   };
 
   const filteredData = Array.isArray(employeeDet?.data)
     ? employeeDet.data
-        .filter((row) =>
-          Object.keys(search || {}).every((key) => {
-            const rowValue = row?.[key]?.toString().toLowerCase() || "";
-            const searchValue = search?.[key]?.toString().toLowerCase() || "";
-            return rowValue.includes(searchValue);
-          })
-        )
-        .filter((row) => {
-          if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-          if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-          return true;
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
         })
-        .filter((row) => {
-          if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-          if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-          return true;
-        })
-        .filter((row) => {
-          if (selectedBuyer) {
-            return (
-              row?.COMPCODE?.toLowerCase() === selectedBuyer?.toLowerCase()
-            );
-          }
-          return true;
-        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedBuyer) {
+          return (
+            row?.COMPCODE?.toLowerCase() === selectedBuyer?.toLowerCase()
+          );
+        }
+        return true;
+      })
     : [];
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
   const totalRecords = filteredData.length;
@@ -148,11 +194,10 @@ const DataDetailTable = ({
           <button
             onClick={() => handleFilterClick("Labour")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Labour"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Labour"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
           >
             <FaUserTie size={16} /> Employees
@@ -161,11 +206,10 @@ const DataDetailTable = ({
           <button
             onClick={() => handleFilterClick("Staff")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "Staff"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "Staff"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
           >
             <FaUsers size={16} /> Staff
@@ -174,11 +218,10 @@ const DataDetailTable = ({
           <button
             onClick={() => handleFilterClick("All")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-      ${
-        selectedState === "All"
-          ? "bg-blue-600 text-white scale-105"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }
+      ${selectedState === "All"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }
       focus:outline-none focus:ring-2 focus:ring-blue-400`}
           >
             All
@@ -186,10 +229,9 @@ const DataDetailTable = ({
           <button
             onClick={() => handleGenderFilter("Male")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Male"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ${selectedGender === "Male"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
           >
             <FaMars size={16} className="text-blue-500" /> Male
@@ -198,10 +240,9 @@ const DataDetailTable = ({
           <button
             onClick={() => handleGenderFilter("Female")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Female"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ${selectedGender === "Female"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
           >
             <FaVenus size={16} className="text-pink-500" /> Female
@@ -209,10 +250,9 @@ const DataDetailTable = ({
           <button
             onClick={() => handleGenderFilter("All")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
-              ${
-                selectedGender === "Both"
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ${selectedGender === "Both"
+                ? "bg-blue-600 text-white scale-105"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
           >
             <IoMaleFemale size={16} className="text-green-500" /> Both
@@ -244,23 +284,23 @@ const DataDetailTable = ({
             />
           </button>
         </div>
-             <div className="grid grid-cols-5 gap-2 mb-3">
-                         {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
-                           <div key={key} className="relative">
-                             <input
-                               type="text"
-                               placeholder={`Search ${key}...`}
-                               value={search[key] || ""}
-                               onChange={(e) =>
-                                 setSearch({ ...search, [key]: e.target.value })
-                               }
-                               className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
-                             />
-                             <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
-                           </div>
-                         ))}
-        
-                       </div>
+        <div className="grid grid-cols-5 gap-2 mb-3">
+          {["EMPID", "FNAME", "DEPARTMENT", "COMPCODE"].map((key) => (
+            <div key={key} className="relative">
+              <input
+                type="text"
+                placeholder={`Search ${key}...`}
+                value={search[key] || ""}
+                onChange={(e) =>
+                  setSearch({ ...search, [key]: e.target.value })
+                }
+                className="w-full p-2 pl-8 text-gray-900 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
+              />
+              <FaSearch className="absolute left-2 top-3 text-gray-500 text-sm" />
+            </div>
+          ))}
+
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-x-auto max-h-[450px]">
@@ -326,11 +366,10 @@ const DataDetailTable = ({
             <button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              className={`p-2 rounded-md ${
-                currentPage === 1
+              className={`p-2 rounded-md ${currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-blue-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               <FaStepBackward size={16} />
             </button>
@@ -338,11 +377,10 @@ const DataDetailTable = ({
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className={`p-2 rounded-md ${
-                currentPage === 1
+              className={`p-2 rounded-md ${currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-blue-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               <FaChevronLeft size={16} />
             </button>
@@ -356,11 +394,10 @@ const DataDetailTable = ({
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-md ${
-                currentPage === totalPages
+              className={`p-2 rounded-md ${currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-blue-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               <FaChevronRight size={16} />
             </button>
@@ -368,11 +405,10 @@ const DataDetailTable = ({
             <button
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              className={`p-2 rounded-md ${
-                currentPage === totalPages
+              className={`p-2 rounded-md ${currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-blue-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               <FaStepForward size={16} />
             </button>

@@ -22,26 +22,26 @@ const LeftList = ({
   setSelectmonths,
 }) => {
   const [search, setSearch] = useState({
-      FNAME: "",
-      GENDER: "",
-      MIDCARD: "",
-      DEPARTMENT: "",
-      COMPCODE: "",
+    FNAME: "",
+    GENDER: "",
+    MIDCARD: "",
+    DEPARTMENT: "",
+    COMPCODE: "",
 
-    });
-    const [selectedBuyer, setSelectedBuyer] = useState(companyName);
-    // const [selectedYear, setSelectedYear] = useState(selectedYear1);
-    const [selectedGender, setSelectedGender] = useState("");
-  
-    const chartRef = useRef();
-    const [showTable, setShowTable] = useState(false);
-  
-    useEffect(() => {
-      setSelectedBuyer(companyName);
-    }, [companyName]);
-  
-  
-  
+  });
+  const [selectedBuyer, setSelectedBuyer] = useState(companyName);
+  // const [selectedYear, setSelectedYear] = useState(selectedYear1);
+  const [selectedGender, setSelectedGender] = useState("");
+  let excelTitle = "Attrition Left List report"
+  const chartRef = useRef();
+  const [showTable, setShowTable] = useState(false);
+
+  useEffect(() => {
+    setSelectedBuyer(companyName);
+  }, [companyName]);
+
+
+
   const dispatch = useDispatch();
 
   const { color } = useContext(ColorContext);
@@ -59,16 +59,16 @@ const LeftList = ({
     },
   });
 
-  console.log(LeftData,"LeftData");
-  
+  console.log(LeftData, "LeftData");
+
 
   const NewData = LeftData?.data || [];
 
   const filteredData = Array.isArray(NewData)
     ? NewData.filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
+      if (!selectmonths) return true;
+      return row.PAYPERIOD === selectmonths;
+    })
     : [];
   const groupdata1 = filteredData?.reduce((acc, emp) => {
     const gender = emp.GENDER || "Unknown";
@@ -81,13 +81,13 @@ const LeftList = ({
 
     return acc;
   }, {});
-const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
+  const colors = ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
   const pieData = [
-    { name: "Female", y: groupdata1?.FEMALE?.length ?? 0,color:colors[2] },
-    { name: "Male", y: groupdata1?.MALE?.length ?? 0,color:colors[0] },
+    { name: "Female", y: groupdata1?.FEMALE?.length ?? 0, color: colors[2] },
+    { name: "Male", y: groupdata1?.MALE?.length ?? 0, color: colors[0] },
   ];
 
-//   console.log(pieData, "Newdataatta");
+  //   console.log(pieData, "Newdataatta");
 
   // const sumByCompany = (NewData|| []).reduce((acc, item) => {
   //   acc[item.company] = (acc[item.company] || 0) + item.attrition;
@@ -103,7 +103,7 @@ const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
   // const seriesData = chartData?.map((item) => item.value);
 
   const options = {
-     
+
     chart: {
       backgroundColor: "#f5f5f5",
       height: 150,
@@ -152,9 +152,9 @@ const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
               //   })
               // );
               // setSelectmonths()
-            //   console.log(this.name,"clicked value");
+              //   console.log(this.name,"clicked value");
               setSelectedGender(this.name)
-              
+
               setShowTable(true);
             },
           },
@@ -173,21 +173,21 @@ const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
 
   return (
     <Card
-        sx={{
-          backgroundColor: "#f5f5f5",
-      
+      sx={{
+        backgroundColor: "#f5f5f5",
+
+      }}
+    >
+      <CardHeader
+        title="Left List"
+        titleTypographyProps={{
+          sx: { fontSize: ".9rem", fontWeight: 600 },
         }}
-      >
-        <CardHeader
-          title="Left List"
-          titleTypographyProps={{
-            sx: { fontSize: ".9rem", fontWeight: 600 },
-          }}
-          sx={{
-            p: 1,
-            borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-          }}
-        />
+        sx={{
+          p: 1,
+          borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+        }}
+      />
       <Grid container spacing={2}>
         <Grid item md={8}>
           <Box>
@@ -209,10 +209,10 @@ const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
               }}
             />
             <Typography variant="body2" sx={{ fontSize: "12px" }}>
-              <strong>Female-{groupdata1?.FEMALE?.length||0}</strong>
+              <strong>Female-{groupdata1?.FEMALE?.length || 0}</strong>
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center",mt:2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
             <Box
               sx={{
                 width: 7,
@@ -223,27 +223,27 @@ const colors= ["#4CAF50", "#2196F3", "#FF9800", "#E91E63"]
               }}
             />
             <Typography variant="body2" sx={{ fontSize: "12px" }}>
-              <strong>Male-{groupdata1?.MALE?.length||0}</strong>
+              <strong>Male-{groupdata1?.MALE?.length || 0}</strong>
             </Typography>
           </Box>
         </Grid>
       </Grid>
 
-       {showTable && (
-              <AttriDetails
-                selectedBuyer={[selectedBuyer]}
-                closeTable={() => setShowTable(false)}
-                setSearch={setSearch}
-                search={search}
-                selectmonths={selectmonths}
-                selectedYear={selectedYear1}
-                setSelectmonths={setSelectmonths}
-                autoFocusBuyer={true}
-                NewData={NewData}
-                selectedGender1={selectedGender}
-                // setSelectedGender1={setSelectedGender}
-              />
-            )}
+      {showTable && (
+        <AttriDetails
+          selectedBuyer={[selectedBuyer]}
+          closeTable={() => setShowTable(false)}
+          setSearch={setSearch}
+          search={search}
+          selectmonths={selectmonths}
+          selectedYear={selectedYear1}
+          setSelectmonths={setSelectmonths}
+          autoFocusBuyer={true}
+          NewData={NewData}
+          selectedGender1={selectedGender} excelTitle={excelTitle}
+        // setSelectedGender1={setSelectedGender}
+        />
+      )}
     </Card>
   );
 };

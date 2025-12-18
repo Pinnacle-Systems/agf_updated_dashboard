@@ -37,7 +37,7 @@ const Newjoin = ({
       setSelectedBuyer(companyName);
     }, [companyName]);
   
-  
+    let excelTitle = "Attrition Joining List Report"
   
   const dispatch = useDispatch();
 
@@ -218,7 +218,7 @@ const Newjoin = ({
                 selectedYear={selectedYear1}
                 setSelectmonths={setSelectmonths}
                 autoFocusBuyer={true}
-                NewData={NewData}
+                NewData={NewData} excelTitle={excelTitle}
                 selectedGender1={selectedGender}
                 // setSelectedGender={setSelectedGender}
               />

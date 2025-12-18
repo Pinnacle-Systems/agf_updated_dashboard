@@ -15,7 +15,9 @@ import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetEsiPf1Query, useGetEsiPfQuery } from "../../redux/service/misDashboardService";
 import FinYear from "../FinYear";
-
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import { addInsightsRow } from "../../utils/hleper";
 
 const ExpHeadDetail = ({
   closeTable,
@@ -25,7 +27,7 @@ const ExpHeadDetail = ({
   selectedBuyer,
   selectedYear,
   color,
-  HeadData
+  HeadData, excelTitle
 }) => {
 
 
@@ -71,45 +73,131 @@ const ExpHeadDetail = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = () => {
+
+
+  const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
       return;
     }
 
-    const headers = [
-      ["ID Card", "Name", "Gender", "Department", "Designation", "Experience"],
-    ];
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
 
-    const data = filteredData.map((row) => [
-      row.IDCARD,
-      row.FNAME,
-      row.GENDER,
-      row.DEPARTMENT,
-      row.DESIGNATION,
-      row.EXP,
+    /* =======================
+       1️⃣ TITLE ROW
+    ======================= */
+    worksheet.addRow([excelTitle || "Employee HeadCount Report"]);
+    worksheet.mergeCells(1, 1, 1, 7);
+
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 14 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "HeadCount",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
+    /* =======================
+       2️⃣ HEADER ROW
+    ======================= */
+    worksheet.addRow([
+      "ID Card",
+      "Name",
+      "Gender",
+      "Department",
+      "Designation",
+      "Experience",
+      "Emp Type"
     ]);
 
-    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+    const headerRow = worksheet.getRow(3);
+    headerRow.height = 24;
 
-    // Apply style to header row
-    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cell_address]) continue;
-
-      ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } },
-        font: { bold: true, color: { rgb: "000000" } },
-        alignment: { horizontal: "center", vertical: "center" },
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
       };
-    }
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+      // Gray background
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" },
+      };
+    });
 
-    XLSX.writeFile(wb, "Employee_Details.xlsx");
+    /* =======================
+       3️⃣ COLUMN WIDTHS
+    ======================= */
+    worksheet.columns = [
+      { width: 15 },
+      { width: 35 },
+      { width: 14 },
+      { width: 30 },
+      { width: 35 },
+      { width: 15 },
+      { width: 17 },
+    ];
+
+    /* =======================
+       4️⃣ DATA ROWS
+    ======================= */
+    filteredData.forEach((row) => {
+      worksheet.addRow([
+        row.IDCARD,
+        row.FNAME,
+        row.GENDER,
+        row.DEPARTMENT,
+        row.DESIGNATION,
+        row.EXP,
+        row.EMPTYPE,
+
+      ]);
+    });
+
+    /* =======================
+       5️⃣ DATA ALIGNMENT
+    ======================= */
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 3) return; // skip title + header
+
+      row.height = 22;
+
+      row.getCell(1).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(2).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(3).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(4).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(5).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(7).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    });
+
+    /* =======================
+       6️⃣ FREEZE HEADER
+    ======================= */
+    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+
+    /* =======================
+       7️⃣ EXPORT
+    ======================= */
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee HeadCount Report.xlsx");
   };
+
 
   const filteredData = Array.isArray(HeadData)
     ? HeadData
@@ -298,7 +386,7 @@ const ExpHeadDetail = ({
 
         <div className="flex justify-between items-start">
           <div className="grid grid-cols-8 gap-1 mb-3">
-            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION", "EXP", "STATE","EMPTYPE"].map((key) => (
+            {["IDCARD", "FNAME", "DEPARTMENT", "DESIGNATION", "EXP", "STATE", "EMPTYPE"].map((key) => (
               <div key={key} className="relative">
                 <input
                   type="text"
