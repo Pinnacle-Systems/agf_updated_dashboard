@@ -30,6 +30,7 @@ const DeptHeadCount = ({ companyName, selectedState, HeadData }) => {
   const [filterHeadData, setFilteredHeadData] = useState([])
   const [selectedGender, setSelectedGender] = useState();
 
+  let excelTitle = "Department wise HeadCount-Male vs Female Report"
 
 
   useEffect(() => {
@@ -233,7 +234,7 @@ const filterDataBySearch = (param) => {
           setSearch={setSearch}
           search={search}
           HeadData={filterHeadData}
-          selectedGender={selectedGender}
+          selectedGender={selectedGender} excelTitle={excelTitle}
           setSelectedGender={setSelectedGender}
         />
       )}

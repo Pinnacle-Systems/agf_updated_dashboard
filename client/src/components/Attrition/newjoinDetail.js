@@ -12,7 +12,9 @@ import {
   FaVenus,
 } from "react-icons/fa";
 import { IoMaleFemale } from "react-icons/io5";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import { addInsightsRow } from "../../utils/hleper";
 
 import FinYear from "../FinYear";
 import { useGetMisDashboardAttDetTableQuery } from "../../redux/service/misDashboardService";
@@ -27,7 +29,7 @@ const NewjoinDetails = ({
   setSelectmonths,
   NewData,
   autoFocusBuyer,
-  selectedGender1,
+  selectedGender1,excelTitle
   // setSelectedGender
 }) => {
 
@@ -73,54 +75,130 @@ const NewjoinDetails = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = () => {
-    if (filteredData.length === 0) {
-      alert("No data to export!");
-      return;
-    }
+ const downloadExcel = async () => {
+  if (filteredData.length === 0) {
+    alert("No data to export!");
+    return;
+  }
 
-    const headers = [
-      [
-        "ID Card",
-        "Name",
-        "Gender",
-        "Department",
-        "Company",
-        "Date of Left",
-        "Reason",
-      ],
-    ];
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Employees Data");
 
-    const data = filteredData.map((row) => [
+  /* =======================
+     1️⃣ TITLE ROW
+  ======================= */
+  worksheet.addRow([excelTitle || "Attrition Joining List Report"]);
+  worksheet.mergeCells(1, 1, 1, 6);
+
+  const titleCell = worksheet.getCell("A1");
+  titleCell.font = { bold: true, size: 14 };
+  titleCell.alignment = { horizontal: "center", vertical: "middle" };
+  worksheet.getRow(1).height = 30;
+  
+      addInsightsRow({
+        worksheet,
+        startRow: 2,
+        totalColumns: 6,
+  
+        dynamicField: "Attrition",
+        selectedBuyer,
+        selectedGender,
+        selectedState,
+        selectedYear,
+        selectedMonth: selectmonths,
+      });
+  
+
+  /* =======================
+     2️⃣ HEADER ROW
+  ======================= */
+  worksheet.addRow([
+    "ID Card",
+    "Name",
+    "Gender",
+    "Department",
+    "State",
+    "Date of Joined",
+  ]);
+
+  const headerRow = worksheet.getRow(3);
+  headerRow.height = 24;
+
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFD9D9D9" }, // gray
+    };
+    cell.border = {
+      top: { style: "thin" },
+      bottom: { style: "thin" },
+      left: { style: "thin" },
+      right: { style: "thin" },
+    };
+  });
+
+  /* =======================
+     3️⃣ COLUMN WIDTHS
+  ======================= */
+  worksheet.columns = [
+    { width: 15 }, // ID Card
+    { width: 35 }, // Name
+    { width: 14 }, // Gender
+    { width: 30 }, // Department
+    { width: 25 }, // State
+    { width: 18 }, // DOJ
+  ];
+
+  /* =======================
+     4️⃣ DATA ROWS
+  ======================= */
+  filteredData.forEach((row) => {
+    worksheet.addRow([
       row.EMPID,
       row.FNAME,
       row.GENDER,
       row.DEPARTMENT,
       row.STATE,
-      row.DOJ ? new Date(row.DOJ).toLocaleDateString("en-IN") : "-",
-      
+      row.DOJ ? new Date(row.DOJ) : "",
     ]);
+  });
 
-    const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+  /* =======================
+     5️⃣ DATE FORMAT & ALIGNMENT
+  ======================= */
+  worksheet.getColumn(6).numFmt = "dd-mm-yyyy";
 
-    // Apply style to header row
-    const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-      const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!ws[cell_address]) continue;
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber <= 3) return;
 
-      ws[cell_address].s = {
-        fill: { fgColor: { rgb: "FFFF00" } },
-        font: { bold: true, color: { rgb: "000000" } },
-        alignment: { horizontal: "center", vertical: "center" },
-      };
-    }
+    row.height = 22;
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+    row.getCell(1).alignment = { horizontal: "right", vertical: "middle",indent:1 };
+    row.getCell(2).alignment = { horizontal: "left", vertical: "middle" ,indent:1};
+    row.getCell(3).alignment = { horizontal: "left", vertical: "middle",indent:1 };
+    row.getCell(4).alignment = { horizontal: "left", vertical: "middle",indent:1 };
+    row.getCell(5).alignment = { horizontal: "left", vertical: "middle",indent:1 };
+    row.getCell(6).alignment = { horizontal: "center", vertical: "middle" };
+  });
 
-    XLSX.writeFile(wb, "Employee_Details.xlsx");
-  };
+  /* =======================
+     6️⃣ FREEZE TITLE + HEADER
+  ======================= */
+  worksheet.views = [{ state: "frozen", ySplit: 2 }];
+
+  /* =======================
+     7️⃣ EXPORT
+  ======================= */
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buffer]),  `${excelTitle}.xlsx`||
+    "Attrition Joining List Report.xlsx"
+  );
+};
+
 
   const filteredData = Array.isArray(NewData)
     ? NewData

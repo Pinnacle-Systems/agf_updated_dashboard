@@ -41,6 +41,7 @@ const Deptjoin = ({
   useEffect(() => {
     setSelectedBuyer(companyName);
   }, [companyName]);
+    let excelTitle = "Attrition Department Wise Joining List Report"
 
   
   const filteredData = Array.isArray(NewData)
@@ -202,7 +203,7 @@ const chartdata = Object.entries(groupdata1).map(([dept, arr]) => ({
                 selectedYear={selectedYear1}
                 setSelectmonths={setSelectmonths}
                 autoFocusBuyer={true}
-                NewData={NewData}
+                NewData={NewData} excelTitle={excelTitle}
                 selectedGender1={selectedGender}
                
               />

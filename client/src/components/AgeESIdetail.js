@@ -20,6 +20,8 @@ import {
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const AgewiseESIlDetail = ({
   closeTable,
   search,
@@ -91,10 +93,21 @@ const AgewiseESIlDetail = ({
     worksheet.mergeCells(1, 1, 1, 6);
 
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
 
+      dynamicField: "ESI",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
     /* =======================
        2️⃣ HEADER ROW
     ======================= */
@@ -104,10 +117,10 @@ const AgewiseESIlDetail = ({
       "Gender",
       "Department",
       "Age",
-      "ESI",
+      "ESI Amount",
     ]);
 
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 24;
 
     headerRow.eachCell((cell) => {
@@ -136,7 +149,7 @@ const AgewiseESIlDetail = ({
       { width: 14 },
       { width: 30 },
       { width: 10 },
-      { width: 15 },
+      { width: 16 },
     ];
 
     /* =======================
@@ -157,7 +170,7 @@ const AgewiseESIlDetail = ({
        5️⃣ DATA ALIGNMENT
     ======================= */
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title + header
+      if (rowNumber <= 3) return; // skip title + header
 
       row.height = 22;
 
@@ -183,7 +196,7 @@ const AgewiseESIlDetail = ({
        8️⃣ EXPORT
     ======================= */
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), "ESI Contribution Age wise Report.xlsx");
   };
 
 

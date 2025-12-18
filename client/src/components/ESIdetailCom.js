@@ -20,6 +20,8 @@ import {
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const ESIDetailedCom = ({
   closeTable,
   search,
@@ -97,10 +99,23 @@ const ESIDetailedCom = ({
     ========================= */
     worksheet.mergeCells("A1:F1");
     const titleCell = worksheet.getCell("A1");
-    titleCell.value =excelTitle ||  "ESI Contribution  report";
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.value = excelTitle || "ESI Contribution  report";
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 32;
+
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "ESI",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
 
     /* =========================
        2️⃣ HEADER ROW
@@ -111,12 +126,12 @@ const ESIDetailedCom = ({
       "Gender",
       "Department",
       "Designation",
-      "ESI",
+      "ESI Amount",
     ];
 
     worksheet.addRow(headers); // row 2
 
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
 
     headerRow.eachCell((cell) => {
@@ -147,7 +162,7 @@ const ESIDetailedCom = ({
       { width: 14 },
       { width: 30 },
       { width: 35 },
-      { width: 15 },
+      { width: 16 },
     ];
 
     /* =========================
@@ -168,7 +183,7 @@ const ESIDetailedCom = ({
        5️⃣ DATA ALIGNMENT
     ========================= */
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return;
+      if (rowNumber <= 3) return;
 
       row.height = 22;
 
@@ -194,7 +209,7 @@ const ESIDetailedCom = ({
        8️⃣ EXPORT FILE
     ========================= */
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee_Details.xlsx");
   };
 
 

@@ -28,6 +28,7 @@ const DetailedPF = ({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
+  let excelTitle = "PF Contribution Department wise Report"
 
   // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
@@ -199,7 +200,7 @@ const DetailedPF = ({
             selectmonths={selectmonths}
             setSelectedState={setSelectedState}
             setSelectmonths={setSelectmonths}
-            autoFocusBuyer={true}
+            autoFocusBuyer={true} excelTitle={excelTitle}
           />
         )}
       </Card>

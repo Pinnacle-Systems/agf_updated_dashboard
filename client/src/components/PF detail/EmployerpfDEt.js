@@ -15,6 +15,7 @@ import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useGetEsiPf1Query, useGetEsiPfQuery } from "../../redux/service/misDashboardService";
 import FinYear from "../FinYear";
+
 // import {
 //   useGetEsiPf1Query,
 //   useGetMisDashboardSalaryDetQuery,
@@ -22,6 +23,7 @@ import FinYear from "../FinYear";
 // import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../../utils/hleper";
 const PFShareDetailed = ({
   closeTable,
   search,
@@ -98,9 +100,21 @@ const PFShareDetailed = ({
     worksheet.mergeCells(1, 1, 1, 6);
 
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "PF",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
 
     /* =======================
        2️⃣ HEADER ROW
@@ -111,10 +125,10 @@ const PFShareDetailed = ({
       "Gender",
       "Department",
       "Employer Contribute",
-      "Employer Contribute",
+      "Employee Contribute",
     ]);
 
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 24;
 
     headerRow.eachCell((cell) => {
@@ -167,15 +181,15 @@ const PFShareDetailed = ({
        5️⃣ ALIGNMENT
     ======================= */
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return;
+      if (rowNumber <= 3) return;
 
       row.height = 22;
-      row.getCell(1).alignment = { horizontal: "right", vertical: "middle",indent:1 }; // ID
-      row.getCell(2).alignment = { horizontal: "left", vertical: "middle",indent:1 };  // Name
-      row.getCell(3).alignment = { horizontal: "left", vertical: "middle" ,indent:1}; // Gender
-      row.getCell(4).alignment = { horizontal: "left", vertical: "middle",indent:1 };  // Department
-      row.getCell(5).alignment = { horizontal: "right", vertical: "middle",indent:1 }; // Employer Contribute
-      row.getCell(6).alignment = { horizontal: "right", vertical: "middle" ,indent:1}; // Employee Contribute
+      row.getCell(1).alignment = { horizontal: "right", vertical: "middle", indent: 1 }; // ID
+      row.getCell(2).alignment = { horizontal: "left", vertical: "middle", indent: 1 };  // Name
+      row.getCell(3).alignment = { horizontal: "left", vertical: "middle", indent: 1 }; // Gender
+      row.getCell(4).alignment = { horizontal: "left", vertical: "middle", indent: 1 };  // Department
+      row.getCell(5).alignment = { horizontal: "right", vertical: "middle", indent: 1 }; // Employer Contribute
+      row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 }; // Employee Contribute
     });
 
     /* =======================
@@ -187,7 +201,7 @@ const PFShareDetailed = ({
        7️⃣ EXPORT
     ======================= */
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee PF Details.xlsx");
   };
 
 

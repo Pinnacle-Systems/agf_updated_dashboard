@@ -12,6 +12,7 @@ import { useGetYFActVsPlnQuery } from "../../../redux/service/orderManagement";
 import AttritionDetTable from "../../../components/AttDetTable";
 import { Card, CardHeader } from "@mui/material";
 import AttriDetails from "../../../components/Attrition/Attritiondet";
+import { addInsightsRow } from "../../../utils/hleper";
 
 const CompAttrition = ({
   companyName,
@@ -29,7 +30,7 @@ const CompAttrition = ({
   const [selectedBuyer, setSelectedBuyer] = useState(companyName);
   const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [selectedGender, setSelectedGender] = useState("Both");
-
+  let excelTitle = "Attrition Month wise Report"
   const chartRef = useRef();
   const [showTable, setShowTable] = useState(false);
 
@@ -329,7 +330,7 @@ const CompAttrition = ({
           selectmonths={selectmonths}
           selectedYear={selectedYear1}
           setSelectmonths={setSelectmonths}
-          autoFocusBuyer={true}
+          autoFocusBuyer={true} excelTitle={excelTitle}
           selectedGender1={selectedGender}
         />
       )}

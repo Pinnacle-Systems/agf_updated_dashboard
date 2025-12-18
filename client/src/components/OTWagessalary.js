@@ -17,6 +17,7 @@ import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardS
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
 
 
 const OTWagesDetail = ({
@@ -122,15 +123,27 @@ const OTWagesDetail = ({
     ];
 
     // 2️⃣ Add Title row above headers
-    worksheet.insertRow(1, ["Overtime Wages Report"]);
+    worksheet.insertRow(1, ["Salary Distribution Overtime Wages Report"]);
     worksheet.mergeCells(1, 1, 1, worksheet.columns.length); // Merge across all columns
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "Salary",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
 
     // 3️⃣ Header row styling (row 2)
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
     headerRow.eachCell((cell) => {
       cell.font = { bold: true };
@@ -158,7 +171,7 @@ const OTWagesDetail = ({
 
     // 5️⃣ Apply alignment to data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title and header
+      if (rowNumber <= 3) return; // skip title and header
 
       row.height = 22;
       row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
@@ -177,7 +190,7 @@ const OTWagesDetail = ({
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), "Salary Distribution Overtime Wages Report.xlsx");
   };
 
 
@@ -569,8 +582,8 @@ const OTWagesDetail = ({
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-md ${currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaStepBackward size={16} />
@@ -580,8 +593,8 @@ const OTWagesDetail = ({
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-md ${currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaChevronLeft size={16} />
@@ -597,8 +610,8 @@ const OTWagesDetail = ({
                 }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-md ${currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaChevronRight size={16} />
@@ -608,8 +621,8 @@ const OTWagesDetail = ({
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-md ${currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaStepForward size={16} />

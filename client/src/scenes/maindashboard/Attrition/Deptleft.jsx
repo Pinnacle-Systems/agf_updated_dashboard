@@ -19,7 +19,8 @@ const DeptLeft = ({
   selectmonths,
 
 }) => {
-  
+    let excelTitle = "Attrition Department wise Left List report"
+
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -204,7 +205,7 @@ const chartdata = Object.entries(groupdata1).map(([dept, arr]) => ({
                 setSelectmonths={setSelectmonths}
                 autoFocusBuyer={true}
                 NewData={NewData}
-                selectedGender1={selectedGender}
+                selectedGender1={selectedGender} excelTitle={excelTitle}
                 // setSelectedGender1={setSelectedGender}
               />
             )}

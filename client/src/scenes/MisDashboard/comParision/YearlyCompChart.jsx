@@ -3,7 +3,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts3D from 'highcharts/highcharts-3d';
 import html2canvas from 'html2canvas';
-import { IoMdDownload } from "react-icons/io";import { useGetYearlyCompQuery } from '../../../redux/service/misDashboardService';
+import { IoMdDownload } from "react-icons/io"; import { useGetYearlyCompQuery } from '../../../redux/service/misDashboardService';
 import { ColorContext } from '../../global/context/ColorContext';
 import CardWrapper from '../../../components/CardWrapper';
 import { CiMenuKebab } from "react-icons/ci";
@@ -14,11 +14,11 @@ Highcharts3D(Highcharts);
 const YearlyComChart = () => {
     const { data: comparisionData } = useGetYearlyCompQuery({ params: {} });
     const { color } = useContext(ColorContext);
-     const [openpopup,setOpenpopup] = useState(false)
+    const [openpopup, setOpenpopup] = useState(false)
     const yearlyComparision = comparisionData?.data || [];
     const chartRef = useRef(null);
- console.log(openpopup,"openpopup")
-      const groupedData = yearlyComparision.reduce((acc, curr) => {
+    console.log(openpopup, "openpopup")
+    const groupedData = yearlyComparision.reduce((acc, curr) => {
         if (!acc[curr.year]) {
             acc[curr.year] = [];
         }
@@ -131,29 +131,29 @@ const YearlyComChart = () => {
     };
 
     return (
-     <CardWrapper heading="Employee Strength As On Date" chartRef={chartRef} showFilter={false} Doption={true}>
-   {openpopup && <DataDetailTable graph = {true} setOpenpopup={setOpenpopup} />}
+        <CardWrapper heading="Employee Strength As On Date" chartRef={chartRef} showFilter={false} Doption={true}>
+            {openpopup && <DataDetailTable graph={true} setOpenpopup={setOpenpopup} />}
 
-    <div id="chart" className="relative pt-2 rounded" onClick={()=>setOpenpopup(true)}>
-    <HighchartsReact
-    highcharts={Highcharts}
-    options={options}
-    ref={(chartComponent) => {
-        if (chartComponent) {
-            chartRef.current = chartComponent.container.current;
-        }
-    }}
-    containerProps={{
-        style: {
-            minWidth: '100%',
-            height: '100%',
-            borderRadius: "10px",
-        }
-    }}
-/>
+            <div id="chart" className="relative pt-2 rounded" onClick={() => setOpenpopup(true)}>
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={options}
+                    ref={(chartComponent) => {
+                        if (chartComponent) {
+                            chartRef.current = chartComponent.container.current;
+                        }
+                    }}
+                    containerProps={{
+                        style: {
+                            minWidth: '100%',
+                            height: '100%',
+                            borderRadius: "10px",
+                        }
+                    }}
+                />
 
-    </div>
-</CardWrapper>
+            </div>
+        </CardWrapper>
 
     );
 };

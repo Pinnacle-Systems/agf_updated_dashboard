@@ -28,7 +28,7 @@ const EmployerESI = ({
     COMPCODE: "",
   });
   const [showTable, setShowTable] = useState(false);
-  let excelTitle = "ESI Employee Contribution Report"
+  let excelTitle = "ESI Employer Contribution Report"
   // const [selectedYear, setSelectedYear] = useState(selectedYear1);
   const [filterBuyer, setFilterBuyer] = useState(companyName);
 

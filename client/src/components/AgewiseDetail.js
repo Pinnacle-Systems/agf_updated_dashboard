@@ -17,6 +17,8 @@ import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardS
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const AgewiseSalDetail = ({
   closeTable,
   search,
@@ -129,12 +131,26 @@ const AgewiseSalDetail = ({
     worksheet.insertRow(1, ["Salary Distribution Age wise Report"]);
     worksheet.mergeCells("A1:F1"); // merge across all columns
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
 
+     addInsightsRow({
+          worksheet,
+          startRow: 2,
+          totalColumns: 6,
+    
+          dynamicField: "Salary",
+          selectedBuyer,
+          selectedGender,
+          selectedState,
+          selectedYear,
+          selectedMonth: selectmonths,
+        });
+    
+
     // 3️⃣ Style header row (row 2)
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
 
     headerRow.eachCell((cell) => {
@@ -170,7 +186,7 @@ const AgewiseSalDetail = ({
 
     // 5️⃣ Apply alignment ONLY to data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title and header
+      if (rowNumber <= 3) return; // skip title and header
 
       row.height = 22;
 
@@ -190,7 +206,7 @@ const AgewiseSalDetail = ({
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), "Salary Distribution Age wise Report.xlsx");
   };
 
 

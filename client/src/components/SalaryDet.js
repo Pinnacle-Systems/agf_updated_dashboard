@@ -17,6 +17,8 @@ import { useGetMisDashboardSalaryDetQuery } from "../redux/service/misDashboardS
 import FinYear from "./FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const SalaryDetail = ({
   closeTable,
   search,
@@ -56,46 +58,8 @@ const SalaryDetail = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  // const downloadExcel = () => {
-  //   if (filteredData.length === 0) {
-  //     alert("No data to export!");
-  //     return;
-  //   }
-
-  //   const headers = [
-  //     ["ID Card", "Name", "Gender", "Department", "Designation", "Netpay"],
-  //   ];
-
-  //   const data = filteredData.map((row) => [
-  //     row.EMPID,
-  //     row.FNAME,
-  //     row.GENDER,
-  //     row.DEPARTMENT,
-  //     row.DESIGNATION,
-  //     row.NETPAY,
-  //   ]);
-
-  //   const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
-
-  //   // Apply style to header row
-  //   const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-  //   for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-  //     const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-  //     if (!ws[cell_address]) continue;
-
-  //     ws[cell_address].s = {
-  //       fill: { fgColor: { rgb: "FFFF00" } },
-  //       font: { bold: true, color: { rgb: "000000" } },
-  //       alignment: { horizontal: "center", vertical: "center" },
-  //     };
-  //   }
-
-  //   const wb = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
-
-  //   XLSX.writeFile(wb, "Employee_Details.xlsx");
-  // };
-
+  
+  
 
   const downloadExcel = async () => {
     if (filteredData.length === 0) {
@@ -121,12 +85,25 @@ const SalaryDetail = ({
 
     worksheet.mergeCells("A1:F1"); // merge across all columns
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
 
+     addInsightsRow({
+          worksheet,
+          startRow: 2,
+          totalColumns: 6,
+    
+          dynamicField: "Salary",
+          selectedBuyer,
+          selectedGender,
+          selectedState,
+          selectedYear,
+          selectedMonth: selectmonths,
+        });
+    
     // 3️⃣ Style header row (row 2)
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
 
     headerRow.eachCell((cell) => {
@@ -159,7 +136,7 @@ const SalaryDetail = ({
 
     // 5️⃣ Apply alignment ONLY to data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title and header
+      if (rowNumber <= 3) return; // skip title and header
 
       row.height = 22;
 
@@ -179,7 +156,7 @@ const SalaryDetail = ({
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
+    saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee_Salary_Details.xlsx");
   };
 
   const filteredData = Array.isArray(salaryDet)
