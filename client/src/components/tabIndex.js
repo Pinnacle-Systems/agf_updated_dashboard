@@ -36,11 +36,11 @@ const tabs = [
   },
   // { key: "OnrollInsight", name: "Stock", component:NumericCard  ,list:true,default:false,list_name:"On Roll Insight" },
   {
-    key: "Free Look Dyeing",
-    name: "Free Look Dyeing",
+    key: "Dyeing Dashboard",
+    name: "Dyeing Dashboard",
     component: FreeLookDyeing,
     list: true,
-    list_name: "Free Look Dyeing",
+    list_name: "Dyeing Dashboard",
   },
 ];
 

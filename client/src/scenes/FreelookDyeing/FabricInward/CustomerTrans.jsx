@@ -18,32 +18,28 @@ import { useGetFabricInwardByCusNameQuery } from "../../../redux/service/freeLoo
 
 const CustomerTrans = ({
     closeTable,
-    selectmonths,
-    fYear,
-    setFYear,
+    finYear,
+    selectedYear,
     category,
-    setCategory,
     custName,
-    setCustName
+    setCustName,
+    selectmonths,
+    setFYear,
+    setCategory,
 }) => {
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
 
-    const [selectedGender, setSelectedGender] = useState("Both");
-
-    const [netpayRange, setNetpayRange] = useState({
-        min: 0,
-        max: Infinity,
-    });
     const recordsPerPage = 34;
 
     const { data: cusTransData } = useGetFabricInwardByCusNameQuery({
         params: {
-            finyear: fYear,
-            category: category
+            finyear: selectedYear,
+            category: category,
+            customer: custName
         },
     }, {
-        skip: !fYear || !category
+        skip: !selectedYear || !category
     });
 
     useEffect(() => {
@@ -51,9 +47,6 @@ const CustomerTrans = ({
     }, [cusTransData]);
 
 
-    const handleGenderFilter = (gender) => {
-        setSelectedGender(gender);
-    };
     const downloadExcel = () => {
         if (filteredData.length === 0) {
             alert("No data to export!");
@@ -61,16 +54,17 @@ const CustomerTrans = ({
         }
 
         const headers = [
-            ["ID Card", "Name", "Gender", "Department", "EmployerShare", "EmployeeShare"],
+            ["GRN No", "Order No", "Delivery To", "Fabric Name", "Dia", "Uom", "Qty"],
         ];
 
         const data = filteredData.map((row) => [
-            row.EMPID,
-            row.FNAME,
-            row.GENDER,
-            row.DEPARTMENT,
-            row.EMPLOYER_CON,
-            row.PF,
+            row.grnNo,
+            row.orderNo,
+            row.deliveryTo,
+            row.fabName,
+            row.dia,
+            row.uom,
+            row.qty
         ]);
 
         const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -91,36 +85,20 @@ const CustomerTrans = ({
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
 
-        XLSX.writeFile(wb, "Employee_Details.xlsx");
+        XLSX.writeFile(wb, "FabricInward_Details.xlsx");
     };
 
-
-
-    const filteredData = Array.isArray(cusTransData)
-        ? cusTransData
-            .filter((row) =>
-                Object.keys(search || {}).every((key) => {
-                    const rowValue = row[key]?.toString().toLowerCase() || "";
-                    const searchValue = search[key]?.toString().toLowerCase() || "";
-                    return rowValue.includes(searchValue);
-                })
-            )
-            .filter((row) => {
-                if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-                if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-                return true;
+    const filteredData = Array.isArray(cusTransData?.data)
+        ? cusTransData.data.filter((row) =>
+            Object.entries(search).every(([key, value]) => {
+                if (!value) return true; // ignore empty search
+                return row[key]
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(value.toLowerCase());
             })
-            .filter((row) => {
-                const netpay = Number(row?.PF) || 0;
-                return netpay >= netpayRange.min && netpay <= netpayRange.max;
-            })
-            .filter((row) => {
-                if (!selectmonths) return true;
-                return row.PAYPERIOD === selectmonths;
-            })
+        )
         : [];
-
-    console.log(filteredData, "filteredData1");
 
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
@@ -162,7 +140,7 @@ const CustomerTrans = ({
                     <div className="text-start">
                         <h2 className="text-m font-bold text-gray-800 uppercase ">
                             Customer Insights -{" "}
-                            {/* <span className="text-blue-600">{selectedBuyer.join(", ")}</span> */}
+                            <span className="text-blue-600">{custName}</span>
                         </h2>
                         <div className="flex items-start justify-start mb-1">
                             {/* Left: Total Records */}
@@ -171,7 +149,7 @@ const CustomerTrans = ({
                             </p>
 
                             {/* Right: Total Netpay */}
-                            <div className="text-right ml-5 text-[12px]">
+                            {/* <div className="text-right ml-5 text-[12px]">
                                 <p className=" text-gray-500 font-medium">
                                     Total Netpay:{" "}
                                     <span className="text-sky-700 pl-2">
@@ -188,56 +166,24 @@ const CustomerTrans = ({
                                         ₹{totalNetPay1.toLocaleString("en-IN")}
                                     </span>
                                 </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-center gap-3 mb-4">
-                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-3 gap-1 p-2">
-                        </div>
-
-                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-3 gap-1 p-2">
-                            <button
-                                onClick={() => handleGenderFilter("Male")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${selectedGender === "Male"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <FaMars size={14} className="text-blue-500" /> Male
-                            </button>
-
-                            <button
-                                onClick={() => handleGenderFilter("Female")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${selectedGender === "Female"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <FaVenus size={14} className="text-pink-500" /> Female
-                            </button>
-                            <button
-                                onClick={() => handleGenderFilter("Both")}
-                                className={`flex items-center gap-2 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-                ${selectedGender === "Both"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <IoMaleFemale size={14} className="text-green-500" /> Both
-                            </button>
+                            </div> */}
                         </div>
                     </div>
                 </div>
 
                 <div className="flex justify-between items-start">
                     <div className="grid grid-cols-6 gap-2 mb-3">
-                        {["EMPID", "FNAME", "DEPARTMENT"].map((key) => (
+                        {[
+                            { label: "GRN NO", key: "grnNo" },
+                            { label: "ORDER NO", key: "orderNo" },
+                            { label: "DELIVERY TO", key: "deliveryTo" },
+                            { label: "FABRIC NAME", key: "fabName" },
+                            { label: "Dia", key: "dia" },
+                        ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
-                                    placeholder={`Search ${key}...`}
+                                    placeholder={`Search ${label}...`}
                                     value={search[key] || ""}
                                     onChange={(e) =>
                                         setSearch({ ...search, [key]: e.target.value })
@@ -259,7 +205,7 @@ const CustomerTrans = ({
                         </div>
 
                         {/* <div className="flex items-center gap-4 text-[12px] "> */}
-                        <div className="flex items-center text-[12px]">
+                        {/* <div className="flex items-center text-[12px]">
                             <span className="text-gray-500">Min Netpay:</span>
                             <input
                                 type="number"
@@ -288,7 +234,7 @@ const CustomerTrans = ({
                                 }
                                 className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
-                        </div>
+                        </div> */}
                     </div>
                     <div className="right-0">
                         <button
@@ -314,12 +260,13 @@ const CustomerTrans = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-left">S.No</th>
-                                    <th className="border p-1 text-left">ID Card</th>
-                                    <th className="border p-1 text-left">Name</th>
-                                    <th className="border p-1 text-left">Gender</th>
-                                    <th className="border p-1 text-left">Department</th>
-                                    <th className="border p-1 text-left">Employer Contribute</th>
-                                    <th className="border p-1 text-left">Employee Contribute</th>
+                                    <th className="border p-1 text-left">GRN No</th>
+                                    <th className="border p-1 text-left">Order No</th>
+                                    <th className="border p-1 text-left">Delivery To</th>
+                                    <th className="border p-1 text-left">Fabric name</th>
+                                    <th className="border p-1 text-left">Dia</th>
+                                    <th className="border p-1 text-left">Uom</th>
+                                    <th className="border p-1 text-left">Qty</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -337,52 +284,31 @@ const CustomerTrans = ({
                                                 {serialNo}
                                             </td>
                                             <td className="border p-1 text-[10px] w-[60px]">
-                                                {row.EMPID}
+                                                {row.grnNo}
+                                            </td>
+                                            <td
+                                                className="border p-1 text-[10px] w-[60px]"
+                                            >
+                                                {row.orderNo}
+                                            </td>
+                                            <td className="border p-1 text-[10px] w-[25px]">
+                                                {row.deliveryTo}
                                             </td>
                                             <td
                                                 className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
                                                 style={{ maxWidth: "100px" }}
                                             >
-                                                {row.FNAME}
+                                                {row.fabName}
                                             </td>
                                             <td className="border p-1 text-[10px] w-[30px]">
-                                                {row.GENDER}
+                                                {row.dia}
                                             </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.DEPARTMENT}
+                                            <td className="border p-1 text-[10px] w-[25px]">
+                                                {row.uom}
                                             </td>
-
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.EMPLOYER_CON)}
+                                            <td className="border p-1 text-sky-700 text-[10px] text-right w-[30px]">
+                                                {row.qty}
                                             </td>
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.PF)}
-                                            </td>
-                                            {/* <td className="border p-1 text-[10px]">{serialNo}</td>
-                      <td className="border p-1 text-[10px]">{row.EMPID}</td>
-                      <td className="border p-1 text-[10px]">{row.FNAME}</td>
-                      <td className="border p-1 text-[10px]">{row.GENDER}</td>
-                      <td className="border p-1 text-[10px]">
-                        {row.DEPARTMENT}
-                      </td>
-                      <td className="border p-1 text-[10px]">
-                        {row.EMPLOYER_CON}
-                      </td>
-                      <td className="border p-1 text-sky-700  text-[10px]">
-                        {new Intl.NumberFormat("en-IN", {
-                          style: "currency",
-                          currency: "INR",
-                        }).format(row.PF)}
-                      </td> */}
                                         </tr>
                                     );
                                 })}
@@ -398,12 +324,13 @@ const CustomerTrans = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-left">S.No</th>
-                                    <th className="border p-1 text-left">ID Card</th>
-                                    <th className="border p-1 text-left">Name</th>
-                                    <th className="border p-1 text-left">Gender</th>
-                                    <th className="border p-1 text-left">Department</th>
-                                    <th className="border p-1 text-left">Employer Contribute</th>
-                                    <th className="border p-1 text-left">Employee Contribute</th>
+                                    <th className="border p-1 text-left">GRN No</th>
+                                    <th className="border p-1 text-left">Order No</th>
+                                    <th className="border p-1 text-left">Delivery To</th>
+                                    <th className="border p-1 text-left">Fabric name</th>
+                                    <th className="border p-1 text-left">Dia</th>
+                                    <th className="border p-1 text-left">Uom</th>
+                                    <th className="border p-1 text-left">Qty</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -414,41 +341,37 @@ const CustomerTrans = ({
                                     return (
                                         <tr
                                             key={index}
-                                            className="text-gray-700 bg-white even:bg-gray-100"
+                                            className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
+
                                             <td className="border p-1 text-[10px] w-[25px]">
                                                 {serialNo}
                                             </td>
                                             <td className="border p-1 text-[10px] w-[60px]">
-                                                {row.EMPID}
+                                                {row.grnNo}
                                             </td>
                                             <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
+                                                className="border p-1 text-[10px] w-[60px]"
                                             >
-                                                {row.FNAME}
+                                                {row.orderNo}
                                             </td>
                                             <td className="border p-1 text-[10px] w-[30px]">
-                                                {row.GENDER}
+                                                {row.deliveryTo}
                                             </td>
                                             <td
                                                 className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
                                                 style={{ maxWidth: "100px" }}
                                             >
-                                                {row.DEPARTMENT}
+                                                {row.fabName}
                                             </td>
-
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.EMPLOYER_CON)}
+                                            <td className="border p-1 text-[10px] w-[30px]">
+                                                {row.dia}
                                             </td>
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[25px] text-right">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.PF)}
+                                            <td className="border p-1 text-[10px] w-[30px]">
+                                                {row.uom}
+                                            </td>
+                                            <td className="border p-1 text-sky-700 text-[10px] text-right w-[30px]">
+                                                {row.qty}
                                             </td>
                                         </tr>
                                     );

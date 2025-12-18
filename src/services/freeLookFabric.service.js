@@ -270,7 +270,10 @@ export async function getFabricInwardCustomerByName(req, res) {
     }
 
     const { finyear, category, customer } = req.query;
-
+    console.log(finyear,"finfear",
+      category,"category",
+      customer,"customer"
+    )
     const result = await connection.execute(
       `SELECT DISTINCT
 	   B.GRNNO,

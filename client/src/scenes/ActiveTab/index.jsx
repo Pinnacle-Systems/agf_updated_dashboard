@@ -93,12 +93,13 @@ const ActiveTabList = () => {
       />
     ),
     HRDashBoard: <HRDashboard />,
-    "Free Look Dyeing"
+    "Dyeing Dashboard"
       : <FreeLookDyeing />,
     FabricInward: (tabData) => (
       <FabricInward
-        year={tabData?.year}
         finYear={tabData?.finYear}
+        year={tabData?.year}
+        selectCategory={tabData?.selectCategory}
       />
     ),
     FabricOutward: (tabData) => (
