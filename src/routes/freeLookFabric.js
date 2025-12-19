@@ -6,6 +6,7 @@ import {
   getFabricOutward,
   getFabricOutwardCustomer,
   getFabricInwardCustomerByName,
+  getFanInwardCust
 } from "../services/freeLookFabric.service.js";
 
 const router = Router();
@@ -16,5 +17,6 @@ router.get("/fabricInwardCustomer", getFabricInwardCustomer);
 router.get("/getFabricOutward", getFabricOutward);
 router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);
 router.get("/fabricInwardByCusName", getFabricInwardCustomerByName);
+router.get("/fabInwardCust",getFanInwardCust)
 
 export default router;

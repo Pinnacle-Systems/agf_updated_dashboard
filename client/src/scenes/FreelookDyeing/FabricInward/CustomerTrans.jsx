@@ -6,31 +6,33 @@ import {
     FaStepBackward,
     FaStepForward,
     FaSearch,
-    FaUserTie,
     FaUsers,
     FaMars,
     FaVenus,
 } from "react-icons/fa";
-import { IoMaleFemale } from "react-icons/io5";
 import * as XLSX from "xlsx";
-import { useGetFabricInwardByCusNameQuery } from "../../../redux/service/freeLookFabric";
-
-
+import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery } from "../../../redux/service/freeLookFabric";
+import { getDateFromDateTimeToDisplay } from "../../../utils/hleper";
+import HouseIcon from '@mui/icons-material/House';
+import FactoryIcon from '@mui/icons-material/Factory';
+import { DropdownWithSearch } from "../../../input/inputcomponent";
+import FinYear from "../../../components/FinYear";
 const CustomerTrans = ({
     closeTable,
     finYear,
     selectedYear,
+    setSelectedYear,
     category,
+    setCategory,
     custName,
     setCustName,
-    selectmonths,
     setFYear,
-    setCategory,
 }) => {
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectmonths, setSelectmonths] = useState("");
 
-    const recordsPerPage = 34;
+    const recordsPerPage = 40;
 
     const { data: cusTransData } = useGetFabricInwardByCusNameQuery({
         params: {
@@ -42,10 +44,19 @@ const CustomerTrans = ({
         skip: !selectedYear || !category
     });
 
+    const { data: custNames } = useGetFabricInwardCustQuery({
+        params: {
+        },
+    });
+
+    const cusData = custNames?.data.map((custName) => ({
+        custName: custName,
+        id: custName,
+    }));
+
     useEffect(() => {
         setCurrentPage(1);
     }, [cusTransData]);
-
 
     const downloadExcel = () => {
         if (filteredData.length === 0) {
@@ -54,13 +65,13 @@ const CustomerTrans = ({
         }
 
         const headers = [
-            ["GRN No", "Order No", "Delivery To", "Fabric Name", "Dia", "Uom", "Qty"],
+            ["Inv No", "Inv Date", "Order No", "Fabric Name", "Dia", "Uom", "Qty"],
         ];
 
         const data = filteredData.map((row) => [
             row.grnNo,
+            row.invDate,
             row.orderNo,
-            row.deliveryTo,
             row.fabName,
             row.dia,
             row.uom,
@@ -89,23 +100,40 @@ const CustomerTrans = ({
     };
 
     const filteredData = Array.isArray(cusTransData?.data)
-        ? cusTransData.data.filter((row) =>
-            Object.entries(search).every(([key, value]) => {
-                if (!value) return true; // ignore empty search
+        ? cusTransData.data.filter((row) => {
+
+            // 🔹 Existing search filter
+            const searchMatch = Object.entries(search).every(([key, value]) => {
+                if (!value) return true;
                 return row[key]
                     ?.toString()
                     .toLowerCase()
                     .includes(value.toLowerCase());
-            })
-        )
+            });
+
+            if (!searchMatch) return false;
+
+            // 🔹 Month filter
+            if (!selectmonths) return true;
+
+            const invDate = new Date(row.invDate);
+            if (isNaN(invDate)) return false;
+
+            const monthYear = invDate.toLocaleString("en-IN", {
+                month: "long",
+                year: "numeric",
+            });
+
+            return monthYear === selectmonths;
+        })
         : [];
 
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
         0
     );
-    const totalNetPay1 = filteredData.reduce(
-        (sum, row) => sum + (Number(Math.round(row.EMPLOYER_CON)) || 0),
+    const totalQty = filteredData.reduce(
+        (sum, row) => sum + (Number(Math.round(row.qty)) || 0),
         0
     );
     console.log(totalNetPay, "Total Net Pay");
@@ -126,9 +154,13 @@ const CustomerTrans = ({
         { minNetPay: Infinity, maxNetPay: -Infinity }
     );
 
+    const handleFilterClick = (type) => {
+        setCategory(type);
+    };
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">
+            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">
                 <button
                     onClick={closeTable}
                     className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -149,16 +181,17 @@ const CustomerTrans = ({
                             </p>
 
                             {/* Right: Total Netpay */}
-                            {/* <div className="text-right ml-5 text-[12px]">
+
+                            <div className="text-right ml-5 text-[12px]">
                                 <p className=" text-gray-500 font-medium">
-                                    Total Netpay:{" "}
+                                    Total Qty:{" "}
                                     <span className="text-sky-700 pl-2">
-                                        {" "}
-                                        ₹{totalNetPay.toLocaleString("en-IN")}
+
+                                        ₹{totalQty}
                                     </span>
                                 </p>
                             </div>
-                            <div className="text-right ml-5 text-[12px]">
+                            {/* <div className="text-right ml-5 text-[12px]">
                                 <p className=" text-gray-500 font-medium">
                                     Total Employer share:{" "}
                                     <span className="text-sky-700 pl-2">
@@ -169,16 +202,50 @@ const CustomerTrans = ({
                             </div> */}
                         </div>
                     </div>
+                    <div className="flex justify-end gap-2 items-center mb-4  mr-5">
+                        <div className="w-48">
+                            <DropdownWithSearch
+                                options={cusData || []}
+                                labelField={"custName"}
+                                label={""}
+                                value={custName}
+                                setValue={setCustName}
+                                className="mt-1"
+                            />
+                        </div>
+                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-2 gap-2 p-2">
+                            <button
+                                onClick={() => handleFilterClick("INHOUSE")}
+                                className={`flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
+        ${category === "INHOUSE"
+                                        ? "bg-blue-600 text-white scale-105"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }
+        focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                            >
+                                <HouseIcon fontSize="small" /> INHOUSE
+                            </button>
+                            <button
+                                onClick={() => handleFilterClick("OUTSIDE")}
+                                className={`flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full shadow-md transition-all 
+        ${category === "OUTSIDE"
+                                        ? "bg-blue-600 text-white scale-105"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }
+        focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                            >
+                                <FactoryIcon fontSize="small" /> OUTSIDE
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
                 <div className="flex justify-between items-start">
                     <div className="grid grid-cols-6 gap-2 mb-3">
                         {[
-                            { label: "GRN NO", key: "grnNo" },
+                            { label: "INV NO", key: "grnNo" },
+                            { label: "INV DATE", key: "invDate" },
                             { label: "ORDER NO", key: "orderNo" },
-                            { label: "DELIVERY TO", key: "deliveryTo" },
                             { label: "FABRIC NAME", key: "fabName" },
-                            { label: "Dia", key: "dia" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -193,16 +260,6 @@ const CustomerTrans = ({
                                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
                             </div>
                         ))}
-
-                        <div className="flex items-center text-[12px]">
-
-                            {/* <FinYear
-                                selectedYear={selectedYear}
-                                selectmonths={selectmonths}
-                                setSelectmonths={setSelectmonths}
-                                autoFocusBuyer={autoFocusBuyer}
-                            /> */}
-                        </div>
 
                         {/* <div className="flex items-center gap-4 text-[12px] "> */}
                         {/* <div className="flex items-center text-[12px]">
@@ -236,7 +293,27 @@ const CustomerTrans = ({
                             />
                         </div> */}
                     </div>
-                    <div className="right-0">
+                    <div className="right-0 flex gap-2">
+                        <div className="flex items-center w-28">
+                            <select
+                                value={selectedYear}
+                                autoFocus={true}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                                className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+    focus:border-indigo-300 focus:outline-none transition-all duration-200
+    hover:border-slate-400 `}                            >
+                                {finYear?.data?.map((option) => (
+                                    <option key={option.finYear} value={option.finYear}>
+                                        {option.finYear}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <FinYear
+                            selectedYear={selectedYear}
+                            selectmonths={selectmonths}
+                            setSelectmonths={setSelectmonths}
+                        />
                         <button
                             onClick={downloadExcel}
                             className="p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
@@ -251,26 +328,26 @@ const CustomerTrans = ({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                     <div
-                        className="overflow-x-auto max-h-[455px] "
+                        className="overflow-x-auto max-h-[450px] "
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
                         <table className="w-full border-collapse border border-gray-300 text-[11px]">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-left">S.No</th>
-                                    <th className="border p-1 text-left">GRN No</th>
-                                    <th className="border p-1 text-left">Order No</th>
-                                    <th className="border p-1 text-left">Delivery To</th>
-                                    <th className="border p-1 text-left">Fabric name</th>
-                                    <th className="border p-1 text-left">Dia</th>
-                                    <th className="border p-1 text-left">Uom</th>
-                                    <th className="border p-1 text-left">Qty</th>
+                                    <th className="border p-1 text-center w-8">S.No</th>
+                                    <th className="border p-1 text-center w-24">INV No</th>
+                                    <th className="border p-1 text-center w-16">INV Date</th>
+                                    <th className="border p-1 text-center w-24">Order No</th>
+                                    <th className="border p-1 text-center w-56">Fabric name</th>
+                                    <th className="border p-1 text-center w-12">Dia</th>
+                                    <th className="border p-1 text-center w-12">Uom</th>
+                                    <th className="border p-1 text-center w-12">Qty</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(0, 17).map((row, index) => {
+                                {currentRecords.slice(0, 40).map((row, index) => {
                                     const globalIndex = index; // 0–16
                                     const serialNo =
                                         (currentPage - 1) * recordsPerPage + globalIndex + 1;
@@ -280,33 +357,33 @@ const CustomerTrans = ({
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
 
-                                            <td className="border p-1 text-[10px] w-[25px]">
+                                            <td className="border p-1 text-[10px] text-center">
                                                 {serialNo}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[60px]">
+                                            <td className="border p-1 text-[10px] ">
                                                 {row.grnNo}
                                             </td>
+                                            <td className="border p-1 text-[10px]  text-center">
+                                                {getDateFromDateTimeToDisplay(row.invDate)}
+                                            </td>
                                             <td
-                                                className="border p-1 text-[10px] w-[60px]"
+                                                className="border p-1 text-[10px] "
                                             >
                                                 {row.orderNo}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[25px]">
-                                                {row.deliveryTo}
-                                            </td>
                                             <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
+                                                className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
                                                 style={{ maxWidth: "100px" }}
                                             >
                                                 {row.fabName}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[30px]">
+                                            <td className="border p-1 text-[10px]  ">
                                                 {row.dia}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[25px]">
+                                            <td className="border p-1 text-[10px] ">
                                                 {row.uom}
                                             </td>
-                                            <td className="border p-1 text-sky-700 text-[10px] text-right w-[30px]">
+                                            <td className="border p-1 text-sky-700 text-[10px] text-right ">
                                                 {row.qty}
                                             </td>
                                         </tr>
@@ -316,7 +393,7 @@ const CustomerTrans = ({
                         </table>
                     </div>
 
-                    <div
+                    {/* <div
                         className="overflow-x-auto max-h-[455px]"
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
@@ -324,9 +401,9 @@ const CustomerTrans = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-left">S.No</th>
-                                    <th className="border p-1 text-left">GRN No</th>
+                                    <th className="border p-1 text-left">INV No</th>
+                                    <th className="border p-1 text-left">INV Date</th>
                                     <th className="border p-1 text-left">Order No</th>
-                                    <th className="border p-1 text-left">Delivery To</th>
                                     <th className="border p-1 text-left">Fabric name</th>
                                     <th className="border p-1 text-left">Dia</th>
                                     <th className="border p-1 text-left">Uom</th>
@@ -344,19 +421,19 @@ const CustomerTrans = ({
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
 
-                                            <td className="border p-1 text-[10px] w-[25px]">
+                                            <td className="border p-1 text-[10px] w-[20px]">
                                                 {serialNo}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[60px]">
+                                            <td className="border p-1 text-[10px] w-[70px]">
                                                 {row.grnNo}
+                                            </td>
+                                            <td className="border p-1 text-[10px] w-[40px] whitespace-nowrap">
+                                                {getDateFromDateTimeToDisplay(row.invDate)}
                                             </td>
                                             <td
                                                 className="border p-1 text-[10px] w-[60px]"
                                             >
                                                 {row.orderNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[30px]">
-                                                {row.deliveryTo}
                                             </td>
                                             <td
                                                 className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
@@ -364,10 +441,10 @@ const CustomerTrans = ({
                                             >
                                                 {row.fabName}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[30px]">
+                                            <td className="border p-1 text-[10px] w-[30px] whitespace-nowrap">
                                                 {row.dia}
                                             </td>
-                                            <td className="border p-1 text-[10px] w-[30px]">
+                                            <td className="border p-1 text-[10px] w-[20px]">
                                                 {row.uom}
                                             </td>
                                             <td className="border p-1 text-sky-700 text-[10px] text-right w-[30px]">
@@ -378,7 +455,7 @@ const CustomerTrans = ({
                                 })}
                             </tbody>
                         </table>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Pagination */}

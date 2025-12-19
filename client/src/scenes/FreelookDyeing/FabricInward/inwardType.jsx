@@ -5,6 +5,8 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
+import Highcharts3D from "highcharts/highcharts-3d";
+Highcharts3D(Highcharts);
 const InwardType = ({ year, finYear, setCategory }) => {
     const dispatch = useDispatch();
     const theme = useTheme();
@@ -34,55 +36,44 @@ const InwardType = ({ year, finYear, setCategory }) => {
     const options = {
         chart: {
             type: "pie",
-            height: 250,
-            backgroundColor: "#FFFFFF",
             options3d: {
                 enabled: true,
-                alpha: 45,
+                alpha: 40,
             },
+            backgroundColor: "#FFFFFF",
+            height: 220,
+            borderRadius: 10,
+            marginTop: 0,
+            marginBottom: 10,    // ✅ ADDED - Reduced bottom margin
+            spacingTop: 0,       // ✅ ADDED - Reduced spacing top
+            spacingBottom: 5,
         },
 
-        title: null,
-
-        tooltip: {
-            useHTML: true,
-            formatter: function () {
-                return `
-            <b>${this.point.name}</b>
-            <table style="margin-top:4px;">
-                <tr>
-                    <td>Qty</td>
-                    <td style="padding:0 6px;">:</td>
-                    <td><b>${this.point.y.toLocaleString("en-IN")}</b></td>
-                </tr>
-                 <tr>
-                    <td>Count</td>
-                    <td style="padding:0 6px;">:</td>
-                    <td><b>${this.point.count.toLocaleString("en-IN")}</b></td>
-                </tr>
-            </table>
-        `;
-            },
+        title: {
+            text: "",
         },
 
         plotOptions: {
             pie: {
+                innerSize: 100,        // ✅ DONUT
+                depth: 60,
+                center: ["50%", "50%"],
+                size: "90%",
                 allowPointSelect: true,
                 cursor: "pointer",
-                depth: 35,
+
                 dataLabels: {
-                    enabled: true,
-                    distance: -30,                 // push label towards center
-                    format: "{point.name}",        // only label
-                    align: "center",               // horizontal center
-                    verticalAlign: "middle",       // vertical center
+                    distance: -5,
+                    formatter: function () {
+                        return `${this.point.name}`;
+                    },
                     style: {
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#FFFFFF",          // white text
-                        textOutline: "none",
+                        fontSize: "11px",
+                        fontWeight: "500",
+                        color: "#000000",
                     },
                 },
+
                 point: {
                     events: {
                         click: function () {
@@ -91,7 +82,11 @@ const InwardType = ({ year, finYear, setCategory }) => {
                                     id: "FabricInward",
                                     name: "FabricInward",
                                     component: "FabricInward",
-                                    data: { finYear: finYear, year: fYear, selectCategory: this.name },
+                                    data: {
+                                        finYear: finYear,
+                                        year: fYear,
+                                        selectCategory: this.name,
+                                    },
                                 })
                             );
                         },
@@ -100,16 +95,49 @@ const InwardType = ({ year, finYear, setCategory }) => {
             },
         },
 
+        tooltip: {
+            useHTML: true,
+            style: {
+                color: "#374151",
+                fontSize: "10px",
+            },
+            headerFormat: "<b>{point.key}</b><br/>",
+            pointFormatter: function () {
+                return `
+        <span style="color:${this.color}">\u25CF</span>
+        Qty : <b>${this.y.toLocaleString("en-IN")}</b><br/>
+        Count : <b>${this.count.toLocaleString("en-IN")}</b>
+      `;
+            },
+        },
+
         legend: {
             align: "center",
-            verticalAlign: "bottom",
+            verticalAlign: "top",
+            y: -5,  // Adjust to fine-tune position
+            margin: 5,
             itemStyle: {
                 fontSize: "10px",
                 fontWeight: 500,
             },
+            itemMarginTop: 0, // ✅ Remove item spacing
+            itemMarginBottom: 0,
         },
 
-        series: pieSeries,
+        series: [
+            {
+                name: "Inward",
+                data: rows.map((row) => ({
+                    name: row.category,
+                    y: Number(row.qty || 0),
+                    count: Number(row.count || 0),
+                })),
+            },
+        ],
+
+        credits: {
+            enabled: false,
+        },
     };
 
     return (
@@ -128,12 +156,13 @@ const InwardType = ({ year, finYear, setCategory }) => {
                 }}
                 sx={{
                     borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+                    pb: 1,
                 }}
             />
-            <CardContent sx={{ pb: 0 }}>
-                <div className="flex justify-end  mr-6">
-                    <div className="flex flex-col justify-end w-32">
-                        <label className="text-xs font-medium mb-1">FinYear</label>
+            <CardContent sx={{ pt: 1, pb: 1 }}>
+                <div className="flex justify-end  mr-3">
+                    <div className="flex flex-col justify-end w-24">
+                        {/* <label className="text-xs font-medium">FinYear</label> */}
                         <select
                             value={fYear}
                             onChange={(e) => setFYear(e.target.value)}

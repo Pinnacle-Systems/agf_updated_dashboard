@@ -66,7 +66,7 @@ const index = () => {
 
         </Grid>
         <Grid container spacing={1} sx={{ mt: 1, ml: 1 }}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <OverallFabricInward />
           </Grid>
         </Grid>

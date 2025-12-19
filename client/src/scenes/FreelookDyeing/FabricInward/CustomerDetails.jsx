@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useGetFabricInwardCusDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
-const CustomerDetails = ({ selectedYear, category, finYear }) => {
+const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, setCategory }) => {
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState('')
     const { data: fabricData } = useGetFabricInwardCusDetailQuery(
@@ -29,7 +29,15 @@ const CustomerDetails = ({ selectedYear, category, finYear }) => {
     const options = {
         chart: {
             type: "column",
-            height: 350,
+            height: 300,
+
+            // ONLY left & bottom spacing
+            marginLeft: 10,
+            marginBottom: 100,
+            marginTop: 5,
+            spacingLeft: 10,
+            spacingBottom: 10,
+
             options3d: {
                 enabled: true,
                 alpha: 7,
@@ -130,6 +138,8 @@ const CustomerDetails = ({ selectedYear, category, finYear }) => {
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
                 sx={{
+                    p: 0.5,
+                    px: 1,
                     borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
                 }}
             />
@@ -141,7 +151,9 @@ const CustomerDetails = ({ selectedYear, category, finYear }) => {
                     closeTable={() => setShowTable(false)}
                     finYear={finYear}
                     selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
                     category={category}
+                    setCategory={setCategory}
                     custName={custName}
                     setCustName={setCustName}
                 />

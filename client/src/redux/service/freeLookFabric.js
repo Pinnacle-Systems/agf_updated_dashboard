@@ -86,6 +86,18 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardCust: builder.query({
+      query: () => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabInwardCust`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
   }),
 });
 
@@ -96,6 +108,7 @@ export const {
   useGetFabricOutwardDetailQuery,
   useGetFabricOutwardCusDetailQuery,
   useGetFabricInwardByCusNameQuery,
+  useGetFabricInwardCustQuery,
 } = freeLookFabric;
 
 export default freeLookFabric;
