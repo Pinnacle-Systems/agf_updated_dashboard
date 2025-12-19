@@ -6,7 +6,7 @@ import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../icons";
 import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
-import { FreeLookDyeing, MisDashboard } from "../../scenes";
+import { FreeLookDyeing, MisDashboard ,} from "../../scenes";
 import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
 // import OutlinedCard from "../Users/Users";
@@ -30,6 +30,7 @@ import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 import HRDashboard from "../hrdashboard/index.js";
 import FabricInward from "../FreelookDyeing/FabricInward/FabricInward.jsx"
 import FabricOutward from "../FreelookDyeing/FabricOutward/FabricOutward.jsx"
+import GarmentDashboard from '../GarmentsDashboard/index'
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -107,7 +108,8 @@ const ActiveTabList = () => {
         year={tabData?.year}
         finYear={tabData?.finYear}
       />
-    )
+    ),
+    "Garments Dashboard":<GarmentDashboard/>
   };
 
   // console.log(openTabs, "openTabs");

@@ -17,6 +17,8 @@ import { useGetMisDashboardEmployeeDetailQuery } from "../redux/service/misDashb
 import { useGetBuyerNameQuery } from "../redux/service/commonMasters";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRow } from "../utils/hleper";
+
 const DataDetailTable = ({
   closeTable,
   setOpenpopup,
@@ -28,6 +30,7 @@ const DataDetailTable = ({
   const [selectedState, setSelectedState] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [selectedBuyer, setSelectedBuyer] = useState("");
+  
   const [search, setSearch] = useState({
     FNAME: "",
     GENDER: "",
@@ -76,12 +79,24 @@ const DataDetailTable = ({
     worksheet.mergeCells("A1:E1");
 
     const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 16 };
+    titleCell.font = { bold: true, size: 14 };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
     worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "On Roll",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      
+      
+    });
 
     // 3️⃣ Header row (row 2)
-    const headerRow = worksheet.getRow(2);
+    const headerRow = worksheet.getRow(3);
     headerRow.height = 26;
 
     headerRow.eachCell((cell) => {
@@ -113,15 +128,15 @@ const DataDetailTable = ({
 
     // 5️⃣ Align ONLY data rows
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 2) return; // skip title & header
+      if (rowNumber <= 3) return; // skip title & header
 
       row.height = 22;
 
-      row.getCell("MIDCARD").alignment = { horizontal: "right", vertical: "middle",indent:1 };
-      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle" ,indent:1};
-      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle",indent:1 };
-      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle",indent:1 };
-      row.getCell("COMPCODE").alignment = { horizontal: "left", vertical: "middle" ,indent:1};
+      row.getCell("MIDCARD").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("COMPCODE").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
     });
 
     // 6️⃣ Freeze header
@@ -248,7 +263,7 @@ const DataDetailTable = ({
             <FaVenus size={16} className="text-pink-500" /> Female
           </button>
           <button
-            onClick={() => handleGenderFilter("All")}
+            onClick={() => handleGenderFilter("Both")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
               ${selectedGender === "Both"
                 ? "bg-blue-600 text-white scale-105"
@@ -367,8 +382,8 @@ const DataDetailTable = ({
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
               className={`p-2 rounded-md ${currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:bg-gray-200"
                 }`}
             >
               <FaStepBackward size={16} />
@@ -378,8 +393,8 @@ const DataDetailTable = ({
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className={`p-2 rounded-md ${currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:bg-gray-200"
                 }`}
             >
               <FaChevronLeft size={16} />
@@ -395,8 +410,8 @@ const DataDetailTable = ({
               }
               disabled={currentPage === totalPages}
               className={`p-2 rounded-md ${currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:bg-gray-200"
                 }`}
             >
               <FaChevronRight size={16} />
@@ -406,8 +421,8 @@ const DataDetailTable = ({
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
               className={`p-2 rounded-md ${currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-blue-600 hover:bg-gray-200"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:bg-gray-200"
                 }`}
             >
               <FaStepForward size={16} />

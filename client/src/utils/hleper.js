@@ -13,13 +13,16 @@ export const addInsightsRow = ({
   selectedState = "",
   selectedMonth,
 }) => {
+  console.log(selectedBuyer, "selectedBuyerll");
+
   const buyerText =
-    Array.isArray(selectedBuyer) && selectedBuyer.length
+    Array.isArray(selectedBuyer)
       ? selectedBuyer.join(", ")
-      : "All";
+      : selectedBuyer || "";
 
   const insightText =
-    `${dynamicField} Insights  -  ${buyerText}    |    ` +
+    // `${dynamicField} Insights  -  ${buyerText}    |    ` +
+    `Comp Code -  ${buyerText}    |    ` +
     `Employee Category :  ${selectedState}    |    ` +
     `Gender :  ${selectedGender}    |    ` +
     `Month :  ${selectedMonth || ""}`;
@@ -45,6 +48,56 @@ export const addInsightsRow = ({
 
   worksheet.getRow(startRow).height = 30;
 };
+export const addInsightsRowDashboard = ({
+  worksheet,
+  startRow = 2,
+  totalColumns,
+
+  dynamicField = "",
+  selectedBuyer = [],
+  selectedGender = "",
+  selectedState = "",
+  selectedMonth,
+  bloodGroup,
+  showBloodGroup
+}) => {
+  console.log(selectedBuyer, "selectedBuyerll");
+
+  const buyerText =
+    Array.isArray(selectedBuyer)
+      ? selectedBuyer.join(", ")
+      : selectedBuyer || "";
+
+  const insightText =
+    // `${dynamicField} Insights  -  ${buyerText}    |    ` +
+    `Comp Code -  ${buyerText}    |    ` +
+    `Employee Category :  ${selectedState}    |    ` +
+    `Gender :  ${selectedGender}    |    ` +
+    `Month :  ${selectedMonth || ""}` +
+    (showBloodGroup ? `    |    Blood Group : ${(bloodGroup ?? "ALL").toUpperCase()} ` : "");
+
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
+
+  // 🔒 MUST match title merge range (A1:F1 → A2:F2)
+  const lastColumnLetter =
+    worksheet.getColumn(totalColumns)._letter;
+
+  worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
+
+  const cell = worksheet.getCell(`A${startRow}`);
+
+  cell.font = { bold: true, size: 12 };
+  cell.alignment = {
+    horizontal: "left",
+    vertical: "middle",
+    wrapText: false,
+    indent: 1, // spacing from left
+  };
+
+  worksheet.getRow(startRow).height = 30;
+};
+
 
 
 
