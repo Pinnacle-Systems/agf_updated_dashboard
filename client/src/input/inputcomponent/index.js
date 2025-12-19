@@ -460,7 +460,7 @@ export const DropdownWithSearch = forwardRef(
     }, [currentIndex, nextRef]);
 
     return (
-      <div id={`dropdown${currentIndex}`} className={` mb-2`}>
+      <div id={`dropdown${currentIndex}`} className={` `}>
         {label && (
           <label className="block text-xs font-bold text-slate-700 mb-1">
             {required ? <RequiredLabel name={label} /> : `${label}`}
