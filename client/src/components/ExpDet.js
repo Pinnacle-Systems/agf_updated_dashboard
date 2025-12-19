@@ -79,7 +79,7 @@ const ExpDetail = ({
       { header: "ID Card", key: "EMPID", width: 15 },
       { header: "Name", key: "FNAME", width: 35 },
       { header: "Gender", key: "GENDER", width: 15 },
-      { header: "Department", key: "DEPARTMENT", width: 30 },
+      { header: "Department", key: "DEPARTMENT", width: 35 },
       { header: "Company", key: "COMPCODE", width: 22 },
       { header: "Experience", key: "EXPMON", width: 18 },
       

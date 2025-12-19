@@ -121,7 +121,7 @@ const EmptypeDetails = ({
       { header: "ID Card", key: "EMPID", width: 15 },
       { header: "Name", key: "FNAME", width: 40 },
       { header: "Gender", key: "GENDER", width: 14 },
-      { header: "Department", key: "DEPARTMENT", width: 30 },
+      { header: "Department", key: "DEPARTMENT", width: 35 },
       { header: "EmpType", key: "EMPTYPE", width: 16 },
       { header: "Netpay", key: "NETPAY", width: 15 },
     ];

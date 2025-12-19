@@ -75,7 +75,7 @@ const SalaryDetail = ({
       { header: "ID Card", key: "EMPID", width: 15 },
       { header: "Name", key: "FNAME", width: 35 },
       { header: "Gender", key: "GENDER", width: 14 },
-      { header: "Department", key: "DEPARTMENT", width: 30 },
+      { header: "Department", key: "DEPARTMENT", width: 35 },
       { header: "Designation", key: "DESIGNATION", width: 35 },
       { header: "Netpay", key: "NETPAY", width: 15 },
     ];
