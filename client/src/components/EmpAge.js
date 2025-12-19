@@ -16,6 +16,7 @@ import * as XLSX from "xlsx";
 import { useGetMisDashboardAgeDetQuery } from "../redux/service/misDashboardService";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { addInsightsRowDashboard } from "../utils/hleper";
 const AgeDetail = ({
   search,
   setSearch,
@@ -117,51 +118,113 @@ const AgeDetail = ({
   //   XLSX.writeFile(wb, "Employee_Details.xlsx");
   // };
 
-  const downloadExcel = async () => {
-    if (filteredData.length === 0) {
-      alert("No data to export!");
-      return;
-    }
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Employees Data");
-
-    worksheet.columns = [
-      { header: "ID Card", key: "EMPID", width: 15 },
-      { header: "Name", key: "FNAME", width: 20 },
-      { header: "Gender", key: "GENDER", width: 12 },
-      { header: "Department", key: "DEPARTMENT", width: 20 },
-      { header: "Company", key: "COMPCODE", width: 15 },
-      { header: "Date of Left", key: "DOL", width: 15 },
-      { header: "Reason", key: "REASON", width: 25 }
-    ];
-
-    // Header styling
-    worksheet.getRow(1).eachCell(cell => {
-      cell.font = { bold: true };
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFD9D9D9" }
-      };
-      cell.alignment = { horizontal: "center", vertical: "middle" };
-    });
-
-    filteredData.forEach(row => {
-      worksheet.addRow({
-        EMPID: row.EMPID,
-        FNAME: row.FNAME,
-        GENDER: row.GENDER,
-        DEPARTMENT: row.DEPARTMENT,
-        COMPCODE: row.COMPCODE,
-        DOL: row.DOL ? new Date(row.DOL).toLocaleDateString("en-IN") : "-",
-        REASON: row.REASON
+   const downloadExcel = async () => {
+      if (filteredData?.length === 0) {
+        alert("No data to export!");
+        return;
+      }
+  
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Employees Data");
+  
+         worksheet.columns = [
+        { header: "ID Card", key: "EMPID", width: 15 },
+        { header: "Name", key: "FNAME", width: 35 },
+        { header: "Gender", key: "GENDER", width: 15 },
+        { header: "Department", key: "DEPARTMENT", width: 35 },
+        { header: "Company", key: "COMPCODE", width: 22 },
+        { header: "Age", key: "AGE", width: 18 },
+        
+      ];
+  
+      /* =======================
+         1️⃣ Title Row
+      ======================= */
+      worksheet.insertRow(1, ["Age  Distribution Report"]);
+      worksheet.mergeCells("A1:F1");
+  
+      const titleCell = worksheet.getCell("A1");
+      titleCell.font = { bold: true, size: 14 };
+      titleCell.alignment = { horizontal: "center", vertical: "middle" };
+      worksheet.getRow(1).height = 30;
+      addInsightsRowDashboard({
+        worksheet,
+        startRow: 2,
+        totalColumns: 6,
+  
+        dynamicField: "Age",
+        selectedBuyer,
+        selectedGender,
+        selectedState,
+  
+  
       });
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Employee_Details.xlsx");
-  };
+  
+        const headerRow = worksheet.getRow(3);
+      headerRow.height = 26;
+  
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFD9D9D9" }, // gray
+        };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.border = {
+          top: { style: "thin" },
+          bottom: { style: "thin" },
+          left: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+  
+      /* =======================
+         3️⃣ Data Rows
+      ======================= */
+      filteredData.forEach((row) => {
+        worksheet.addRow({
+          EMPID: row.EMPID,
+          FNAME: row.FNAME,
+          GENDER: row.GENDER,
+          DEPARTMENT: row.DEPARTMENT,
+          COMPCODE: row.COMPCODE,
+          AGE:row.AGEMON.toFixed(1)
+          
+        });
+      });
+  
+      /* =======================
+         4️⃣ Data Alignment
+      ======================= */
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber <= 3) return;
+  
+        row.height = 22;
+  
+        row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle",indent:1 };
+        row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle",indent:1 };
+        row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle",indent:1 };
+        row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle",indent:1 };
+        row.getCell("COMPCODE").alignment = { horizontal: "left", vertical: "middle" ,indent:1};
+        row.getCell("AGE").alignment = { horizontal: "right", vertical: "middle" ,indent:1};
+       
+      });
+  
+      /* =======================
+         5️⃣ Freeze Header
+      ======================= */
+      worksheet.views = [{ state: "frozen", ySplit: 2 }];
+  
+      /* =======================
+         6️⃣ Export
+      ======================= */
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(
+        new Blob([buffer]),
+        "Age  Distribution Report.xlsx"
+      );
+    };
 
   const filteredData = Array.isArray(salaryDet)
     ? salaryDet
@@ -279,7 +342,7 @@ const AgeDetail = ({
             <FaVenus size={16} className="text-pink-500" /> Female
           </button>
           <button
-            onClick={() => handleGenderFilter("All")}
+            onClick={() => handleGenderFilter("Both")}
             className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full shadow-md transition-all 
               ${selectedGender === "Both"
                 ? "bg-blue-600 text-white scale-105"
