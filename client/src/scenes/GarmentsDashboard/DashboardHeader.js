@@ -1,20 +1,12 @@
-
 import {
   Box,
   Typography,
   Avatar,
-
 } from "@mui/material";
-
-
 import { DropdownWithSearch } from "../../input/inputcomponent";
-
 import FinYear from "../../components/FinYear";
-
 const DashboardHeader = ({ filterBuyer, setFilterBuyer, selectedYear, setSelectedYear,
-  selectMonths, setSelectMonths, filterBuyerList, finYr, user
-
-}) => {
+  selectMonths, setSelectMonths, filterBuyerList, finYr, user }) => {
 
   return (
     <Box

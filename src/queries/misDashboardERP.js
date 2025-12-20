@@ -68,6 +68,9 @@ export async function getTurnOver(connection, type = 'Value', filterYear, previo
 }
 
 export async function getProfit(connection, type = "YEAR", filterYear, previousYear) {
+
+    console.log("getprofitapicalled");
+    
     let result;
     if (type === "YEAR") {
         result = await connection.execute(`

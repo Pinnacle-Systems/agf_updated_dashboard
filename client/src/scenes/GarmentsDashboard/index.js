@@ -1,28 +1,18 @@
-
 import Grid from "@mui/material/Grid";
 import CurrencyUsd from "mdi-material-ui/CurrencyUsd";
-
 import CardStatisticsVerticalComponent from "../../components/CardStatsVertical.js";
-
 import Trophy from "../../scenes/maindashboard/Trophy.js";
-// import TotalEarning from '../../scenes/maindashboard/TotalEarning.js'
 import StatisticsCard from "../../scenes/maindashboard/StatisticsCard.js";
-
 import { Poll } from "@mui/icons-material";
 import DashboardHeader from "./DashboardHeader.js";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import HeadCount from "./Headcount/HeadCount.jsx";
 import HomeAttrition from "./Attrition/HomeAttrition.jsx";
-// import HomeESI from './EmployeeDetail/ESI Det.js'
 import HomePF from "./PFdata/HomePF.jsx";
 import HomeESI from "./ESIdata/ESI Det.js";
-
-import HomeSalary from "./salarydata/TurnOver.jsx";
-import {
-  useGetYearlyCompQuery,
-} from "../../redux/service/misDashboardService";
+import TurnOver from "./salarydata/TurnOver.jsx";
+import { useGetYearlyCompQuery } from "../../redux/service/misDashboardService";
 import { useEffect, useState } from "react";
-
 import { getCommonParams } from "../../utils/hleper";
 import { useGetFnameQuery } from "../../redux/service/user";
 import { useGetFinYrQuery } from "../../redux/service/poData";
@@ -124,7 +114,7 @@ const GarmentsDashboard = () => {
         </Grid>
 
         <Grid item xs={12} md={7}>
-          <HomeSalary />
+          <TurnOver />
         </Grid>
 
         <Grid item xs={12} md={5}>

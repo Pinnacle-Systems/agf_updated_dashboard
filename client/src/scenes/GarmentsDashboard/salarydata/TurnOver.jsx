@@ -24,24 +24,13 @@ const TurnOver = () => {
   // } = useGetMisDashboardSalaryDetQuery({ params: {} });
 
   const [selectedmonth,setSelectedmonth]=useState("")
- 
-
   const dispatch = useDispatch();
-
   const{data:lastmonth,isLoading,isError,error}=useGetsallastmonthQuery()
-
-
-  // console.log(lastmonth,"lastmonth");
-  
-
   const Year =lastmonth?.data.find((x)=>x.Year)
 
   useEffect(()=>{
     setSelectedmonth(Year?.month)
   },[Year])
- 
- 
-  
 
   if (isLoading)
     return (
