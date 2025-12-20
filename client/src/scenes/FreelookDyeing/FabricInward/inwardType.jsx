@@ -19,19 +19,19 @@ const InwardType = ({ year, finYear, setCategory }) => {
         skip: !fYear
     });
     const rows = fabricData?.data || [];
-    const pieSeries = useMemo(() => {
-        return [
-            {
-                name: "Inward",
-                colorByPoint: true,
-                data: rows.map((row) => ({
-                    name: row.category,
-                    y: Number(row.qty || 0),
-                    count: Number(row.count || 0),
-                })),
-            },
-        ];
-    }, [rows]);
+    // const pieSeries = useMemo(() => {
+    //     return [
+    //         {
+    //             name: "Inward",
+    //             colorByPoint: true,
+    //             data: rows.map((row) => ({
+    //                 name: row.category,
+    //                 y: Number(row.qty || 0),
+    //                 // count: Number(row.count || 0),
+    //             })),
+    //         },
+    //     ];
+    // }, [rows]);
 
     const options = {
         chart: {
@@ -106,7 +106,6 @@ const InwardType = ({ year, finYear, setCategory }) => {
                 return `
         <span style="color:${this.color}">\u25CF</span>
         Qty : <b>${this.y.toLocaleString("en-IN")}</b><br/>
-        Count : <b>${this.count.toLocaleString("en-IN")}</b>
       `;
             },
         },
@@ -130,7 +129,7 @@ const InwardType = ({ year, finYear, setCategory }) => {
                 data: rows.map((row) => ({
                     name: row.category,
                     y: Number(row.qty || 0),
-                    count: Number(row.count || 0),
+                    // count: Number(row.count || 0),
                 })),
             },
         ],
