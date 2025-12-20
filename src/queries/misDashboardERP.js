@@ -1,4 +1,6 @@
 export async function getTurnOver(connection, type = 'Value', filterYear, previousYear) {
+        console.log("getTurnOverapicalled");
+
     let sql = '';
     
     console.log(previousYear, filterYear, "type");
