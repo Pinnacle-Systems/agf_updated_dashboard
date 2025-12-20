@@ -18,6 +18,9 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
 import { DropdownNew } from "../../../utils/hleper";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+import { addInsightsfreelookRow } from "../../../utils/hleper";
 const CustomerTrans = ({
     closeTable,
     finYear,
@@ -58,46 +61,108 @@ const CustomerTrans = ({
         setCurrentPage(1);
     }, [cusTransData]);
 
-    const downloadExcel = () => {
+    const downloadExcel = async () => {
         if (filteredData.length === 0) {
             alert("No data to export!");
             return;
         }
 
-        const headers = [
-            ["Inv No", "Inv Date", "Order No", "Fabric Name", "Dia", "Uom", "Qty"],
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Fabric Inward Details");
+
+        // 1️⃣ Define columns
+        worksheet.columns = [
+            { header: "Inv No", key: "grnNo", width: 25 },
+            { header: "Inv Date", key: "invDate", width: 16 },
+            { header: "Order No", key: "orderNo", width: 32 },
+            { header: "Customer Name", key: "customerName", width: 48 },
+            { header: "Fabric Name", key: "fabName", width: 48 },
+            { header: "Dia", key: "dia", width: 12 },
+            { header: "Uom", key: "uom", width: 12 },
+            { header: "Qty", key: "qty", width: 17 },
         ];
 
-        const data = filteredData.map((row) => [
-            row.grnNo,
-            row.invDate,
-            row.orderNo,
-            row.fabName,
-            row.dia,
-            row.uom,
-            row.qty
-        ]);
+        // 2️⃣ Title Row
+        worksheet.insertRow(1, ["Fabric Inward Details Report"]);
+        worksheet.mergeCells("A1:H1");
 
-        const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+        const titleCell = worksheet.getCell("A1");
+        titleCell.font = { bold: true, size: 14 };
+        titleCell.alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getRow(1).height = 30;
+        addInsightsfreelookRow({
+            worksheet,
+            startRow: 2,
+            totalColumns: 8,
+            category,
+            custName,
+            selectedYear,
+            selectedMonth: selectmonths,
+        });
 
-        // Apply style to header row
-        const headerRange = XLSX.utils.decode_range(ws["!ref"]);
-        for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
-            const cell_address = XLSX.utils.encode_cell({ r: 0, c: C });
-            if (!ws[cell_address]) continue;
+        // 3️⃣ Header Styling (Row 2)
+        const headerRow = worksheet.getRow(3);
+        headerRow.height = 26;
 
-            ws[cell_address].s = {
-                fill: { fgColor: { rgb: "FFFF00" } },
-                font: { bold: true, color: { rgb: "000000" } },
-                alignment: { horizontal: "center", vertical: "center" },
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFD9D9D9" }, // gray background
             };
-        }
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+            cell.border = {
+                top: { style: "thin" },
+                bottom: { style: "thin" },
+                left: { style: "thin" },
+                right: { style: "thin" },
+            };
+        });
 
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Employees Data");
+        // 4️⃣ Data Rows
+        filteredData.forEach((row) => {
+            worksheet.addRow({
+                grnNo: row.grnNo,
+                invDate: row.invDate ? new Date(row.invDate) : null,
+                orderNo: row.orderNo,
+                customerName: row.custName,
+                fabName: row.fabName,
+                dia: row.dia,
+                uom: row.uom,
+                qty: row.qty,
+            });
+        });
 
-        XLSX.writeFile(wb, "FabricInward_Details.xlsx");
+        // 5️⃣ Data Alignment
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber <= 3) return;
+
+            row.height = 22;
+
+            row.getCell("grnNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("invDate").alignment = { horizontal: "center", vertical: "middle" };
+            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle" , indent: 1};
+            row.getCell("uom").alignment = { horizontal: "left", vertical: "middle" , indent: 1};
+            row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+        });
+
+        // 6️⃣ Quantity format
+        worksheet.getColumn("invDate").numFmt = "dd-mm-yyyy";
+
+        worksheet.getColumn("qty").numFmt = "#,##0.00";
+
+        // 7️⃣ Freeze Header
+        worksheet.views = [{ state: "frozen", ySplit: 3 }];
+
+        // 8️⃣ Export
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), "Fabric Inward Details.xlsx");
     };
+
 
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {

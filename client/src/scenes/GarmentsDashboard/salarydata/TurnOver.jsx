@@ -23,14 +23,14 @@ const TurnOver = () => {
   //   error,
   // } = useGetMisDashboardSalaryDetQuery({ params: {} });
 
-  const [selectedmonth,setSelectedmonth]=useState("")
+  const [selectedmonth, setSelectedmonth] = useState("")
   const dispatch = useDispatch();
-  const{data:lastmonth,isLoading,isError,error}=useGetsallastmonthQuery()
-  const Year =lastmonth?.data.find((x)=>x.Year)
+  const { data: lastmonth, isLoading, isError, error } = useGetsallastmonthQuery()
+  const Year = lastmonth?.data.find((x) => x.Year)
 
-  useEffect(()=>{
+  useEffect(() => {
     setSelectedmonth(Year?.month)
-  },[Year])
+  }, [Year])
 
   if (isLoading)
     return (
@@ -46,7 +46,7 @@ const TurnOver = () => {
       </Typography>
     );
 
-const Totalvalue = lastmonth?.data.map((x) => x.netpay);
+  const Totalvalue = lastmonth?.data.map((x) => x.netpay);
   const company = lastmonth?.data.map((x) => x.customer);
 
   const Sumtotal = Totalvalue?.reduce((sum, total) => sum + total);
@@ -57,7 +57,7 @@ const Totalvalue = lastmonth?.data.map((x) => x.netpay);
       height: 250,
       zoomType: null,
       enabled: true,
-         },
+    },
 
     title: {
       text: null,
@@ -69,7 +69,7 @@ const Totalvalue = lastmonth?.data.map((x) => x.netpay);
     },
 
     xAxis: {
-     
+
       title: { text: "Company", style: { fontSize: "12px" } },
       labels: { style: { fontSize: "10px" } },
       categories: company,
@@ -86,19 +86,19 @@ const Totalvalue = lastmonth?.data.map((x) => x.netpay);
       verticalAlign: "bottom",
     },
     tooltip: {
-  useHTML: true,
-  shared: true,
-  formatter: function () {
-    const value = this.y.toLocaleString("en-IN");
+      useHTML: true,
+      shared: true,
+      formatter: function () {
+        const value = this.y.toLocaleString("en-IN");
 
-    return `
+        return `
       <b>${this.point.month || this.key}</b><br/>
       <span style="color:${this.series.color}">Netpay</span>: 
       <b>${value}</b>
     `;
-  },
-}
-,
+      },
+    }
+    ,
     plotOptions: {
       series: {
         dataLabels: {
@@ -119,24 +119,27 @@ const Totalvalue = lastmonth?.data.map((x) => x.netpay);
 
     series: [
       {
-        name:  `Lastest Month Netpay`,
+        name: `Lastest Month Netpay`,
         data: lastmonth?.data.map((value, index) => ({
-          name:value.customer,
+          name: value.customer,
           y: value.netpay,
-          month:value.month,
+          month: value.month,
         })),
         point: {
           events: {
             click: function () {
               const company = this.category;
               // console.log(this.month,"this");
-              
+
               dispatch(
                 push({
+                  // id: `TurnOver`,
+                  // name: `TurnOver`,
+                  // component: "TurnOverIndex",
                   id: `SalaryDetail`,
                   name: `SalaryDetail`,
                   component: "SalaryIndex",
-                  data: { companyName: company,Year: Year.Year,selectedmonth:this.month,autoFocusBuyer: true}
+                  data: { companyName: company, Year: Year.Year, selectedmonth: this.month, autoFocusBuyer: true }
                 })
               );
             },
@@ -146,10 +149,10 @@ const Totalvalue = lastmonth?.data.map((x) => x.netpay);
     ],
   };
 
-  return ( 
+  return (
     <Card
       sx={{
-          borderRadius: 3,
+        borderRadius: 3,
         boxShadow: 4,
         width: "100%",
 

@@ -27,6 +27,7 @@ import DetailedHeadcount from "../maindashboard/Headcount/index.js";
 import DetailedDashBoard from "../maindashboard/ESIdata/index.js";
 import PFIndex from "../maindashboard/PFdata/index.js";
 import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
+import TurnOverIndex from "../GarmentsDashboard/salarydata/TurnOverindex.jsx";
 import HRDashboard from "../hrdashboard/index.js";
 import FabricInward from "../FreelookDyeing/FabricInward/FabricInward.jsx"
 import FabricOutward from "../FreelookDyeing/FabricOutward/FabricOutward.jsx"
@@ -109,7 +110,10 @@ const ActiveTabList = () => {
         finYear={tabData?.finYear}
       />
     ),
-    "Garments Dashboard":<GarmentDashboard/>
+    "Garments Dashboard":<GarmentDashboard/>,
+    TurnOver:(tabData)=>(
+      <TurnOverIndex/>
+    )
   };
 
   // console.log(openTabs, "openTabs");
