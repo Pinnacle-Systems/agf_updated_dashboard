@@ -1,7 +1,6 @@
 import moment from "moment";
 import secureLocalStorage from "react-secure-storage";
-
-
+import Select from "react-select";
 export const addInsightsRow = ({
   worksheet,
   startRow = 2,
@@ -15,10 +14,9 @@ export const addInsightsRow = ({
 }) => {
   console.log(selectedBuyer, "selectedBuyerll");
 
-  const buyerText =
-    Array.isArray(selectedBuyer)
-      ? selectedBuyer.join(", ")
-      : selectedBuyer || "";
+  const buyerText = Array.isArray(selectedBuyer)
+    ? selectedBuyer.join(", ")
+    : selectedBuyer || "";
 
   const insightText =
     // `${dynamicField} Insights  -  ${buyerText}    |    ` +
@@ -31,8 +29,7 @@ export const addInsightsRow = ({
   worksheet.insertRow(startRow, [insightText]);
 
   // 🔒 MUST match title merge range (A1:F1 → A2:F2)
-  const lastColumnLetter =
-    worksheet.getColumn(totalColumns)._letter;
+  const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
 
   worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
 
@@ -59,14 +56,13 @@ export const addInsightsRowDashboard = ({
   selectedState = "",
   selectedMonth,
   bloodGroup,
-  showBloodGroup
+  showBloodGroup,
 }) => {
   console.log(selectedBuyer, "selectedBuyerll");
 
-  const buyerText =
-    Array.isArray(selectedBuyer)
-      ? selectedBuyer.join(", ")
-      : selectedBuyer || "";
+  const buyerText = Array.isArray(selectedBuyer)
+    ? selectedBuyer.join(", ")
+    : selectedBuyer || "";
 
   const insightText =
     // `${dynamicField} Insights  -  ${buyerText}    |    ` +
@@ -74,14 +70,15 @@ export const addInsightsRowDashboard = ({
     `Employee Category :  ${selectedState}    |    ` +
     `Gender :  ${selectedGender}    |    ` +
     `Month :  ${selectedMonth || ""}` +
-    (showBloodGroup ? `    |    Blood Group : ${(bloodGroup ?? "ALL").toUpperCase()} ` : "");
+    (showBloodGroup
+      ? `    |    Blood Group : ${(bloodGroup ?? "ALL").toUpperCase()} `
+      : "");
 
   // Insert insights row
   worksheet.insertRow(startRow, [insightText]);
 
   // 🔒 MUST match title merge range (A1:F1 → A2:F2)
-  const lastColumnLetter =
-    worksheet.getColumn(totalColumns)._letter;
+  const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
 
   worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
 
@@ -97,13 +94,6 @@ export const addInsightsRowDashboard = ({
 
   worksheet.getRow(startRow).height = 30;
 };
-
-
-
-
-
-
-
 
 export const currentDate = (date) => moment(date).format("DD/MM/YYYY ");
 // import { IMAGE_UPLOAD_URL } from "../Constants";
@@ -471,7 +461,7 @@ export const getCommonParams = () => ({
   ),
   roleId: secureLocalStorage.getItem(
     sessionStorage.getItem("sessionId") + "roleId"
-  )
+  ),
 });
 
 export function convertSpaceToUnderScore(str) {
@@ -570,8 +560,8 @@ export async function classListData(data) {
       num = num
         ? parseInt(num, 10)
         : order[prefix] !== undefined
-          ? order[prefix]
-          : Infinity;
+        ? order[prefix]
+        : Infinity;
 
       return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
     };
@@ -613,4 +603,157 @@ export const multiSelectOption = (data, label, value) => {
     outputData.push({ label: i[label], value: i[value] });
   }
   return outputData;
+};
+
+export const customSelectStyles = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: "13px",
+    height: "13px",
+    padding: "12px 4px",
+    fontSize: "12px",
+    borderRadius: "8px",
+    fontFamily: "Poppins",
+    color: state.isDisabled ? "#6b7280" : "black",
+    backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // bg-gray-100 vs bg-white
+    cursor: state.isDisabled ? "not-allowed" : "default",
+    borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // blue-500 vs gray-300
+    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : base.boxShadow,
+    "&:hover": {
+      borderColor: state.isDisabled ? "#d1d5db" : "#9ca3af", // keep gray when disabled
+    },
+  }),
+  valueContainer: (base, state) => ({
+    ...base,
+    padding: "0 3px",
+    marginTop: "-8px",
+    fontSize: "12px",
+    fontFamily: "Poppins",
+    color: state.isDisabled ? "#6b7280" : "black",
+  }),
+  input: (base, state) => ({
+    ...base,
+    margin: 0,
+    fontSize: "12px",
+    padding: 0,
+    fontFamily: "Poppins",
+    color: state.isDisabled ? "#6b7280" : "black",
+  }),
+  singleValue: (base, state) => ({
+    ...base,
+    fontFamily: "Poppins",
+    fontSize: "12px",
+    color: state.isDisabled ? "#6b7280" : "black",
+  }),
+  placeholder: (base) => ({
+    ...base,
+    fontFamily: "Poppins",
+    color: "black",
+    fontSize: "12px",
+  }),
+  menu: (base, state) => ({
+    ...base,
+    fontFamily: "Poppins",
+    maxHeight: 150,
+    // overflowY: "auto",
+    fontSize: "12px",
+    color: state.isDisabled ? "#6b7280" : "black",
+    zIndex: 9999,
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontFamily: "Poppins",
+    fontSize: "12px",
+    color: state.isDisabled ? "#6b7280" : "black",
+    color: state.isSelected ? "white" : "black",
+    padding: "6px 8px",
+  }),
+  dropdownIndicator: (base) => ({
+    ...base,
+    padding: 2,
+    svg: {
+      width: 14, // icon width
+      height: 14, // icon height
+    },
+    color: "black",
+    marginTop: "-9px",
+  }),
+
+  indicatorSeparator: () => ({ display: "none" }),
+  menuList: (base) => ({
+    ...base,
+    maxHeight: 150,
+    // overflowY: "auto",
+  }),
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+};
+
+export const DropdownNew = ({
+  name,
+  dataList,
+  value,
+  setValue,
+  readonly = false,
+  disabled = false,
+  required = false,
+  clear = false,
+  placeholder,
+  width = "full",
+  otherField,
+  otherValue,
+  onKeyDown,
+  autoFocus,
+}) => {
+  const options = [
+    ...(clear
+      ? [
+          {
+            value: "",
+            label: `Select ${name || "option"}`,
+            isDisabled: false,
+          },
+        ]
+      : []),
+    ...(dataList?.map((item) => ({
+      value: otherValue ? item?.[otherValue] : item?.id,
+      label: otherField ? item?.[otherField] : item?.name,
+    })) || []),
+  ];
+  const selectedOption = options.find((opt) => opt.value === value) || null;
+  return (
+    <div className={` w-${width}`}>
+      {name && (
+        <label className="block text-xs font-bold text-slate-700 mb-1">
+          {required ? (
+            <span className="">
+              {name} <span className="text-red-500">*</span>
+            </span>
+          ) : (
+            name
+          )}
+        </label>
+      )}
+      <Select
+        options={options}
+        value={selectedOption}
+        onChange={(selected) => setValue(selected?.value || "")}
+        isDisabled={disabled || readonly}
+        isSearchable
+        isClearable={false}
+        menuShouldScrollIntoView={false}
+        maxMenuHeight={170} // <-- Reduce height here
+        onInputChange={(value) => value.toUpperCase()}
+        className="w-full px-1 -ml-1  text-xs rounded-lg
+          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          transition-all duration-150 shadow-sm"
+        placeholder={placeholder}
+        styles={customSelectStyles}
+        onKeyDown={onKeyDown}
+        autoFocus={autoFocus}
+      />
+    </div>
+  );
 };

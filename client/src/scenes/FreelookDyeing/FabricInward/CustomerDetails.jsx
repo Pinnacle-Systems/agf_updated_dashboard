@@ -23,8 +23,6 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
     const rows = fabricData?.data || [];
 
     const customers = rows.map((r) => r.customer);
-    const counts = rows.map((r) => Number(r.count || 0));
-    const qtys = rows.map((r) => Number(r.qty || 0));
 
     const options = {
         chart: {
@@ -78,11 +76,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
           <td style="padding:0 6px;">:</td>
           <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
         </tr>
-         <tr>
-          <td>Count</td>
-          <td style="padding:0 6px;">:</td>
-          <td><b>${this.point.y.toLocaleString("en-IN")}</b></td>
-        </tr>
+        
       </table>
     `;
             },
@@ -93,6 +87,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
                 depth: 25,
                 colorByPoint: true,
                 borderRadius: 5,
+                pointWidth: category === "INHOUSE" ? 30 : undefined,
             },
             series: {
                 dataLabels: {

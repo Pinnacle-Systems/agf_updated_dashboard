@@ -17,6 +17,7 @@ import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
+import { DropdownNew } from "../../../utils/hleper";
 const CustomerTrans = ({
     closeTable,
     finYear,
@@ -50,8 +51,7 @@ const CustomerTrans = ({
     });
 
     const cusData = custNames?.data.map((custName) => ({
-        custName: custName,
-        id: custName,
+        custName,
     }));
 
     useEffect(() => {
@@ -101,42 +101,37 @@ const CustomerTrans = ({
 
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
-
-            // 🔹 Existing search filter
+            // 🔹 Search filter
             const searchMatch = Object.entries(search).every(([key, value]) => {
                 if (!value) return true;
-                return row[key]
-                    ?.toString()
-                    .toLowerCase()
-                    .includes(value.toLowerCase());
+                return row[key]?.toString().toLowerCase().includes(value.toLowerCase());
             });
-
             if (!searchMatch) return false;
 
             // 🔹 Month filter
             if (!selectmonths) return true;
 
-            const invDate = new Date(row.invDate);
+            const invDate = new Date(row.invDate); // ISO UTC date
             if (isNaN(invDate)) return false;
 
-            const monthYear = invDate.toLocaleString("en-IN", {
-                month: "long",
-                year: "numeric",
-            });
+            // Split selected month and year
+            const [selMonthName, selYear] = selectmonths.split(" ");
+            const selMonthIndex = new Date(`${selMonthName} 1, ${selYear} UTC`).getUTCMonth();
 
-            return monthYear === selectmonths;
+            // Compare using UTC to avoid timezone shift
+            return invDate.getUTCMonth() === selMonthIndex && invDate.getUTCFullYear() === Number(selYear);
         })
         : [];
+
 
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
         0
     );
     const totalQty = filteredData.reduce(
-        (sum, row) => sum + (Number(Math.round(row.qty)) || 0),
+        (sum, row) => sum + (Number(row.qty) || 0),
         0
     );
-    console.log(totalNetPay, "Total Net Pay");
 
     const totalPages = Math.ceil(filteredData.length / recordsPerPage);
     const totalRecords = filteredData.length;
@@ -174,7 +169,7 @@ const CustomerTrans = ({
                             Customer Insights -{" "}
                             <span className="text-blue-600">{custName}</span>
                         </h2>
-                        <div className="flex items-start justify-start mb-1">
+                        <div className="flex items-start justify-start">
                             {/* Left: Total Records */}
                             <p className="text-[12px] text-gray-500 font-medium">
                                 Total Records: {totalRecords}
@@ -187,7 +182,7 @@ const CustomerTrans = ({
                                     Total Qty:{" "}
                                     <span className="text-sky-700 pl-2">
 
-                                        ₹{totalQty}
+                                        {totalQty.toFixed(3)}
                                     </span>
                                 </p>
                             </div>
@@ -202,18 +197,8 @@ const CustomerTrans = ({
                             </div> */}
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 items-center mb-4  mr-5">
-                        <div className="w-48">
-                            <DropdownWithSearch
-                                options={cusData || []}
-                                labelField={"custName"}
-                                label={""}
-                                value={custName}
-                                setValue={setCustName}
-                                className="mt-1"
-                            />
-                        </div>
-                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-2 gap-2 p-2">
+                    <div className="flex justify-end gap-2 items-center mb-2  mr-5">
+                        <div className=" grid grid-cols-2 gap-2 p-2">
                             <button
                                 onClick={() => handleFilterClick("INHOUSE")}
                                 className={`flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
@@ -239,13 +224,13 @@ const CustomerTrans = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex justify-between items-start">
-                    <div className="grid grid-cols-6 gap-2 mb-3">
+                <div className="flex items-center">
+                    <div className="grid grid-cols-5 gap-2">
                         {[
                             { label: "INV NO", key: "grnNo" },
                             { label: "INV DATE", key: "invDate" },
                             { label: "ORDER NO", key: "orderNo" },
-                            { label: "FABRIC NAME", key: "fabName" },
+                            { label: "FABRIC..", key: "fabName" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -260,41 +245,21 @@ const CustomerTrans = ({
                                 <FaSearch className="absolute left-2 top-1.5 text-gray-500 text-sm" />
                             </div>
                         ))}
-
-                        {/* <div className="flex items-center gap-4 text-[12px] "> */}
-                        {/* <div className="flex items-center text-[12px]">
-                            <span className="text-gray-500">Min Netpay:</span>
-                            <input
-                                type="number"
-                                value={netpayRange.min}
-                                onChange={(e) =>
-                                    setNetpayRange({
-                                        ...netpayRange,
-                                        min: Number(e.target.value),
-                                    })
-                                }
-                                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    </div>
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="w-48 flex items-center mr-0">
+                            <DropdownNew
+                                dataList={cusData || []}
+                                value={custName}
+                                setValue={(value) => {
+                                    setCustName(value);
+                                }}
+                                clear={true}
+                                otherField="custName"
+                                otherValue="custName"
                             />
                         </div>
-
-
-                        <div className="flex items-center  text-[12px]">
-                            <span className="text-gray-500">Max Netpay:</span>
-                            <input
-                                type="number"
-                                value={netpayRange.max === Infinity ? "" : netpayRange.max}
-                                onChange={(e) =>
-                                    setNetpayRange({
-                                        ...netpayRange,
-                                        max: Number(e.target.value),
-                                    })
-                                }
-                                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                        </div> */}
-                    </div>
-                    <div className="right-0 flex gap-2">
-                        <div className="flex items-center w-28">
+                        <div className="flex items-center w-28 mr-2">
                             <select
                                 value={selectedYear}
                                 autoFocus={true}
@@ -309,14 +274,17 @@ const CustomerTrans = ({
                                 ))}
                             </select>
                         </div>
-                        <FinYear
-                            selectedYear={selectedYear}
-                            selectmonths={selectmonths}
-                            setSelectmonths={setSelectmonths}
-                        />
+                        <div className="mr-2">
+
+                            <FinYear
+                                selectedYear={selectedYear}
+                                selectmonths={selectmonths}
+                                setSelectmonths={setSelectmonths}
+                            />
+                        </div>
                         <button
                             onClick={downloadExcel}
-                            className="p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
+                            className="p-0 rounded-full flex justify-center shadow-md hover:brightness-110 transition-all duration-300"
                             title="Download Excel"
                         >
                             <img
@@ -336,11 +304,12 @@ const CustomerTrans = ({
                         <table className="w-full border-collapse border border-gray-300 text-[11px]">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-center w-8">S.No</th>
+                                    <th className="border p-1 text-center w-6">S.No</th>
                                     <th className="border p-1 text-center w-24">INV No</th>
-                                    <th className="border p-1 text-center w-16">INV Date</th>
+                                    <th className="border p-1 text-center w-14">INV Date</th>
                                     <th className="border p-1 text-center w-24">Order No</th>
-                                    <th className="border p-1 text-center w-56">Fabric name</th>
+                                    <th className="border p-1 text-center w-40">Customer name</th>
+                                    <th className="border p-1 text-center w-36">Fabric name</th>
                                     <th className="border p-1 text-center w-12">Dia</th>
                                     <th className="border p-1 text-center w-12">Uom</th>
                                     <th className="border p-1 text-center w-12">Qty</th>
@@ -375,6 +344,12 @@ const CustomerTrans = ({
                                                 className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
                                                 style={{ maxWidth: "100px" }}
                                             >
+                                                {row.custName}
+                                            </td>
+                                            <td
+                                                className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
+                                                style={{ maxWidth: "100px" }}
+                                            >
                                                 {row.fabName}
                                             </td>
                                             <td className="border p-1 text-[10px]  ">
@@ -384,7 +359,7 @@ const CustomerTrans = ({
                                                 {row.uom}
                                             </td>
                                             <td className="border p-1 text-sky-700 text-[10px] text-right ">
-                                                {row.qty}
+                                                {Number(row.qty).toFixed(3)}
                                             </td>
                                         </tr>
                                     );
