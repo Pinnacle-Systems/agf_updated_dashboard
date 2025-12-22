@@ -24,9 +24,7 @@ oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
 //       password: "PSSBSA_MAY2023",
 //       connectString: "203.95.216.155:1556/AVT06p",
 // };
-// oracledb.initOracleClient({
-//   libDir: "C:/oracle/instantclient_19_20",
-// });
+// oracledb.initOracleClient({ libDir: "C:/oracle/instantclient_19_20",});
 
 const dbConfig = {
   user: "PSSPAYROLL",

@@ -22,6 +22,21 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpCustomerWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/customerWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -126,6 +141,7 @@ const MisDashboard = createApi({
 
 export const {
     useGetMisDashboardQuery,
+    useGetMisDashboardErpCustomerWiseQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

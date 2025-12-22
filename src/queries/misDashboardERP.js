@@ -1,25 +1,22 @@
 export async function getTurnOver(connection, type = 'Value', filterYear, previousYear) {
-        console.log("getTurnOverapicalled");
+    console.log("getTurnOverapicalled");
 
     let sql = '';
-    
-    console.log(previousYear, filterYear, "type");
+
+    console.log(previousYear, filterYear, "typeinturovier");
 
     if (type === "Value") {
         sql = `
-            SELECT 
-                COALESCE(ROUND(prevValue), 0) AS prevValue,
-                COALESCE(ROUND(currentValue), 0) AS currentValue,
-                COALESCE(ROUND(prevShipQty), 0) AS prevQty,
-                COALESCE(ROUND(currentShipQty), 0) AS currentQty
-            FROM (
-                SELECT 
-                    (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevValue,
-                    (SELECT SUM(actsalval) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentValue,
-                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${previousYear}') AS prevShipQty,
-                    (SELECT SUM(shipQty) FROM MISORDSALESVAL WHERE finyr = '${filterYear}') AS currentShipQty
-                FROM dual
-            )
+           
+            SELECT C.COMPCODE,
+	   COALESCE(SUM(CASE WHEN A.finyr = '${previousYear}' THEN A.actsalval ELSE 0 END), 0) AS prevValue,
+	   COALESCE(SUM(CASE WHEN A.finyr = '${filterYear}' THEN A.actsalval ELSE 0 END), 0) AS currentValue,
+	   COALESCE(SUM(CASE WHEN A.finyr = '${previousYear}' THEN A.shipQty ELSE 0 END), 0) AS prevShipQty,
+	   COALESCE(SUM(CASE WHEN A.finyr = '${filterYear}' THEN A.shipQty ELSE 0 END), 0) AS currentShipQty
+FROM MISORDSALESVAL A
+INNER JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+INNER JOIN GTCOMPMAST C ON B.COMPCODE = C.GTCOMPMASTID
+GROUP BY C.COMPCODE
         `;
     } else if (type === "MONTH") {
         sql = `
@@ -60,19 +57,20 @@ export async function getTurnOver(connection, type = 'Value', filterYear, previo
     const queryResult = await connection.execute(sql);
 
     const result = queryResult.rows.map(row => ({
-        prevValue: row[0],
-        currentValue: row[1],
-        prevQty: row[2] ?? null,
-        currentQty: row[3] ?? null
+        company: row[0],          // COMPCODE
+        prevValue: row[1],        // PREVVALUE
+        currentValue: row[2],     // CURRENTVALUE
+        prevQty: row[3],          // PREVSHIPQTY
+        currentQty: row[4],
     }));
 
-    return result[0];
+    return result;
 }
 
 export async function getProfit(connection, type = "YEAR", filterYear, previousYear) {
 
     console.log("getprofitapicalled");
-    
+
     let result;
     if (type === "YEAR") {
         result = await connection.execute(`
@@ -122,8 +120,8 @@ from dual) a
 
 export async function getNewCustomers(connection, type = "YEAR", filterYear, previousYear) {
     let result;
-    if (type === "YEAR")  {
-        const sql =`
+    if (type === "YEAR") {
+        const sql = `
        SELECT 
         COALESCE(ROUND(prevValue),0) as prevValue,
           COALESCE(ROUND(currentValue),0) as currentValue,
@@ -150,8 +148,8 @@ export async function getNewCustomers(connection, type = "YEAR", filterYear, pre
        WHERE TO_CHAR(GTFINANCIALYEAR.STARTDATE, 'YYYY') = extract(YEAR from CUSCRDT) and MISORDSALESVAL.finyr= '${filterYear}') AS currentShipQty 
                   from dual)a
      `
-    
-     result = await connection.execute(sql)
+
+        result = await connection.execute(sql)
     } else if (type === "MONTH") {
         result = await connection.execute(`
         select 
@@ -262,7 +260,7 @@ from dual
 export async function getLoss(connection, type = "YEAR", filterYear, previousYear) {
     let result;
     if (type === "YEAR") {
-     const sql = `
+        const sql = `
         select 
         COALESCE(ROUND(prevValue),0) as prevValue,
         COALESCE(ROUND(currentValue),0) as currentValue,
@@ -281,7 +279,7 @@ from MISORDSALESVAL
 from dual) a
      `
 
-     result = await connection.execute(sql)
+        result = await connection.execute(sql)
 
     } else if (type === "MONTH") {
         result = await connection.execute(`

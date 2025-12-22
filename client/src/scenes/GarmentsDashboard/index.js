@@ -1,7 +1,7 @@
 import Grid from "@mui/material/Grid";
 import CurrencyUsd from "mdi-material-ui/CurrencyUsd";
 import CardStatisticsVerticalComponent from "../../components/CardStatsVertical.js";
-import Trophy from "../../scenes/maindashboard/Trophy.js";
+import Trophy from "../../scenes/GarmentsDashboard/Trophy.js";
 import StatisticsCard from "../../scenes/maindashboard/StatisticsCard.js";
 import { Poll } from "@mui/icons-material";
 import DashboardHeader from "./DashboardHeader.js";
@@ -35,7 +35,7 @@ const GarmentsDashboard = () => {
 
   /* ---------------- FILTER STATE ---------------- */
   const [filterBuyer, setFilterBuyer] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedYear, setSelectedYear] = useState('25-26');
   const [selectMonths, setSelectMonths] = useState( "");
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
@@ -62,7 +62,7 @@ const GarmentsDashboard = () => {
           selectMonths={selectMonths} setSelectMonths={setSelectMonths} filterBuyerList={filterBuyerList} finYr={finYr}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={10} md={4}>
           <Trophy />
         </Grid>
         <Grid item xs={12} md={8}>
@@ -114,7 +114,7 @@ const GarmentsDashboard = () => {
         </Grid>
 
         <Grid item xs={12} md={7}>
-          <TurnOver />
+          <TurnOver selectedYear={selectedYear} />
         </Grid>
 
         <Grid item xs={12} md={5}>

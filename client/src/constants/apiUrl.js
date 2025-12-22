@@ -1,4 +1,4 @@
-//export const BASE_URL = 'http://192.168.1.55:8080'
+// export const BASE_URL = 'http://192.168.1.55:8080'
 export const BASE_URL = process.env.REACT_APP_SERVER_URL
 // console.log(BASE_URL,"base url");
 

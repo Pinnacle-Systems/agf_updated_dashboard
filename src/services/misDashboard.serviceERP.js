@@ -31,20 +31,20 @@ export async function get(req, res) {
         await connection.close()
     }
 }
-export async function executeProcedure (req, res){
+export async function executeProcedure(req, res) {
     const connection = await getConnection(res)
     try {
-      
-      await connection.execute(`BEGIN MISPROD('SPA'); END;`);
-      res.json({ success: true, message: "Data refetch executed successfully" });
+
+        await connection.execute(`BEGIN MISPROD('SPA'); END;`);
+        res.json({ success: true, message: "Data refetch executed successfully" });
     } catch (error) {
-      res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     } finally {
-      if (connection) {
-        await connection.close();
-      }
+        if (connection) {
+            await connection.close();
+        }
     }
-  }
+}
 export async function getOrdersInHand(req, res) {
     const connection = await getConnection(res)
     try {
@@ -319,3 +319,47 @@ export async function getShortShipmentRatio(req, res) {
 }
 
 
+export async function turnOverCustomerWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query;
+
+        const sql =
+            `
+            SELECT
+    C.COMPCODE,
+    A.customer,
+ 
+    COALESCE(SUM(CASE WHEN A.finyr = '${finYear}' THEN A.actsalval ELSE 0 END), 0) AS currentValue,
+ 
+    COALESCE(SUM(CASE WHEN A.finyr = '${finYear}' THEN A.shipQty ELSE 0 END), 0) AS currentShipQty
+FROM MISORDSALESVAL A
+INNER JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+INNER JOIN GTCOMPMAST C ON B.COMPCODE = C.GTCOMPMASTID
+WHERE C.COMPCODE = '${companyName}'  
+GROUP BY
+    C.COMPCODE,
+    A.customer
+ORDER BY
+    C.COMPCODE,
+    A.customer
+     `;
+
+        const result = await connection.execute(sql)
+        let resp = result.rows.map(po => ({
+
+            compCode: po[0],
+            customer: po[1],
+            currentValue:po[2],
+            currentShipQty:po[3]
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}

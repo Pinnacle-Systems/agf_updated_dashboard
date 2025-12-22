@@ -1,6 +1,5 @@
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { push } from "../../../redux/features/opentabs";
 import {
   Card,
   Typography,
@@ -8,154 +7,194 @@ import {
   CircularProgress,
   CardContent,
   CardHeader,
+  Box
 } from "@mui/material";
+import { useGetMisDashboardQuery } from "../../../redux/service/misDashboardServiceERP";
+import { useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
+import { useMemo, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useGetMisDashboardSalaryDetQuery, useGetsalarydelQuery, useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
-import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { push } from "../../../redux/features/opentabs";
 
-const TurnOver = () => {
+const TurnOver = ({ selectedYear }) => {
   const theme = useTheme();
-  // const {
-  //   data: Salarydata,
-  //   isLoading,
-  //   isError,
-  //   error,
-  // } = useGetMisDashboardSalaryDetQuery({ params: {} });
-
   const [selectedmonth, setSelectedmonth] = useState("")
   const dispatch = useDispatch();
-  const { data: lastmonth, isLoading, isError, error } = useGetsallastmonthQuery()
-  const Year = lastmonth?.data.find((x) => x.Year)
 
+  /* ---------------- YEAR HANDLING ---------------- */
+  const filterYear = useMemo(() => {
+    if (!selectedYear) return "";
+    return typeof selectedYear === "object"
+      ? selectedYear.name
+      : selectedYear;
+  }, [selectedYear]);
+
+  const previousYear = useMemo(() => {
+    if (!filterYear) return "";
+
+    const [start, end] = filterYear.split("-").map(Number);
+
+    // Handles 09-10, 99-00 safely
+    const prevStart = (start - 1 + 100) % 100;
+    const prevEnd = (end - 1 + 100) % 100;
+
+    return `${prevStart.toString().padStart(2, "0")}-${prevEnd
+      .toString()
+      .padStart(2, "0")}`;
+  }, [filterYear]);
+
+  /* ---------------- API ---------------- */
+  const {
+    data: turnOverData,
+    isLoading,
+    isError,
+    error,
+  } = useGetMisDashboardQuery(
+    { params: { filterYear, previousYear } },
+    { skip: !filterYear }
+  );
+  const { data: lastmonth } = useGetsallastmonthQuery()
+  const Year = lastmonth?.data.find((x) => x.Year)
+  const company =
+    lastmonth?.data?.map((x) => x.customer) ?? [];
   useEffect(() => {
     setSelectedmonth(Year?.month)
   }, [Year])
 
-  if (isLoading)
+
+  if (isLoading) {
     return (
       <Card sx={{ p: 4, textAlign: "center" }}>
         <CircularProgress />
       </Card>
     );
+  }
 
-  if (isError)
+  if (isError) {
     return (
       <Typography color="error" sx={{ p: 2 }}>
         Error: {error?.message || "Failed to load data"}
       </Typography>
     );
+  }
+  const overallTurnOver =
+    turnOverData?.data?.totalTurnOver?.currentValue ?? 0;
+  const companies =
+    turnOverData?.data?.totalTurnOver?.map(x => x.company) ?? [];
 
-  const Totalvalue = lastmonth?.data.map((x) => x.netpay);
-  const company = lastmonth?.data.map((x) => x.customer);
+  const companyTurnover =
+    turnOverData?.data?.totalTurnOver?.map(x => x.currentValue) ?? [];
+  const overallTurnover = companyTurnover.reduce(
+    (sum, val) => sum + val,
+    0
+  );
 
-  const Sumtotal = Totalvalue?.reduce((sum, total) => sum + total);
+  /* ---------------- DATA ---------------- */
+  const totalTurnOverValue =
+    turnOverData?.data?.totalTurnOver?.currentValue ?? 0;
+  const totalTurnOverSeriesData = company.map(() => totalTurnOverValue);
 
+  /* ---------------- CHART ---------------- */
   const options = {
     chart: {
       type: "area",
       height: 250,
-      zoomType: null,
-      enabled: true,
     },
 
-    title: {
-      text: null,
-    },
-
-    subtitle: {
-      text: "",
-      align: "left",
-    },
+    title: { text: null },
 
     xAxis: {
-
-      title: { text: "Company", style: { fontSize: "12px" } },
-      labels: { style: { fontSize: "10px" } },
-      categories: company,
+      categories: companies,
+      title: { text: "Company" },
+      labels: { style: { fontSize: "11px" } },
     },
+
 
     yAxis: {
-      opposite: true,
-      title: { text: "Amount", style: { fontSize: "12px" } },
-      labels: { style: { fontSize: "10px" } },
+      title: { text: "Turnover Value" },
+      labels: {
+        formatter() {
+          return this.value.toLocaleString("en-IN");
+        },
+      },
     },
 
-    legend: {
-      align: "left",
-      verticalAlign: "bottom",
-    },
     tooltip: {
       useHTML: true,
-      shared: true,
       formatter: function () {
-        const value = this.y.toLocaleString("en-IN");
-
         return `
-      <b>${this.point.month || this.key}</b><br/>
-      <span style="color:${this.series.color}">Netpay</span>: 
-      <b>${value}</b>
-    `;
+        <b>${this.key}</b><br/>
+        <b>${this.y.toLocaleString("en-IN")}</b>
+      `;
       },
-    }
-    ,
+    },
+
     plotOptions: {
       series: {
-        dataLabels: {
-          enabled: true,
-          rotation: -45,
-          formatter: function () {
-            return this.y.toLocaleString('en-IN');
+        cursor: "pointer",
+        point: {
+          events: {
+            click: function () {
+              const companyCode = this.category; // xAxis value
+
+              dispatch(
+                push({
+                  id: `TurnOver-${companyCode}`,
+                  name: `TurnOver`,
+                  component: "TurnOverIndex",
+                  data: {
+                    companyCode: companyCode,
+                    finYear: filterYear, // ✅ "25-26"
+                  },
+                })
+              );
+            },
           },
         },
-      },
-      area: {
-        marker: {
+        dataLabels: {
           enabled: true,
+          formatter() {
+            return this.y.toLocaleString("en-IN");
+          },
         },
-        lineWidth: 1,
       },
     },
 
     series: [
       {
-        name: `Lastest Month Netpay`,
-        data: lastmonth?.data.map((value, index) => ({
-          name: value.customer,
-          y: value.netpay,
-          month: value.month,
-        })),
+        name: "Company Turnover",
+        data: companyTurnover,
+        color: "#1976d2",
         point: {
           events: {
             click: function () {
               const company = this.category;
-              // console.log(this.month,"this");
-
               dispatch(
                 push({
-                  // id: `TurnOver`,
-                  // name: `TurnOver`,
-                  // component: "TurnOverIndex",
-                  id: `SalaryDetail`,
-                  name: `SalaryDetail`,
-                  component: "SalaryIndex",
-                  data: { companyName: company, Year: Year.Year, selectedmonth: this.month, autoFocusBuyer: true }
+                  id: `TurnOver`,
+                  name: `TurnOver`,
+                  component: "TurnOverIndex",
+                  data: {
+                    companyName: company,
+                    finYear: filterYear,  // ✅ e.g. "25-26"
+                  },
                 })
               );
             },
           },
         },
       },
+
     ],
+
   };
 
+  /* ---------------- RENDER ---------------- */
   return (
     <Card
       sx={{
         borderRadius: 3,
         boxShadow: 4,
         width: "100%",
-
         ml: 1,
       }}
     >
@@ -165,12 +204,12 @@ const TurnOver = () => {
           sx: { fontSize: "1rem", fontWeight: 600 },
         }}
         sx={{
-          borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+          borderBottom: `2px solid ${theme.palette.divider}`,
         }}
       />
+
       <CardContent sx={{ pb: 0 }}>
         <HighchartsReact highcharts={Highcharts} options={options} />
-
         <Box
           sx={{
             // m: 1,
@@ -183,8 +222,9 @@ const TurnOver = () => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            OverAll Distribution : {Sumtotal?.toLocaleString('en-IN')}
+            Overall Turnover : {overallTurnover.toLocaleString("en-IN")}
           </Typography>
+
         </Box>
       </CardContent>
     </Card>
