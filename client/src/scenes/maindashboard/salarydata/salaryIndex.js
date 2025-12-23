@@ -202,28 +202,7 @@ const SalaryIndex = ({ companyName, Year, selectedmonth, autoFocusBuyer }) => {
             </Grid>
           </Grid>
         </Grid>
-        {/* <Grid item md={3}>
-          <EmpType1
-            selectedYear1={selectedYear}
-            companyName={filterBuyer}
-            selectedState={selectedState}
-            salary={SalaryData}
-            selectmonths={selectmonths}
-            setSelectedState={setSelectedState}
-            setSelectmonths={setSelectmonths}
-          />
-        </Grid>
-        <Grid item md={3}>
-          <AgeSalary
-            selectedYear1={selectedYear}
-            companyName={filterBuyer}
-            selectedState={selectedState}
-            salaryDet={SalaryData}
-            selectmonths={selectmonths}
-            setSelectedState={setSelectedState}
-            setSelectmonths={setSelectmonths}
-          />
-        </Grid> */}
+      
         <Grid item xs={12} md={6}>
           <Monthsalary selectedYear1={selectedYear}
             companyName={filterBuyer}

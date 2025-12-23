@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { openTabs } from "./features";
+import dashboardFiltersReducer from "./features/dashboardFiltersSlice";
 
 import {
   poRegister,
@@ -18,6 +19,8 @@ import { setupListeners } from "@reduxjs/toolkit/query";
 export const store = configureStore({
   reducer: {
     openTabs,
+    dashboardFilters: dashboardFiltersReducer,
+
     [poRegister.reducerPath]: poRegister.reducer,
     [commonMast.reducerPath]: commonMast.reducer,
     [misDashboardServiceERP.reducerPath]: misDashboardServiceERP.reducer,

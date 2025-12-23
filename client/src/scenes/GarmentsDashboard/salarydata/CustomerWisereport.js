@@ -1,127 +1,276 @@
-import React, { useEffect, useState } from "react";
+// import React, { useState } from "react";
+// import Highcharts from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
+// import {
+//   Card,
+//   CardHeader,
+//   CardContent,
+//   useTheme,
+// } from "@mui/material";
+// import { useGetMisDashboardErpCustomerWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+// import { useDispatch } from "react-redux";
+// import { push } from "../../../redux/features/opentabs";
+// import CustomerWiseTable from "./CustomerWiseTable";
+// const COLORS = [
+//   "#0088FE", "#00C49F", "#FFBB28", "#FF8042",
+//   "#B435E3", "#E35B5B", "#FFA500", "#800080",
+//   "#00CED1", "#DC143C",
+// ];
+
+// const Form = ({ companyName, finYear }) => {
+//   const theme = useTheme();
+//   const dispatch = useDispatch();
+//   const [showTable, setShowTable] = useState(false);
+//   const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+//   const [search, setSearch] = useState({
+
+//   });
+//   console.log(selectedCustomer?.customerName, selectedCustomer?.finYear, selectedCustomer?.companyName, selectedCustomer?.value, "cheking");
+
+//   const { data: customer } =
+//     useGetMisDashboardErpCustomerWiseQuery({
+//       params: { companyName, finYear },
+//     });
+
+//   const filteredData = Array.isArray(customer?.data)
+//     ? customer.data
+//     : [];
+// console.log(filteredData,"filteredData")
+//   // ❌ remove zero values for log scale
+//   const chartData = filteredData
+//     .filter(item => Number(item.currentValue) > 0)
+//     .map((item, index) => ({
+//       y: Number(item.currentValue),
+//       color: COLORS[index % COLORS.length],
+//       customer: item.customer,
+//     }));
+
+//   const categories = filteredData
+//     .filter(item => Number(item.currentValue) > 0)
+//     .map(item => item.customer);
+
+//   const handlePointClick = (point) => {
+//     setSelectedCustomer({
+//       customerName: point.options.customer,
+//       value: point.options.y,
+//       finYear,
+//       companyName,
+//     });
+
+//     setShowTable(true);
+//   };
+
+
+//   const options = {
+//     chart: {
+//       type: "column",
+//       height: 380,
+//     },
+
+//     title: { text: "" },
+
+//     xAxis: {
+//       categories,
+//       labels: {
+//         rotation: -45,
+//         style: { fontSize: "11px" },
+//       },
+//       title: { text: "Customer" },
+//     },
+
+//     yAxis: {
+//       type: "logarithmic", // 🔥 KEY FIX
+//       min: 1,
+//       title: { text: "Turnover (Log Scale)" },
+//       labels: {
+//         formatter() {
+//           return this.value.toLocaleString("en-IN");
+//         },
+//       },
+//     },
+
+//     tooltip: {
+//       formatter() {
+//         return `
+//           <b>${this.point.customer}</b><br/>
+//           Value: <b>${this.y.toLocaleString("en-IN")}</b>
+//         `;
+//       },
+//     },
+
+//     plotOptions: {
+//       column: {
+//         cursor: "pointer",
+//         dataLabels: {
+//           enabled: true,
+//           rotation: -90, // or 0 if you want horizontal
+//           inside: true,        // render inside the bar
+//           style: {
+//             fontSize: "11px",
+//             fontWeight: "bold",
+//             color: "#fff",     // white text for better contrast
+//             textOutline: "1px contrast",
+//           },
+
+//           formatter() {
+//             return this.y.toLocaleString("en-IN");
+//           },
+//         },
+//         point: {
+//           events: {
+//             click() {
+//               handlePointClick(this);
+//             },
+//           },
+//         },
+//       },
+//     },
+
+//     series: [
+//       {
+//         name: "Turnover",
+//         data: chartData,
+//       },
+//     ],
+
+//     legend: { enabled: false },
+//   };
+
+//   return (
+//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1, width: 700 }}>
+//       <CardHeader
+//         title="Customer Wise TurnOver"
+//         titleTypographyProps={{
+//           sx: { fontSize: ".9rem", fontWeight: 600 },
+//         }}
+//         sx={{
+//           p: 1,
+//           borderBottom: `2px solid ${theme.palette.divider}`,
+//         }}
+//       />
+//       <CardContent>
+//         <HighchartsReact
+//           highcharts={Highcharts}
+//           options={options}
+//           immutable
+//         />
+//       </CardContent>
+//       {showTable && (
+//         <CustomerWiseTable customerName={selectedCustomer?.customerName}
+//           finYear={selectedCustomer?.finYear}
+//           companyName={selectedCustomer?.companyName}
+//           value={selectedCustomer?.value} search={search} setSearch={setSearch} closeTable={() => setShowTable(false)}
+//         />
+//       )}
+//     </Card>
+//   );
+// };
+
+// export default Form;
+import React, { useState, useEffect } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Card, CardHeader, CardContent, Box, Typography, useTheme } from "@mui/material";
+import { Card, CardHeader, CardContent, useTheme } from "@mui/material";
 import { useGetMisDashboardErpCustomerWiseQuery } from "../../../redux/service/misDashboardServiceERP";
-import EmptypeDetails from "../../../components/EmptypesalayDetails";
-import { useDispatch } from "react-redux";
-import { push } from "../../../redux/features/opentabs";
+import { useSelector, useDispatch } from "react-redux";
+import CustomerWiseTable from "./CustomerWiseTable";
+import { setSelectedYear, setFilterBuyer } from "../../../redux/features/dashboardFiltersSlice";
 
 const COLORS = [
-  "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#B435E3", "#E35B5B",
-  "#FFA500", "#800080", "#00CED1", "#DC143C"
+  "#0088FE", "#00C49F", "#FFBB28", "#FF8042",
+  "#B435E3", "#E35B5B", "#FFA500", "#800080",
+  "#00CED1", "#DC143C",
 ];
 
-const Form = ({ companyName, finYear }) => {
+const Form = ({ companyName: propCompanyName, finYear: propFinYear }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const [showTable, setShowTable] = useState(false);
 
-  const { data: customer } = useGetMisDashboardErpCustomerWiseQuery({
-    params: { companyName, finYear },
-  });
+  const reduxState = useSelector(state => state.dashboardFilters);
+
+  // Use props first; fallback to Redux for default values
+  const companyName = propCompanyName || reduxState.filterBuyer;
+  const finYear = propFinYear || reduxState.selectedYear;
+
+  const [showTable, setShowTable] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [search, setSearch] = useState({});
+
+  // Sync Redux defaults if empty
+  useEffect(() => {
+    if (!reduxState.filterBuyer && propCompanyName) dispatch(setFilterBuyer(propCompanyName));
+    if (!reduxState.selectedYear && propFinYear) dispatch(setSelectedYear(propFinYear));
+  }, [dispatch, reduxState.filterBuyer, reduxState.selectedYear, propCompanyName, propFinYear]);
+
+  const { data: customer } = useGetMisDashboardErpCustomerWiseQuery(
+    { params: { companyName, finYear } },
+    { skip: !companyName || !finYear }
+  );
 
   const filteredData = Array.isArray(customer?.data) ? customer.data : [];
 
-  const categories = filteredData.map(item => item.customer);
-  const seriesData = filteredData.map((item, index) => ({
-    y: item.currentValue,
-    color: COLORS[index % COLORS.length],
-    customer: item.customer,
-  }));
+  const chartData = filteredData
+    .filter(item => Number(item.currentValue) > 0)
+    .map((item, index) => ({
+      y: Number(item.currentValue),
+      color: COLORS[index % COLORS.length],
+      customer: item.customer,
+    }));
+
+  const categories = chartData.map(item => item.customer);
 
   const handlePointClick = (point) => {
-    // setShowTable(true);
-    dispatch(
-      push({
-        // id: `Customer-${point.customer}`,
-        // name: "Customer Wise Turn Over",
-        // component: "EmptypeDetails",
-        data: { customerName: point.customer, finYear },
-      })
-    );
+    setSelectedCustomer({
+      customerName: point.options.customer,
+      value: point.options.y,
+      finYear,
+      companyName,
+    });
+    setShowTable(true);
   };
 
   const options = {
-    chart: { type: "column", height: 300 },
+    chart: { type: "column", height: 380 },
     title: { text: "" },
-    xAxis: {
-      categories,
-      labels: { rotation: -45, style: { fontSize: "11px" } },
-      title: { text: "Customer" },
-    },
-    yAxis: {
-      title: { text: "Count / Value" },
-      labels: {
-
-        formatter() {
-          return this.value.toLocaleString("en-IN");
-        },
-      },
-    },
-    tooltip: {
-      useHTML: true,
-      formatter: function () {
-        return `<b>${this.point.customer}</b><br/>Value: <b>${this.y.toLocaleString("en-IN")}</b>`;
-      },
-    },
+    xAxis: { categories, labels: { rotation: -45, style: { fontSize: "11px" } }, title: { text: "Customer" } },
+    yAxis: { type: "logarithmic", min: 1, title: { text: "Turnover (Log Scale)" }, labels: { formatter() { return this.value.toLocaleString("en-IN"); } } },
+    tooltip: { formatter() { return `<b>${this.point.customer}</b><br/>Value: <b>${this.y.toLocaleString("en-IN")}</b>`; } },
     plotOptions: {
       column: {
         cursor: "pointer",
         dataLabels: {
           enabled: true,
-          //      rotation: -90, 
-          // align: 'center',
-          rotation: -90, // rotate the values vertically
-          align: 'center',
-          formatter() { return this.y.toLocaleString("en-IN"); },
+          rotation: -90,
+          inside: true,
+          style: { fontSize: "11px", fontWeight: "bold", color: "#fff", textOutline: "1px contrast" },
+          formatter() { return this.y.toLocaleString("en-IN"); }
         },
-        point: {
-          events: {
-            click: function () {
-              handlePointClick(this);
-            },
-          },
-        },
-      },
+        point: { events: { click() { handlePointClick(this); } } }
+      }
     },
-    series: [{
-      name: "Value",
-      data: seriesData,
-    }],
+    series: [{ name: "Turnover", data: chartData }],
     legend: { enabled: false },
   };
 
   return (
     <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1, width: 700 }}>
-      <CardHeader
-        title="Customer Wise TurnOver"
-        titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
-        sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
-      />
+      <CardHeader title="Customer Wise TurnOver" titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }} sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }} />
       <CardContent>
-        <HighchartsReact highcharts={Highcharts} options={options} />
-        {/* <Box sx={{ mt: 2 }}>
-          {filteredData.map((item, index) => (
-            <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-              <Box
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  backgroundColor: COLORS[index % COLORS.length],
-                  mr: 1.5,
-                }}
-              />
-              <Typography variant="body2" sx={{ fontSize: "11px" }}>
-                <strong>{item.currentValue.toLocaleString("en-IN")}</strong> — {item.customer}
-              </Typography>
-            </Box>
-          ))}
-        </Box> */}
+        <HighchartsReact highcharts={Highcharts} options={options} immutable />
       </CardContent>
 
-      {showTable && <EmptypeDetails />}
+      {showTable && selectedCustomer && (
+        <CustomerWiseTable
+          customerName={selectedCustomer.customerName}
+          finYear={selectedCustomer.finYear}
+          companyName={selectedCustomer.companyName}
+          value={selectedCustomer.value}
+          search={search}
+          setSearch={setSearch}
+          closeTable={() => setShowTable(false)}
+        />
+      )}
     </Card>
   );
 };

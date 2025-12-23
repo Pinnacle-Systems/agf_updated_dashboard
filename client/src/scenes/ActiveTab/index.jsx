@@ -115,6 +115,13 @@ const ActiveTabList = () => {
       <TurnOverIndex
         companyName={tabData?.companyName}
         finYear={tabData?.finYear}
+        selectedYear={tabData?.selectedYear}
+        filterBuyer={tabData?.filterBuyer}
+        user={tabData?.user}
+        selectMonths={tabData?.selectMonths}
+        filterBuyerList={tabData?.filterBuyerList}
+        finYr={tabData?.finYr}
+      
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     )
