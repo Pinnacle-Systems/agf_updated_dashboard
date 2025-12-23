@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 const FinYear = ({ selectedYear, selectmonths, setSelectmonths ,autoFocusBuyer}) => {
   const [months, setMonths] = useState([]);
     const buyerRef = useRef(null);
-  console.log("Selectedmonth1", selectmonths);
 
 useEffect(() => {
   if (autoFocusBuyer && buyerRef.current) {

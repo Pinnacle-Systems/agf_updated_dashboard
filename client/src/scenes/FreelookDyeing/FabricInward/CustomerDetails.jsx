@@ -60,7 +60,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
 
         yAxis: {
             title: {
-                text: "Count",
+                text: "Inward Count",
                 style: { fontSize: "12px", fontWeight: 600 },
             },
         },

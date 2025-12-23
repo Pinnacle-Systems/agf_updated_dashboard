@@ -294,15 +294,15 @@ ORDER BY 1,2,3,4,5,6,7,8`,
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({
-      grnNo: item.INWNO,
-      invDate: item.INWDATE,
+      inwNo: item.INWNO,
+      inwDate: item.INWDATE,
       orderNo: item.ORDERNO,
       custName: item.CUSTNAME,
       fabName: item.FABNAME,
       dia: item.DIA,
       uom: item.UNITNAME,
       qty: item.QTY,
-    }));
+    }));  
 
     return res.json({ statusCode: 0, data });
   } catch (err) {
@@ -340,8 +340,7 @@ export async function getFanInwardCust(req, res) {
       `SELECT DISTINCT CUSTNAME FROM DTFABINWENTRY
       `
     );
-    console.log(result, "cust");
-    const data = result.rows.map(row => row[0]);
+    const data = result.rows.map((row) => row[0]);
 
     return res.json({ statusCode: 0, data });
   } catch (err) {

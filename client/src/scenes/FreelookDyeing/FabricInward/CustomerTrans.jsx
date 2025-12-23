@@ -15,12 +15,12 @@ import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery } from ".
 import { getDateFromDateTimeToDisplay } from "../../../utils/hleper";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
-import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
 import { DropdownNew } from "../../../utils/hleper";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
+
 const CustomerTrans = ({
     closeTable,
     finYear,
@@ -59,7 +59,7 @@ const CustomerTrans = ({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [cusTransData]);
+    }, [cusTransData, search, selectmonths]);
 
     const downloadExcel = async () => {
         if (filteredData.length === 0) {
@@ -72,8 +72,8 @@ const CustomerTrans = ({
 
         // 1️⃣ Define columns
         worksheet.columns = [
-            { header: "Inv No", key: "grnNo", width: 25 },
-            { header: "Inv Date", key: "invDate", width: 16 },
+            { header: "Inward No", key: "inwNo", width: 25 },
+            { header: "Inward Date", key: "inwDate", width: 16 },
             { header: "Order No", key: "orderNo", width: 32 },
             { header: "Customer Name", key: "customerName", width: 48 },
             { header: "Fabric Name", key: "fabName", width: 48 },
@@ -123,8 +123,8 @@ const CustomerTrans = ({
         // 4️⃣ Data Rows
         filteredData.forEach((row) => {
             worksheet.addRow({
-                grnNo: row.grnNo,
-                invDate: row.invDate ? new Date(row.invDate) : null,
+                inwNo: row.inwNo,
+                inwDate: row.inwDate ? new Date(row.inwDate) : null,
                 orderNo: row.orderNo,
                 customerName: row.custName,
                 fabName: row.fabName,
@@ -140,18 +140,18 @@ const CustomerTrans = ({
 
             row.height = 22;
 
-            row.getCell("grnNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("invDate").alignment = { horizontal: "center", vertical: "middle" };
+            row.getCell("inwNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("inwDate").alignment = { horizontal: "center", vertical: "middle" };
             row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle" , indent: 1};
-            row.getCell("uom").alignment = { horizontal: "left", vertical: "middle" , indent: 1};
+            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // 6️⃣ Quantity format
-        worksheet.getColumn("invDate").numFmt = "dd-mm-yyyy";
+        worksheet.getColumn("inwDate").numFmt = "dd-mm-yyyy";
 
         worksheet.getColumn("qty").numFmt = "#,##0.00";
 
@@ -163,7 +163,6 @@ const CustomerTrans = ({
         saveAs(new Blob([buffer]), "Fabric Inward Details.xlsx");
     };
 
-
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
             // 🔹 Search filter
@@ -173,18 +172,31 @@ const CustomerTrans = ({
             });
             if (!searchMatch) return false;
 
-            // 🔹 Month filter
+            // 🔹 Month filter - return all if no month selected    
             if (!selectmonths) return true;
 
-            const invDate = new Date(row.invDate); // ISO UTC date
-            if (isNaN(invDate)) return false;
+            const invDate = new Date(row.inwDate);
+            if (isNaN(invDate.getTime())) return false;
 
-            // Split selected month and year
-            const [selMonthName, selYear] = selectmonths.split(" ");
-            const selMonthIndex = new Date(`${selMonthName} 1, ${selYear} UTC`).getUTCMonth();
+            // Parse the selected month and year from selectmonths
+            const [monthName, yearStr] = selectmonths.split(" ");
+            const selectedCalendarYear = parseInt(yearStr);
 
-            // Compare using UTC to avoid timezone shift
-            return invDate.getUTCMonth() === selMonthIndex && invDate.getUTCFullYear() === Number(selYear);
+            const monthMap = {
+                January: 0, February: 1, March: 2, April: 3,
+                May: 4, June: 5, July: 6, August: 7,
+                September: 8, October: 9, November: 10, December: 11
+            };
+
+            // Use UTC methods to avoid timezone issues
+            const rowMonth = invDate.getUTCMonth(); // 0-11
+            const rowYear = invDate.getUTCFullYear();
+
+            // Compare month and year
+            return (
+                rowMonth === monthMap[monthName] &&
+                rowYear === selectedCalendarYear
+            );
         })
         : [];
 
@@ -206,17 +218,13 @@ const CustomerTrans = ({
         currentPage * recordsPerPage
     );
 
-    const { minNetPay, maxNetPay } = currentRecords.reduce(
-        (acc, item) => ({
-            minNetPay: Math.min(acc.minNetPay, item.PF),
-            maxNetPay: Math.max(acc.maxNetPay, item.PF),
-        }),
-        { minNetPay: Infinity, maxNetPay: -Infinity }
-    );
-
     const handleFilterClick = (type) => {
         setCategory(type);
     };
+
+    const totalInwardCount = new Set(
+        filteredData.map(row => row.inwNo)
+    ).size;
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -236,30 +244,25 @@ const CustomerTrans = ({
                         </h2>
                         <div className="flex items-start justify-start">
                             {/* Left: Total Records */}
-                            <p className="text-[12px] text-gray-500 font-medium">
+                            {/* <p className="text-[12px] text-gray-500 font-medium">
                                 Total Records: {totalRecords}
-                            </p>
-
-                            {/* Right: Total Netpay */}
-
+                            </p> */}
+                            <div className="text-right text-[12px]">
+                                <p className=" text-gray-500 font-medium">
+                                    Total Inward:{" "}
+                                    <span className="text-sky-700 pl-1">
+                                        {totalInwardCount}
+                                    </span>
+                                </p>
+                            </div>
                             <div className="text-right ml-5 text-[12px]">
                                 <p className=" text-gray-500 font-medium">
                                     Total Qty:{" "}
-                                    <span className="text-sky-700 pl-2">
-
+                                    <span className="text-sky-700 pl-1">
                                         {totalQty.toFixed(3)}
                                     </span>
                                 </p>
                             </div>
-                            {/* <div className="text-right ml-5 text-[12px]">
-                                <p className=" text-gray-500 font-medium">
-                                    Total Employer share:{" "}
-                                    <span className="text-sky-700 pl-2">
-                                        {" "}
-                                        ₹{totalNetPay1.toLocaleString("en-IN")}
-                                    </span>
-                                </p>
-                            </div> */}
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 items-center mb-2  mr-5">
@@ -292,10 +295,10 @@ const CustomerTrans = ({
                 <div className="flex items-center">
                     <div className="grid grid-cols-5 gap-2">
                         {[
-                            { label: "INV NO", key: "grnNo" },
-                            { label: "INV DATE", key: "invDate" },
+                            { label: "INWARD NO", key: "inwNo" },
                             { label: "ORDER NO", key: "orderNo" },
                             { label: "FABRIC..", key: "fabName" },
+                            { label: "DIA", key: "dia" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -366,12 +369,12 @@ const CustomerTrans = ({
                         className="overflow-x-auto max-h-[450px] "
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
-                        <table className="w-full border-collapse border border-gray-300 text-[11px]">
+                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-center w-6">S.No</th>
-                                    <th className="border p-1 text-center w-24">INV No</th>
-                                    <th className="border p-1 text-center w-14">INV Date</th>
+                                    <th className="border p-1 text-center w-24">Inward No</th>
+                                    <th className="border p-1 text-center w-14">Inward Date</th>
                                     <th className="border p-1 text-center w-24">Order No</th>
                                     <th className="border p-1 text-center w-40">Customer name</th>
                                     <th className="border p-1 text-center w-36">Fabric name</th>
@@ -381,7 +384,7 @@ const CustomerTrans = ({
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(0, 40).map((row, index) => {
+                                {currentRecords.map((row, index) => {
                                     const globalIndex = index; // 0–16
                                     const serialNo =
                                         (currentPage - 1) * recordsPerPage + globalIndex + 1;
@@ -395,10 +398,10 @@ const CustomerTrans = ({
                                                 {serialNo}
                                             </td>
                                             <td className="border p-1 text-[10px] ">
-                                                {row.grnNo}
+                                                {row.inwNo}
                                             </td>
                                             <td className="border p-1 text-[10px]  text-center">
-                                                {getDateFromDateTimeToDisplay(row.invDate)}
+                                                {getDateFromDateTimeToDisplay(row.inwDate)}
                                             </td>
                                             <td
                                                 className="border p-1 text-[10px] "
@@ -432,70 +435,6 @@ const CustomerTrans = ({
                             </tbody>
                         </table>
                     </div>
-
-                    {/* <div
-                        className="overflow-x-auto max-h-[455px]"
-                        style={{ border: "1px solid gray", borderRadius: "16px" }}
-                    >
-                        <table className="w-full border-collapse border border-gray-300 text-[11px]">
-                            <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                                <tr>
-                                    <th className="border p-1 text-left">S.No</th>
-                                    <th className="border p-1 text-left">INV No</th>
-                                    <th className="border p-1 text-left">INV Date</th>
-                                    <th className="border p-1 text-left">Order No</th>
-                                    <th className="border p-1 text-left">Fabric name</th>
-                                    <th className="border p-1 text-left">Dia</th>
-                                    <th className="border p-1 text-left">Uom</th>
-                                    <th className="border p-1 text-left">Qty</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentRecords.slice(17, 34).map((row, index) => {
-                                    const globalIndex = 17 + index; // 17–33
-                                    const serialNo =
-                                        (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
-
-                                            <td className="border p-1 text-[10px] w-[20px]">
-                                                {serialNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[70px]">
-                                                {row.grnNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[40px] whitespace-nowrap">
-                                                {getDateFromDateTimeToDisplay(row.invDate)}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[60px]"
-                                            >
-                                                {row.orderNo}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.fabName}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[30px] whitespace-nowrap">
-                                                {row.dia}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[20px]">
-                                                {row.uom}
-                                            </td>
-                                            <td className="border p-1 text-sky-700 text-[10px] text-right w-[30px]">
-                                                {row.qty}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div> */}
                 </div>
 
                 {/* Pagination */}
