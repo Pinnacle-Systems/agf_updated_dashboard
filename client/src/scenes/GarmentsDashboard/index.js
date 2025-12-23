@@ -16,8 +16,13 @@ import { useEffect, useState } from "react";
 import { getCommonParams } from "../../utils/hleper";
 import { useGetFnameQuery } from "../../redux/service/user";
 import { useGetFinYrQuery } from "../../redux/service/poData";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedYear, setFilterBuyer, setSelectMonths, setFinYr } from "../../redux/features/dashboardFiltersSlice";
 const GarmentsDashboard = () => {
+  const dispatch = useDispatch();
+  const { filterBuyer, selectedYear, selectMonths, finYr } = useSelector(
+    (state) => state.dashboardFilters
+  );
   const [user, setUser] = useState(null);
   const params = getCommonParams();
   const { isSuperAdmin, employeeId } = params;
@@ -34,12 +39,24 @@ const GarmentsDashboard = () => {
   }, [isSuperAdmin, userName]);
 
   /* ---------------- FILTER STATE ---------------- */
-  const [filterBuyer, setFilterBuyer] = useState('');
-  const [selectedYear, setSelectedYear] = useState('25-26');
-  const [selectMonths, setSelectMonths] = useState( "");
+  // const [filterBuyer, setFilterBuyer] = useState('');
+  // const [selectedYear, setSelectedYear] = useState('25-26');
+  // const [selectMonths, setSelectMonths] = useState( "");
+  const { data: finYrData } = useGetFinYrQuery();
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
-  const { data: finYr } = useGetFinYrQuery();
+  useEffect(() => {
+    if (finYrData?.data?.length) {
+      dispatch(setFinYr(finYrData));
+
+      // ✅ auto select latest year ONLY ONCE
+      if (!selectedYear) {
+        dispatch(setSelectedYear(finYrData.data[0]));
+      }
+    }
+  }, [finYrData, dispatch, selectedYear]);
+  console.log(finYr, "finYr");
+
 
   // useEffect(() => {
   //   setFilterBuyer(companyName);
@@ -54,12 +71,23 @@ const GarmentsDashboard = () => {
       compname: item.customer,
       id: item.customer,
     })) || [];
+    console.log(filterBuyerList,"filterBuyerList");
+    
   return (
     <div className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
-          <DashboardHeader filterBuyer={filterBuyer} setFilterBuyer={setFilterBuyer} selectedYear={selectedYear} setSelectedYear={setSelectedYear} user={user}
-          selectMonths={selectMonths} setSelectMonths={setSelectMonths} filterBuyerList={filterBuyerList} finYr={finYr}
+          <DashboardHeader
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerList}
+
           />
         </Grid>
         <Grid item xs={10} md={4}>
@@ -114,7 +142,17 @@ const GarmentsDashboard = () => {
         </Grid>
 
         <Grid item xs={12} md={7}>
-          <TurnOver selectedYear={selectedYear} />
+          <TurnOver
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerList}
+          />
         </Grid>
 
         <Grid item xs={12} md={5}>

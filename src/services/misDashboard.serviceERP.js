@@ -346,7 +346,7 @@ ORDER BY
      `;
 
         const result = await connection.execute(sql)
-        let resp = result.rows.map(po => ({
+        let resp = result.rows?.map(po => ({
 
             compCode: po[0],
             customer: po[1],
