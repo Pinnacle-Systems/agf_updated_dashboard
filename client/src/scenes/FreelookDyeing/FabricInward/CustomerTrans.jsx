@@ -31,10 +31,11 @@ const CustomerTrans = ({
     custName,
     setCustName,
     setFYear,
+    selectmonths,
+    setSelectmonths
 }) => {
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectmonths, setSelectmonths] = useState("");
 
     const recordsPerPage = 40;
 

@@ -21,6 +21,18 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardCust: builder.query({
+      query: () => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabInwardCust`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
     getFabricInwardDetail: builder.query({
       query: ({ params }) => {
         return {
@@ -38,6 +50,45 @@ const freeLookFabric = createApi({
       query: ({ params }) => {
         return {
           url: `${FREE_LOOK_FABRIC}/fabricInwardCustomer`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardByCusName: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardByCusName`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardMonthDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardByMonth`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardQuarterDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardByQuarter`,
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -73,42 +124,19 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
-    getFabricInwardByCusName: builder.query({
-      query: ({ params }) => {
-        return {
-          url: `${FREE_LOOK_FABRIC}/fabricInwardByCusName`,
-          method: "GET",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-          params,
-        };
-      },
-      providesTags: ["FreeLookFabric"],
-    }),
-    getFabricInwardCust: builder.query({
-      query: () => {
-        return {
-          url: `${FREE_LOOK_FABRIC}/fabInwardCust`,
-          method: "GET",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        };
-      },
-      providesTags: ["FreeLookFabric"],
-    }),
   }),
 });
 
 export const {
   useGetFabricDetailQuery,
+  useGetFabricInwardCustQuery,
   useGetFabricInwardDetailQuery,
   useGetFabricInwardCusDetailQuery,
+  useGetFabricInwardByCusNameQuery,
+  useGetFabricInwardMonthDetailQuery,
+  useGetFabricInwardQuarterDetailQuery,
   useGetFabricOutwardDetailQuery,
   useGetFabricOutwardCusDetailQuery,
-  useGetFabricInwardByCusNameQuery,
-  useGetFabricInwardCustQuery,
 } = freeLookFabric;
 
 export default freeLookFabric;

@@ -1,22 +1,25 @@
 import { Router } from "express";
 import {
-  getFabric,
   getFabricInward,
+  getFabricInwardByMonth,
+  getFabricInwardByQuarter,
   getFabricInwardCustomer,
-  getFabricOutward,
-  getFabricOutwardCustomer,
   getFabricInwardCustomerByName,
   getFanInwardCust
 } from "../services/freeLookFabric.service.js";
+import { getFabric, getFabricOutward, getFabricOutwardCustomer } from "../services/freeLookFabricOutward.js";
 
 const router = Router();
 
 router.get("/", getFabric);
+router.get("/fabInwardCust",getFanInwardCust)
 router.get("/getFabricInward", getFabricInward);
 router.get("/fabricInwardCustomer", getFabricInwardCustomer);
+router.get("/fabricInwardByCusName", getFabricInwardCustomerByName);
+router.get("/fabricInwardByMonth",getFabricInwardByMonth)
+router.get("/fabricInwardByQuarter",getFabricInwardByQuarter)
+
 router.get("/getFabricOutward", getFabricOutward);
 router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);
-router.get("/fabricInwardByCusName", getFabricInwardCustomerByName);
-router.get("/fabInwardCust",getFanInwardCust)
 
 export default router;

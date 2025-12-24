@@ -12,17 +12,22 @@ import { PermissionContext } from "./scenes/global/context/PermissionContext.js"
 import { ToastContainer } from "react-toastify";
 
 import ScrollToTop from "./components/ScrollTop.js";
-import { FreeLookDying } from "./scenes/index.js";
+import useIdleLogout from "./utils/useIdleLogout.js";
 
 function App({ isCollapsed }) {
   const [theme, colorMode] = useMode();
   const [color, setColor] = useState("#CA8717");
   const [permissions, setPermissions] = useState({});
-
   const handleLogout = () => {
-    localStorage.removeItem("userName");
+    // localStorage.removeItem("userName");
+    secureLocalStorage.clear();
+    sessionStorage.clear();
     window.location.href = "/";
   };
+
+  const isLoggedIn = !!sessionStorage.getItem("sessionId");
+  console.log("islogg",isLoggedIn)
+  useIdleLogout(handleLogout, isLoggedIn);
 
   return (
     <>
@@ -65,7 +70,6 @@ function App({ isCollapsed }) {
                           }}
                         >
                           <ActiveTabList />
-                          {/* <FreeLookDying/> */}
                         </div>
                       </div>
                     </div>

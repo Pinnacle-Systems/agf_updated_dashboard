@@ -2,21 +2,22 @@ import { Card, CardContent, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useState } from 'react'
-import { useGetFabricInwardCusDetailQuery } from "../../../redux/service/freeLookFabric";
+import { useGetFabricInwardQuarterDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
-const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
+const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths, selectQuarter, setSelectQuarter }) => {
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState('')
-    const { data: fabricData } = useGetFabricInwardCusDetailQuery(
+    const { data: fabricData } = useGetFabricInwardQuarterDetailQuery(
         {
             params: {
                 finyear: selectedYear,
                 category: category,
+                quarter: selectQuarter
             },
         },
         {
-            skip: !selectedYear || !category,
+            skip: !selectedYear || !category || !selectQuarter,
         }
     );
 
@@ -32,8 +33,8 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
             // ONLY left & bottom spacing
             marginLeft: 30,
             marginBottom: 100,
-            marginTop: 5,
             marginRight: 0,
+            marginTop: 5,
             spacingLeft: 10,
             spacingBottom: 10,
 
@@ -129,7 +130,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Year wise"
+                title="Quarter wise"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -161,4 +162,4 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
 };
 
 
-export default CustomerDetails
+export default CustQuarterDtl

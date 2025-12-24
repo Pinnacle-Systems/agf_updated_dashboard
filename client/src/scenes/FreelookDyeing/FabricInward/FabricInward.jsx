@@ -1,12 +1,17 @@
 import { Box, Grid, Typography } from "@mui/material"
 import CustomerDetails from "./CustomerDetails"
+import CustMonthDtl from "./CustMonthDtl"
 import { useState } from "react"
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
+import FinYear from "../../../components/FinYear";
+import CustQuarterDtl from "./CustQuarterDtl";
 
 const FabricInward = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
     const [selectedYear, setSelectedYear] = useState(year);
+    const [selectmonths, setSelectmonths] = useState("");
+    const [selectQuarter, setSelectQuarter] = useState("Q1")
     const handleFilterClick = (type) => {
         setCategory(type);
     };
@@ -42,7 +47,7 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                     </Typography>
 
                     {/* RIGHT FILTERS */}
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                         <div className="flex justify-end gap-3">
                             <div className="grid grid-cols-2 gap-3 p-1">
                                 <button
@@ -84,13 +89,24 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                                 ))}
                             </select>
                         </div>
+                        <FinYear
+                            selectedYear={selectedYear}
+                            selectmonths={selectmonths}
+                            setSelectmonths={setSelectmonths}
+                        />
                     </Box>
                 </Box>
 
             </div>
-            <Grid container spacing={2} sx={{ p: 1, }}>
-                <Grid item xs={12} md={8}>
-                    <CustomerDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} />
+            <Grid container spacing={1} sx={{ p: 1, }}>
+                <Grid item xs={12} md={6}>
+                    <CustomerDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <CustQuarterDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} selectQuarter={selectQuarter} setSelectQuarter={setSelectQuarter} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <CustMonthDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>
