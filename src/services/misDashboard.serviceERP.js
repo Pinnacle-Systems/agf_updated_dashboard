@@ -350,8 +350,8 @@ ORDER BY
 
             compCode: po[0],
             customer: po[1],
-            currentValue:po[2],
-            currentShipQty:po[3]
+            currentValue: po[2],
+            currentShipQty: po[3]
         }))
         return res.json({ statusCode: 0, data: resp })
     }
@@ -363,3 +363,115 @@ ORDER BY
         await connection.close()
     }
 }
+export async function turnOverCountryWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query; // ✅ only finYear
+
+        let sql = `
+          SELECT
+            A.FINYR,
+            C.COMPCODE,
+            E.COUNTRYNAME,
+            SUM(NVL(A.ACTSALVAL, 0)) AS VALUE
+          FROM MISORDSALESVAL A
+          JOIN GTNORDERENTRY B 
+            ON A.ORDERNO = B.ORDERNO
+          JOIN GTCOMPMAST C 
+            ON C.GTCOMPMASTID = B.COMPCODE
+          JOIN GTBUYERMAST D 
+            ON D.BUYERCODE = A.CUSTOMER
+          JOIN GTCOUNTRYMAST E 
+            ON E.GTCOUNTRYMASTID = D.COUNTRY
+          WHERE A.FINYR = '${finYear}'
+        `;
+
+
+        if (companyName && companyName !== "ALL") {
+            sql += ` AND C.COMPCODE = '${companyName}' `;
+        }
+
+        sql += `
+          GROUP BY
+            A.FINYR,
+            C.COMPCODE,
+            E.COUNTRYNAME
+          ORDER BY
+            A.FINYR,
+            C.COMPCODE,
+            E.COUNTRYNAME
+        `;
+        // let sql = `SELECT A.FINYR, C.COMPCODE, E.COUNTRYNAME, SUM(NVL(A.ACTSALVAL, 0)) AS VALUE FROM MISORDSALESVAL A JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY WHERE A.FINYR = '${finYear}' GROUP BY A.FINYR, C.COMPCODE, E.COUNTRYNAME ORDER BY A.FINYR, C.COMPCODE, E.COUNTRYNAME `;
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+            finYear: po[0],
+            compCode: po[1],
+            countryName: po[2],
+            value: po[3]
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+export async function turnOverStyleItemWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query; // ✅ only finYear
+
+        let sql = `
+ SELECT A.FINYR,A.COMPCODE,A.CUSTOMER,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
+FROM (
+SELECT A.ORDERNO,A.FINYR,C.COMPCODE,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,ROUND((NVL(A.ACTSALVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
+JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY
+JOIN (
+SELECT DISTINCT A.ORDERNO,C.STYLEITEM, E.CATEGORYNAME
+FROM GTNORDERENTRY A
+JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
+JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
+JOIN GTSTYLEGROUPMAST D ON C.STYLEGROUP = D.GTSTYLEGROUPMASTID 
+JOIN GTSTYLECATMAST E ON D.SUBCATEGORY = E.GTSTYLECATMASTID 
+) F ON F.ORDERNO = A.ORDERNO
+JOIN (
+SELECT DISTINCT A.ORDERNO,COUNT(*) ITEMCNT FROM GTNORDERENTRY A
+JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
+JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
+GROUP BY A.ORDERNO
+) FF ON FF.ORDERNO = A.ORDERNO
+) A 
+WHERE A.FINYR = '${finYear}'
+  AND ( '${companyName}' = 'ALL' OR A.COMPCODE = '${companyName}' )
+GROUP BY A.FINYR,A.COMPCODE,A.CUSTOMER,A.STYLEITEM,A.CATEGORYNAME HAVING SUM(A.VALUE) > 0
+ORDER BY 1,2,3
+
+    `;
+
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+            finYear: po[0],
+            compCode: po[1],
+            customer: po[2],
+            styleItem: po[3],
+            category: po[4],
+            value: po[5]
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+
+

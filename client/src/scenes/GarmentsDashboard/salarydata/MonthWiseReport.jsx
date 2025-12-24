@@ -15,13 +15,13 @@ const COLORS = [
   "#00CED1", "#DC143C",
 ];
 
-const Form = ({ companyName,finYear }) => {
+const Form = ({ finYear }) => {
   const theme = useTheme();
   const [selectedCountry, setSelectedCountry] = useState(null);
 
   const { data: response } =
     useGetMisDashboardErpCountryWiseQuery({
-      params: { finYear ,companyName},
+      params: { finYear },
     });
 
   const filteredData = Array.isArray(response?.data)
@@ -86,9 +86,9 @@ const Form = ({ companyName,finYear }) => {
   };
 
   return (
-    <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1}}>
+    <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1}}>
       <CardHeader
-        title="Country Wise Turnover"
+        title="Month Wise Turnover"
         titleTypographyProps={{
           sx: { fontSize: ".9rem", fontWeight: 600 },
         }}

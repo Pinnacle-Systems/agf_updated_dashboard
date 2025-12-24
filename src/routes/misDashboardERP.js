@@ -1,11 +1,13 @@
 import { Router } from 'express';
 
 import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRevenue,getOrdersInHand, getOrdersInHandMonthWise,
-     getShortShipmentRatio, getYearlyComp,executeProcedure,turnOverCustomerWise } from '../services/misDashboard.serviceERP.js';
+     getShortShipmentRatio, getYearlyComp,executeProcedure,turnOverCustomerWise ,turnOverCountryWise,turnOverStyleItemWise} from '../services/misDashboard.serviceERP.js';
 
 const router = Router();
 router.get('/', get);
 router.get('/customerWise',turnOverCustomerWise)
+router.get('/countryWise',turnOverCountryWise)
+router.get('/StyleItemWise',turnOverStyleItemWise)
 router.get('/ordersInHand', getOrdersInHand);
 
 router.get('/ordersInHandMonthWise', getOrdersInHandMonthWise);

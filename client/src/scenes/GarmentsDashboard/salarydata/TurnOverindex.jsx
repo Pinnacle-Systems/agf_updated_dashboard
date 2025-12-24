@@ -134,6 +134,8 @@ import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
 import EmpType1 from "./CustomerWisereport";
 import CountryWisereport from "../CountryWise/CountryWiseReport";
+import ItemWisereport from './ItemWisereport'
+import MonthWise from './MonthWiseReport'
 import { setSelectedYear, setFilterBuyer, setSelectMonths } from "../../../redux/features/dashboardFiltersSlice";
 
 const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
@@ -225,7 +227,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
       </div>
 
       {/* Child Components */}
-      <Grid container spacing={5} className="mt-2 " >
+      <Grid container  className="" >
         <Grid item xs={12} md={6}>
           <EmpType1
             companyName={companyName}
@@ -236,6 +238,30 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         <Grid item xs={12} md={6}>
           <CountryWisereport companyName={companyName} finYear={selectedYear} />
         </Grid>
+      </Grid>
+      <Grid container spacing={3}  >
+        <Grid item xs={12} md={12}>
+          <ItemWisereport
+            companyName={companyName}
+            finYear={companyName ? selectedYear : selectedYear}
+          />
+        </Grid>
+{/* 
+        <Grid item xs={12} md={6}>
+          <CountryWisereport companyName={companyName} finYear={selectedYear} />
+        </Grid> */}
+      </Grid>
+
+
+      <Grid container  className="" >
+        <Grid item xs={12} md={6}>
+          {/* <MonthWise
+            companyName={companyName}
+            finYear={companyName ? selectedYear : selectedYear}
+          /> */}
+        </Grid>
+
+       
       </Grid>
 
     </>

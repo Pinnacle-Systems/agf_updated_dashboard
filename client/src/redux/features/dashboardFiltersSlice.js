@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  selectedYear: null,
+  selectedYear: '24-25',
   filterBuyer: null,
   selectMonths: [],
   finYr: null,

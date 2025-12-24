@@ -372,3 +372,10 @@ body {
   background-color: #ffffff;
 
 }
+/* Parent chart drilldown label fix */
+.highcharts-drilldown-axis-label,
+.highcharts-axis-labels text {
+  fill: #000 !important;
+  color:black !important;
+  text-decoration: none !important;
+}

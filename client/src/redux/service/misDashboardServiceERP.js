@@ -37,6 +37,36 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpCountryWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/countryWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpStyleItemWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/StyleItemWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -142,6 +172,8 @@ const MisDashboard = createApi({
 export const {
     useGetMisDashboardQuery,
     useGetMisDashboardErpCustomerWiseQuery,
+    useGetMisDashboardErpCountryWiseQuery,
+    useGetMisDashboardErpStyleItemWiseQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

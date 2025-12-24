@@ -254,7 +254,7 @@ const Form = ({ companyName: propCompanyName, finYear: propFinYear }) => {
   };
 
   return (
-    <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1, width: 700 }}>
+    <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1,  }}>
       <CardHeader title="Customer Wise TurnOver" titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }} sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }} />
       <CardContent>
         <HighchartsReact highcharts={Highcharts} options={options} immutable />

@@ -533,7 +533,8 @@ const TurnOver = ({
               const companyName = companies[this.index];
               dispatch(
                 push({
-                  id: `TurnOver-${companyName}`,
+                  // id: `TurnOver-${companyName}`,
+                  id: `TurnOver`,
                   name: "TurnOver",
                   component: "TurnOverIndex",
                   data: {
@@ -571,6 +572,9 @@ const TurnOver = ({
     <Card sx={{ borderRadius: 3, boxShadow: 4, width: "100%", ml: 1 }}>
       <CardHeader
         title="Turn Over"
+        titleTypographyProps={{
+          sx: { fontSize: "1rem", fontWeight: 600, },
+        }}
         sx={{ borderBottom: `2px solid ${theme.palette.divider}` }}
       />
       <CardContent>
