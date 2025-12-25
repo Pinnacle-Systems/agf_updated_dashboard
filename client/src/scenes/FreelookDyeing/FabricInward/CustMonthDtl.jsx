@@ -5,107 +5,112 @@ import { useState } from 'react'
 import { useGetFabricInwardMonthDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
-const CustMonthDtl = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
+const CustMonthDtl = ({
+    selectedYear,
+    setSelectedYear,
+    category,
+    finYear,
+    setCategory,
+    selectmonths,
+    setSelectmonths,
+}) => {
     const [showTable, setShowTable] = useState(false);
-    const [custName, setCustName] = useState('')
+    const [custName, setCustName] = useState("");
+
     const { data: fabricData } = useGetFabricInwardMonthDetailQuery(
         {
             params: {
                 finyear: selectedYear,
                 category: category,
-                month: selectmonths
             },
         },
         {
-            skip: !selectedYear || !category || !selectmonths,
+            skip: !selectedYear || !category,
         }
     );
 
     const rows = fabricData?.data || [];
 
-    const customers = rows.map((r) => r.customer);
+    // 🔹 Clean month names (remove spaces)
+    const Months = rows.map((r) => r.month.trim());
+    const QtyData = rows.map((r) => Number(r.qty || 0));
 
     const options = {
         chart: {
-            type: "column",
-            height: 300,
-
-            // ONLY left & bottom spacing
-            marginLeft: 30,
-            marginBottom: 100,
-            marginRight: 0,
-            marginTop: 5,
-            spacingLeft: 10,
-            spacingBottom: 10,
-
-            options3d: {
-                enabled: true,
-                alpha: 7,
-                beta: 7,
-                depth: 50,
-                viewDistance: 25,
-            },
-            backgroundColor: "#FFFFFF",
-            borderRadius: 10,
+            type: "line",
+            height: 290,
+            backgroundColor: "#f5f5f5",
+            marginBottom: 90,
         },
 
         title: null,
         legend: { enabled: false },
 
         xAxis: {
-            categories: customers,
+            categories: Months,
+            title: {
+                text: "Month",
+                style: { fontSize: "10px" },
+            },
             labels: {
-                style: { fontSize: "10px", color: "#6B7280" },
-                rotation: 90,
+                style: { fontSize: "10px" },
             },
         },
 
         yAxis: {
+            min: 0,
             title: {
-                text: "Inward",
+                text: "Inward Qty",
                 style: { fontSize: "12px", fontWeight: 600 },
+            },
+            labels: {
+                style: { fontSize: "10px" },
             },
         },
 
         tooltip: {
+            shared: true,
             useHTML: true,
             formatter: function () {
+                const point = this.points[0].point;
+
                 return `
-      <b>${this.point.name}</b>
+      <b>${this.x}</b>
       <table style="margin-top:4px;">
         <tr>
           <td>Qty</td>
           <td style="padding:0 6px;">:</td>
-          <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
+          <td><b>${point.y.toLocaleString("en-IN")}</b></td>
         </tr>
-        
-      </table>
+      </table>  
     `;
             },
         },
 
+
         plotOptions: {
-            column: {
-                depth: 25,
-                colorByPoint: true,
-                borderRadius: 5,
-                pointWidth: category === "INHOUSE" ? 30 : undefined,
-            },
             series: {
+                marker: {
+                    enabled: true,
+                    radius: 4,
+                    symbol: "circle",
+                },
+
                 dataLabels: {
                     enabled: true,
                     formatter: function () {
                         return this.y.toLocaleString("en-IN");
                     },
                     style: {
-                        fontSize: "10px",
+                        fontSize: "9px",
                         fontWeight: "normal",
                     },
                 },
+
                 point: {
                     events: {
                         click: function () {
-                            setCustName(this.name)
+                            setSelectmonths(this.category);
                             setShowTable(true);
                         },
                     },
@@ -115,12 +120,14 @@ const CustMonthDtl = ({ selectedYear, setSelectedYear, category, finYear, setCat
 
         series: [
             {
-                name: "Customer",
-                data: rows.map((item) => ({
-                    name: item.customer,
-                    y: Number(item.count || 0), // Count
-                    qty: Number(item.qty || 0), // Qty for tooltip
-                })),
+                name: "Inward Qty",
+                data: QtyData,
+                color: "#16A34A",          // Emerald Green
+                marker: {
+                    fillColor: "#16A34A",
+                    lineWidth: 2,
+                    lineColor: "#14532D",    // Dark green border
+                },
             },
         ],
 
@@ -140,9 +147,11 @@ const CustMonthDtl = ({ selectedYear, setSelectedYear, category, finYear, setCat
                     borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
                 }}
             />
+
             <CardContent>
                 <HighchartsReact highcharts={Highcharts} options={options} />
             </CardContent>
+
             {showTable && (
                 <CustomerTrans
                     closeTable={() => setShowTable(false)}
@@ -151,8 +160,6 @@ const CustMonthDtl = ({ selectedYear, setSelectedYear, category, finYear, setCat
                     setSelectedYear={setSelectedYear}
                     category={category}
                     setCategory={setCategory}
-                    custName={custName}
-                    setCustName={setCustName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
                 />
@@ -160,6 +167,7 @@ const CustMonthDtl = ({ selectedYear, setSelectedYear, category, finYear, setCat
         </Card>
     );
 };
+
 
 
 export default CustMonthDtl

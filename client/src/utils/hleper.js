@@ -104,15 +104,11 @@ export const addInsightsfreelookRow = ({
 
   selectedMonth,
 }) => {
-
-
-
   const insightText =
-
-    `Customer -  ${custName || ''}    |    ` +
-    `Fin Year :  ${selectedYear || ''}    |    ` +
+    `Customer -  ${custName || ""}    |    ` +
+    `Fin Year :  ${selectedYear || ""}    |    ` +
     `Month :  ${selectedMonth || ""}   |   ` +
-    `Fabric category :  ${category || ''} `
+    `Fabric category :  ${category || ""} `;
 
   // Insert insights row
   worksheet.insertRow(startRow, [insightText]);
@@ -599,8 +595,8 @@ export async function classListData(data) {
       num = num
         ? parseInt(num, 10)
         : order[prefix] !== undefined
-          ? order[prefix]
-          : Infinity;
+        ? order[prefix]
+        : Infinity;
 
       return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
     };
@@ -657,7 +653,7 @@ export const customSelectStyles = {
     backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // bg-gray-100 vs bg-white
     cursor: state.isDisabled ? "not-allowed" : "default",
     borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // blue-500 vs gray-300
-    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : base.boxShadow,
+    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : "none",
     "&:hover": {
       borderColor: state.isDisabled ? "#d1d5db" : "#9ca3af", // keep gray when disabled
     },
@@ -670,13 +666,14 @@ export const customSelectStyles = {
     fontFamily: "Poppins",
     color: state.isDisabled ? "#6b7280" : "black",
   }),
-  input: (base, state) => ({
+  input: (base) => ({
     ...base,
     margin: 0,
-    fontSize: "12px",
     padding: 0,
-    fontFamily: "Poppins",
-    color: state.isDisabled ? "#6b7280" : "black",
+    lineHeight: "18px", // ⭐ CRITICAL
+    outline: "none", // ✅ remove browser focus line
+    boxShadow: "none", // ✅ remove inner shadow
+    border: "none",
   }),
   singleValue: (base, state) => ({
     ...base,
@@ -749,12 +746,12 @@ export const DropdownNew = ({
   const options = [
     ...(clear
       ? [
-        {
-          value: "",
-          label: `Select ${name || "option"}`,
-          isDisabled: false,
-        },
-      ]
+          {
+            value: "",
+            label: `Select ${name || placeholder || "option"}`,
+            isDisabled: false,
+          },
+        ]
       : []),
     ...(dataList?.map((item) => ({
       value: otherValue ? item?.[otherValue] : item?.id,
@@ -784,9 +781,9 @@ export const DropdownNew = ({
         isClearable={false}
         menuShouldScrollIntoView={false}
         maxMenuHeight={170} // <-- Reduce height here
-        onInputChange={(value) => value.toUpperCase()}
+        // onInputChange={(value) => value}
         className="w-full px-1 -ml-1  text-xs rounded-lg
-          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          focus:outline-none  
           transition-all duration-150 shadow-sm"
         placeholder={placeholder}
         styles={customSelectStyles}

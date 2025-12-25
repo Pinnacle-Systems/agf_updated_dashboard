@@ -11,8 +11,7 @@ import {
     FaVenus,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery } from "../../../redux/service/freeLookFabric";
-import { getDateFromDateTimeToDisplay } from "../../../utils/hleper";
+import { useGetFabricInwardCustQuery, useGetFabricInwardQuarterNameDetailQuery } from "../../../redux/service/freeLookFabric";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
@@ -32,21 +31,23 @@ const CustomerTrans = ({
     setCustName,
     setFYear,
     selectmonths,
-    setSelectmonths
+    setSelectmonths,
+    selectQuarter,
+    setSelectQuarter
 }) => {
-    const [search, setSearch] = useState("")
+    const [search, setSearch] = useState({})
     const [currentPage, setCurrentPage] = useState(1);
 
     const recordsPerPage = 40;
 
-    const { data: cusTransData } = useGetFabricInwardByCusNameQuery({
+    const { data: cusTransData } = useGetFabricInwardQuarterNameDetailQuery({
         params: {
             finyear: selectedYear,
             category: category,
-            customer: custName
+            quarter: selectQuarter
         },
     }, {
-        skip: !selectedYear || !category
+        skip: !selectedYear || !category || !selectQuarter
     });
 
     const { data: custNames } = useGetFabricInwardCustQuery({
@@ -125,7 +126,7 @@ const CustomerTrans = ({
         filteredData.forEach((row) => {
             worksheet.addRow({
                 inwNo: row.inwNo,
-                inwDate: row.inwDate ,
+                inwDate: row.inwDate,
                 orderNo: row.orderNo,
                 customerName: row.custName,
                 fabName: row.fabName,
@@ -166,6 +167,9 @@ const CustomerTrans = ({
 
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
+            if (custName && row.custName !== custName) {
+                return false;
+            }
 
             // 🔹 Search filter
             const searchMatch = Object.entries(search).every(([key, value]) => {
@@ -199,7 +203,6 @@ const CustomerTrans = ({
             );
         })
         : [];
-
 
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
@@ -292,8 +295,8 @@ const CustomerTrans = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center">
-                    <div className="grid grid-cols-5 gap-2">
+                <div className="flex items-center gap-16">
+                    <div className="grid grid-cols-4 gap-2">
                         {[
                             { label: "INWARD NO", key: "inwNo" },
                             { label: "ORDER NO", key: "orderNo" },
@@ -325,12 +328,12 @@ const CustomerTrans = ({
                                 clear={true}
                                 otherField="custName"
                                 otherValue="custName"
+                                placeholder={"Customer"}
                             />
                         </div>
                         <div className="flex items-center w-28 mr-2">
                             <select
                                 value={selectedYear}
-                                autoFocus={true}
                                 onChange={(e) => setSelectedYear(e.target.value)}
                                 className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
@@ -340,6 +343,21 @@ const CustomerTrans = ({
                                         {option.finYear}
                                     </option>
                                 ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center w-28 mr-2">
+                            <select
+                                value={selectQuarter || ""}
+                                autoFocus={true}
+                                onChange={(e) => setSelectQuarter(e.target.value)}
+                                className="w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+               focus:border-indigo-300 focus:outline-none 
+               hover:border-slate-400"
+                            >
+                                <option value="Q1">Quarter 1</option>
+                                <option value="Q2">Quarter 2</option>
+                                <option value="Q3">Quarter 3</option>
+                                <option value="Q4">Quarter 4</option>
                             </select>
                         </div>
                         <div className="mr-2">

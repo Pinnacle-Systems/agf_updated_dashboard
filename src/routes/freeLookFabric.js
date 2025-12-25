@@ -3,6 +3,8 @@ import {
   getFabricInward,
   getFabricInwardByMonth,
   getFabricInwardByQuarter,
+  getFabricInwardByQuarterName,
+  getFabricInwardCusByMonth,
   getFabricInwardCustomer,
   getFabricInwardCustomerByName,
   getFanInwardCust
@@ -12,12 +14,17 @@ import { getFabric, getFabricOutward, getFabricOutwardCustomer } from "../servic
 const router = Router();
 
 router.get("/", getFabric);
-router.get("/fabInwardCust",getFanInwardCust)
+router.get("/fabInwardCust",getFanInwardCust);
+
 router.get("/getFabricInward", getFabricInward);
 router.get("/fabricInwardCustomer", getFabricInwardCustomer);
 router.get("/fabricInwardByCusName", getFabricInwardCustomerByName);
+
 router.get("/fabricInwardByMonth",getFabricInwardByMonth)
+router.get("/fabricInwardCusByMonth",getFabricInwardCusByMonth)
+
 router.get("/fabricInwardByQuarter",getFabricInwardByQuarter)
+router.get("/fabricInwardByQuarterName",getFabricInwardByQuarterName)
 
 router.get("/getFabricOutward", getFabricOutward);
 router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);

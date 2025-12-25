@@ -1,69 +1,56 @@
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Card, CardContent, CardHeader, Box, Typography, useTheme } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useState } from 'react'
 import { useGetFabricInwardQuarterDetailQuery } from "../../../redux/service/freeLookFabric";
-import CustomerTrans from "./CustomerTrans";
+import CustomerTransQuarter from "./CustomerTransQuarter";
 
-const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths, selectQuarter, setSelectQuarter }) => {
+const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
     const [showTable, setShowTable] = useState(false);
-    const [custName, setCustName] = useState('')
+    const [custName, setCustName] = useState('');
+    const [selectQuarter, setSelectQuarter] = useState("")
+    const theme = useTheme();
     const { data: fabricData } = useGetFabricInwardQuarterDetailQuery(
         {
             params: {
                 finyear: selectedYear,
-                category: category,
-                quarter: selectQuarter
+                category: category
             },
         },
-        {
-            skip: !selectedYear || !category || !selectQuarter,
-        }
     );
 
     const rows = fabricData?.data || [];
 
-    const customers = rows.map((r) => r.customer);
-
+    const totalQty = rows.reduce((s, r) => s + Number(r.qty), 0);
+    const quarterColors = {
+        Q1: "#2563EB", // Softer Deep Blue
+        Q2: "#15803D", // Softer Dark Green
+        Q3: "#B45309", // Softer Dark Orange
+        Q4: "#991B1B", // Softer Dark Red
+    };
     const options = {
         chart: {
-            type: "column",
-            height: 300,
-
-            // ONLY left & bottom spacing
-            marginLeft: 30,
-            marginBottom: 100,
-            marginRight: 0,
-            marginTop: 5,
-            spacingLeft: 10,
-            spacingBottom: 10,
-
-            options3d: {
-                enabled: true,
-                alpha: 7,
-                beta: 7,
-                depth: 50,
-                viewDistance: 25,
-            },
-            backgroundColor: "#FFFFFF",
-            borderRadius: 10,
+            type: "pie",
+            height: 260,
+            spacing: [0, 0, 0, 0]
         },
-
         title: null,
-        legend: { enabled: false },
 
-        xAxis: {
-            categories: customers,
-            labels: {
-                style: { fontSize: "10px", color: "#6B7280" },
-                rotation: 90,
-            },
-        },
-
-        yAxis: {
-            title: {
-                text: "Inward",
-                style: { fontSize: "12px", fontWeight: 600 },
+        plotOptions: {
+            pie: {
+                startAngle: -90,
+                endAngle: 90,
+                center: ["50%", "75%"],
+                size: "90%",
+                point: {
+                    events: {
+                        click: function () {
+                            setShowTable(true);
+                            setSelectQuarter(this.name)
+                            setSelectmonths("")
+                        },
+                    },
+                },
             },
         },
 
@@ -84,44 +71,17 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
             },
         },
 
-        plotOptions: {
-            column: {
-                depth: 25,
-                colorByPoint: true,
-                borderRadius: 5,
-                pointWidth: category === "INHOUSE" ? 30 : undefined,
-            },
-            series: {
-                dataLabels: {
-                    enabled: true,
-                    formatter: function () {
-                        return this.y.toLocaleString("en-IN");
-                    },
-                    style: {
-                        fontSize: "10px",
-                        fontWeight: "normal",
-                    },
-                },
-                point: {
-                    events: {
-                        click: function () {
-                            setCustName(this.name)
-                            setShowTable(true);
-                        },
-                    },
-                },
-            },
-        },
-
         series: [
             {
-                name: "Customer",
-                data: rows.map((item) => ({
-                    name: item.customer,
-                    y: Number(item.count || 0), // Count
-                    qty: Number(item.qty || 0), // Qty for tooltip
+                data: rows.map(r => ({
+                    name: r.quarter,
+                    y: r.qty,
+                    qty: r.qty,
+                    count: r.count,
+                    color: quarterColors[r.quarter],
                 })),
             },
+
         ],
 
         credits: { enabled: false },
@@ -142,9 +102,25 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
             />
             <CardContent>
                 <HighchartsReact highcharts={Highcharts} options={options} />
+                <Box
+                    sx={{
+                        p: 1,
+                        bgcolor: "background.default",
+                        borderRadius: 3,
+                        textAlign: "center",
+                        border: `1px solid ${theme.palette.divider}`,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Over All Inward Quantity : {totalQty.toLocaleString("en-IN", {
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                        })}
+                    </Typography>
+                </Box>
             </CardContent>
             {showTable && (
-                <CustomerTrans
+                <CustomerTransQuarter
                     closeTable={() => setShowTable(false)}
                     finYear={finYear}
                     selectedYear={selectedYear}
@@ -155,6 +131,8 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
                     setCustName={setCustName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
+                    selectQuarter={selectQuarter}
+                    setSelectQuarter={setSelectQuarter}
                 />
             )}
         </Card>

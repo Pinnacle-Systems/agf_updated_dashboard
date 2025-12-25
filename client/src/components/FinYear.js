@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 
-const FinYear = ({ selectedYear, selectmonths, setSelectmonths ,autoFocusBuyer}) => {
+const FinYear = ({
+  selectedYear,
+  selectmonths,
+  setSelectmonths,
+  autoFocusBuyer,
+  autoSelect = false
+}) => {
   const [months, setMonths] = useState([]);
-    const buyerRef = useRef(null);
+  const buyerRef = useRef(null);
 
-useEffect(() => {
-  if (autoFocusBuyer && buyerRef.current) {
-    buyerRef.current.focus();
-  }
-}, [autoFocusBuyer, selectmonths]);
+  useEffect(() => {
+    if (autoFocusBuyer && buyerRef.current) {
+      buyerRef.current.focus();
+    }
+  }, [autoFocusBuyer, selectmonths]);
   useEffect(() => {
     if (!selectedYear || typeof selectedYear !== "string") return;
 
@@ -17,8 +23,18 @@ useEffect(() => {
     const endYear = 2000 + (endStr < startStr ? endStr + 100 : endStr);
 
     const monthNames = [
-      "April", "May", "June", "July", "August", "September",
-      "October", "November", "December", "January", "February", "March"
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+      "January",
+      "February",
+      "March",
     ];
 
     const monthList = monthNames.map((month, index) => {
@@ -27,13 +43,24 @@ useEffect(() => {
     });
 
     setMonths(monthList);
+    if (!selectmonths && autoSelect) {
+      const today = new Date();
+      const currentMonthName = today.toLocaleString("en-US", { month: "long" });
+      const currentYear = today.getFullYear();
+
+      const currentValue = `${currentMonthName} ${currentYear}`;
+
+      if (monthList.includes(currentValue)) {
+        setSelectmonths(currentValue);
+      }
+    }
   }, [selectedYear]);
 
   return (
     <div className="max-w-md mx-auto">
       <div>
         <select
-         ref={buyerRef}   
+          ref={buyerRef}
           className="border-gray-300  p-1 w-32 h-6.5 text-gray-900 text-xs rounded-md  focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           value={selectmonths}
           onChange={(e) => setSelectmonths(e.target.value)}

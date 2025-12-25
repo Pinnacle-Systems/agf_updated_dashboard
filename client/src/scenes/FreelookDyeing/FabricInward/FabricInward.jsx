@@ -6,12 +6,12 @@ import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
 import CustQuarterDtl from "./CustQuarterDtl";
+import MonthWiseCus from "./MonthWiseCus";
 
 const FabricInward = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
     const [selectedYear, setSelectedYear] = useState(year);
     const [selectmonths, setSelectmonths] = useState("");
-    const [selectQuarter, setSelectQuarter] = useState("Q1")
     const handleFilterClick = (type) => {
         setCategory(type);
     };
@@ -93,20 +93,24 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                             selectedYear={selectedYear}
                             selectmonths={selectmonths}
                             setSelectmonths={setSelectmonths}
+                            autoSelect={true}
                         />
                     </Box>
                 </Box>
 
             </div>
             <Grid container spacing={1} sx={{ p: 1, }}>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={8}>
                     <CustomerDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <CustQuarterDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} selectQuarter={selectQuarter} setSelectQuarter={setSelectQuarter} />
+                <Grid item xs={12} md={4}>
+                    <CustQuarterDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <CustMonthDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <MonthWiseCus selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>

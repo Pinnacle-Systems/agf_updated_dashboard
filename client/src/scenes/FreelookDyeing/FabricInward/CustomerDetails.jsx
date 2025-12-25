@@ -129,7 +129,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Year wise"
+                title="Year wise Contribution"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
