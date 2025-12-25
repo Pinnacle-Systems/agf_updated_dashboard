@@ -84,14 +84,17 @@ const Form = ({ finYear, companyName }) => {
       type: "category",
       labels: {
         useHTML: true,
-            rotation: -45, // rotate labels -45 degrees
-    align: 'right', // optional, for better alignment
+        rotation: -45, // rotate labels -45 degrees
+        align: 'right', // optional, for better alignment
+        fontWeight: "400",   // ✅ force normal
 
         style: {
           color: "black",
           fontSize: "11px",
           textDecoration: "none",
           cursor: "pointer",
+          fontWeight: "400", // ✅ works now
+
         },
       },
     },
@@ -121,7 +124,7 @@ const Form = ({ finYear, companyName }) => {
           },
           style: {
             color: "#000",
-            fontWeight: "600",
+            fontWeight: "400",   // ✅ force normal
             fontSize: "11px",
           },
         },
@@ -145,7 +148,7 @@ const Form = ({ finYear, companyName }) => {
       activeDataLabelStyle: {
         color: "#000",
         textDecoration: "none",
-        fontWeight: "600",
+        fontWeight: "400",   // ✅ force normal
       },
       drillUpButton: {
         position: {
@@ -161,7 +164,7 @@ const Form = ({ finYear, companyName }) => {
           r: 3,
           style: {
             color: "#000",
-            fontWeight: "600",
+            fontWeight: "400",   // ✅ force normal
           },
         },
       },

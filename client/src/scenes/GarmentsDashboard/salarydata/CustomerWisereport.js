@@ -239,9 +239,11 @@ const Form = ({ companyName: propCompanyName, finYear: propFinYear }) => {
     plotOptions: {
       column: {
         cursor: "pointer",
+        pointWidth: 25,
         dataLabels: {
           enabled: true,
           rotation: -90,
+          
           inside: true,
           style: { fontSize: "11px", fontWeight: "bold", color: "#fff", textOutline: "1px contrast" },
           formatter() { return this.y.toLocaleString("en-IN"); }

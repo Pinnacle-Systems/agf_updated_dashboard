@@ -422,6 +422,7 @@
 // };
 
 // export default TurnOver;
+
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import {
@@ -435,9 +436,11 @@ import {
 } from "@mui/material";
 import { useGetMisDashboardQuery } from "../../../redux/service/misDashboardServiceERP";
 import { useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
+
+import { setSelectedYear, setFilterBuyer, setSelectMonths ,setLastSection} from "../../../redux/features/dashboardFiltersSlice";
 
 const TurnOver = ({
   filterBuyer,
@@ -447,6 +450,7 @@ const TurnOver = ({
   user,
   filterBuyerList,
   onMonthChange,
+  
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -531,6 +535,8 @@ const TurnOver = ({
           events: {
             click: function () {
               const companyName = companies[this.index];
+              dispatch(setFilterBuyer(companyName));     // update dropdown in TurnOverIndex
+
               dispatch(
                 push({
                   // id: `TurnOver-${companyName}`,
@@ -569,7 +575,7 @@ const TurnOver = ({
   };
 
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: 4, width: "100%", ml: 1 }}>
+    <Card   sx={{ borderRadius: 3, boxShadow: 4, width: "100%", ml: 1 }}>
       <CardHeader
         title="Turn Over"
         titleTypographyProps={{

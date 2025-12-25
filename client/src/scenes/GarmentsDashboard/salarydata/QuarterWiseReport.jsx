@@ -1,28 +1,30 @@
 import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import Treemap from "highcharts/modules/treemap";
 import {
   Card,
   CardHeader,
   CardContent,
   useTheme,
 } from "@mui/material";
-import { useGetMisDashboardErpMonthWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+import { useGetMisDashboardErpQuarterWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+
+// Initialize treemap module
+Treemap(Highcharts);
 
 const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#B435E3",
-  "#E35B5B",
+  "#4F46E5", // Indigo Blue (primary)
+  "#22C55E", // Fresh Green
+  "#F97316", // Warm Orange
+  "#EF4444", // Soft Red
 ];
 
 const Form = ({ companyName, finYear }) => {
   const theme = useTheme();
 
   const { data: response, isLoading } =
-    useGetMisDashboardErpMonthWiseQuery({
+    useGetMisDashboardErpQuarterWiseQuery({
       params: { finYear, companyName },
     });
 
@@ -30,68 +32,58 @@ const Form = ({ companyName, finYear }) => {
     ? response.data
     : [];
 
-  // 🔹 Prepare spline chart data
-  const categories = chartData.map(item => item.month);
-  const seriesData = chartData.map(item => Number(item.value));
+  // 🔹 Prepare Treemap data
+  const treemapData = chartData.map((item, index) => ({
+    name: item.Quarter,              // Q1, Q2, Q3, Q4
+    value: Number(item.value),       // Turnover
+    color: COLORS[index % COLORS.length],
+  }));
 
   const options = {
     chart: {
-      type: "spline",
       height: 380,
     },
 
     title: { text: "" },
 
-    xAxis: {
-      categories,
-      title: { text: "Month" },
-      labels: {
-        style: {
-          fontSize: "11px",
-          fontWeight: 600,
-        },
-      },
-    },
-
-    yAxis: {
-      title: { text: "Turnover" },
-      labels: {
-        formatter() {
-          return this.value.toLocaleString("en-IN");
-        },
-      },
-    },
-
     tooltip: {
-      shared: true,
-      formatter() {
+      pointFormatter() {
         return `
-          <b>${this.x}</b><br/>
-          Turnover: <b>₹ ${this.y.toLocaleString("en-IN")}</b>
+          <b>${this.name}</b><br/>
+          Turnover: <b> ${this.value.toLocaleString("en-IN")}</b>
         `;
       },
     },
 
     plotOptions: {
-      spline: {
-        marker: {
+      treemap: {
+        layoutAlgorithm: "squarified",
+        dataLabels: {
           enabled: true,
-          radius: 4,
+          align: "center",
+          color:"white",
+          verticalAlign: "middle",
+          formatter() {
+            return `
+              <b>${this.point.name}</b><br/>
+              ${this.point.value.toLocaleString("en-IN")}
+            `;
+          },
+          style: {
+            textOutline: "none",
+            fontSize: "14px",
+            fontWeight: "bold",
+          },
         },
       },
     },
 
     series: [
       {
-        name: "Turnover",
-        data: seriesData,
-        color: COLORS[0],
+        type: "treemap",
+        data: treemapData,
       },
     ],
-
-    legend: {
-      enabled: false,
-    },
 
     credits: {
       enabled: false,
@@ -101,7 +93,7 @@ const Form = ({ companyName, finYear }) => {
   return (
     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
       <CardHeader
-        title="Month Wise Turnover"
+        title="Quarter Wise Turnover"
         titleTypographyProps={{
           sx: { fontSize: ".9rem", fontWeight: 600 },
         }}

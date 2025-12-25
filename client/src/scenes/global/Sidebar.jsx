@@ -94,7 +94,7 @@ const Sidebar = () => {
 
   const { data: allData, refetch: Getrefetch } = useGetRoleQuery();
 
-  const Rolename = allData?.find((item) => item.id === roleId)?.rolename;
+  const Rolename = allData?.find((item) => item?.id === roleId)?.rolename;
 
 
   const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery(

@@ -67,6 +67,64 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpMonthWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/MonthWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpQuarterWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/QuarterWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpYearWise: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/YearWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpSingleMonthWise: builder.query({
+            query: ({ params }) => {                
+                return {
+                    url: MIS_DASHBOARDERP + "/SingleMonthWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardOrdersInHand: builder.query({
             query: ({ params }) => {
                 return {
@@ -174,6 +232,10 @@ export const {
     useGetMisDashboardErpCustomerWiseQuery,
     useGetMisDashboardErpCountryWiseQuery,
     useGetMisDashboardErpStyleItemWiseQuery,
+    useGetMisDashboardErpMonthWiseQuery,
+    useGetMisDashboardErpQuarterWiseQuery,
+    useGetMisDashboardErpYearWiseQuery,
+    useGetMisDashboardErpSingleMonthWiseQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
     useGetMisDashboardActualVsBudgetValueMonthWiseQuery,

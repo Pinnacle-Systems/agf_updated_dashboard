@@ -475,3 +475,143 @@ ORDER BY 1,2,3
 }
 
 
+export async function turnOverMonthWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query;
+
+        let sql = `
+SELECT 
+    A.ACTDELMON,
+    SUM(NVL(A.ACTSALVAL,0)) VALUE,
+    MAX(A.ACTSHIPDT) ACTSHIDT
+FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+
+GROUP BY A.ACTDELMON
+HAVING SUM(NVL(A.ACTSALVAL,0)) > 0 
+ORDER BY 3,1,2
+`;
+
+
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+
+            month: po[0],
+            value: po[1],
+            date: po[2]
+
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+export async function turnOverQuarterWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query;
+
+        let sql = `
+SELECT D.QUARTER,SUM(NVL(A.ACTSALVAL,0)) VALUE FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+JOIN GTFINANCIALYEARDTL D ON A.ACTSHIPDT BETWEEN D.PSTARTDATE AND D.PENDDATE
+WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+GROUP BY D.QUARTER
+HAVING SUM(NVL(A.ACTSALVAL,0)) > 0 
+ORDER BY 1
+`;
+
+
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+
+            Quarter: po[0],
+            value: po[1],
+
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+export async function turnOverYearWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName } = req.query;
+
+        let sql = `
+SELECT A.FINYR,SUM(NVL(A.ACTSALVAL,0)) VALUE FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+WHERE  C.COMPCODE = '${companyName}'
+GROUP BY A.FINYR
+HAVING SUM(NVL(A.ACTSALVAL,0)) > 0 
+ORDER BY 1,2
+`;
+
+
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+
+            Year: po[0],
+            value: po[1],
+
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}
+export async function turnOverSingleMonthWise(req, res) {
+    const connection = await getConnectionERP(res)
+    try {
+        const { finYear, companyName ,month} = req.query;
+
+        let sql = `
+SELECT A.ACTDELMON,SUM(NVL(A.ACTSALVAL,0)) VALUE,MAX(A.ACTSHIPDT) ACTSHIDT FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+WHERE A.FINYR = '${finYear}' AND A.ACTDELMON = '${month}'  AND C.COMPCODE = '${companyName}'
+GROUP BY A.ACTDELMON 
+HAVING SUM(NVL(A.ACTSALVAL,0)) > 0 
+ORDER BY 3,1,2
+`;
+
+
+        const result = await connection.execute(sql)
+        let resp = result.rows?.map(po => ({
+
+            Month: po[0],
+            value: po[1],
+            date:po[2]
+
+        }))
+        return res.json({ statusCode: 0, data: resp })
+    }
+    catch (err) {
+        console.error('Error retrieving data:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+    finally {
+        await connection.close()
+    }
+}

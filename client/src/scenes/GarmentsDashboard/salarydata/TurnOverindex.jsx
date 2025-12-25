@@ -128,6 +128,7 @@
 // }
 
 // export default TurnOverIndex
+
 import { Avatar, Box, Grid, Typography, useTheme } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { DropdownWithSearch } from "../../../input/inputcomponent";
@@ -136,7 +137,11 @@ import EmpType1 from "./CustomerWisereport";
 import CountryWisereport from "../CountryWise/CountryWiseReport";
 import ItemWisereport from './ItemWisereport'
 import MonthWise from './MonthWiseReport'
+import QuarterWise from './QuarterWiseReport'
+import YearWise from './YearWise'
+import SingleMonthWise from './SIngleMonthReport'
 import { setSelectedYear, setFilterBuyer, setSelectMonths } from "../../../redux/features/dashboardFiltersSlice";
+import { useEffect } from "react";
 
 const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
   const theme = useTheme();
@@ -144,8 +149,11 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
 
   // Redux state
   const { selectedYear, filterBuyer, selectMonths, finYr } = useSelector((state) => state.dashboardFilters);
-  console.log(filterBuyerList, "klanlkas");
-
+  // useEffect(() => {
+  //   if (companyName && companyName !== filterBuyer) {
+  //     dispatch(setFilterBuyer(companyName));
+  //   }
+  // }, [dispatch, companyName, filterBuyer]);
   return (
     <>
       {/* Header and Filters */}
@@ -177,7 +185,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
               variant="h4"
               sx={{ fontWeight: 600, textAlign: "start", pt: 0.5, ml: 1 }}
             >
-              Overview of TurnOver Distribution - {companyName}
+              Overview of TurnOver Distribution - {filterBuyer}
             </Typography>
           </Grid>
 
@@ -189,8 +197,8 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
               display: "flex",
               justifyContent: "flex-end", // push the group to the right
               alignItems: "center",
-              pt:0.5,
-              pb:0.4
+              pt: 0.5,
+              pb: 0.4
             }}
           >
             <Box sx={{ display: "flex", gap: 2 }}>
@@ -217,6 +225,8 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
                 labelField="compname"
                 label=""
                 value={filterBuyer}
+                className={`${filterBuyer ? "border-2 border-blue-600" : "border border-slate-300"
+                  } w-full px-2 py-1 text-xs rounded-md focus:outline-none transition-all duration-200`}
                 setValue={(val) => dispatch(setFilterBuyer(val))}
               />
             </Box>
@@ -227,41 +237,63 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
       </div>
 
       {/* Child Components */}
-      <Grid container  className="" >
+      <Grid container className="" >
         <Grid item xs={12} md={6}>
-          <EmpType1
-            companyName={companyName}
-            finYear={companyName ? selectedYear : selectedYear}
+          <EmpType1 key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
           />
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <CountryWisereport companyName={companyName} finYear={selectedYear} />
+          <CountryWisereport companyName={filterBuyer} finYear={selectedYear} key={filterBuyer} />
         </Grid>
       </Grid>
       <Grid container spacing={3}  >
         <Grid item xs={12} md={12}>
-          <ItemWisereport
-            companyName={companyName}
-            finYear={companyName ? selectedYear : selectedYear}
+          <ItemWisereport key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
           />
         </Grid>
-{/* 
-        <Grid item xs={12} md={6}>
-          <CountryWisereport companyName={companyName} finYear={selectedYear} />
-        </Grid> */}
       </Grid>
 
 
-      <Grid container  className="" >
+      <Grid container className="" >
         <Grid item xs={12} md={6}>
-          {/* <MonthWise
-            companyName={companyName}
-            finYear={companyName ? selectedYear : selectedYear}
-          /> */}
+          <SingleMonthWise key={filterBuyer} month={selectMonths}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <MonthWise key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+          />
         </Grid>
 
-       
+      </Grid>
+
+
+      <Grid container className="" >
+        <Grid item xs={12} md={6}>
+          <QuarterWise key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+          />
+        </Grid>
+
+        
+        <Grid item xs={12} md={6}>
+          <YearWise key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+          />
+        </Grid>
+
+
+
       </Grid>
 
     </>
