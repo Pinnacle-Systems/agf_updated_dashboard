@@ -56,7 +56,7 @@ const MonthWiseCus = ({
         },
 
         title: {
-            text: `${selectmonths} - Inward`,
+            text: `${selectmonths} Inward`,
             align: "center",
             verticalAlign: "middle",
             y: 70,
@@ -70,7 +70,7 @@ const MonthWiseCus = ({
         <b>${this.point.name}</b>
         <table style="margin-top:4px;">
           <tr>
-            <td>Qty</td>
+            <td>Qty (kgs)</td>
             <td style="padding:0 6px;">:</td>
             <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
           </tr>
@@ -123,7 +123,8 @@ const MonthWiseCus = ({
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Month wise Contribution"
+                // title={`${selectmonths} Contribution`}
+                title={"Month Detail"}
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -145,7 +146,10 @@ const MonthWiseCus = ({
                     }}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        Over All Inward Qty : {totalQty.toFixed(3)}
+                        Over All Inward Qty : {totalQty.toLocaleString("en-IN", {
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                        })}
                     </Typography>
                 </Box>
             </CardContent>

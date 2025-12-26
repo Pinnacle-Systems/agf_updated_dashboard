@@ -22,13 +22,14 @@ const freeLookFabric = createApi({
       providesTags: ["FreeLookFabric"],
     }),
     getFabricInwardCust: builder.query({
-      query: () => {
+      query: ({ params }) => {
         return {
           url: `${FREE_LOOK_FABRIC}/fabInwardCust`,
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
           },
+          params,
         };
       },
       providesTags: ["FreeLookFabric"],
@@ -124,6 +125,19 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardMonthDate: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardByMonthDate`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
     getFabricOutwardDetail: builder.query({
       query: ({ params }) => {
         return {
@@ -163,6 +177,7 @@ export const {
   useGetFabricInwardCusByMonthDetailQuery,
   useGetFabricInwardQuarterDetailQuery,
   useGetFabricInwardQuarterNameDetailQuery,
+  useGetFabricInwardMonthDateQuery,
   useGetFabricOutwardDetailQuery,
   useGetFabricOutwardCusDetailQuery,
 } = freeLookFabric;

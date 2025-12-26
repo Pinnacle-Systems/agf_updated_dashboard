@@ -1,8 +1,8 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const oracledb = require("oracledb");
-oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
-// oracledb.initOracleClient({ libDir: "C:/oracle/instantclient_19_20",});
+// oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
+oracledb.initOracleClient({ libDir: "C:/oracle/instantclient_19_20",});
 
 // const dbConfig = {
 //       user: "PSSJWIN",
@@ -59,6 +59,7 @@ export async function getConnectionERP(res) {
       password: dbConfigERP.password,
       connectString: dbConfigERP.connectString,
     });
+    console.log("✅ OracleDB Connection Successful!");
     return connection;
   } catch (err) {
     return res.json({ statusCode: 1, message: "Database Connection Failed" });

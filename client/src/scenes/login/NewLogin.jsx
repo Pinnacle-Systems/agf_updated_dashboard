@@ -70,29 +70,25 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-     
+
         const validateErrors = validate()
         setErrors(validateErrors)
 
-            if (Object.keys(validateErrors).length === 0) {
+        if (Object.keys(validateErrors).length === 0) {
 
-                
-                try {
+
+            try {
                 const result = await axios.post("users/login", { username, password });
-                // console.log(username, password );
-                // console.log(result);
-                
-                
+
+
+
                 if (result.status === 200) {
                     if (result.data.statusCode === 0) {
-                        console.log(result.data.userInfo.roleId);
-                        
+                        secureLocalStorage.clear();
+                        sessionStorage.clear();
                         sessionStorage.setItem("sessionId", generateSessionId());
                         if (!result.data.userInfo.roleId) {
 
-                            console.log(username);
-                            
-                        
                             secureLocalStorage.setItem(
                                 sessionStorage.getItem("sessionId") + "userId",
                                 false
@@ -108,8 +104,6 @@ const Login = () => {
                             navigate('/dashboard');
                             // navigate(PRODUCT_ADMIN_HOME_PATH);
                         } else {
-                            // console.log(result, "result");
-                            console.log(result.data.userInfo.employeeId,"employyeId")
 
                             // const currentPlanActive =
                             //     result.data.userInfo.role.company.Subscription.some(
@@ -128,7 +122,7 @@ const Login = () => {
                                 sessionStorage.getItem("sessionId") + "username",
                                 result.data.userInfo.username
                             );
-                          
+
                             secureLocalStorage.setItem(
                                 sessionStorage.getItem("sessionId") + "userCompanycode",
                                 result.data.userInfo.COMPCODE
@@ -138,18 +132,18 @@ const Login = () => {
                                 result.data.userInfo.roleId
                             );
                             secureLocalStorage.setItem(
-                  sessionStorage.getItem("sessionId") + "superAdmin",
-                  false
-                );
-                           
+                                sessionStorage.getItem("sessionId") + "superAdmin",
+                                false
+                            );
 
-                           
-                       
+
+
+
                             navigate('/dashboard');
 
                         }
                     } else {
-                        // console.log(result)
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Submission error',
@@ -158,7 +152,7 @@ const Login = () => {
                         setLoading(false);
                     }
                 }
-                // console.log("result", result);
+
             }
             catch (error) {
                 console.log(error);
@@ -167,12 +161,12 @@ const Login = () => {
                     title: 'Submission error',
                     text: error.response.data.message || 'Something went wrong!'
                 });
-                
+
                 setLoading(false);
             }
 
         };
-        
+
     }
 
 

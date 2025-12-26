@@ -64,10 +64,9 @@ export async function getFabricInwardCustomer(req, res) {
     const { finyear, category } = req.query;
 
     const result = await connection.execute(
-      `SELECT A.CUSTNAME CUSTOMER ,COUNT(*) CNT,SUM(A.TOTQTY) QTY FROM DTFABINWENTRY A
-JOIN GTFINANCIALYEAR B ON A.FINYR = B.GTFINANCIALYEARID
-WHERE B.FINYR = :FINYEAR AND A.CCATEGORY = :CCATEGORY
-GROUP BY A.CUSTNAME`,
+      `SELECT CUSTNAME CUSTOMER ,COUNT(*) CNT,SUM(QTY) QTY FROM FABRIC_INWARD_DATA
+WHERE FINYR = :FINYEAR AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+GROUP BY CUSTNAME`,
       { FINYEAR: finyear, CCATEGORY: category },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
@@ -109,26 +108,23 @@ export async function getFabricInwardCustomerByName(req, res) {
         .json({ statusCode: 1, message: "Database connection not available" });
     }
 
-    const { finyear, category, customer } = req.query;
+    let { finyear, category, customer } = req.query;
+    if (customer === null || customer === "" || customer === undefined) {
+      customer = "ALL";
+    }
     const result = await connection.execute(
-      `SELECT DISTINCT
-	   A.DOCID AS INWNO,
-	  TO_CHAR(A.DOCDATE, 'DD/MM/YYYY') AS INWDATE,
-	   A.ORDERNO,
-	   A.CUSTNAME,
-	   C.FABNAME,
-	   D.DIA,
-	   F.UNITNAME,
-	   B.QTY
-FROM DTFABINWENTRY A
-INNER JOIN DTFINWENTRYDET B ON A.DTFABINWENTRYID = B.DTFABINWENTRYID
-INNER JOIN DTFABMAST C ON C.DTFABMASTID = B.FABRIC
-INNER JOIN GTDIAMAST D ON D.GTDIAMASTID = B.DIA
-INNER JOIN GTFINANCIALYEAR E ON E.GTFINANCIALYEARID = A.FINYR
-INNER JOIN GTUNITMAST F ON F.GTUNITMASTID = B.UOM
-WHERE E.FINYR = :FINYR AND
-	  A.CUSTNAME = :CUSTNAME AND
-	  A.CCATEGORY = :CCATEGORY
+      `SELECT DISTINCT DOCID AS INWNO,
+        TO_CHAR(DOCDATE, 'DD/MM/YYYY') AS INWDATE,
+                ORDERNO,
+                CUSTNAME,
+                FABNAME,
+                DIA,
+                UNITNAME,
+                QTY
+FROM FABRIC_INWARD_DATA
+WHERE FINYR = :FINYR AND 
+ ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND
+ ( :CUSTNAME = 'ALL' OR CUSTNAME = :CUSTNAME )
 ORDER BY 1,2,3,4,5,6,7,8`,
       { FINYR: finyear, CCATEGORY: category, CUSTNAME: customer },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
@@ -175,12 +171,19 @@ export async function getFanInwardCust(req, res) {
         .status(500)
         .json({ statusCode: 1, message: "Database connection not available" });
     }
+    const { category } = req.query;
 
     const result = await connection.execute(
-      `SELECT DISTINCT CUSTNAME FROM DTFABINWENTRY
-      `
+      `SELECT DISTINCT CUSTNAME
+FROM FABRIC_INWARD_DATA
+WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+ORDER BY CUSTNAME
+      `,
+      { CCATEGORY: category },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    const data = result.rows.map((row) => row[0]);
+    console.log("result", result);
+    const data = result.rows.map((row) => row.CUSTNAME);
 
     return res.json({ statusCode: 0, data });
   } catch (err) {
@@ -222,7 +225,7 @@ export async function getFabricInwardByMonth(req, res) {
     SUM(QTY) AS QTY
 FROM FABRIC_INWARD_DATA
 WHERE FINYR = :FINYR
-  AND CCATEGORY = :CCATEGORY
+  AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
 GROUP BY TRIM(MONTHCHAR)
 ORDER BY CASE UPPER(TRIM(MONTHCHAR))
     WHEN 'APRIL'     THEN 1
@@ -241,7 +244,6 @@ END`,
       { FINYR: finyear, CCATEGORY: category },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    console.log(result, "resulttt");
     const data = result.rows.map((item) => ({
       month: item.MONTHCHAR,
       count: item.COUNT,
@@ -289,7 +291,7 @@ export async function getFabricInwardCusByMonth(req, res) {
     SUM(QTY)        AS QTY
 FROM FABRIC_INWARD_DATA
 WHERE FINYR = :FINYR
-  AND CCATEGORY = :CCATEGORY
+  AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
   AND TRIM(MONTHCHAR) = :MONTHCHAR
 GROUP BY CUSTNAME`,
       { FINYR: finyear, CCATEGORY: category, MONTHCHAR: monthOnly },
@@ -336,7 +338,7 @@ export async function getFabricInwardByQuarter(req, res) {
 
     const result = await connection.execute(
       `SELECT QUARTER, COUNT(1) as COUNT,SUM(QTY) as QTY
-FROM FABRIC_INWARD_DATA WHERE FINYR = :FINYR AND CCATEGORY = :CCATEGORY
+FROM FABRIC_INWARD_DATA WHERE FINYR = :FINYR AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
 GROUP BY QUARTER ORDER BY
     CASE QUARTER
         WHEN 'Q1' THEN 1
@@ -397,8 +399,8 @@ export async function getFabricInwardByQuarterName(req, res) {
     QTY
 FROM FABRIC_INWARD_DATA
 WHERE FINYR = :FINYR
-  AND CCATEGORY = :CCATEGORY
-  AND QUARTER = :QUARTER
+  AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+  AND ( :QUARTER = 'ALL' OR QUARTER = :QUARTER )
 ORDER BY 1,2,3,4,5,6,7,8`,
       { FINYR: finyear, CCATEGORY: category, QUARTER: quarter },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
@@ -411,6 +413,59 @@ ORDER BY 1,2,3,4,5,6,7,8`,
       fabName: item.FABNAME,
       dia: item.DIA,
       uom: item.UNITNAME,
+      qty: item.QTY,
+    }));
+
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardByMonthDate(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+
+    const { finyear, category, month } = req.query;
+    const monthOnly = month.split(" ")[0].toUpperCase();
+    const result = await connection.execute(
+      `SELECT TO_CHAR(DOCDATE,'DD') AS INWDATE, COUNT(1) AS COUNT,
+       SUM(QTY)        AS QTY
+FROM FABRIC_INWARD_DATA
+WHERE FINYR = :FINYR AND 
+      ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND 
+      TRIM(MONTHCHAR) = :MONTHCHAR
+GROUP BY TO_CHAR(DOCDATE,'DD')
+ORDER BY TO_NUMBER(TO_CHAR(DOCDATE,'DD'))`,
+      { FINYR: finyear, CCATEGORY: category, MONTHCHAR: monthOnly },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    console.log("resukt", result);
+    console.log(monthOnly,"monthonly")
+    const data = result.rows.map((item) => ({
+      inwDate: item.INWDATE,
       qty: item.QTY,
     }));
 

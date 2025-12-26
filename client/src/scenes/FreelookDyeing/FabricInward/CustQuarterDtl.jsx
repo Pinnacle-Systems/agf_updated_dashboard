@@ -61,7 +61,7 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
       <b>${this.point.name}</b>
       <table style="margin-top:4px;">
         <tr>
-          <td>Qty</td>
+          <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
           <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
         </tr>
@@ -90,7 +90,7 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Quarter wise"
+                title="Quarter wise Contribution"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}

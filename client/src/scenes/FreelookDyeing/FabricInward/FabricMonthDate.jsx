@@ -2,10 +2,9 @@ import { Card, CardContent, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useState } from 'react'
-import { useGetFabricInwardMonthDetailQuery } from "../../../redux/service/freeLookFabric";
-import CustomerTrans from "./CustomerTrans";
+import { useGetFabricInwardMonthDateQuery, useGetFabricInwardMonthDetailQuery } from "../../../redux/service/freeLookFabric";
 
-const CustMonthDtl = ({
+const FabricMonthDate = ({
     selectedYear,
     setSelectedYear,
     category,
@@ -17,45 +16,27 @@ const CustMonthDtl = ({
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState("");
 
-    const { data: fabricData } = useGetFabricInwardMonthDetailQuery(
+    const { data: fabricData } = useGetFabricInwardMonthDateQuery(
         {
             params: {
                 finyear: selectedYear,
                 category: category,
+                month: selectmonths
             },
         },
         {
-            skip: !selectedYear || !category,
+            skip: !selectedYear || !category || !selectmonths,
         }
     );
 
     const rows = fabricData?.data || [];
 
     // 🔹 Clean month names (remove spaces)
-    const Months = rows.map((r) => r.month.trim());
+    const Months = rows.map((r) => r.inwDate);
     const QtyData = rows.map((r) => Number(r.qty || 0));
 
     const normalizeMonth = (m) =>
         m.charAt(0).toUpperCase() + m.slice(1).toLowerCase();
-
-    const getFinYearMonth = (monthRaw, finYear) => {
-        const monthName = normalizeMonth(monthRaw);
-
-        const [start, end] = finYear.split("-").map(Number);
-        const startYear = 2000 + start;
-        const endYear = 2000 + end;
-
-        const monthsAfterApril = [
-            "April", "May", "June", "July", "August",
-            "September", "October", "November", "December"
-        ];
-
-        const year = monthsAfterApril.includes(monthName)
-            ? startYear
-            : endYear;
-
-        return `${monthName} ${year}`;
-    };
 
     const options = {
         chart: {
@@ -132,11 +113,11 @@ const CustMonthDtl = ({
                 point: {
                     events: {
                         click: function () {
-                            const monthName = this.category; // "JULY"
-                            const correctMonth = getFinYearMonth(monthName, selectedYear);
-                            setSelectmonths(correctMonth);
-                            console.log(correctMonth)
-                            // setShowTable(true);
+                            // const monthName = this.category; // "JULY"
+                            // const correctMonth = getFinYearMonth(monthName, selectedYear);
+                            // setSelectmonths(correctMonth);
+                            // console.log(correctMonth)
+                            // // setShowTable(true);
                         },
                     },
                 },
@@ -147,11 +128,11 @@ const CustMonthDtl = ({
             {
                 name: "Qty",
                 data: QtyData,
-                color: "#16A34A",          // Emerald Green
+                color: "#DC2626",           // Emerald Green
                 marker: {
-                    fillColor: "#16A34A",
+                   fillColor: "#DC2626",
                     lineWidth: 2,
-                    lineColor: "#14532D",    // Dark green border
+                    lineColor: "#7F1D1D",   // Dark green border
                 },
             },
         ],
@@ -162,7 +143,7 @@ const CustMonthDtl = ({
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Month wise Contribution"
+                title="Date wise Contribution"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -177,22 +158,10 @@ const CustMonthDtl = ({
                 <HighchartsReact highcharts={Highcharts} options={options} />
             </CardContent>
 
-            {showTable && (
-                <CustomerTrans
-                    closeTable={() => setShowTable(false)}
-                    finYear={finYear}
-                    selectedYear={selectedYear}
-                    setSelectedYear={setSelectedYear}
-                    category={category}
-                    setCategory={setCategory}
-                    selectmonths={selectmonths}
-                    setSelectmonths={setSelectmonths}
-                />
-            )}
         </Card>
     );
 };
 
 
 
-export default CustMonthDtl
+export default FabricMonthDate
