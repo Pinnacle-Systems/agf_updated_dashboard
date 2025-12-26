@@ -7,16 +7,13 @@ export async function getTurnOver(connection, type = 'Value', filterYear, previo
 
     if (type === "Value") {
         sql = `
-           
-            SELECT C.COMPCODE,
-	   COALESCE(SUM(CASE WHEN A.finyr = '${previousYear}' THEN A.actsalval ELSE 0 END), 0) AS prevValue,
-	   COALESCE(SUM(CASE WHEN A.finyr = '${filterYear}' THEN A.actsalval ELSE 0 END), 0) AS currentValue,
-	   COALESCE(SUM(CASE WHEN A.finyr = '${previousYear}' THEN A.shipQty ELSE 0 END), 0) AS prevShipQty,
-	   COALESCE(SUM(CASE WHEN A.finyr = '${filterYear}' THEN A.shipQty ELSE 0 END), 0) AS currentShipQty
-FROM MISORDSALESVAL A
-INNER JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
-INNER JOIN GTCOMPMAST C ON B.COMPCODE = C.GTCOMPMASTID
-GROUP BY C.COMPCODE
+           SELECT A.FINYR,C.COMPCODE,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+WHERE A.FINYR = '${filterYear}' 
+GROUP BY A.FINYR,C.COMPCODE
+ORDER BY 1,2,3
+   
         `;
     } else if (type === "MONTH") {
         sql = `
@@ -57,11 +54,10 @@ GROUP BY C.COMPCODE
     const queryResult = await connection.execute(sql);
 
     const result = queryResult.rows.map(row => ({
-        company: row[0],          // COMPCODE
-        prevValue: row[1],        // PREVVALUE
+        finyear: row[0],          // COMPCODE
+        company: row[1],        // PREVVALUE
         currentValue: row[2],     // CURRENTVALUE
-        prevQty: row[3],          // PREVSHIPQTY
-        currentQty: row[4],
+
     }));
 
     return result;

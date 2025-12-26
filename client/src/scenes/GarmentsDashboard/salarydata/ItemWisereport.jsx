@@ -176,7 +176,7 @@ const Form = ({ finYear, companyName }) => {
   return (
     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
       <CardHeader
-        title="Style Item Wise Turnover"
+        title="Style Group Wise Turnover"
         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
       />

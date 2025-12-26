@@ -142,13 +142,16 @@ import YearWise from './YearWise'
 import SingleMonthWise from './SIngleMonthReport'
 import { setSelectedYear, setFilterBuyer, setSelectMonths } from "../../../redux/features/dashboardFiltersSlice";
 import { useEffect } from "react";
+import { useRef } from "react";
 
 const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-
+  const buyerRef = useRef();
   // Redux state
   const { selectedYear, filterBuyer, selectMonths, finYr } = useSelector((state) => state.dashboardFilters);
+  console.log(filterBuyer, "filterBuyedsdsr");
+
   // useEffect(() => {
   //   if (companyName && companyName !== filterBuyer) {
   //     dispatch(setFilterBuyer(companyName));
@@ -221,6 +224,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
 
               {/* COMPANY FILTER */}
               <DropdownWithSearch
+                ref={buyerRef}
                 options={filterBuyerList || []}
                 labelField="compname"
                 label=""
@@ -260,13 +264,13 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
 
 
       <Grid container className="" >
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <SingleMonthWise key={filterBuyer} month={selectMonths}
             companyName={filterBuyer}
             finYear={selectedYear}
           />
-        </Grid>
-        <Grid item xs={12} md={6}>
+        </Grid> */}
+        <Grid item xs={12} md={12}>
           <MonthWise key={filterBuyer}
             companyName={filterBuyer}
             finYear={selectedYear}
@@ -284,7 +288,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
           />
         </Grid>
 
-        
+
         <Grid item xs={12} md={6}>
           <YearWise key={filterBuyer}
             companyName={filterBuyer}
