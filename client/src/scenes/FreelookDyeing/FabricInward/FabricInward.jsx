@@ -7,7 +7,8 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
 import CustQuarterDtl from "./CustQuarterDtl";
 import MonthWiseCus from "./MonthWiseCus";
-
+import DomainIcon from '@mui/icons-material/Domain';
+import FabricMonthDate from "./FabricMonthDate";
 const FabricInward = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
     const [selectedYear, setSelectedYear] = useState(year);
@@ -47,9 +48,9 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                     </Typography>
 
                     {/* RIGHT FILTERS */}
-                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                        <div className="flex justify-end gap-3">
-                            <div className="grid grid-cols-2 gap-3 p-1">
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <div className="flex gap-2">
+                            <div className="grid grid-cols-3 gap-3 p-1 justify-center">
                                 <button
                                     onClick={() => handleFilterClick("INHOUSE")}
                                     className={`flex items-center gap-2 px-1.5 py-1 text-[11px] font-semibold rounded-full shadow-md transition-all 
@@ -71,6 +72,17 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
         focus:outline-none focus:ring-2 focus:ring-blue-400`}
                                 >
                                     <FactoryIcon fontSize="medium" /> OUTSIDE
+                                </button>
+                                <button
+                                    onClick={() => handleFilterClick("ALL")}
+                                    className={`flex items-center justify-center gap-2 px-1.5 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
+        ${category === "ALL"
+                                            ? "bg-blue-600 text-white scale-105"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }
+        focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                                >
+                                    <DomainIcon fontSize="medium" /> ALL
                                 </button>
                             </div>
                         </div>
@@ -111,6 +123,9 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <MonthWiseCus selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <FabricMonthDate selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>

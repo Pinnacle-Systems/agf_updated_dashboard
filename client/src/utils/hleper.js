@@ -653,7 +653,7 @@ export const customSelectStyles = {
     backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // bg-gray-100 vs bg-white
     cursor: state.isDisabled ? "not-allowed" : "default",
     borderColor: state.isFocused ? "#3b82f6" : "#d1d5db", // blue-500 vs gray-300
-    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : "none",
+    boxShadow: state.isFocused ? "0 0 0 1px #3b82f6" : base.boxShadow,
     "&:hover": {
       borderColor: state.isDisabled ? "#d1d5db" : "#9ca3af", // keep gray when disabled
     },
@@ -666,14 +666,13 @@ export const customSelectStyles = {
     fontFamily: "Poppins",
     color: state.isDisabled ? "#6b7280" : "black",
   }),
-  input: (base) => ({
+  input: (base, state) => ({
     ...base,
     margin: 0,
+    fontSize: "12px",
     padding: 0,
-    lineHeight: "18px", // ⭐ CRITICAL
-    outline: "none", // ✅ remove browser focus line
-    boxShadow: "none", // ✅ remove inner shadow
-    border: "none",
+    fontFamily: "Poppins",
+    color: state.isDisabled ? "#6b7280" : "black",
   }),
   singleValue: (base, state) => ({
     ...base,
@@ -748,7 +747,7 @@ export const DropdownNew = ({
       ? [
           {
             value: "",
-            label: `Select ${name || placeholder || "option"}`,
+            label: `Select ${name || placeholder || "Option"}`,
             isDisabled: false,
           },
         ]
@@ -759,8 +758,9 @@ export const DropdownNew = ({
     })) || []),
   ];
   const selectedOption = options.find((opt) => opt.value === value) || null;
+  const widthClass = width === "full" ? "w-full" : `w-${width}`;
   return (
-    <div className={` w-${width}`}>
+    <div className={`${name ? "mb-2" : "mb-0"} w-${widthClass}`}>
       {name && (
         <label className="block text-xs font-bold text-slate-700 mb-1">
           {required ? (
@@ -780,10 +780,10 @@ export const DropdownNew = ({
         isSearchable
         isClearable={false}
         menuShouldScrollIntoView={false}
-        maxMenuHeight={170} // <-- Reduce height here
-        // onInputChange={(value) => value}
-        className="w-full px-1 -ml-1  text-xs rounded-lg
-          focus:outline-none  
+        maxMenuHeight={170}
+        onInputChange={(value) => value.toUpperCase()}
+        className="w-full text-xs rounded-lg border border-gray-300
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           transition-all duration-150 shadow-sm"
         placeholder={placeholder}
         styles={customSelectStyles}

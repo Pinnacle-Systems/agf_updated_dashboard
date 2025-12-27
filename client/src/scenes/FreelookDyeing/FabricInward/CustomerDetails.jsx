@@ -61,7 +61,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
 
         yAxis: {
             title: {
-                text: "Inward",
+                text: "Qty",
                 style: { fontSize: "12px", fontWeight: 600 },
             },
         },
@@ -73,7 +73,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
       <b>${this.point.name}</b>
       <table style="margin-top:4px;">
         <tr>
-          <td>Qty</td>
+          <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
           <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
         </tr>
@@ -92,7 +92,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
             },
             series: {
                 dataLabels: {
-                    enabled: true,
+                    enabled: false,
                     formatter: function () {
                         return this.y.toLocaleString("en-IN");
                     },
@@ -104,7 +104,8 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
                 point: {
                     events: {
                         click: function () {
-                            setCustName(this.name)
+                            setCustName(this.name);
+                            setSelectmonths("")
                             setShowTable(true);
                         },
                     },
@@ -129,7 +130,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title="Year wise Contribution"
+                title="Company wise Contribution"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}

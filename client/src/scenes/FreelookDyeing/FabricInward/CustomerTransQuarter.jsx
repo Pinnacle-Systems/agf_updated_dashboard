@@ -19,6 +19,8 @@ import { DropdownNew } from "../../../utils/hleper";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
+import DomainIcon from '@mui/icons-material/Domain';
+import FinYearQuarter from "../../../components/FinYearQuarter";
 
 const CustomerTrans = ({
     closeTable,
@@ -52,6 +54,7 @@ const CustomerTrans = ({
 
     const { data: custNames } = useGetFabricInwardCustQuery({
         params: {
+            category: category
         },
     });
 
@@ -262,14 +265,17 @@ const CustomerTrans = ({
                                 <p className=" text-gray-500 font-medium">
                                     Total Qty:{" "}
                                     <span className="text-sky-700 pl-1">
-                                        {totalQty.toFixed(3)}
+                                        {totalQty.toLocaleString("en-IN", {
+                                            minimumFractionDigits: 3,
+                                            maximumFractionDigits: 3,
+                                        })}
                                     </span>
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 items-center mb-2  mr-5">
-                        <div className=" grid grid-cols-2 gap-2 p-2">
+                        <div className=" grid grid-cols-3 gap-2 p-2">
                             <button
                                 onClick={() => handleFilterClick("INHOUSE")}
                                 className={`flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
@@ -291,6 +297,17 @@ const CustomerTrans = ({
         focus:outline-none focus:ring-2 focus:ring-blue-400`}
                             >
                                 <FactoryIcon fontSize="small" /> OUTSIDE
+                            </button>
+                            <button
+                                onClick={() => handleFilterClick("ALL")}
+                                className={`flex items-center justify-center gap-2 px-1.5 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
+                                    ${category === "ALL"
+                                        ? "bg-blue-600 text-white scale-105"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    }
+                                    focus:outline-none focus:ring-2 focus:ring-blue-400`}
+                            >
+                                <DomainIcon fontSize="small" /> ALL
                             </button>
                         </div>
                     </div>
@@ -318,7 +335,7 @@ const CustomerTrans = ({
                         ))}
                     </div>
                     <div className="flex items-center justify-between mb-1">
-                        <div className="w-48 flex items-center mr-0">
+                        <div className="w-48 mr-2">
                             <DropdownNew
                                 dataList={cusData || []}
                                 value={custName}
@@ -349,11 +366,15 @@ const CustomerTrans = ({
                             <select
                                 value={selectQuarter || ""}
                                 autoFocus={true}
-                                onChange={(e) => setSelectQuarter(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectQuarter(e.target.value);
+                                    setSelectmonths("")
+                                }}
                                 className="w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
                focus:border-indigo-300 focus:outline-none 
                hover:border-slate-400"
                             >
+                                <option value="ALL">Select Quarter</option>
                                 <option value="Q1">Quarter 1</option>
                                 <option value="Q2">Quarter 2</option>
                                 <option value="Q3">Quarter 3</option>
@@ -362,10 +383,11 @@ const CustomerTrans = ({
                         </div>
                         <div className="mr-2">
 
-                            <FinYear
+                            <FinYearQuarter
                                 selectedYear={selectedYear}
                                 selectmonths={selectmonths}
                                 setSelectmonths={setSelectmonths}
+                                selectQuarter={selectQuarter}
                             />
                         </div>
                         <button

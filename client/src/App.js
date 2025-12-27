@@ -26,7 +26,6 @@ function App({ isCollapsed }) {
   };
 
   const isLoggedIn = !!sessionStorage.getItem("sessionId");
-  console.log("islogg",isLoggedIn)
   useIdleLogout(handleLogout, isLoggedIn);
 
   return (

@@ -59,6 +59,7 @@ export async function getConnectionERP(res) {
       password: dbConfigERP.password,
       connectString: dbConfigERP.connectString,
     });
+    console.log("✅ OracleDB Connection Successful!");
     return connection;
   } catch (err) {
     return res.json({ statusCode: 1, message: "Database Connection Failed" });
