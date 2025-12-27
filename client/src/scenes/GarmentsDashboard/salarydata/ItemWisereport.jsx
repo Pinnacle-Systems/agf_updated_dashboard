@@ -20,6 +20,11 @@ const COLORS = [
 
 const Form = ({ finYear, companyName }) => {
   const theme = useTheme();
+  const formatINR = (value) =>
+  `₹ ${Number(value).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
   const { data: response } =
     useGetMisDashboardErpStyleItemWiseQuery({
@@ -104,14 +109,14 @@ const Form = ({ finYear, companyName }) => {
       title: { text: "Turnover" },
       labels: {
         formatter() {
-          return this.value.toLocaleString("en-IN");
+          return formatINR(this.value);
         },
       },
     },
 
     tooltip: {
       pointFormatter() {
-        return `<b>${this.y.toLocaleString("en-IN")}</b>`;
+        return `<b>${formatINR(this.y)}</b>`;
       },
     },
 
@@ -120,7 +125,7 @@ const Form = ({ finYear, companyName }) => {
         dataLabels: {
           enabled: true,
           formatter() {
-            return this.y.toLocaleString("en-IN");
+            return formatINR(this.y);
           },
           style: {
             color: "#000",
@@ -144,31 +149,37 @@ const Form = ({ finYear, companyName }) => {
     ],
 
     drilldown: {
-      series: drilldownSeries,
-      activeDataLabelStyle: {
-        color: "#000",
-        textDecoration: "none",
-        fontWeight: "400",   // ✅ force normal
-      },
-      drillUpButton: {
-        position: {
-          align: "right",
-          verticalAlign: "top",
-          x: -10,
-          y: 10,
+      series: drilldownSeries.map((s) => ({
+        ...s,
+        data: s.data.map(([name, value]) => [name, value]),
+        // format dataLabels for drilldown
+        dataLabels: {
+          enabled: true,
+          formatter() {
+            return formatINR(this.y);
+          },
+          style: { color: "#000", fontWeight: "400", fontSize: "11px" },
         },
+      })),
+      activeDataLabelStyle: { color: "#000", fontWeight: "400", textDecoration: "none" },
+      drillUpButton: {
+        position: { align: "right", verticalAlign: "top", x: -10, y: 10 },
         theme: {
           fill: "#fff",
           stroke: "#ccc",
           "stroke-width": 1,
           r: 3,
-          style: {
-            color: "#000",
-            fontWeight: "400",   // ✅ force normal
-          },
+          style: { color: "#000", fontWeight: "400" },
+        },
+      },
+      // format tooltip for drilldown
+      tooltip: {
+        pointFormatter() {
+          return `<b>${formatINR(this.y)}</b>`;
         },
       },
     },
+
 
     legend: { enabled: false },
   };

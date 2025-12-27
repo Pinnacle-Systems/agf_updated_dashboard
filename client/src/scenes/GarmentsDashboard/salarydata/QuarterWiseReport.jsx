@@ -14,14 +14,20 @@ import { useGetMisDashboardErpQuarterWiseQuery } from "../../../redux/service/mi
 Treemap(Highcharts);
 
 const COLORS = [
-  "#4F46E5", // Indigo Blue (primary)
-  "#22C55E", // Fresh Green
-  "#F97316", // Warm Orange
-  "#EF4444", // Soft Red
+  "#4F46E5", // Indigo Blue
+  "#22C55E", // Green
+  "#F97316", // Orange
+  "#EF4444", // Red
 ];
 
 const Form = ({ companyName, finYear }) => {
   const theme = useTheme();
+
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   const { data: response, isLoading } =
     useGetMisDashboardErpQuarterWiseQuery({
@@ -32,12 +38,35 @@ const Form = ({ companyName, finYear }) => {
     ? response.data
     : [];
 
-  // 🔹 Prepare Treemap data
-  const treemapData = chartData.map((item, index) => ({
-    name: item.Quarter,              // Q1, Q2, Q3, Q4
-    value: Number(item.value),       // Turnover
-    color: COLORS[index % COLORS.length],
-  }));
+  // 🔹 Group by Quarter with Month details
+  const quarterMap = chartData.reduce((acc, item) => {
+    const q = item.Quarter;
+
+    if (!acc[q]) {
+      acc[q] = {
+        total: 0,
+        months: [],
+      };
+    }
+
+    acc[q].total += Number(item.value) || 0;
+    acc[q].months.push({
+      name: item.monthName.trim(),
+      value: Number(item.value) || 0,
+    });
+
+    return acc;
+  }, {});
+
+  // 🔹 Prepare Treemap Data
+  const treemapData = Object.entries(quarterMap).map(
+    ([quarter, data], index) => ({
+      name: quarter,
+      value: data.total,
+      months: data.months, // 👈 used in tooltip
+      color: COLORS[index % COLORS.length],
+    })
+  );
 
   const options = {
     chart: {
@@ -47,10 +76,24 @@ const Form = ({ companyName, finYear }) => {
     title: { text: "" },
 
     tooltip: {
-      pointFormatter() {
+      useHTML: true,
+      formatter() {
+        const { name, value, months } = this.point;
+
+        const monthHtml = months
+          .map(
+            (m) =>
+              `<div>${m.name}: <b>${formatINR(m.value)}</b></div>`
+          )
+          .join("");
+
         return `
-          <b>${this.name}</b><br/>
-          Turnover: <b> ${this.value.toLocaleString("en-IN")}</b>
+          <b>${name}</b><br/>
+          <div style="margin-top:4px;">
+            ${monthHtml}
+          </div>
+          <hr/>
+          <b>Total: ${formatINR(value)}</b>
         `;
       },
     },
@@ -61,15 +104,15 @@ const Form = ({ companyName, finYear }) => {
         dataLabels: {
           enabled: true,
           align: "center",
-          color:"white",
           verticalAlign: "middle",
           formatter() {
             return `
               <b>${this.point.name}</b><br/>
-              ${this.point.value.toLocaleString("en-IN")}
+              ${formatINR(this.point.value)}
             `;
           },
           style: {
+            color: "#FFFFFF",
             textOutline: "none",
             fontSize: "14px",
             fontWeight: "bold",

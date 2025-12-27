@@ -15,13 +15,21 @@ const COLORS = [
   "#00CED1", "#DC143C",
 ];
 
-const Form = ({ companyName,finYear }) => {
+const Form = ({ companyName, finYear }) => {
   const theme = useTheme();
+const formatINR = (value) =>
+  `₹ ${Number(value).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+
+
   const [selectedCountry, setSelectedCountry] = useState(null);
 
   const { data: response } =
     useGetMisDashboardErpCountryWiseQuery({
-      params: { finYear ,companyName},
+      params: { finYear, companyName },
     });
 
   const filteredData = Array.isArray(response?.data)
@@ -30,10 +38,10 @@ const Form = ({ companyName,finYear }) => {
 
   // ✅ Pie chart data
   const pieData = filteredData
-    .filter(item => Number(item.value) > 0)
+    .filter(item => item.value > 0)
     .map((item, index) => ({
       name: item.countryName,
-      y: Number(item.value),
+      y: item.value || 0,
       color: COLORS[index % COLORS.length],
     }));
 
@@ -48,12 +56,12 @@ const Form = ({ companyName,finYear }) => {
     tooltip: {
       formatter() {
         return `
-          <b>${this.point.name}</b><br/>
-          Turnover: <b>${this.y.toLocaleString("en-IN")}</b><br/>
-         
-        `;
+      <b>${this.point.name}</b><br/>
+      Turnover: <b>${formatINR(this.y)}</b>
+    `;
       },
     },
+
 
     plotOptions: {
       pie: {
@@ -61,13 +69,15 @@ const Form = ({ companyName,finYear }) => {
         cursor: "pointer",
         dataLabels: {
           enabled: true,
-          format:
-            "<b>{point.name}</b>: {point.percentage:.1f} %",
+          formatter() {
+            return `<b>${this.point.name}</b>: ${formatINR(this.y)}`;
+          },
           style: {
             fontSize: "11px",
             fontWeight: "bold",
           },
         },
+
       },
     },
 
@@ -86,7 +96,7 @@ const Form = ({ companyName,finYear }) => {
   };
 
   return (
-    <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1}}>
+    <Card sx={{ backgroundColor: "#f5f5f5", mt: 2, ml: 1 }}>
       <CardHeader
         title="Country Wise Turnover"
         titleTypographyProps={{

@@ -40,11 +40,10 @@ export const ReusableTable = ({
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-600 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-1 rounded-md ${currentPage === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white text-gray-600 hover:bg-gray-100"
+              }`}
           >
             <FaChevronLeft className="inline" />
           </button>
@@ -65,11 +64,10 @@ export const ReusableTable = ({
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === pageNum
-                    ? "bg-indigo-800 text-white"
-                    : "bg-white text-gray-600 hover:bg-gray-100"
-                }`}
+                className={`px-3 py-1 rounded-md ${currentPage === pageNum
+                  ? "bg-indigo-800 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-100"
+                  }`}
               >
                 {pageNum}
               </button>
@@ -83,11 +81,10 @@ export const ReusableTable = ({
           {totalPages > 5 && currentPage < totalPages - 2 && (
             <button
               onClick={() => handlePageChange(totalPages)}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === totalPages
-                  ? "bg-indigo-800 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 rounded-md ${currentPage === totalPages
+                ? "bg-indigo-800 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
             >
               {totalPages}
             </button>
@@ -96,11 +93,10 @@ export const ReusableTable = ({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === totalPages
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-white text-gray-600 hover:bg-gray-100"
-            }`}
+            className={`px-3 py-1 rounded-md ${currentPage === totalPages
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white text-gray-600 hover:bg-gray-100"
+              }`}
           >
             <FaChevronRight className="inline" />
           </button>
@@ -132,11 +128,9 @@ export const ReusableTable = ({
                   {columns?.map((column, index) => (
                     <th
                       key={index}
-                      className={`${
-                        column.className ? column.className : ""
-                      } py-2 px-1.5 font-medium text-[13px] ${
-                        column.header !== "" ? "border border-white/50" : ""
-                      } text-start`}
+                      className={`${column.className ? column.className : ""
+                        } py-2 px-1.5 font-medium text-[13px] ${column.header !== "" ? "border border-white/50" : ""
+                        } text-start`}
                     >
                       <span>{column.header}</span>
                     </th>
@@ -158,20 +152,17 @@ export const ReusableTable = ({
                   currentItems?.map((item, index) => (
                     <tr
                       key={item.id}
-                      className={`hover:bg-gray-50 transition-colors border-b   border-gray-200 text-[12px] ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-100"
-                      }`}
+                      className={`hover:bg-gray-50 transition-colors border-b   border-gray-200 text-[12px] ${index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                        }`}
                     >
                       {columns?.map((column, colIndex) => (
                         <td
                           key={colIndex}
-                          className={` ${
-                            column.className ? column.className : ""
-                          } ${
-                            column.header !== ""
+                          className={` ${column.className ? column.className : ""
+                            } ${column.header !== ""
                               ? "border-r border-white/50"
                               : ""
-                          } h-7 text-start`}
+                            } h-7 text-start`}
                         >
                           {column.accessor(item, index)}
                         </td>
@@ -264,17 +255,17 @@ export const handleOnChange = (event, setValue) => {
 
   setValue(
     valueBeforeCursor +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd) +
-      valueAfterCursor
+    inputValue.slice(inputSelectionStart, inputSelectionEnd) +
+    valueAfterCursor
   );
 
   // Set the cursor position to the end of the input value
   setTimeout(() => {
     event.target.setSelectionRange(
       valueBeforeCursor.length +
-        inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
+      inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
       valueBeforeCursor.length +
-        inputValue.slice(inputSelectionStart, inputSelectionEnd).length
+      inputValue.slice(inputSelectionStart, inputSelectionEnd).length
     );
   });
 };
@@ -309,8 +300,7 @@ export function ReusableInput({
         disabled={disabled}
         className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
           focus:border-indigo-300 focus:outline-none transition-all duration-200
-          hover:border-slate-400 ${
-            readOnly || disabled ? "bg-slate-100" : ""
+          hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
           } ${className}`}
       />
     </div>
@@ -321,7 +311,7 @@ export const DropdownInput = forwardRef(
   (
     {
       name,
-      beforeChange = () => {},
+      beforeChange = () => { },
       onBlur = null,
       options,
       value,
@@ -414,53 +404,77 @@ export const DropdownWithSearch = forwardRef(
       label,
       nextRef = null,
       classNameForOptions, // 👈 next input ref
+      autoFocus
     },
     ref
   ) => {
     // 👈 next input ref
     // console.log(classNameForOptions, "classNameForOptions")
 
-    const [currentIndex, setCurrentIndex] = useState("");
+    // const [currentIndex, setCurrentIndex] = useState("");
     const isFirstRender = useRef(true);
 
+    // useEffect(() => {
+    //   if (ref?.current && isFirstRender.current) {
+    //     ref.current.focus();
+    //     isFirstRender.current = false;
+    //   }
+    // }, []);
     useEffect(() => {
-      if (ref?.current && isFirstRender.current) {
+      if (ref?.current && autoFocus) {
         ref.current.focus();
-        isFirstRender.current = false;
       }
-    }, []);
+    }, [autoFocus]);
+
+
+
 
     // useEffect(() => {
     //   if (!isFirstRender.current && ref?.current === document.activeElement) {
     //     ref.current.blur();
     //   }
     // }, [value]);
-    useEffect(() => setCurrentIndex(Date.now()), []);
+    // useEffect(() => setCurrentIndex(Date.now()), []);
 
+    // useEffect(() => {
+    //   const dropDownElement = document.getElementById(
+    //     `dropdown${currentIndex}`
+    //   );
+    //   if (!dropDownElement) return;
+
+    //   const handleKeyDown = (ev) => {
+    //     if (ev.key === "Enter" || ev.key === "Tab") {
+    //       if (nextRef?.current) {
+    //         nextRef.current.focus();
+    //         ev.preventDefault();
+    //       }
+    //     }
+    //   };
+
+    //   dropDownElement.addEventListener("keydown", handleKeyDown);
+
+    //   return () => {
+    //     dropDownElement.removeEventListener("keydown", handleKeyDown);
+    //   };
+    // }, [currentIndex, nextRef]);
     useEffect(() => {
-      const dropDownElement = document.getElementById(
-        `dropdown${currentIndex}`
-      );
-      if (!dropDownElement) return;
+      if (!ref?.current) return;
 
       const handleKeyDown = (ev) => {
-        if (ev.key === "Enter" || ev.key === "Tab") {
-          if (nextRef?.current) {
-            nextRef.current.focus();
-            ev.preventDefault();
-          }
+        if ((ev.key === "Enter" || ev.key === "Tab") && nextRef?.current) {
+          nextRef.current.focus();
+          ev.preventDefault();
         }
       };
 
-      dropDownElement.addEventListener("keydown", handleKeyDown);
+      ref.current.addEventListener("keydown", handleKeyDown);
 
       return () => {
-        dropDownElement.removeEventListener("keydown", handleKeyDown);
+        ref.current?.removeEventListener("keydown", handleKeyDown);
       };
-    }, [currentIndex, nextRef]);
-
+    }, [nextRef, ref]);
     return (
-      <div id={`dropdown${currentIndex}`} className={` `}>
+      <div className={` `}>
         {label && (
           <label className="block text-xs font-bold text-slate-700 mb-1">
             {required ? <RequiredLabel name={label} /> : `${label}`}
@@ -469,7 +483,7 @@ export const DropdownWithSearch = forwardRef(
         <select
           ref={ref}
           className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-     focus:outline-none transition-all duration-200
+     focus:outline-none focus:border-blue-600 transition-all duration-200
      ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
           disabled={disabled}
@@ -772,7 +786,7 @@ export const MultiSelectDropdown = ({
       <MultiSelect
         options={options}
         value={selected}
-        onChange={readOnly ? () => {} : setSelected}
+        onChange={readOnly ? () => { } : setSelected}
         labelledBy="Select"
         hasSelectAll={false}
         // styles={{

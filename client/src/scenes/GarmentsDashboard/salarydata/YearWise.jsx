@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Card, CardContent, CardHeader,useTheme } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, useTheme } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import { useGetMisDashboardErpYearWiseQuery } from "../../../redux/service/misDashboardServiceERP";
@@ -12,6 +12,11 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
   const { data: response, isLoading } = useGetMisDashboardErpYearWiseQuery({
     params: { finYear, companyName },
   });
+const formatINR = (value) =>
+  `₹ ${Number(value).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
   useEffect(() => {
     if (response?.data) {
@@ -45,9 +50,12 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
     legend: { enabled: false },
     tooltip: {
       headerFormat: '<b>{point.key}</b><br/>',
-      pointFormat: `Turnover: <b>{point.y}</b>`,
+      pointFormatter() {
+        return `Turnover: <b>${formatINR(this.y)}</b>`;
+      },
       style: { fontSize: "12px", color: "black" },
     },
+
     xAxis: {
       categories: xdata,
       labels: { style: { fontSize: "11px", color: "#6B7280" } },
@@ -63,7 +71,12 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
         style: { fontSize: "12px", fontWeight: "bold", color: "#374151" },
         margin: 25,
       },
-      labels: { style: { fontSize: "11px", color: "#6B7280" } },
+      labels: {
+        formatter() {
+          return formatINR(this.value);
+        },
+        style: { fontSize: "11px", color: "#6B7280" },
+      },
     },
     plotOptions: {
       column: { depth: 25, colorByPoint: true, borderRadius: 5 },
@@ -84,8 +97,12 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
         data: ydata,
         dataLabels: {
           enabled: true,
+          formatter() {
+            return formatINR(this.y);
+          },
           style: { fontSize: "11px", color: "#333" },
         },
+
       },
     ],
   };
@@ -97,7 +114,7 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
         sx={{
           p: 1,
-         borderBottom: `2px solid ${theme.palette.divider}`,
+          borderBottom: `2px solid ${theme.palette.divider}`,
         }}
       />
       <CardContent>
@@ -106,7 +123,7 @@ const YearWiseTurnover = ({ companyName, finYear }) => {
             Loading...
           </div>
         ) : (
-          <HighchartsReact highcharts={Highcharts} options={options}  immutable />
+          <HighchartsReact highcharts={Highcharts} options={options} immutable />
         )}
       </CardContent>
     </Card>
