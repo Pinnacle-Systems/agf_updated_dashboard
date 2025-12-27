@@ -11,7 +11,7 @@ import {
     FaVenus,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { useGetFabricInwardCustQuery, useGetFabricInwardQuarterNameDetailQuery } from "../../../redux/service/freeLookFabric";
+import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery, useGetFabricInwardStateDetailTransQuery, useGetFabricInwardStateDropdownQuery } from "../../../redux/service/freeLookFabric";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
@@ -20,9 +20,8 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
-import FinYearQuarter from "../../../components/FinYearQuarter";
 
-const CustomerTrans = ({
+const CustomerTransState = ({
     closeTable,
     finYear,
     selectedYear,
@@ -34,22 +33,22 @@ const CustomerTrans = ({
     setFYear,
     selectmonths,
     setSelectmonths,
-    selectQuarter,
-    setSelectQuarter
+    selectState,
+    setSelectState
 }) => {
-    const [search, setSearch] = useState({})
+    const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
-
     const recordsPerPage = 40;
 
-    const { data: cusTransData } = useGetFabricInwardQuarterNameDetailQuery({
+    const { data: cusTransData } = useGetFabricInwardStateDetailTransQuery({
         params: {
             finyear: selectedYear,
             category: category,
-            quarter: selectQuarter
+            customer: custName,
+            state: selectState
         },
     }, {
-        skip: !selectedYear || !category || !selectQuarter
+        skip: !selectedYear || !category
     });
 
     const { data: custNames } = useGetFabricInwardCustQuery({
@@ -61,6 +60,17 @@ const CustomerTrans = ({
     const cusData = custNames?.data.map((custName) => ({
         custName,
     }));
+
+    const { data: stateNames } = useGetFabricInwardStateDropdownQuery({
+        params: {
+            category: category
+        },
+    });
+
+    const stateData = stateNames?.data.map((stateName) => ({
+        stateName,
+    }));
+
 
     useEffect(() => {
         setCurrentPage(1);
@@ -103,7 +113,7 @@ const CustomerTrans = ({
             custName,
             selectedYear,
             selectedMonth: selectmonths,
-            selectQuarter
+            selectState
         });
 
         // 3️⃣ Header Styling (Row 2)
@@ -171,9 +181,6 @@ const CustomerTrans = ({
 
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
-            if (custName && row.custName !== custName) {
-                return false;
-            }
 
             // 🔹 Search filter
             const searchMatch = Object.entries(search).every(([key, value]) => {
@@ -208,6 +215,7 @@ const CustomerTrans = ({
         })
         : [];
 
+
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
         0
@@ -227,6 +235,7 @@ const CustomerTrans = ({
 
     const handleFilterClick = (type) => {
         setCategory(type);
+        setCustName("")
     };
 
     const totalInwardCount = new Set(
@@ -302,19 +311,19 @@ const CustomerTrans = ({
                             <button
                                 onClick={() => handleFilterClick("ALL")}
                                 className={`flex items-center justify-center gap-2 px-1.5 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
-                                    ${category === "ALL"
+        ${category === "ALL"
                                         ? "bg-blue-600 text-white scale-105"
                                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                     }
-                                    focus:outline-none focus:ring-2 focus:ring-blue-400`}
+        focus:outline-none focus:ring-2 focus:ring-blue-400`}
                             >
                                 <DomainIcon fontSize="small" /> ALL
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-16">
-                    <div className="grid grid-cols-4 gap-2">
+                <div className="flex items-center">
+                    <div className="grid grid-cols-5 gap-2">
                         {[
                             { label: "INWARD NO", key: "inwNo" },
                             { label: "ORDER NO", key: "orderNo" },
@@ -336,61 +345,56 @@ const CustomerTrans = ({
                         ))}
                     </div>
                     <div className="flex items-center justify-between mb-1">
-                        <div className="w-48 mr-2">
-                            <DropdownNew
-                                dataList={cusData || []}
-                                value={custName}
-                                setValue={(value) => {
-                                    setCustName(value);
-                                }}
-                                clear={true}
-                                otherField="custName"
-                                otherValue="custName"
-                                placeholder={"Customer"}
-                            />
-                        </div>
-                        <div className="flex items-center w-28 mr-2">
-                            <select
-                                value={selectedYear}
-                                onChange={(e) => setSelectedYear(e.target.value)}
-                                className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-    focus:border-indigo-300 focus:outline-none transition-all duration-200
-    hover:border-slate-400 `}                            >
-                                {finYear?.data?.map((option) => (
-                                    <option key={option.finYear} value={option.finYear}>
-                                        {option.finYear}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex items-center w-28 mr-2">
-                            <select
-                                value={selectQuarter || ""}
-                                autoFocus={true}
-                                onChange={(e) => {
-                                    setSelectQuarter(e.target.value);
-                                    setSelectmonths("")
-                                }}
-                                className="w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-               focus:border-indigo-300 focus:outline-none 
-               hover:border-slate-400"
-                            >
-                                <option value="ALL">Select Quarter</option>
-                                <option value="Q1">Quarter 1</option>
-                                <option value="Q2">Quarter 2</option>
-                                <option value="Q3">Quarter 3</option>
-                                <option value="Q4">Quarter 4</option>
-                            </select>
-                        </div>
-                        <div className="mr-2">
-
-                            <FinYearQuarter
-                                selectedYear={selectedYear}
-                                selectmonths={selectmonths}
-                                setSelectmonths={setSelectmonths}
-                                selectQuarter={selectQuarter}
-                            />
-                        </div>
+                        <div className="flex items-center flex-1"> {/* Add flex-1 */}
+                            <div className="w-40 mr-2">
+                                <DropdownNew
+                                    dataList={cusData || []}
+                                    value={custName}
+                                    setValue={(value) => {
+                                        setCustName(value);
+                                    }}
+                                    clear={true}
+                                    otherField="custName"
+                                    otherValue="custName"
+                                    placeholder={"Customer"}
+                                />
+                            </div>
+                            <div className="flex items-center w-24 mr-2">
+                                <select
+                                    value={selectedYear}
+                                    onChange={(e) => setSelectedYear(e.target.value)}
+                                    className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+          focus:border-indigo-300 focus:outline-none transition-all duration-200
+          hover:border-slate-400`}
+                                >
+                                    {finYear?.data?.map((option) => (
+                                        <option key={option.finYear} value={option.finYear}>
+                                            {option.finYear}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="mr-2">
+                                <FinYear
+                                    selectedYear={selectedYear}
+                                    selectmonths={selectmonths}
+                                    setSelectmonths={setSelectmonths}
+                                />
+                            </div>
+                            <div className="w-40 mr-2">
+                                <DropdownNew
+                                    dataList={stateData || []}
+                                    value={selectState}
+                                    setValue={(value) => {
+                                        setSelectState(value);
+                                    }}
+                                    clear={true}
+                                    otherField="stateName"
+                                    otherValue="stateName"
+                                    autoFocus={true}
+                                    placeholder={"State"}
+                                />
+                            </div>
                         <button
                             onClick={downloadExcel}
                             className="p-0 rounded-full flex justify-center shadow-md hover:brightness-110 transition-all duration-300"
@@ -402,6 +406,8 @@ const CustomerTrans = ({
                                 className="w-7 h-7 rounded-lg"
                             />
                         </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -543,6 +549,6 @@ const CustomerTrans = ({
     );
 };
 
-export default CustomerTrans;
+export default CustomerTransState;
 
 // export default ESIDetailed;

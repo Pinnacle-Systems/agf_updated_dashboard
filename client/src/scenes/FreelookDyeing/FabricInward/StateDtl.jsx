@@ -2,105 +2,114 @@ import { Box, Card, CardContent, CardHeader, Typography, useTheme } from "@mui/m
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useState } from 'react'
-import CustomerTrans from "./CustomerTrans";
-import { useGetFabricInwardCusByMonthDetailQuery } from "../../../redux/service/freeLookFabric";
+import { useGetFabricInwardStateDetailQuery } from "../../../redux/service/freeLookFabric";
+import CustomerTransState from "./CustomerTransState";
 
-const MonthWiseCus = ({
-    selectedYear,
-    setSelectedYear,
-    category,
-    finYear,
-    setCategory,
-    selectmonths,
-    setSelectmonths,
-}) => {
+const StateDetails = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
     const [showTable, setShowTable] = useState(false);
-    const [custName, setCustName] = useState("");
-    const theme = useTheme()
-    const { data: fabricData } = useGetFabricInwardCusByMonthDetailQuery(
+    const [custName, setCustName] = useState('');
+    const [selectState, setSelectState] = useState("")
+    const theme = useTheme();
+    const { data: fabricData } = useGetFabricInwardStateDetailQuery(
         {
             params: {
                 finyear: selectedYear,
                 category: category,
-                month: selectmonths
             },
         },
         {
-            skip: !selectedYear || !category || !selectmonths,
+            skip: !selectedYear || !category,
         }
     );
 
     const rows = fabricData?.data || [];
 
+    const states = rows.map((r) => r.state);
+
     const totalQty = rows.reduce((sum, r) => sum + Number(r.qty || 0), 0);
-
-    const colors = rows.map(
-        () => "#" + Math.floor(Math.random() * 16777215).toString(16)
-    );
-
-    const formattedData = rows.map((item, i) => ({
-        name: item.customer,
-        y: Number(item.qty || 0),     // Pie uses qty
-        count: item.count,
-        qty: item.qty,
-        color: colors[i],
-    }));
 
     const options = {
         chart: {
-            height: 250,
-            plotBackgroundColor: null,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            spacing: [0, 0, 0, 0],
+            type: "column",
+            height: 260,
+
+            // ONLY left & bottom spacing
+            marginLeft: 30,
+            marginBottom: 100,
+            marginTop: 5,
+            marginRight: 0,
+            spacingLeft: 10,
+            spacingBottom: 10,
+
+            options3d: {
+                enabled: true,
+                alpha: 7,
+                beta: 7,
+                depth: 50,
+                viewDistance: 25,
+            },
+            backgroundColor: "#FFFFFF",
+            borderRadius: 10,
         },
 
-        title: {
-            text: `${selectmonths.split(" ")[0]} Month Inward`,
-            align: "center",
-            verticalAlign: "middle",
-            y: 70,
-            style: { fontSize: ".9em" },
+        title: null,
+        legend: { enabled: false },
+
+        xAxis: {
+            categories: states,
+            labels: {
+                style: { fontSize: "10px", color: "#6B7280" },
+                rotation: 90,
+            },
+        },
+
+        yAxis: {
+            title: {
+                text: "Qty",
+                style: { fontSize: "12px", fontWeight: 600 },
+            },
         },
 
         tooltip: {
             useHTML: true,
             formatter: function () {
                 return `
-        <b>${this.point.name}</b>
-        <table style="margin-top:4px;">
-          <tr>
-            <td>Qty (kgs)</td>
-            <td style="padding:0 6px;">:</td>
-            <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
-          </tr>
-        </table>
-      `;
+      <b>${this.point.name}</b>
+      <table style="margin-top:4px;">
+        <tr>
+          <td>Qty (kgs)</td>
+          <td style="padding:0 6px;">:</td>
+          <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
+        </tr>
+        
+      </table>
+    `;
             },
         },
 
         plotOptions: {
-            pie: {
+            column: {
+                depth: 25,
+                colorByPoint: true,
+                borderRadius: 5,
+                pointWidth: 30,
+            },
+            series: {
                 dataLabels: {
-                    enabled: true,
-                    distance: -50,
-                    style: {
-                        fontWeight: "bold",
-                        color: "#ffffff",
-                    },
+                    enabled: false,
                     formatter: function () {
-                        return this.point.name.split(" ")[0];
+                        return this.y.toLocaleString("en-IN");
+                    },
+                    style: {
+                        fontSize: "10px",
+                        fontWeight: "normal",
                     },
                 },
-                startAngle: -90,
-                endAngle: 90,
-                center: ["50%", "90%"],
-                size: "180%",
-                innerSize: "60%",
                 point: {
                     events: {
                         click: function () {
-                            setCustName(this.name);
+                            setSelectState(this.name);
+                            setSelectmonths("")
                             setShowTable(true);
                         },
                     },
@@ -110,21 +119,22 @@ const MonthWiseCus = ({
 
         series: [
             {
-                type: "pie",
-                name: "Customer Share",
-                data: formattedData,
+                name: "State",
+                data: rows.map((item) => ({
+                    name: item.state,
+                    y: Number(item.qty || 0), // Count
+                    qty: Number(item.qty || 0), // Qty for tooltip
+                })),
             },
         ],
 
         credits: { enabled: false },
     };
 
-
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                // title={`${selectmonths} Contribution`}
-                title={"Month Detail"}
+                title="State wise Contribution"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -154,7 +164,7 @@ const MonthWiseCus = ({
                 </Box>
             </CardContent>
             {showTable && (
-                <CustomerTrans
+                <CustomerTransState
                     closeTable={() => setShowTable(false)}
                     finYear={finYear}
                     selectedYear={selectedYear}
@@ -165,6 +175,8 @@ const MonthWiseCus = ({
                     setCustName={setCustName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
+                    selectState={selectState}
+                    setSelectState={setSelectState}
                 />
             )}
         </Card>
@@ -172,5 +184,4 @@ const MonthWiseCus = ({
 };
 
 
-
-export default MonthWiseCus
+export default StateDetails

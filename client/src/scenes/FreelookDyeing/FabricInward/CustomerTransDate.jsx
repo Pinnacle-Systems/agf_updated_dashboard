@@ -11,18 +11,17 @@ import {
     FaVenus,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { useGetFabricInwardCustQuery, useGetFabricInwardQuarterNameDetailQuery } from "../../../redux/service/freeLookFabric";
+import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery } from "../../../redux/service/freeLookFabric";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
-import { DropdownNew } from "../../../utils/hleper";
+import { DateInput, DropdownNew } from "../../../utils/hleper";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
-import FinYearQuarter from "../../../components/FinYearQuarter";
 
-const CustomerTrans = ({
+const CustomerTransDate = ({
     closeTable,
     finYear,
     selectedYear,
@@ -34,22 +33,21 @@ const CustomerTrans = ({
     setFYear,
     selectmonths,
     setSelectmonths,
-    selectQuarter,
-    setSelectQuarter
+    selectedDate,
+    setSelectedDate
 }) => {
-    const [search, setSearch] = useState({})
+    const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
-
     const recordsPerPage = 40;
 
-    const { data: cusTransData } = useGetFabricInwardQuarterNameDetailQuery({
+    const { data: cusTransData } = useGetFabricInwardByCusNameQuery({
         params: {
             finyear: selectedYear,
             category: category,
-            quarter: selectQuarter
+            customer: custName
         },
     }, {
-        skip: !selectedYear || !category || !selectQuarter
+        skip: !selectedYear || !category
     });
 
     const { data: custNames } = useGetFabricInwardCustQuery({
@@ -103,7 +101,7 @@ const CustomerTrans = ({
             custName,
             selectedYear,
             selectedMonth: selectmonths,
-            selectQuarter
+            selectedDate
         });
 
         // 3️⃣ Header Styling (Row 2)
@@ -169,44 +167,71 @@ const CustomerTrans = ({
         saveAs(new Blob([buffer]), "Fabric Inward Details.xlsx");
     };
 
+    const parseDDMMYYYY = (dateStr) => {
+        if (!dateStr) return null;
+        const [dd, mm, yyyy] = dateStr.split("/").map(Number);
+        if (!dd || !mm || !yyyy) return null;
+        return new Date(yyyy, mm - 1, dd);
+    };
+
+    const parseISO = (dateStr) => {
+        if (!dateStr) return null;
+        const [yyyy, mm, dd] = dateStr.split("-").map(Number);
+        if (!dd || !mm || !yyyy) return null;
+        return new Date(yyyy, mm - 1, dd);
+    };
+
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
-            if (custName && row.custName !== custName) {
-                return false;
-            }
 
-            // 🔹 Search filter
+            /* 🔹 SEARCH FILTER */
             const searchMatch = Object.entries(search).every(([key, value]) => {
                 if (!value) return true;
-                return row[key]?.toString().toLowerCase().includes(value.toLowerCase());
+                return row[key]
+                    ?.toString()
+                    .toLowerCase()
+                    .includes(value.toLowerCase());
             });
             if (!searchMatch) return false;
 
-            // 🔹 Month filter
-            if (!selectmonths) return true;
+            /* 🔹 DATE FILTER (NEW ✅) */
+            if (selectedDate) {
+                const rowDate = parseDDMMYYYY(row.inwDate);
+                const selected = parseISO(selectedDate);
 
-            // ✅ Parse DD/MM/YYYY safely
-            const [day, month, year] = row.inwDate.split("/").map(Number);
-            const invDate = new Date(year, month - 1, day);
+                if (!rowDate || !selected) return false;
 
-            if (isNaN(invDate.getTime())) return false;
+                // compare only date (ignore time)
+                if (rowDate.toDateString() !== selected.toDateString()) {
+                    return false;
+                }
+            }
 
-            // Selected month/year
-            const [monthName, yearStr] = selectmonths.split(" ");
-            const selectedYear = parseInt(yearStr);
+            /* 🔹 MONTH FILTER (EXISTING) */
+            if (selectmonths) {
+                const rowDate = parseDDMMYYYY(row.inwDate);
+                if (!rowDate) return false;
 
-            const monthMap = {
-                January: 0, February: 1, March: 2, April: 3,
-                May: 4, June: 5, July: 6, August: 7,
-                September: 8, October: 9, November: 10, December: 11
-            };
+                const [monthName, yearStr] = selectmonths.split(" ");
+                const monthMap = {
+                    January: 0, February: 1, March: 2, April: 3,
+                    May: 4, June: 5, July: 6, August: 7,
+                    September: 8, October: 9, November: 10, December: 11
+                };
 
-            return (
-                invDate.getMonth() === monthMap[monthName] &&
-                invDate.getFullYear() === selectedYear
-            );
+                if (
+                    rowDate.getMonth() !== monthMap[monthName] ||
+                    rowDate.getFullYear() !== Number(yearStr)
+                ) {
+                    return false;
+                }
+            }
+
+            return true;
         })
         : [];
+
+
 
     const totalNetPay = filteredData.reduce(
         (sum, row) => sum + (Number(row.PF) || 0),
@@ -227,11 +252,13 @@ const CustomerTrans = ({
 
     const handleFilterClick = (type) => {
         setCategory(type);
+        setCustName("")
     };
 
     const totalInwardCount = new Set(
         filteredData.map(row => row.inwNo)
-    ).size;
+    ).size
+
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -302,19 +329,19 @@ const CustomerTrans = ({
                             <button
                                 onClick={() => handleFilterClick("ALL")}
                                 className={`flex items-center justify-center gap-2 px-1.5 py-1 text-xs font-semibold rounded-full shadow-md transition-all 
-                                    ${category === "ALL"
+        ${category === "ALL"
                                         ? "bg-blue-600 text-white scale-105"
                                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                                     }
-                                    focus:outline-none focus:ring-2 focus:ring-blue-400`}
+        focus:outline-none focus:ring-2 focus:ring-blue-400`}
                             >
                                 <DomainIcon fontSize="small" /> ALL
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-16">
-                    <div className="grid grid-cols-4 gap-2">
+                <div className="flex items-center">
+                    <div className="grid grid-cols-5 gap-2">
                         {[
                             { label: "INWARD NO", key: "inwNo" },
                             { label: "ORDER NO", key: "orderNo" },
@@ -346,12 +373,13 @@ const CustomerTrans = ({
                                 clear={true}
                                 otherField="custName"
                                 otherValue="custName"
-                                placeholder={"Customer"}
+                                 placeholder={"Customer"}
                             />
                         </div>
                         <div className="flex items-center w-28 mr-2">
                             <select
                                 value={selectedYear}
+                                // autoFocus={true}
                                 onChange={(e) => setSelectedYear(e.target.value)}
                                 className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
     focus:border-indigo-300 focus:outline-none transition-all duration-200
@@ -363,32 +391,18 @@ const CustomerTrans = ({
                                 ))}
                             </select>
                         </div>
-                        <div className="flex items-center w-28 mr-2">
-                            <select
-                                value={selectQuarter || ""}
-                                autoFocus={true}
-                                onChange={(e) => {
-                                    setSelectQuarter(e.target.value);
-                                    setSelectmonths("")
-                                }}
-                                className="w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-               focus:border-indigo-300 focus:outline-none 
-               hover:border-slate-400"
-                            >
-                                <option value="ALL">Select Quarter</option>
-                                <option value="Q1">Quarter 1</option>
-                                <option value="Q2">Quarter 2</option>
-                                <option value="Q3">Quarter 3</option>
-                                <option value="Q4">Quarter 4</option>
-                            </select>
-                        </div>
                         <div className="mr-2">
-
-                            <FinYearQuarter
+                            <FinYear
                                 selectedYear={selectedYear}
                                 selectmonths={selectmonths}
                                 setSelectmonths={setSelectmonths}
-                                selectQuarter={selectQuarter}
+                            />
+                        </div>
+                        <div className="mr-2">
+                            <DateInput
+                                value={selectedDate}
+                                setValue={setSelectedDate}
+                                autoFocus={true}
                             />
                         </div>
                         <button
@@ -543,6 +557,6 @@ const CustomerTrans = ({
     );
 };
 
-export default CustomerTrans;
+export default CustomerTransDate;
 
 // export default ESIDetailed;

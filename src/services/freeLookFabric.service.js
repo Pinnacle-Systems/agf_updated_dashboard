@@ -182,7 +182,6 @@ ORDER BY CUSTNAME
       { CCATEGORY: category },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    console.log("result", result);
     const data = result.rows.map((row) => row.CUSTNAME);
 
     return res.json({ statusCode: 0, data });
@@ -462,12 +461,163 @@ ORDER BY TO_NUMBER(TO_CHAR(DOCDATE,'DD'))`,
       { FINYR: finyear, CCATEGORY: category, MONTHCHAR: monthOnly },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    console.log("resukt", result);
-    console.log(monthOnly,"monthonly")
     const data = result.rows.map((item) => ({
       inwDate: item.INWDATE,
       qty: item.QTY,
     }));
+
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardState(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+    const { finyear, category } = req.query;
+
+    const result = await connection.execute(
+      `SELECT DISTINCT CUSTSTATE,
+SUM(QTY) QTY
+FROM FABRIC_INWARD_DATA
+  WHERE FINYR = :FINYR AND
+  ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+GROUP BY CUSTSTATE`,
+      { FINYR: finyear, CCATEGORY: category },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const data = result.rows.map((item) => ({
+      state: item.CUSTSTATE,
+      qty: item.QTY,
+    }));
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardStateDetail(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+    const { finyear, category, state } = req.query;
+
+    const result = await connection.execute(
+      `SELECT DISTINCT DOCID AS INWNO,
+        TO_CHAR(DOCDATE, 'DD/MM/YYYY') AS INWDATE,
+                ORDERNO,
+                CUSTNAME,
+                FABNAME,
+                DIA,
+                UNITNAME,
+                CUSTSTATE,
+                QTY
+FROM FABRIC_INWARD_DATA
+WHERE FINYR = :FINYR AND 
+ ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND
+ ( :CUSTSTATE = 'ALL' OR CUSTSTATE = :CUSTSTATE ) 
+ORDER BY 1,2,3,4,5,6,7,8`,
+      { FINYR: finyear, CCATEGORY: category, CUSTSTATE: state },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const data = result.rows.map((item) => ({
+      inwNo: item.INWNO,
+      inwDate: item.INWDATE,
+      orderNo: item.ORDERNO,
+      custName: item.CUSTNAME,
+      fabName: item.FABNAME,
+      dia: item.DIA,
+      uom: item.UNITNAME,
+      qty: item.QTY,
+      state: item.CUSTSTATE,
+    }));
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabInwardStateDropdown(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+    const { category } = req.query;
+
+    const result = await connection.execute(
+      `SELECT DISTINCT CUSTSTATE
+FROM FABRIC_INWARD_DATA
+WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+ORDER BY CUSTSTATE
+      `,
+      { CCATEGORY: category },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const data = result.rows.map((row) => row.CUSTSTATE);
 
     return res.json({ statusCode: 0, data });
   } catch (err) {

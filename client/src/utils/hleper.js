@@ -1,5 +1,8 @@
 import moment from "moment";
+import { forwardRef } from "react";
 import secureLocalStorage from "react-secure-storage";
+import { useState, useRef, useEffect } from "react";
+import { FaChevronDown, FaChevronUp, FaSearch } from "react-icons/fa";
 import Select from "react-select";
 export const addInsightsRow = ({
   worksheet,
@@ -101,17 +104,21 @@ export const addInsightsfreelookRow = ({
   category,
   custName,
   selectedYear,
-
+  selectQuarter,
   selectedMonth,
+  selectedDate,
+  selectState,
 }) => {
   const insightText =
     `Customer -  ${custName || ""}    |    ` +
     `Fin Year :  ${selectedYear || ""}    |    ` +
+    (selectQuarter ? `Quarter : ${selectQuarter}    |    ` : "") +
     `Month :  ${selectedMonth || ""}   |   ` +
-    `Fabric category :  ${category || ""} `;
-
-  // Insert insights row
-  worksheet.insertRow(startRow, [insightText]);
+    `Fabric category :  ${category || ""}  |   ` +
+    (selectedDate ? `Date : ${selectedDate}   ` : "") +
+    (selectState ? `State : ${selectState}    ` : "") 
+    // Insert insights row
+    worksheet.insertRow(startRow, [insightText]);
 
   // 🔒 MUST match title merge range (A1:F1 → A2:F2)
   const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
@@ -760,7 +767,7 @@ export const DropdownNew = ({
   const selectedOption = options.find((opt) => opt.value === value) || null;
   const widthClass = width === "full" ? "w-full" : `w-${width}`;
   return (
-    <div className={`${name ? "mb-2" : "mb-0"} w-${widthClass}`}>
+    <div className={`${name ? "mb-2" : "mb-0"} ${widthClass}`}>
       {name && (
         <label className="block text-xs font-bold text-slate-700 mb-1">
           {required ? (
@@ -793,3 +800,545 @@ export const DropdownNew = ({
     </div>
   );
 };
+
+// export const DropdownNew = ({
+//   name,
+//   dataList,
+//   value,
+//   setValue,
+//   readonly = false,
+//   disabled = false,
+//   required = false,
+//   clear = false,
+//   placeholder,
+//   width = "full",
+//   otherField,
+//   otherValue,
+//   onKeyDown,
+//   autoFocus,
+// }) => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [search, setSearch] = useState("");
+//   const [filteredOptions, setFilteredOptions] = useState([]);
+//   const [hasFocus, setHasFocus] = useState(false);
+//   const dropdownRef = useRef(null);
+//   const triggerRef = useRef(null);
+//   const searchInputRef = useRef(null);
+
+//   // Auto focus on mount
+//   useEffect(() => {
+//     if (autoFocus && triggerRef.current) {
+//       triggerRef.current.focus();
+//       setHasFocus(true);
+//     }
+//   }, [autoFocus]);
+
+//   // Generate options
+//   const options = [
+//     ...(clear
+//       ? [
+//           {
+//             value: "",
+//             label: `Select ${name || placeholder || "Option"}`,
+//           },
+//         ]
+//       : []),
+//     ...(dataList?.map((item) => ({
+//       value: otherValue ? item?.[otherValue] : item?.id,
+//       label: otherField ? item?.[otherField] : item?.name,
+//     })) || []),
+//   ];
+
+//   // Find selected option
+//   const selectedOption = options.find((opt) => opt.value === value);
+
+//   // Filter options based on search
+//   useEffect(() => {
+//     if (search) {
+//       const filtered = options.filter((option) =>
+//         option.label.toLowerCase().includes(search.toLowerCase())
+//       );
+//       setFilteredOptions(filtered);
+//     } else {
+//       setFilteredOptions(options);
+//     }
+//   }, [search, options]);
+
+//   // Close dropdown when clicking outside
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+//         setIsOpen(false);
+//         setSearch("");
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Focus search input when dropdown opens
+//   useEffect(() => {
+//     if (isOpen && searchInputRef.current) {
+//       setTimeout(() => searchInputRef.current?.focus(), 100);
+//     }
+//   }, [isOpen]);
+
+//   const handleSelect = (option) => {
+//     setValue(option.value);
+//     setIsOpen(false);
+//     setSearch("");
+//     // Focus back on trigger after selection
+//     if (triggerRef.current) {
+//       setTimeout(() => triggerRef.current.focus(), 0);
+//     }
+//   };
+
+//   const handleToggle = () => {
+//     if (!disabled && !readonly) {
+//       setIsOpen(!isOpen);
+//       if (!isOpen) {
+//         setSearch("");
+//       }
+//     }
+//   };
+
+//   // Handle focus events
+//   const handleTriggerFocus = () => {
+//     setHasFocus(true);
+//   };
+
+//   const handleTriggerBlur = () => {
+//     setHasFocus(false);
+//   };
+
+//   const handleInputKeyDown = (e) => {
+//     if (e.key === "Enter" && filteredOptions.length > 0) {
+//       handleSelect(filteredOptions[0]);
+//     } else if (e.key === "Escape") {
+//       setIsOpen(false);
+//       setSearch("");
+//       // Focus back on trigger
+//       if (triggerRef.current) {
+//         triggerRef.current.focus();
+//       }
+//     }
+//   };
+
+//   const widthClass = width === "full" ? "w-full" : `w-${width}`;
+
+//   return (
+//     <div
+//       className={`${name ? "mb-2" : "mb-0"} ${widthClass}`}
+//       ref={dropdownRef}
+//     >
+//       {name && (
+//         <label className="block text-xs font-bold text-slate-700 mb-1">
+//           {required ? (
+//             <>
+//               {name} <span className="text-red-500">*</span>
+//             </>
+//           ) : (
+//             name
+//           )}
+//         </label>
+//       )}
+
+//       <div className="relative">
+//         {/* Main input field */}
+//         <div
+//           ref={triggerRef}
+//           tabIndex={disabled || readonly ? -1 : 0}
+//           onClick={handleToggle}
+//           onFocus={handleTriggerFocus}
+//           onBlur={handleTriggerBlur}
+//           className={`
+//             w-full px-3 py-2 text-xs rounded-lg border
+//             font-poppins font-normal
+//             transition-all duration-150 shadow-sm h-7
+//             flex items-center justify-between
+//             ${disabled || readonly ? "cursor-not-allowed" : "cursor-pointer"}
+//             ${disabled || readonly ? "bg-gray-100" : "bg-white"}
+//             ${disabled || readonly ? "text-gray-500" : "text-black"}
+//             ${
+//               hasFocus
+//                 ? "border-blue-300 ring-1 ring-blue-300"
+//                 : "border-gray-300"
+//             }
+//             hover:border-gray-400
+//             focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+//           `}
+//         >
+//           <span className="truncate">
+//             {selectedOption?.label || placeholder || "Select..."}
+//           </span>
+//           {!disabled && !readonly && (
+//             <span className="text-gray-500 ml-2">
+//               {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+//             </span>
+//           )}
+//         </div>
+
+//         {/* Dropdown menu - Only opens on click, not on focus */}
+//         {isOpen && !disabled && !readonly && (
+//           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-hidden flex flex-col">
+//             {/* Search input */}
+//             <div className="p-2 border-b">
+//               <div className="relative">
+//                 <input
+//                   ref={searchInputRef}
+//                   type="text"
+//                   value={search}
+//                   onChange={(e) => setSearch(e.target.value)}
+//                   onKeyDown={handleInputKeyDown}
+//                   placeholder="Search..."
+//                   className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+//                 />
+//                 <FaSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs" />
+//               </div>
+//             </div>
+
+//             {/* Options list */}
+//             <div className="overflow-y-auto max-h-48">
+//               {filteredOptions.length > 0 ? (
+//                 filteredOptions.map((option) => (
+//                   <div
+//                     key={option.value}
+//                     onClick={() => handleSelect(option)}
+//                     className={`
+//                       px-3 py-2 text-xs cursor-pointer transition-colors
+//                       hover:bg-blue-50
+//                       ${option.value === value ? "bg-blue-100 font-medium" : ""}
+//                       ${
+//                         option.disabled
+//                           ? "text-gray-400 cursor-not-allowed"
+//                           : ""
+//                       }
+//                     `}
+//                   >
+//                     {option.label}
+//                   </div>
+//                 ))
+//               ) : (
+//                 <div className="px-3 py-2 text-xs text-gray-500 text-center">
+//                   No options found
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+export const handleOnChange = (event, setValue) => {
+  const inputValue = event.target.value;
+  const inputSelectionStart = event.target.selectionStart;
+  const inputSelectionEnd = event.target.selectionEnd;
+
+  const upperCaseValue = inputValue.toUpperCase();
+
+  const valueBeforeCursor = upperCaseValue.slice(0, inputSelectionStart);
+  const valueAfterCursor = upperCaseValue.slice(inputSelectionEnd);
+
+  setValue(
+    valueBeforeCursor +
+      inputValue.slice(inputSelectionStart, inputSelectionEnd) +
+      valueAfterCursor
+  );
+
+  // Set the cursor position to the end of the input value
+  setTimeout(() => {
+    event.target.setSelectionRange(
+      valueBeforeCursor.length +
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
+      valueBeforeCursor.length +
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length
+    );
+  });
+};
+
+export function ReusableInput({
+  setValue,
+  label,
+  type,
+  value,
+  className = "",
+  placeholder,
+  readOnly,
+  disabled,
+  autoFocus,
+  onKeyDown,
+  required,
+}) {
+  const handleDateChange = (e) => {
+    const dateValue = e.target.value;
+    if (type === "date" && dateValue) {
+      // Convert YYYY-MM-DD to DD/MM/YYYY for display
+      const [year, month, day] = dateValue.split("-");
+      // But store as YYYY-MM-DD for the actual value
+      setValue(dateValue);
+    } else {
+      setValue(e.target.value);
+    }
+  };
+
+  const formatDateForDisplay = (dateStr) => {
+    if (type === "date" && dateStr) {
+      // Convert YYYY-MM-DD to DD/MM/YYYY
+      if (dateStr.includes("-")) {
+        const [year, month, day] = dateStr.split("-");
+        return `${day}/${month}/${year}`;
+      }
+      return dateStr;
+    }
+    return dateStr || "";
+  };
+
+  const handleOnChange = (e, setter) => {
+    setter(e.target.value);
+  };
+
+  return (
+    <div className="mb-2">
+      {required ? (
+        <span className="text-xs text-slate-700 font-bold mb-1 block">
+          {label} <span className="text-red-500">*</span>
+        </span>
+      ) : (
+        <span className="text-xs text-slate-700 font-bold mb-1 block">
+          {label}
+        </span>
+      )}
+
+      {type === "date" ? (
+        <div className="relative">
+          <input
+            type="text"
+            value={formatDateForDisplay(value)}
+            onChange={(e) => {
+              const inputVal = e.target.value;
+              // Allow DD/MM/YYYY input
+              if (/^\d{0,2}\/?\d{0,2}\/?\d{0,4}$/.test(inputVal)) {
+                setValue(inputVal);
+              }
+            }}
+            placeholder="DD/MM/YYYY"
+            readOnly={readOnly}
+            onKeyDown={onKeyDown}
+            disabled={disabled}
+            className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+              focus:border-indigo-300 focus:outline-none transition-all duration-200
+              hover:border-slate-400 ${
+                readOnly || disabled ? "bg-slate-100" : ""
+              } ${className}`}
+            autoFocus={autoFocus}
+          />
+          {/* Optional: Add a date picker icon */}
+          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+            📅
+          </span>
+        </div>
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={(e) =>
+            type === "number"
+              ? setValue(e.target.value)
+              : handleOnChange(e, setValue)
+          }
+          placeholder={placeholder}
+          readOnly={readOnly}
+          onKeyDown={onKeyDown}
+          disabled={disabled}
+          className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
+            focus:border-indigo-300 focus:outline-none transition-all duration-200
+            hover:border-slate-400 ${
+              readOnly || disabled ? "bg-slate-100" : ""
+            } ${className}`}
+          autoFocus={autoFocus}
+        />
+      )}
+    </div>
+  );
+}
+
+export const DateInput = forwardRef(
+  (
+    {
+      name,
+      value,
+      setValue,
+      readOnly,
+      required = false,
+      type = "date",
+      disabled = false,
+      tabIndex = null,
+      inputClass = "",
+      inputHead = null,
+      autoFocus,
+    },
+    ref
+  ) => {
+    return (
+      <div className="flex flex-col gap-1 w-full">
+        {name && (
+          <label className="block text-xs font-semibold text-slate-700 ">
+            {inputHead ?? name}
+          </label>
+        )}
+
+        <div className="relative">
+          <input
+            id={name}
+            ref={ref}
+            name={name}
+            type={type}
+            tabIndex={tabIndex}
+            disabled={disabled}
+            required={required}
+            readOnly={readOnly}
+            autoFocus={autoFocus}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className={`
+         w-[120px] px-2 py-0.5 text-xs text-[12px] h-6 border input-font border-gray-300 rounded-lg
+          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          transition-all duration-150 shadow-sm
+            ${
+              readOnly
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : "bg-white"
+            }
+            ${disabled ? "opacity-50 bg-gray-100 cursor-not-allowed" : ""}
+            ${inputClass}
+          `}
+          />
+        </div>
+      </div>
+    );
+  }
+);
+
+export const customStyles = {
+  control: (base) => ({
+    ...base,
+    border: "none",
+    boxShadow: "none",
+    backgroundColor: "transparent",
+    minHeight: "unset",
+    height: "20px",
+    fontSize: "12px",
+    cursor: "pointer",
+  }),
+
+  placeholder: (base) => ({
+    ...base,
+    color: "#9ca3af", // Tailwind gray-400
+    fontSize: "12px",
+  }),
+
+  singleValue: (base) => ({
+    ...base,
+    fontSize: "12px",
+    color: "black",
+  }),
+
+  valueContainer: (base) => ({
+    ...base,
+    padding: "0 4px",
+    height: "20px",
+  }),
+
+  dropdownIndicator: (base) => ({
+    ...base,
+    padding: 0,
+    paddingRight: 2,
+    svg: {
+      width: 14,
+      height: 14,
+    },
+    color: "black",
+  }),
+
+  indicatorSeparator: () => ({
+    display: "none",
+  }),
+
+  input: (base) => ({
+    ...base,
+    margin: 0,
+    padding: 0,
+    fontSize: "12px",
+    color: "black",
+  }),
+
+  clearIndicator: () => ({
+    display: "none",
+  }),
+
+  option: (base, state) => ({
+    ...base,
+    fontSize: "12px",
+    padding: "4px 6px", // reduce inside padding
+    minHeight: "18px", // reduce height
+    lineHeight: "18px",
+    backgroundColor: state.isSelected
+      ? "#d1d5db" // gray-200
+      : state.isFocused
+      ? "#e5e7eb" // gray-100
+      : "white",
+    color: "black",
+  }),
+
+  menu: (base) => ({
+    ...base,
+    zIndex: 9999,
+    fontSize: "12px",
+  }),
+  menuList: (base) => ({
+    ...base,
+    maxHeight: "120px", // 🔥 reduce dropdown height
+    paddingTop: 0,
+    paddingBottom: 0,
+  }),
+};
+
+export default function FxSelect({
+  value,
+  onChange,
+  options,
+  placeholder = "",
+  readOnly = false,
+  onBlur,
+  onKeyDown,
+  inputId,
+}) {
+  return (
+    <Select
+      styles={customStyles}
+      onInputChange={(value, { action }) => {
+        if (action === "input-change") {
+          return value.toUpperCase(); //  force uppercase typing
+        }
+        return value;
+      }}
+      components={{
+        // DropdownIndicator: () => null,
+        IndicatorSeparator: () => null, // remove separator
+      }}
+      isClearable
+      isDisabled={readOnly}
+      options={options}
+      value={options.find((opt) => opt.value === value) || null}
+      onChange={(selected) => onChange(selected?.value || "")}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+      menuPortalTarget={document.body}
+      inputId={inputId}
+    />
+  );
+}

@@ -1,8 +1,10 @@
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, Typography, useTheme } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from 'highcharts';
 import { useState } from 'react'
 import { useGetFabricInwardMonthDateQuery, useGetFabricInwardMonthDetailQuery } from "../../../redux/service/freeLookFabric";
+import CustomerTrans from "./CustomerTrans";
+import CustomerTransDate from "./CustomerTransDate";
 
 const FabricMonthDate = ({
     selectedYear,
@@ -13,9 +15,10 @@ const FabricMonthDate = ({
     selectmonths,
     setSelectmonths,
 }) => {
+    const theme = useTheme();
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState("");
-
+    const [selectedDate, setSelectedDate] = useState("")
     const { data: fabricData } = useGetFabricInwardMonthDateQuery(
         {
             params: {
@@ -34,14 +37,45 @@ const FabricMonthDate = ({
     // 🔹 Clean month names (remove spaces)
     const Months = rows.map((r) => r.inwDate);
     const QtyData = rows.map((r) => Number(r.qty || 0));
+    const totalQty = rows.reduce((sum, r) => sum + Number(r.qty || 0), 0);
 
-    const normalizeMonth = (m) =>
-        m.charAt(0).toUpperCase() + m.slice(1).toLowerCase();
+    const buildDates = (day, monthName, finYear) => {
+        const monthMap = {
+            JANUARY: "01",
+            FEBRUARY: "02",
+            MARCH: "03",
+            APRIL: "04",
+            MAY: "05",
+            JUNE: "06",
+            JULY: "07",
+            AUGUST: "08",
+            SEPTEMBER: "09",
+            OCTOBER: "10",
+            NOVEMBER: "11",
+            DECEMBER: "12",
+        };
+
+        const month = monthMap[monthName.toUpperCase()];
+        if (!month) return { isoDate: "", displayDate: "" };
+
+        // Financial year handling
+        const [fyStart, fyEnd] = finYear.split("-");
+        const year =
+            Number(month) >= 4 ? `20${fyStart}` : `20${fyEnd}`;
+
+        const dd = day.padStart(2, "0");
+
+        return {
+            isoDate: `${year}-${month}-${dd}`,
+            displayDate: `${dd}/${month}/${year}`,
+        };
+    };
+
 
     const options = {
         chart: {
             type: "line",
-            height: 290,
+            height: 260,
             backgroundColor: "#f5f5f5",
             marginBottom: 90,
         },
@@ -113,11 +147,15 @@ const FabricMonthDate = ({
                 point: {
                     events: {
                         click: function () {
-                            // const monthName = this.category; // "JULY"
-                            // const correctMonth = getFinYearMonth(monthName, selectedYear);
-                            // setSelectmonths(correctMonth);
-                            // console.log(correctMonth)
-                            // // setShowTable(true);
+                            const day = this.category; // "02", "03", etc
+                            const monthName = selectmonths.split(" ")[0]; // "JULY"
+                            const { isoDate, displayDate } = buildDates(
+                                day,
+                                monthName,
+                                selectedYear
+                            );
+                            setSelectedDate(isoDate); 
+                            setShowTable(true);
                         },
                     },
                 },
@@ -130,7 +168,7 @@ const FabricMonthDate = ({
                 data: QtyData,
                 color: "#DC2626",           // Emerald Green
                 marker: {
-                   fillColor: "#DC2626",
+                    fillColor: "#DC2626",
                     lineWidth: 2,
                     lineColor: "#7F1D1D",   // Dark green border
                 },
@@ -156,8 +194,39 @@ const FabricMonthDate = ({
 
             <CardContent>
                 <HighchartsReact highcharts={Highcharts} options={options} />
+                <Box
+                    sx={{
+                        bgcolor: "background.default",
+                        borderRadius: 3,
+                        textAlign: "center",
+                        border: `1px solid ${theme.palette.divider}`,
+                        p: 1,
+                    }}
+                >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {selectmonths.split(" ")[0]} Month Inward Qty : {totalQty.toLocaleString("en-IN", {
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                        })}
+                    </Typography>
+                </Box>
             </CardContent>
-
+            {showTable && (
+                <CustomerTransDate
+                    closeTable={() => setShowTable(false)}
+                    finYear={finYear}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    category={category}
+                    setCategory={setCategory}
+                    custName={custName}
+                    setCustName={setCustName}
+                    selectmonths={selectmonths}
+                    setSelectmonths={setSelectmonths}
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                />
+            )}
         </Card>
     );
 };

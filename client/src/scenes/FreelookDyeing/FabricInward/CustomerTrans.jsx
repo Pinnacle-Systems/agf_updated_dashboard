@@ -343,6 +343,7 @@ const CustomerTrans = ({
                                 otherField="custName"
                                 otherValue="custName"
                                 autoFocus={true}
+                                placeholder={"Customer"}
                             />
                         </div>
                         <div className="flex items-center w-28 mr-2">

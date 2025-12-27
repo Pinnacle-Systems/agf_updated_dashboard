@@ -9,6 +9,7 @@ import CustQuarterDtl from "./CustQuarterDtl";
 import MonthWiseCus from "./MonthWiseCus";
 import DomainIcon from '@mui/icons-material/Domain';
 import FabricMonthDate from "./FabricMonthDate";
+import StateDetails from "./StateDtl";
 const FabricInward = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
     const [selectedYear, setSelectedYear] = useState(year);
@@ -126,6 +127,9 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <FabricMonthDate selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <StateDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>

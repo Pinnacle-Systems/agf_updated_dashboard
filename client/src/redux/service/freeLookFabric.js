@@ -138,6 +138,45 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardStateDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardState`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardStateDetailTrans: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardStateDetail`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardStateDropdown: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardStateDropdown`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
     getFabricOutwardDetail: builder.query({
       query: ({ params }) => {
         return {
@@ -180,6 +219,9 @@ export const {
   useGetFabricInwardMonthDateQuery,
   useGetFabricOutwardDetailQuery,
   useGetFabricOutwardCusDetailQuery,
+  useGetFabricInwardStateDetailQuery,
+  useGetFabricInwardStateDetailTransQuery,
+  useGetFabricInwardStateDropdownQuery
 } = freeLookFabric;
 
 export default freeLookFabric;

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getFabInwardStateDropdown,
   getFabricInward,
   getFabricInwardByMonth,
   getFabricInwardByMonthDate,
@@ -8,6 +9,8 @@ import {
   getFabricInwardCusByMonth,
   getFabricInwardCustomer,
   getFabricInwardCustomerByName,
+  getFabricInwardState,
+  getFabricInwardStateDetail,
   getFanInwardCust,
 } from "../services/freeLookFabric.service.js";
 import {
@@ -32,6 +35,10 @@ router.get("/fabricInwardByQuarter", getFabricInwardByQuarter);
 router.get("/fabricInwardByQuarterName", getFabricInwardByQuarterName);
 
 router.get("/fabricInwardByMonthDate", getFabricInwardByMonthDate);
+
+router.get("/fabricInwardState", getFabricInwardState);
+router.get("/fabricInwardStateDetail", getFabricInwardStateDetail);
+router.get("/fabricInwardStateDropdown", getFabInwardStateDropdown);
 
 router.get("/getFabricOutward", getFabricOutward);
 router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);
