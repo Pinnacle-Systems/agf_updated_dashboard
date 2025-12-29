@@ -450,19 +450,23 @@ export async function getFabricInwardByMonthDate(req, res) {
     const { finyear, category, month } = req.query;
     const monthOnly = month.split(" ")[0].toUpperCase();
     const result = await connection.execute(
-      `SELECT TO_CHAR(DOCDATE,'DD') AS INWDATE, COUNT(1) AS COUNT,
+      `SELECT TO_CHAR(DOCDATE,'DD') AS INWDATE, 
+   CUSTNAME,
+   COUNT(1) AS COUNT,
        SUM(QTY)        AS QTY
 FROM FABRIC_INWARD_DATA
 WHERE FINYR = :FINYR AND 
       ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND 
       TRIM(MONTHCHAR) = :MONTHCHAR
-GROUP BY TO_CHAR(DOCDATE,'DD')
+GROUP BY TO_CHAR(DOCDATE,'DD'),
+         CUSTNAME
 ORDER BY TO_NUMBER(TO_CHAR(DOCDATE,'DD'))`,
       { FINYR: finyear, CCATEGORY: category, MONTHCHAR: monthOnly },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({
       inwDate: item.INWDATE,
+      customer: item.CUSTNAME,
       qty: item.QTY,
     }));
 
@@ -618,6 +622,71 @@ ORDER BY CUSTSTATE
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((row) => row.CUSTSTATE);
+
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardYearCompare(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+
+    const { category } = req.query;
+
+    const result = await connection.execute(
+      `WITH PARAM_DATA AS (
+SELECT --ROW_NUMBER() OVER(PARTITION BY CUSTNAME ORDER BY CUSTNAME, FINYR DESC) AS rno,
+       CUSTNAME,
+       FINYR,
+       NVL(SUM(QTY),0) AS QTY
+FROM FABRIC_INWARD_DATA
+WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+GROUP BY FINYR,CUSTNAME
+),
+YEAR_DATA AS(
+SELECT (TO_CHAR(SYSDATE,'YY')) || '-' || (TO_CHAR(SYSDATE,'YY') + 1) AS currentyear,
+       (TO_CHAR(SYSDATE,'YY')-1) || '-' || (TO_CHAR(SYSDATE,'YY')) AS previousyear,
+       (TO_CHAR(SYSDATE,'YY')-2) || '-' || (TO_CHAR(SYSDATE,'YY') - 1) AS beforepreviousyear
+FROM DUAL
+)
+SELECT CUSTNAME, currentyear AS FINYR,QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.currentyear
+UNION ALL
+SELECT CUSTNAME, previousyear,QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.previousyear
+UNION ALL
+SELECT CUSTNAME, beforepreviousyear,QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.beforepreviousyear
+ORDER BY CUSTNAME`,
+      { CCATEGORY: category },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const data = result.rows.map((item) => ({
+      customer: item.CUSTNAME,
+      finYear: item.FINYR,
+      qty: item.QTY,
+    }));
 
     return res.json({ statusCode: 0, data });
   } catch (err) {

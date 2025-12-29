@@ -105,7 +105,7 @@ const InwardType = ({ year, finYear, setCategory }) => {
             pointFormatter: function () {
                 return `
         <span style="color:${this.color}">\u25CF</span>
-        Qty : <b>${this.y.toLocaleString("en-IN")}</b><br/>
+        Qty (kgs): <b>${this.y.toLocaleString("en-IN")}</b><br/>
       `;
             },
         },

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useGetFabricInwardCusDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
-const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
+const  CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, setCategory, selectmonths, setSelectmonths }) => {
     const [showTable, setShowTable] = useState(false);
     const [custName, setCustName] = useState('')
     const { data: fabricData } = useGetFabricInwardCusDetailQuery(
@@ -22,7 +22,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
 
     const rows = fabricData?.data || [];
 
-    const customers = rows.map((r) => r.customer);
+    const customers = rows.map((r) => r.customer.split(" ")[0]);
 
     const options = {
         chart: {
@@ -61,7 +61,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
 
         yAxis: {
             title: {
-                text: "Qty",
+                text: "Qty (kgs)",
                 style: { fontSize: "12px", fontWeight: 600 },
             },
         },
@@ -75,7 +75,10 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
         <tr>
           <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
-          <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
+          <td><b>${this.point.qty.toLocaleString("en-IN", {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                })}</b></td>
         </tr>
         
       </table>
@@ -118,7 +121,7 @@ const CustomerDetails = ({ selectedYear, setSelectedYear, category, finYear, set
                 name: "Customer",
                 data: rows.map((item) => ({
                     name: item.customer,
-                    y: Number(item.count || 0), // Count
+                    y: Number(item.qty || 0), // Count
                     qty: Number(item.qty || 0), // Qty for tooltip
                 })),
             },

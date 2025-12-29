@@ -43,17 +43,6 @@ const FinYear = ({
     });
 
     setMonths(monthList);
-    if (!selectmonths && autoSelect) {
-      const today = new Date();
-      const currentMonthName = today.toLocaleString("en-US", { month: "long" });
-      const currentYear = today.getFullYear();
-
-      const currentValue = `${currentMonthName} ${currentYear}`;
-
-      if (monthList.includes(currentValue)) {
-        setSelectmonths(currentValue);
-      }
-    }
   }, [selectedYear]);
 
   return (

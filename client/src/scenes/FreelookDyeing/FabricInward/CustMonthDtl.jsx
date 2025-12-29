@@ -82,7 +82,7 @@ const CustMonthDtl = ({
         yAxis: {
             min: 0,
             title: {
-                text: " Qty",
+                text: " Qty (kgs)",
                 style: { fontSize: "12px", fontWeight: 600 },
             },
             labels: {
@@ -102,7 +102,10 @@ const CustMonthDtl = ({
         <tr>
           <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
-          <td><b>${point.y.toLocaleString("en-IN")}</b></td>
+          <td><b>${point.y.toLocaleString("en-IN", {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              })}</b></td>
         </tr>
       </table>  
     `;

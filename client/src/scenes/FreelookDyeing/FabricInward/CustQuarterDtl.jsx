@@ -63,7 +63,10 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
         <tr>
           <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
-          <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
+          <td><b>${this.point.qty.toLocaleString("en-IN", {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+              })}</b></td>
         </tr>
         
       </table>

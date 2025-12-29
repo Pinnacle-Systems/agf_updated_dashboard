@@ -56,7 +56,7 @@ const MonthWiseCus = ({
         },
 
         title: {
-            text: `${selectmonths.split(" ")[0]} Month Inward`,
+            text: `Inward Details`,
             align: "center",
             verticalAlign: "middle",
             y: 70,
@@ -72,7 +72,10 @@ const MonthWiseCus = ({
           <tr>
             <td>Qty (kgs)</td>
             <td style="padding:0 6px;">:</td>
-            <td><b>${this.point.qty.toLocaleString("en-IN")}</b></td>
+            <td><b> ${Number(this.point.qty).toLocaleString("en-IN", {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                })}</b></td>
           </tr>
         </table>
       `;
@@ -87,9 +90,14 @@ const MonthWiseCus = ({
                     style: {
                         fontWeight: "bold",
                         color: "#ffffff",
+                        // textOutline: "none",
+                        // fontSize: "11px",
                     },
                     formatter: function () {
-                        return this.point.name.split(" ")[0];
+                        return `
+      ${this.point.name.split(" ")[0]} (
+      ${this.percentage.toFixed(1)}% )
+    `;
                     },
                 },
                 startAngle: -90,
@@ -124,7 +132,7 @@ const MonthWiseCus = ({
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
                 // title={`${selectmonths} Contribution`}
-                title={"Month Detail"}
+                title={`Inward Breakup - ${selectmonths.split(" ")[0]}`}
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
