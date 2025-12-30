@@ -114,6 +114,66 @@ const ESIDetailed = ({
 
   //   XLSX.writeFile(wb, "Employee_Details.xlsx");
   // };
+
+
+  const filteredData = Array.isArray(ESIdata)
+    ? ESIdata.filter((row) =>
+      Object.keys(search || {}).every((key) => {
+        const rowValue = row[key]?.toString().toLowerCase() || "";
+        const searchValue = search[key]?.toString().toLowerCase() || "";
+        return rowValue.includes(searchValue);
+      })
+    )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.ESI) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.ESI) || 0),
+    0
+  );
+  const totalNetPay1 = filteredData.reduce(
+    (sum, row) => sum + (Number(row.EMPLOYER_CON) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.ESI),
+      maxNetPay: Math.max(acc.maxNetPay, item.ESI),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  console.log("Selected Month:", selectmonths);
+  console.log("ESI Data count:", ESIdata.length);
+  console.log("Filtered count:", filteredData.length);
   const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
@@ -130,7 +190,7 @@ const ESIDetailed = ({
       { header: "Gender", key: "GENDER", width: 14 },
       { header: "Department", key: "DEPARTMENT", width: 35 },
       { header: "Employer Contribute", key: "EMPLOYER_CON", width: 20 },
-      { header: "ESI Amount", key: "ESI", width: 15 },
+      { header: "ESI Amount", key: "ESI", width: 20 },
     ];
 
     // 2️⃣ Add Title row above headers
@@ -191,77 +251,42 @@ const ESIDetailed = ({
       row.getCell("EMPLOYER_CON").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
       row.getCell("ESI").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
     });
+    const totalRow = worksheet.addRow({
+      EMPID: "",
+      FNAME: "",
+      GENDER: "",
+      DEPARTMENT: "TOTAL",
+      EMPLOYER_CON: totalNetPay1,
+      ESI: totalNetPay,
+    });
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+
+      };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: [5,6].includes(colNumber) ? "right" : "center",
+        indent: 1
+      };
+    });
 
     // 6️⃣ Format decimals → always 2 decimals
-    worksheet.getColumn("EMPLOYER_CON").numFmt = "#,##0.00";
-    worksheet.getColumn("ESI").numFmt = "#,##0.00";
+    worksheet.getColumn("EMPLOYER_CON").numFmt = "₹ #,##0.00";
+    worksheet.getColumn("ESI").numFmt = "₹ #,##0.00";
 
     // 7️⃣ Freeze header row (row 2)
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee ESI Details.xlsx");
   };
-
-  const filteredData = Array.isArray(ESIdata)
-    ? ESIdata.filter((row) =>
-      Object.keys(search || {}).every((key) => {
-        const rowValue = row[key]?.toString().toLowerCase() || "";
-        const searchValue = search[key]?.toString().toLowerCase() || "";
-        return rowValue.includes(searchValue);
-      })
-    )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.ESI) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.ESI) || 0),
-    0
-  );
-  const totalNetPay1 = filteredData.reduce(
-    (sum, row) => sum + (Number(row.EMPLOYER_CON) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.ESI),
-      maxNetPay: Math.max(acc.maxNetPay, item.ESI),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", ESIdata.length);
-  console.log("Filtered count:", filteredData.length);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">

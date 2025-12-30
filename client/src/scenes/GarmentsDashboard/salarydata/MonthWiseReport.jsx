@@ -15,11 +15,11 @@ import { useGetMisDashboardErpMonthWiseQuery } from "../../../redux/service/misD
 const Form = ({ companyName, finYear }) => {
   const theme = useTheme();
   const [selectedMonth, setSelectedMonth] = useState(null);
-const formatINR = (value) =>
-  `₹ ${Number(value).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   const { data: response, isLoading } =
     useGetMisDashboardErpMonthWiseQuery({
@@ -113,10 +113,14 @@ const formatINR = (value) =>
 
   /* ---------------- Child Chart ---------------- */
   const childOptions = selectedMonthData && {
-    chart: { type: "column", height: 300 },
+    chart: { type: "column", height: 320 , spacingTop: 5,     
+  spacingBottom: 10,
+  spacingLeft: 10,
+  spacingRight: 10, },
     title: { text: "" },
 
-    xAxis: { categories: [selectedMonth] },
+    xAxis: { categories: [selectedMonth] ,offset: 0,        
+  lineWidth: 1,},
     yAxis: {
       title: { text: "Turnover" },
       labels: {
@@ -136,6 +140,9 @@ const formatINR = (value) =>
 
     plotOptions: {
       column: {
+        pointWidth: 40,        // 👈 MAIN control (reduce this)
+        pointPadding: 0.2,
+        groupPadding: 0.4,
         dataLabels: {
           enabled: true,
           formatter() {
@@ -189,7 +196,7 @@ const formatINR = (value) =>
             {/* Parent Chart */}
             <Box
               sx={{
-                width: selectedMonth ? "65%" : "100%",
+                width: "70%",
                 transition: "width 0.35s ease",
               }}
             >
@@ -203,12 +210,11 @@ const formatINR = (value) =>
             {/* Child Chart (Always Mounted) */}
             <Box
               sx={{
-                width: selectedMonth ? "35%" : "0%",
-                opacity: selectedMonth ? 1 : 0,
-                transition: "width 0.35s ease, opacity 0.2s ease",
-                overflow: "hidden",
+                width: "30%",
+                transition: "width 0.35s ease",
               }}
             >
+
               <Card sx={{ height: "100%", ml: 1 }}>
                 <Box
                   sx={{
@@ -221,25 +227,33 @@ const formatINR = (value) =>
                   }}
                 >
                   <Box sx={{ fontWeight: 600 }}>
-                    {selectedMonth || ""} Details
+                    {selectedMonth || ""} Turnover Details
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => setSelectedMonth(null)}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
 
-                <CardContent sx={{ p: 1 }}>
-                  {selectedMonth && (
+                </Box>
+                <CardContent>
+                  {selectedMonth ? (
                     <HighchartsReact
                       highcharts={Highcharts}
                       options={childOptions}
                       immutable
                     />
+                  ) : (
+                    <Box
+                      sx={{
+                        height: 260,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "text.secondary",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      Click a month to view details
+                    </Box>
                   )}
                 </CardContent>
+
               </Card>
             </Box>
           </Box>

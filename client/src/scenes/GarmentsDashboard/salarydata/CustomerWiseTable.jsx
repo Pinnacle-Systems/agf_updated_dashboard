@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     FaTimes,
     FaChevronLeft,
@@ -6,105 +6,167 @@ import {
     FaStepBackward,
     FaStepForward,
     FaSearch,
-    FaUserTie,
-    FaUsers,
-    FaMars,
-    FaVenus,
 } from "react-icons/fa";
-import { IoMaleFemale } from "react-icons/io5";
-
-// import FinYear from "../../FinYear";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-// import { addInsightsRow } from "../utils/hleper";
+import { useDispatch, useSelector } from "react-redux";
 
+import {
+    setSelectedYear,
+    setFilterBuyer,
+} from "../../../redux/features/dashboardFiltersSlice";
+import { useGetMisDashboardErpCustomerWiseQuery } from
+    "../../../redux/service/misDashboardServiceERP";
+
+import { addInsightsRowTurnOver } from "../../../utils/hleper";
+import Loader from "../../../utils/loader";
 const CustomerWiseTable = ({
-    search, setSearch,closeTable,selectedState,selectedGender,customerName,finYear,companyName,value
+    customerName,
+    finYr,
+    closeTable, filterBuyerList
 }) => {
-console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
+    console.log(filterBuyerList, "filterBuyerList");
+    const [selectedCustomer, setSelectedCustomer] = useState(customerName || "ALL");
+    const [netpayRange, setNetpayRange] = useState({
+        min: 0,
+        max: Infinity,
+    });
 
+    const dispatch = useDispatch();
+    const { selectedYear, filterBuyer: companyName } =
+        useSelector((state) => state.dashboardFilters);
+    const [localCompany, setLocalCompany] = useState(companyName || "ALL");
+    const [search, setSearch] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
-    let salary = []
-
     const recordsPerPage = 34;
 
-    //  useEffect(() => {
-    //     setSelectedState(selectedState1);
-    //   }, [selectedState1]);
+    // ✅ API CALL INSIDE TABLE
+    const { data: response, isLoading } =
+        useGetMisDashboardErpCustomerWiseQuery(
+            {
+                params: {
+                    companyName: localCompany === "ALL" ? undefined : localCompany,
+                    finYear: selectedYear,
+                },
+            },
+            { skip: !selectedYear }
+        );
 
-    //  useEffect(() => {
-    //   setSelectmonths(selectmonths);
-    // }, [selectmonths]);
+    const rawData = useMemo(() => {
+        return Array.isArray(response?.data) ? response.data : [];
+    }, [response?.data]);
 
-    //   useEffect(() => {
-    //     setCurrentPage(1);
-    //   }, [salary]);
+    console.log(rawData, "rawData");
+    const customerOptions = useMemo(() => {
+        const unique = [...new Set(rawData.map(r => r.customer))];
 
-    const handleFilterClick = (type) => {
-        // setSelectedState(type);
-    };
+        return [
+            { label: "ALL", value: "ALL" },
+            ...unique.map(c => ({ label: c, value: c })),
+        ];
+    }, [rawData]);
 
-    const handleGenderFilter = (gender) => {
-        // setSelectedGender(gender);
-    };
 
+    // ✅ FILTERING
+    const filteredData = useMemo(() => {
+        return rawData.filter((row) => {
+            // 🔹 Customer dropdown filter
+            if (selectedCustomer !== "ALL" && row.customer !== selectedCustomer) {
+                return false;
+            }
+
+            // 🔹 Search filter (customer search)
+            if (search.customer) {
+                const rowCustomer = row.customer?.toLowerCase() || "";
+                if (!rowCustomer.includes(search.customer.toLowerCase())) {
+                    return false;
+                }
+            }
+
+            // 🔹 Min / Max Turnover filter
+            const value = Number(row.currentValue || 0);
+
+            if (value < netpayRange.min) return false;
+            if (netpayRange.max !== Infinity && value > netpayRange.max) return false;
+
+            return true;
+        });
+    }, [rawData, selectedCustomer, search, netpayRange]);
+
+
+    useEffect(() => {
+        setSelectedCustomer(customerName || "ALL");
+        setCurrentPage(1);
+    }, [customerName]);
+    useEffect(() => {
+        setLocalCompany(companyName || "ALL");
+    }, [companyName]);
+
+
+    // ✅ TOTAL
+    const totalTurnOver = useMemo(
+        () =>
+            filteredData.reduce(
+                (sum, r) => sum + Number(r.currentValue || 0),
+                0
+            ),
+        [filteredData]
+    );
+
+    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+    const currentRecords = filteredData.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+    );
+
+    // ✅ EXCEL EXPORT
     const downloadExcel = async () => {
-        if (filteredData.length === 0) {
-            alert("No data to export!");
+        if (!filteredData.length) {
+            alert("No data");
             return;
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Employees Data");
-
-        // 1️⃣ Define columns (headers will appear in row 1 for now)
+        const worksheet = workbook.addWorksheet("Customer Wise Turnover Report");
         worksheet.columns = [
-            { header: "ID Card", key: "EMPID", width: 15 },
-            { header: "Name", key: "FNAME", width: 40 },
-            { header: "Gender", key: "GENDER", width: 14 },
-            { header: "Department", key: "DEPARTMENT", width: 35 },
-            { header: "EmpType", key: "EMPTYPE", width: 16 },
-            { header: "Netpay", key: "NETPAY", width: 15 },
+            { header: "Company", key: "compCode", width: 70 },
+            { header: "Customer", key: "customer", width: 30 },
+            { header: "Turnover", key: "currentValue", width: 35 },
         ];
 
-        // 2️⃣ Insert a title row at the top
-        worksheet.insertRow(1, ["Salary Distribution Employee Type Wise Report"]); // Row 1
-        worksheet.mergeCells("A1:F1"); // Merge across all columns
+        /* ================= TITLE ================= */
+        worksheet.insertRow(1, ["Customer Wise Turnover Report"]);
+        worksheet.mergeCells("A1:C1");
+
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
         titleCell.alignment = { horizontal: "center", vertical: "middle" };
         worksheet.getRow(1).height = 30;
 
+        /* ================= INSIGHTS ================= */
+        addInsightsRowTurnOver({
+            worksheet,
+            startRow: 2,
+            totalColumns: 3,
+            selectedYear,
+            localCompany,
+            selectedCustomer
+        });
 
-        // addInsightsRow({
-        //   worksheet,
-        //   startRow: 2,
-        //   totalColumns: 6,
-
-        //   dynamicField: "Salary",
-        //   selectedBuyer,
-        //   selectedGender,
-        //   selectedState,
-        //   selectedYear,
-        //   selectedMonth: selectmonths,
-        // });
+        /* ================= COLUMNS ================= */
 
 
-
-
-
-        // 3️⃣ Move headers to row 2 (they are automatically there)
         const headerRow = worksheet.getRow(3);
         headerRow.height = 26;
 
         headerRow.eachCell((cell) => {
             cell.font = { bold: true };
+            cell.alignment = { horizontal: "center", vertical: "middle" };
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
-                fgColor: { argb: "FFD9D9D9" }, // gray background
+                fgColor: { argb: "FFD9D9D9" },
             };
-            cell.alignment = { horizontal: "center", vertical: "middle" };
             cell.border = {
                 top: { style: "thin" },
                 bottom: { style: "thin" },
@@ -113,202 +175,154 @@ console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
             };
         });
 
-        // 4️⃣ Add data rows (start from row 3)
-        filteredData.forEach((row) => {
+        /* ================= DATA ================= */
+        filteredData.forEach((r) => {
             worksheet.addRow({
-                EMPID: row.EMPID,
-                FNAME: row.FNAME,
-                GENDER: row.GENDER,
-                DEPARTMENT: row.DEPARTMENT,
-                EMPTYPE: row.EMPTYPE,
-                NETPAY: row.NETPAY,
+                compCode: r.compName,
+                customer: r.customer,
+                currentValue: Number(r.currentValue || 0),
             });
         });
 
-        // 5️⃣ Apply alignment ONLY to data rows
         worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber <= 3) return; // skip title and header
+            if (rowNumber <= 3) return;
 
             row.height = 22;
-
-            row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-            row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("EMPTYPE").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("NETPAY").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("customer").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("currentValue").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
-        // 6️⃣ NETPAY → always show 2 decimals
-        worksheet.getColumn("NETPAY").numFmt = "#,##0.00";
+        // ================= TOTAL ROW =================
+        const totalRow = worksheet.addRow({
+            compCode: "",
+            customer: "TOTAL",
+            currentValue: totalTurnOver,
+        });
 
-        // 7️⃣ Freeze header (row 2)
-        worksheet.views = [{ state: "frozen", ySplit: 2 }];
+        totalRow.height = 24;
 
-        // 8️⃣ Export
+        // Style TOTAL row
+        totalRow.eachCell((cell, colNumber) => {
+            cell.font = { bold: true };
+            cell.border = {
+                top: { style: "thin" },
+               
+            };
+            cell.alignment = {
+                vertical: "middle",
+                horizontal: colNumber === 3 ? "right" : "center",
+                indent:1
+            };
+        });
+
+        worksheet.getColumn("currentValue").numFmt = '₹ #,##,##0.00';
+
+        /* ================= FREEZE ================= */
+        worksheet.views = [{ state: "frozen", ySplit: 3 }];
+
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), "Salary Distribution Employee Type Wise Report.xlsx");
+        saveAs(
+            new Blob([buffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }),
+            "Customer Wise Turnover Report.xlsx"
+        );
     };
-    const filteredData = Array.isArray(salary)
-        ? salary
-            .filter((row) =>
-                Object.keys(search || {}).every((key) => {
-                    const rowValue = row?.[key]?.toString().toLowerCase() || "";
-                    const searchValue = search?.[key]?.toString().toLowerCase() || "";
-                    return rowValue.includes(searchValue);
-                })
-            )
-            // .filter((row) => {
-            //     if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-            //     if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-            //     return true;
-            // })
-            // .filter((row) => {
-            //     if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-            //     if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-            //     return true;
-            // })
-            // .filter((row) => {
-            //     const netpay = Number(row?.NETPAY) || 0;
-            //     return netpay >= netpayRange.min && netpay <= netpayRange.max;
-            // })
-            // .filter((row) => {
-            //     if (!selectmonths) return true;
-            //     return row.PAYPERIOD === selectmonths;
-            // })
-        : [];
 
-    console.log(filteredData, "filteredData1");
-
-    const totalNetPay = filteredData?.reduce(
-        (sum, row) => sum + (Number(row.NETPAY) || 0),
-        0
-    );
-    console.log(totalNetPay, "Total Net Pay");
-
-    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-    const totalRecords = filteredData.length;
-
-    const currentRecords = filteredData.slice(
-        (currentPage - 1) * recordsPerPage,
-        currentPage * recordsPerPage
-    );
-
-   
+    if (isLoading) return <Loader />;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">
-                <button
-                    onClick={closeTable}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
-                >
-                    <FaTimes size={20} />
-                </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex justify-center items-center">
+            <div className="bg-white w-[1300px] h-[590px] p-4 rounded-xl relative">
 
-                <div className="grid grid-cols-2">
-                    <div className="text-start">
-                        <h2 className="text-m font-bold text-gray-800 uppercase ">
-                            Salary Insights -{" "}
-                            {/* <span className="text-blue-600">{selectedBuyer?.join(", ")}</span> */}
-                        </h2>
-                        <div className="flex items-start justify-start mb-1">
-                            {/* Left: Total Records */}
-                            <p className="text-[12px] text-gray-500 font-medium">
-                                Total Records: {totalRecords}
-                            </p>
+                {/* HEADER */}
+                <div className="flex justify-between items-center">
+                    <h2 className="font-bold uppercase">
+                        Customer Wise Turnover - <span className="text-blue-600 ">{localCompany || ""}</span>
+                    </h2>
 
-                            {/* Right: Total Netpay */}
-                            <div className="text-right ml-5 text-[12px]">
-                                <p className=" text-gray-500 font-medium">
-                                    Total Netpay:{" "}
-                                    <span className="text-sky-700 pl-2">
-                                        {" "}
-                                        ₹{totalNetPay.toLocaleString("en-IN")}
-                                    </span>
-                                </p>
+                    <div className="flex gap-2 items-center">
+                        <div className="bg-gray-300  rounded-lg shadow-2xl flex gap-x-4 gap-1 p-2">
+
+                            <div className="w-24">
+
+                                <select
+                                    value={selectedYear || ""}
+                                    onChange={(e) => dispatch(setSelectedYear(e.target.value))}
+                                    className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"
+                                >
+                                    <option value="" disabled>
+                                        Select Year
+                                    </option>
+
+                                    {finYr?.data?.map((y) => (
+                                        <option key={y.finYr} value={y.finYr}>
+                                            {y.finYr}
+                                        </option>
+                                    ))}
+                                </select></div>
+
+                            <div className="w-24">
+                                <select
+                                    value={localCompany || "ALL"}
+                                    onChange={(e) => {
+                                        setLocalCompany(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"    >
+
+                                    {filterBuyerList?.map((c) => (
+                                        <option key={c.id} value={c.id}>
+                                            {c.compname}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
+
+                            <div className="w-24">
+                                <select
+                                    value={selectedCustomer}
+                                    onChange={(e) => {
+                                        setSelectedCustomer(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"     >
+
+                                    {customerOptions?.map((c) => (
+                                        <option key={c.value} value={c.value}>
+                                            {c.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+
+
                         </div>
-                    </div>
-                    <div className="flex justify-center gap-3 mb-4">
-                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-3 gap-1 p-2">
-                            <button
-                                onClick={() => handleFilterClick("Labour")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "Labour"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }
-      focus:outline-none focus:ring-2 focus:ring-blue-400`
-    }
-                            >
-                                <FaUserTie size={14} /> Employees
-                            </button>
-
-                            <button
-                                onClick={() => handleFilterClick("Staff")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-xs font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "Staff"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }
-      focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                            >
-                                <FaUsers size={14} /> Staff
-                            </button>
-
-                            <button
-                                onClick={() => handleFilterClick("All")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-      ${selectedState === "All"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }
-      focus:outline-none focus:ring-2 focus:ring-blue-400`}
-                            >
-                                All
-                            </button>
-                        </div>
-
-                        <div className="bg-gray-300  rounded-lg shadow-2xl grid grid-cols-3 gap-1 p-2">
-                            <button
-                                onClick={() => handleGenderFilter("Male")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Male"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <FaMars size={14} className="text-blue-500" /> Male
-                            </button>
-
-                            <button
-                                onClick={() => handleGenderFilter("Female")}
-                                className={`flex items-center gap-2 px-1.5 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Female"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <FaVenus size={14} className="text-pink-500" /> Female
-                            </button>
-                            <button
-                                onClick={() => handleGenderFilter("Both")}
-                                className={`flex items-center gap-2 px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-md transition-all 
-              ${selectedGender === "Both"
-                                        ? "bg-blue-600 text-white scale-105"
-                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                                    }`}
-                            >
-                                <IoMaleFemale size={14} className="text-green-500" /> Both
-                            </button>
-                        </div>
+                        <button className="text-red-600" onClick={closeTable}>
+                            <FaTimes size={18} />
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-start">
-                    <div className="grid grid-cols-7 gap-2 mb-3">
-                        {["EMPID", "FNAME", "DEPARTMENT", "EMPTYPE"].map((key) => (
+                {/* TOTAL */}
+                <p className="text-xs font-semibold  text-gray-600">
+                    Total Turnover :{" "}
+                    {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                    }).format(totalTurnOver)}
+                </p>
+
+                {/* SEARCH */}
+
+                <div className="flex justify-between items-start mt-2">
+                    <div className=" mb-3">
+                        {["customer"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -323,46 +337,39 @@ console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
                             </div>
                         ))}
 
+
+
+                    </div>
+                    <div className=" flex gap-x-2">
                         <div className="flex items-center text-[12px]">
-                            {/* <FinYear
-                selectedYear={selectedYear}
-                selectmonths={selectmonths}
-                setSelectmonths={setSelectmonths}
-                autoFocusBuyer={autoFocusBuyer}
-              /> */}
-                        </div>
-                        {/* <div className="flex items-center gap-4 text-[12px] "> */}
-                        <div className="flex items-center text-[12px]">
-                            <span className="text-gray-500">Min Netpay:</span>
+                            <span className="text-gray-500">Min Turnover : </span>
                             <input
-                                type="number"
-                                // value={netpayRange.min}
-                                // onChange={(e) =>
-                                //     setNetpayRange({
-                                //         ...netpayRange,
-                                //         min: Number(e.target.value),
-                                //     })
-                                // }
-                                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                type="text"
+                                value={netpayRange.min}
+                                onChange={(e) =>
+                                    setNetpayRange({
+                                        ...netpayRange,
+                                        min: Number(e.target.value),
+                                    })
+                                }
+                                className="w-24 h-6 p-1 border ml-1 border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                         </div>
 
                         <div className="flex items-center  text-[12px]">
-                            <span className="text-gray-500">Max Netpay:</span>
+                            <span className="text-gray-500">Max Turnover : </span>
                             <input
-                                type="number"
-                                // value={netpayRange.max === Infinity ? "" : netpayRange.max}
-                                // onChange={(e) =>
-                                //     setNetpayRange({
-                                //         ...netpayRange,
-                                //         max: Number(e.target.value),
-                                //     })
-                                // }
-                                className="w-24 h-6 p-1 border border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                type="text"
+                                value={netpayRange.max === Infinity ? "" : netpayRange.max}
+                                onChange={(e) =>
+                                    setNetpayRange({
+                                        ...netpayRange,
+                                        max: Number(e.target.value),
+                                    })
+                                }
+                                className="w-24 h-6 p-1 border ml-1 border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                         </div>
-                    </div>
-                    <div className="right-0">
                         <button
                             onClick={downloadExcel}
                             className="p-0 rounded-full shadow-md hover:brightness-110 transition-all duration-300"
@@ -376,19 +383,17 @@ console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
                         </button>
                     </div>
                 </div>
-
+                {/* TABLE */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="overflow-x-auto max-h-[450px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
-                        <table className="w-full border-collapse border border-gray-300 text-[11px]">
+                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-left ">S.No</th>
-                                    <th className="border p-1 text-left ">ID Card</th>
-                                    <th className="border p-1 text-left ">Name</th>
-                                    <th className="border p-1 text-left ">Gender</th>
-                                    <th className="border p-1 text-left ">Department</th>
-                                    <th className="border p-1 text-left ">EmpType</th>
-                                    <th className="border p-1 text-middle ">Netpay</th>
+                                    <th className="border p-1 text-center w-[8px]">S.No</th>
+                                    <th className="border p-1 text-center w-36">Company</th>
+                                    <th className="border p-1 text-center w-8">Customer</th>
+                                    <th className="border p-1 text-center w-12">Turnover</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -400,53 +405,14 @@ console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
                                             key={index}
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
-                                            {/* <td className=" p-1 text-[10px] w-[25px]">{serialNo}</td>
-                      <td className=" p-1 text-[10px] w-[60px]">{row.EMPID}</td>
-                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">{row.FNAME}</td>
-                      <td className=" p-1 text-[10px] w-[30px]">{row.GENDER}</td>
-                      <td className=" p-1 text-[10px] w-[150px] whitespace-nowrap overflow-hidden text-ellipsis inline-block">
-                        {row.DEPARTMENT}
-                      </td>
-                      <td className=" p-1 text-[10px] w-[30px]">{row.EMPTYPE}</td>
-                      <td className=" p-1 text-sky-700  text-[10px] w-[25px]">
-                        {new Intl.NumberFormat("en-IN", {
-                          style: "currency",
-                          currency: "INR",
-                        }).format(row.NETPAY)}
-                      </td> */}
-
-                                            <td className="border p-1 text-[10px] w-[25px]">
-                                                {serialNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[60px]">
-                                                {row.EMPID}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.FNAME}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[30px]" style={{ maxWidth: "30px" }}>
-                                                {row.GENDER}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.DEPARTMENT}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.EMPTYPE}
-                                            </td>
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[30px] text-right" style={{ maxWidth: "30px" }}>
+                                            <td className="border p-1 text-center">{serialNo}</td>
+                                            <td className="border p-1 text-left ">{row.compName}</td>
+                                            <td className="border p-1 text-left">{row.customer}</td>
+                                            <td className="border p-1 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
-                                                }).format(row.NETPAY)}
+                                                }).format(row.currentValue)}
                                             </td>
                                         </tr>
                                     );
@@ -454,130 +420,100 @@ console.log(customerName,finYear,companyName,value,"valuesrecivedfromprops");
                             </tbody>
                         </table>
                     </div>
-
-                    <div className="overflow-x-auto max-h-[450px]" style={{ border: "1px solid gray", borderRadius: "16px" }} >
-                        <table className="w-full border-collapse border border-gray-300 text-[11px]">
+                    <div className="overflow-x-auto max-h-[450px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
+                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-left ">S.No</th>
-                                    <th className="border p-1 text-left">ID Card</th>
-                                    <th className="border p-1 text-left ">Name</th>
-                                    <th className="border p-1 text-left ">Gender</th>
-                                    <th className="border p-1 text-left">Department</th>
-                                    <th className="border p-1 text-left ">EmpType</th>
-                                    <th className="border p-1 text-middle ">Netpay</th>
+                                    <th className="border p-1 text-center w-[8px]">S.No</th>
+                                    <th className="border p-1 text-center w-36">Company</th>
+                                    <th className="border p-1 text-center w-8">Customer</th>
+                                    <th className="border p-1 text-center w-12">Turnover</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(17, 34).map((row, index) => {
-                                    const globalIndex = 17 + index;  // 17–33
+                                {currentRecords?.slice(17, 34)?.map((row, index) => {
+                                    const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                                     return (
                                         <tr
                                             key={index}
-                                            className="text-gray-700 bg-white even:bg-gray-100"
+                                            className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
-                                            <td className="border p-1 text-[10px] w-[25px]">
-                                                {serialNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[60px]">
-                                                {row.EMPID}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.FNAME}
-                                            </td>
-                                            <td className="border p-1 text-[10px] w-[30px]" style={{ maxWidth: "30px" }}>
-                                                {row.GENDER}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[100px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.DEPARTMENT}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] w-[40px] whitespace-nowrap overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.EMPTYPE}
-                                            </td>
-                                            <td className="border p-1 text-sky-700  text-[10px] w-[30px] text-right" style={{ maxWidth: "30px" }}>
+                                            <td className="border p-1 text-center">{serialNo}</td>
+                                            <td className="border p-1 text-left ">{row.compName}</td>
+                                            <td className="border p-1 text-left">{row.customer}</td>
+                                            <td className="border p-1 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
-                                                }).format(row.NETPAY)}
+                                                }).format(row.currentValue)}
                                             </td>
                                         </tr>
-                                    )
+                                    );
                                 })}
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-
-                {/* Pagination */}
-
+                {/* PAGINATION */}
                 <div>
-                    {totalPages > 1 && (
-                        <div
-                            className="flex justify-end items-center mt-4 space-x-2 text-[11px] "
-                            style={{ position: "absolute", bottom: "5px", right: "0px" }}
+
+                    <div
+                        className="flex justify-end items-center mt-4 space-x-2 text-[11px] "
+                        style={{ position: "absolute", bottom: "5px", right: "0px" }}
+                    >
+                        <button
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            className={`p-2 rounded-md ${currentPage === 1
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-blue-600 hover:bg-gray-200"
+                                }`}
                         >
-                            <button
-                                onClick={() => setCurrentPage(1)}
-                                disabled={currentPage === 1}
-                                className={`p-2 rounded-md ${currentPage === 1
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-blue-600 hover:bg-gray-200"
-                                    }`}
-                            >
-                                <FaStepBackward size={16} />
-                            </button>
+                            <FaStepBackward size={16} />
+                        </button>
 
-                            <button
-                                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`p-2 rounded-md ${currentPage === 1
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-blue-600 hover:bg-gray-200"
-                                    }`}
-                            >
-                                <FaChevronLeft size={16} />
-                            </button>
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className={`p-2 rounded-md ${currentPage === 1
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-blue-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            <FaChevronLeft size={16} />
+                        </button>
 
-                            <span className="text-xs font-semibold px-3">
-                                Page {currentPage} of {totalPages}
-                            </span>
+                        <span className="text-xs font-semibold px-3">
+                            Page {currentPage} of {totalPages}
+                        </span>
 
-                            <button
-                                onClick={() =>
-                                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                                }
-                                disabled={currentPage === totalPages}
-                                className={`p-2 rounded-md ${currentPage === totalPages
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-blue-600 hover:bg-gray-200"
-                                    }`}
-                            >
-                                <FaChevronRight size={16} />
-                            </button>
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                            }
+                            disabled={currentPage === totalPages}
+                            className={`p-2 rounded-md ${currentPage === totalPages
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-blue-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            <FaChevronRight size={16} />
+                        </button>
 
-                            <button
-                                onClick={() => setCurrentPage(totalPages)}
-                                disabled={currentPage === totalPages}
-                                className={`p-2 rounded-md ${currentPage === totalPages
-                                    ? "text-gray-400 cursor-not-allowed"
-                                    : "text-blue-600 hover:bg-gray-200"
-                                    }`}
-                            >
-                                <FaStepForward size={16} />
-                            </button>
-                        </div>
-                    )}
+                        <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className={`p-2 rounded-md ${currentPage === totalPages
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-blue-600 hover:bg-gray-200"
+                                }`}
+                        >
+                            <FaStepForward size={16} />
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>

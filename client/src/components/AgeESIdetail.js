@@ -77,127 +77,7 @@ const AgewiseESIlDetail = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = async () => {
-    if (filteredData.length === 0) {
-      alert("No data to export!");
-      return;
-    }
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Employees Data");
-
-    /* =======================
-       1️⃣ TITLE ROW
-    ======================= */
-    worksheet.addRow(["ESI Contribution Age wise Report"]);
-    worksheet.mergeCells(1, 1, 1, 6);
-
-    const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 14 };
-    titleCell.alignment = { horizontal: "center", vertical: "middle" };
-    worksheet.getRow(1).height = 30;
-    addInsightsRow({
-      worksheet,
-      startRow: 2,
-      totalColumns: 6,
-
-      dynamicField: "ESI",
-      selectedBuyer,
-      selectedGender,
-      selectedState,
-      selectedYear,
-      selectedMonth: selectmonths,
-    });
-    /* =======================
-       2️⃣ HEADER ROW
-    ======================= */
-    worksheet.addRow([
-      "ID Card",
-      "Name",
-      "Gender",
-      "Department",
-      "Age",
-      "ESI Amount",
-    ]);
-
-    const headerRow = worksheet.getRow(3);
-    headerRow.height = 24;
-
-    headerRow.eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.alignment = { horizontal: "center", vertical: "middle" };
-      cell.border = {
-        top: { style: "thin" },
-        bottom: { style: "thin" },
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-      // 🔹 Gray background for headers
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFD9D9D9" }, // light gray
-      };
-    });
-
-    /* =======================
-       3️⃣ COLUMN WIDTHS
-    ======================= */
-    worksheet.columns = [
-      { width: 15 },
-      { width: 35 },
-      { width: 14 },
-      { width: 30 },
-      { width: 10 },
-      { width: 16 },
-    ];
-
-    /* =======================
-       4️⃣ DATA ROWS
-    ======================= */
-    filteredData.forEach((row) => {
-      worksheet.addRow([
-        row.EMPID,
-        row.FNAME,
-        row.GENDER,
-        row.DEPARTMENT,
-        row.AGE !== null && row.AGE !== undefined ? Math.trunc(row.AGE) : "",
-        row.ESI,
-      ]);
-    });
-
-    /* =======================
-       5️⃣ DATA ALIGNMENT
-    ======================= */
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 3) return; // skip title + header
-
-      row.height = 22;
-
-      row.getCell(1).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-      row.getCell(2).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell(3).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell(4).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell(5).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-      row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-    });
-
-    /* =======================
-       6️⃣ NUMBER FORMAT
-    ======================= */
-    worksheet.getColumn(6).numFmt = "#,##0.00"; // ESI → 80.00
-
-    /* =======================
-       7️⃣ FREEZE ROWS
-    ======================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
-
-    /* =======================
-       8️⃣ EXPORT
-    ======================= */
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "ESI Contribution Age wise Report.xlsx");
-  };
 
 
 
@@ -275,7 +155,154 @@ const AgewiseESIlDetail = ({
     }),
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
+  const downloadExcel = async () => {
+    if (filteredData.length === 0) {
+      alert("No data to export!");
+      return;
+    }
 
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
+
+    /* =======================
+       1️⃣ TITLE ROW
+    ======================= */
+    worksheet.addRow(["ESI Contribution Age wise Report"]);
+    worksheet.mergeCells(1, 1, 1, 6);
+
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 14 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
+    addInsightsRow({
+      worksheet,
+      startRow: 2,
+      totalColumns: 6,
+
+      dynamicField: "ESI",
+      selectedBuyer,
+      selectedGender,
+      selectedState,
+      selectedYear,
+      selectedMonth: selectmonths,
+    });
+    /* =======================
+       2️⃣ HEADER ROW
+    ======================= */
+    worksheet.addRow([
+      "ID Card",
+      "Name",
+      "Gender",
+      "Department",
+      "Age",
+      "ESI Amount",
+    ]);
+
+    const headerRow = worksheet.getRow(3);
+    headerRow.height = 24;
+
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
+      };
+      // 🔹 Gray background for headers
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" }, // light gray
+      };
+    });
+
+    /* =======================
+       3️⃣ COLUMN WIDTHS
+    ======================= */
+    worksheet.columns = [
+      { width: 15 },
+      { width: 35 },
+      { width: 14 },
+      { width: 30 },
+      { width: 10 },
+      { width: 20 },
+    ];
+
+    /* =======================
+       4️⃣ DATA ROWS
+    ======================= */
+    filteredData.forEach((row) => {
+      worksheet.addRow([
+        row.EMPID,
+        row.FNAME,
+        row.GENDER,
+        row.DEPARTMENT,
+        row.AGE !== null && row.AGE !== undefined ? Math.trunc(row.AGE) : "",
+        row.ESI,
+      ]);
+    });
+
+    /* =======================
+       5️⃣ DATA ALIGNMENT
+    ======================= */
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 3) return; // skip title + header
+
+      row.height = 22;
+
+      row.getCell(1).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(2).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(3).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(4).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell(5).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+    });
+    const totalRow = worksheet.addRow([
+      "",        // ID Card
+      "",        // Name
+      "",        // Gender
+      "",        // Department
+      "TOTAL",   // Age column
+      totalNetPay,  // ESI Amount
+    ]);
+
+    totalRow.height = 24;
+
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 6 ? "right" : "center",
+        indent: 1,
+      };
+    });
+// #kjflkafjl
+    /* =======================
+       6️⃣ NUMBER FORMAT
+    ======================= */
+    worksheet.getColumn(6).numFmt = "₹ #,##0.00"; // ESI → 80.00
+
+    /* =======================
+       7️⃣ FREEZE ROWS
+    ======================= */
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
+
+    /* =======================
+       8️⃣ EXPORT
+    ======================= */
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), "ESI Contribution Age wise Report.xlsx");
+  };
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">

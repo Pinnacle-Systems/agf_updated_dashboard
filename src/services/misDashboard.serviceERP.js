@@ -326,11 +326,11 @@ export async function turnOverCustomerWise(req, res) {
 
         const sql =
             `
-     SELECT A.FINYR,C.COMPCODE,A.CUSTOMER,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+     SELECT A.FINYR,C.COMPCODE,A.CUSTOMER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE A.FINYR = '${finYear}' AND  C.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,C.COMPCODE,A.CUSTOMER
+GROUP BY A.FINYR,C.COMPCODE,A.CUSTOMER,C.COMPNAME
 ORDER BY 1,2,3
      `;
 
@@ -339,7 +339,8 @@ ORDER BY 1,2,3
             finYear: po[0],
             compCode: po[1],
             customer: po[2],
-            currentValue: po[3],
+            compName:po[3],
+            currentValue: po[4],
         }))
         return res.json({ statusCode: 0, data: resp })
     }
