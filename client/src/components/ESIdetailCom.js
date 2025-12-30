@@ -85,6 +85,65 @@ const ESIDetailedCom = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
+  
+
+
+
+  const filteredData = Array.isArray(ESIdata)
+    ? ESIdata
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row[key]?.toString().toLowerCase() || "";
+          const searchValue = search[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.ESI) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.ESI) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.ESI),
+      maxNetPay: Math.max(acc.maxNetPay, item.ESI),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  console.log("Selected Month:", selectmonths);
+  console.log("ESI Data count:", ESIdata.length);
+  console.log("Filtered count:", filteredData.length);
   const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
@@ -162,7 +221,7 @@ const ESIDetailedCom = ({
       { width: 14 },
       { width: 30 },
       { width: 35 },
-      { width: 16 },
+      { width: 20 },
     ];
 
     /* =========================
@@ -194,16 +253,43 @@ const ESIDetailedCom = ({
       row.getCell(5).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
       row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
     });
+ const totalRow = worksheet.addRow([
+      "",        // ID Card
+      "",        // Name
+      "",        // Gender
+      "",        // Department
+      "TOTAL",   // Age column
+      totalNetPay,  // ESI Amount
+    ]);
+
+    totalRow.height = 24;
+
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 6 ? "right" : "center",
+        indent: 1,
+      };
+    });
 
     /* =========================
        6️⃣ NUMBER FORMAT
     ========================= */
-    worksheet.getColumn(6).numFmt = "#,##0.00";
+    worksheet.getColumn(6).numFmt = "₹ #,##0.00";
 
     /* =========================
        7️⃣ FREEZE TITLE + HEADER
     ========================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     /* =========================
        8️⃣ EXPORT FILE
@@ -211,64 +297,6 @@ const ESIDetailedCom = ({
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee_Details.xlsx");
   };
-
-
-
-  const filteredData = Array.isArray(ESIdata)
-    ? ESIdata
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row[key]?.toString().toLowerCase() || "";
-          const searchValue = search[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.ESI) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.ESI) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.ESI),
-      maxNetPay: Math.max(acc.maxNetPay, item.ESI),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", ESIdata.length);
-  console.log("Filtered count:", filteredData.length);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">

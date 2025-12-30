@@ -116,9 +116,49 @@ export const addInsightsfreelookRow = ({
     `Month :  ${selectedMonth || ""}   |   ` +
     `Fabric category :  ${category || ""}  |   ` +
     (selectedDate ? `Date : ${selectedDate}   ` : "") +
-    (selectState ? `State : ${selectState}    ` : "") 
-    // Insert insights row
-    worksheet.insertRow(startRow, [insightText]);
+    (selectState ? `State : ${selectState}    ` : "")
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
+
+  // 🔒 MUST match title merge range (A1:F1 → A2:F2)
+  const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
+
+  worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
+
+  const cell = worksheet.getCell(`A${startRow}`);
+
+  cell.font = { bold: true, size: 12 };
+  cell.alignment = {
+    horizontal: "left",
+    vertical: "middle",
+    wrapText: false,
+    indent: 1, // spacing from left
+  };
+
+  worksheet.getRow(startRow).height = 30;
+};
+
+export const addInsightsRowTurnOver = ({
+  worksheet,
+  startRow = 2,
+  totalColumns,
+  selectedYear,
+  localCompany,
+  selectedCustomer
+
+}) => {
+
+
+
+  const insightText =
+
+    `FinYear -  ${selectedYear}    |    ` +
+    `Comp Code :  ${localCompany}    |    ` +
+    `Customer :  ${selectedCustomer}    |    `
+
+
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
 
   // 🔒 MUST match title merge range (A1:F1 → A2:F2)
   const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
@@ -602,8 +642,8 @@ export async function classListData(data) {
       num = num
         ? parseInt(num, 10)
         : order[prefix] !== undefined
-        ? order[prefix]
-        : Infinity;
+          ? order[prefix]
+          : Infinity;
 
       return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
     };
@@ -752,12 +792,12 @@ export const DropdownNew = ({
   const options = [
     ...(clear
       ? [
-          {
-            value: "",
-            label: `Select ${name || placeholder || "Option"}`,
-            isDisabled: false,
-          },
-        ]
+        {
+          value: "",
+          label: `Select ${name || placeholder || "Option"}`,
+          isDisabled: false,
+        },
+      ]
       : []),
     ...(dataList?.map((item) => ({
       value: otherValue ? item?.[otherValue] : item?.id,
@@ -1044,17 +1084,17 @@ export const handleOnChange = (event, setValue) => {
 
   setValue(
     valueBeforeCursor +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd) +
-      valueAfterCursor
+    inputValue.slice(inputSelectionStart, inputSelectionEnd) +
+    valueAfterCursor
   );
 
   // Set the cursor position to the end of the input value
   setTimeout(() => {
     event.target.setSelectionRange(
       valueBeforeCursor.length +
-        inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
+      inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
       valueBeforeCursor.length +
-        inputValue.slice(inputSelectionStart, inputSelectionEnd).length
+      inputValue.slice(inputSelectionStart, inputSelectionEnd).length
     );
   });
 };
@@ -1130,8 +1170,7 @@ export function ReusableInput({
             disabled={disabled}
             className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
               focus:border-indigo-300 focus:outline-none transition-all duration-200
-              hover:border-slate-400 ${
-                readOnly || disabled ? "bg-slate-100" : ""
+              hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
               } ${className}`}
             autoFocus={autoFocus}
           />
@@ -1155,8 +1194,7 @@ export function ReusableInput({
           disabled={disabled}
           className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
             focus:border-indigo-300 focus:outline-none transition-all duration-200
-            hover:border-slate-400 ${
-              readOnly || disabled ? "bg-slate-100" : ""
+            hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
             } ${className}`}
           autoFocus={autoFocus}
         />
@@ -1207,11 +1245,10 @@ export const DateInput = forwardRef(
          w-[120px] px-2 py-0.5 text-xs text-[12px] h-6 border input-font border-gray-300 rounded-lg
           focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
           transition-all duration-150 shadow-sm
-            ${
-              readOnly
+            ${readOnly
                 ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                 : "bg-white"
-            }
+              }
             ${disabled ? "opacity-50 bg-gray-100 cursor-not-allowed" : ""}
             ${inputClass}
           `}
@@ -1288,8 +1325,8 @@ export const customStyles = {
     backgroundColor: state.isSelected
       ? "#d1d5db" // gray-200
       : state.isFocused
-      ? "#e5e7eb" // gray-100
-      : "white",
+        ? "#e5e7eb" // gray-100
+        : "white",
     color: "black",
   }),
 

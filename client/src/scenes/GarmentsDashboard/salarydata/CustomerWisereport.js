@@ -13,14 +13,14 @@ const COLORS = [
   "#00CED1", "#DC143C",
 ];
 
-const Form = ({ companyName: propCompanyName, finYear: propFinYear }) => {
+const Form = ({ companyName: propCompanyName, finYear: propFinYear, finYr ,filterBuyerList}) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-const formatINR = (value) =>
-  `₹ ${Number(value).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   const reduxState = useSelector(state => state.dashboardFilters);
 
@@ -56,11 +56,11 @@ const formatINR = (value) =>
   const categories = chartData.map(item => item.customer);
 
   const handlePointClick = (point) => {
+    dispatch(setFilterBuyer(companyName));
+    dispatch(setSelectedYear(finYear));
     setSelectedCustomer({
       customerName: point.options.customer,
-      value: point.options.y,
-      finYear,
-      companyName,
+
     });
     setShowTable(true);
   };
@@ -124,12 +124,9 @@ const formatINR = (value) =>
 
       {showTable && selectedCustomer && (
         <CustomerWiseTable
-          customerName={selectedCustomer.customerName}
-          finYear={selectedCustomer.finYear}
-          companyName={selectedCustomer.companyName}
-          value={selectedCustomer.value}
-          search={search}
-          setSearch={setSearch}
+          customerName={selectedCustomer.customerName} filterBuyerList={filterBuyerList}
+          finYr={finYr}
+
           closeTable={() => setShowTable(false)}
         />
       )}

@@ -103,7 +103,61 @@ const OTWagesDetail = ({
 
   //   XLSX.writeFile(wb, "Employee_Details.xlsx");
   // };
-  const downloadExcel = async () => {
+ 
+
+  const filteredData = Array.isArray(salaryDet)
+    ? salaryDet
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.OTWAGES) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.OTWAGES) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.OTWAGES),
+      maxNetPay: Math.max(acc.maxNetPay, item.OTWAGES),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+ const downloadExcel = async () => {
     if (filteredData?.length === 0) {
       alert("No data to export!");
       return;
@@ -119,7 +173,7 @@ const OTWagesDetail = ({
       { header: "Gender", key: "GENDER", width: 14 },
       { header: "Department", key: "DEPARTMENT", width: 35 },
       { header: "Designation", key: "DESIGNATION", width: 35 },
-      { header: "OT Wages", key: "OTWAGES", width: 15 },
+      { header: "OT Wages", key: "OTWAGES", width: 20 },
     ];
 
     // 2️⃣ Add Title row above headers
@@ -181,71 +235,42 @@ const OTWagesDetail = ({
       row.getCell("DESIGNATION").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
       row.getCell("OTWAGES").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
     });
+       const totalRow = worksheet.addRow({
+      EMPID: "",
+      FNAME: "",
+      GENDER: "",
+      DEPARTMENT: "",
+      DESIGNATION: "TOTAL",
+      OTWAGES: totalNetPay,
+    });
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+       
+      };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 6 ? "right" : "center",
+        indent: 1
+      };
+    });
+
 
     // 6️⃣ Format OTWAGES → always 2 decimals
-    worksheet.getColumn("OTWAGES").numFmt = "#,##0.00";
+    worksheet.getColumn("OTWAGES").numFmt = "₹ #,##0.00";
 
     // 7️⃣ Freeze header row (row 2)
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     // 8️⃣ Export
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), "Salary Distribution Overtime Wages Report.xlsx");
   };
-
-
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row?.[key]?.toString().toLowerCase() || "";
-          const searchValue = search?.[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.OTWAGES) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.OTWAGES) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.OTWAGES),
-      maxNetPay: Math.max(acc.maxNetPay, item.OTWAGES),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">

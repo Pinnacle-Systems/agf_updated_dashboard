@@ -404,7 +404,8 @@ export const DropdownWithSearch = forwardRef(
       label,
       nextRef = null,
       classNameForOptions, // 👈 next input ref
-      autoFocus
+      autoFocus,
+      
     },
     ref
   ) => {
@@ -483,7 +484,7 @@ export const DropdownWithSearch = forwardRef(
         <select
           ref={ref}
           className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-     focus:outline-none focus:border-blue-600 transition-all duration-200
+     focus:outline-none border-blue-600 transition-all duration-200
      ${readOnly || disabled ? "bg-slate-100" : ""} 
     ${className}`}
           disabled={disabled}

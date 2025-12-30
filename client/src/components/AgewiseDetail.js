@@ -108,106 +108,7 @@ const AgewiseSalDetail = ({
   //   XLSX.writeFile(wb, "Employee_Details.xlsx");
   // };
 
-  const downloadExcel = async () => {
-    if (filteredData.length === 0) {
-      alert("No data to export!");
-      return;
-    }
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Employees Data");
-
-    // 1️⃣ Define columns first
-    worksheet.columns = [
-      { header: "ID Card", key: "EMPID", width: 15 },
-      { header: "Name", key: "FNAME", width: 35 },
-      { header: "Gender", key: "GENDER", width: 14 },
-      { header: "Department", key: "DEPARTMENT", width: 35 },
-      { header: "Age", key: "AGE", width: 10 },
-      { header: "Netpay", key: "NETPAY", width: 17 },
-    ];
-
-    // 2️⃣ Insert Title row above headers
-    worksheet.insertRow(1, ["Salary Distribution Age wise Report"]);
-    worksheet.mergeCells("A1:F1"); // merge across all columns
-    const titleCell = worksheet.getCell("A1");
-    titleCell.font = { bold: true, size: 14 };
-    titleCell.alignment = { horizontal: "center", vertical: "middle" };
-    worksheet.getRow(1).height = 30;
-
-     addInsightsRow({
-          worksheet,
-          startRow: 2,
-          totalColumns: 6,
-    
-          dynamicField: "Salary",
-          selectedBuyer,
-          selectedGender,
-          selectedState,
-          selectedYear,
-          selectedMonth: selectmonths,
-        });
-    
-
-    // 3️⃣ Style header row (row 2)
-    const headerRow = worksheet.getRow(3);
-    headerRow.height = 26;
-
-    headerRow.eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFD9D9D9" }, // gray background
-      };
-      cell.alignment = { horizontal: "center", vertical: "middle" };
-      cell.border = {
-        top: { style: "thin" },
-        bottom: { style: "thin" },
-        left: { style: "thin" },
-        right: { style: "thin" },
-      };
-    });
-
-    // 4️⃣ Add data rows starting from row 3
-    filteredData.forEach((row) => {
-      worksheet.addRow({
-        EMPID: row.EMPID,
-        FNAME: row.FNAME,
-        GENDER: row.GENDER,
-        DEPARTMENT: row.DEPARTMENT,
-        AGE:
-          row.AGE !== null && row.AGE !== undefined
-            ? Math.trunc(row.AGE)
-            : "",
-        NETPAY: row.NETPAY,
-      });
-    });
-
-    // 5️⃣ Apply alignment ONLY to data rows
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber <= 3) return; // skip title and header
-
-      row.height = 22;
-
-      row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-      row.getCell("AGE").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-      row.getCell("NETPAY").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-    });
-
-    // 6️⃣ NETPAY → always show 2 decimals
-    worksheet.getColumn("NETPAY").numFmt = "#,##0.00";
-
-    // 7️⃣ Freeze header (row 2)
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
-
-    // 8️⃣ Export
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "Salary Distribution Age wise Report.xlsx");
-  };
+  
 
 
 
@@ -289,7 +190,130 @@ const AgewiseSalDetail = ({
     }),
     { minNetPay: Infinity, maxNetPay: -Infinity }
   );
+const downloadExcel = async () => {
+    if (filteredData.length === 0) {
+      alert("No data to export!");
+      return;
+    }
 
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees Data");
+
+    // 1️⃣ Define columns first
+    worksheet.columns = [
+      { header: "ID Card", key: "EMPID", width: 15 },
+      { header: "Name", key: "FNAME", width: 35 },
+      { header: "Gender", key: "GENDER", width: 14 },
+      { header: "Department", key: "DEPARTMENT", width: 35 },
+      { header: "Age", key: "AGE", width: 10 },
+      { header: "Netpay", key: "NETPAY", width: 20 },
+    ];
+
+    // 2️⃣ Insert Title row above headers
+    worksheet.insertRow(1, ["Salary Distribution Age wise Report"]);
+    worksheet.mergeCells("A1:F1"); // merge across all columns
+    const titleCell = worksheet.getCell("A1");
+    titleCell.font = { bold: true, size: 14 };
+    titleCell.alignment = { horizontal: "center", vertical: "middle" };
+    worksheet.getRow(1).height = 30;
+
+     addInsightsRow({
+          worksheet,
+          startRow: 2,
+          totalColumns: 6,
+    
+          dynamicField: "Salary",
+          selectedBuyer,
+          selectedGender,
+          selectedState,
+          selectedYear,
+          selectedMonth: selectmonths,
+        });
+    
+
+    // 3️⃣ Style header row (row 2)
+    const headerRow = worksheet.getRow(3);
+    headerRow.height = 26;
+
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFD9D9D9" }, // gray background
+      };
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.border = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    // 4️⃣ Add data rows starting from row 3
+    filteredData.forEach((row) => {
+      worksheet.addRow({
+        EMPID: row.EMPID,
+        FNAME: row.FNAME,
+        GENDER: row.GENDER,
+        DEPARTMENT: row.DEPARTMENT,
+        AGE:
+          row.AGE !== null && row.AGE !== undefined
+            ? Math.trunc(row.AGE)
+            : "",
+        NETPAY: row.NETPAY,
+      });
+    });
+
+    // 5️⃣ Apply alignment ONLY to data rows
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 3) return; // skip title and header
+
+      row.height = 22;
+
+      row.getCell("EMPID").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell("FNAME").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("GENDER").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("DEPARTMENT").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      row.getCell("AGE").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+      row.getCell("NETPAY").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+    });
+     const totalRow = worksheet.addRow({
+      EMPID: "",
+      FNAME: "",
+      GENDER: "",
+      DEPARTMENT: "",
+      AGE: "TOTAL",
+      NETPAY: totalNetPay,
+    });
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+       
+      };
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 6 ? "right" : "center",
+        indent: 1
+      };
+    });
+
+    // 6️⃣ NETPAY → always show 2 decimals
+    worksheet.getColumn("NETPAY").numFmt = "₹ #,##0.00";
+
+    // 7️⃣ Freeze header (row 2)
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
+
+    // 8️⃣ Export
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), "Salary Distribution Age wise Report.xlsx");
+  };
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">

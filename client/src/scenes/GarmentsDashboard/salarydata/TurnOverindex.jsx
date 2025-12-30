@@ -75,13 +75,28 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
           >
             <Box sx={{ display: "flex", gap: 2 }}>
               {/* FIN YEAR */}
-              <DropdownWithSearch
+              {/* <DropdownWithSearch
                 options={finYr?.data || []}
                 labelField="finYr"
                 label=""
                 value={selectedYear}
                 setValue={(val) => dispatch(setSelectedYear(val))}
-              />
+              /> */}
+              <select
+                value={selectedYear || ""}
+                onChange={(e) => dispatch(setSelectedYear(e.target.value))}
+                className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"
+              >
+                <option value="">Select Year</option>
+
+                {(finYr?.data || []).map((item) => (
+                  <option key={item.finYr} value={item.finYr}>
+                    {item.finYr}
+                  </option>
+                ))}
+              </select>
+
 
               {/* MONTH */}
               <FinYear
@@ -92,18 +107,33 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
               />
 
               {/* COMPANY FILTER */}
-              <DropdownWithSearch
+              {/* <DropdownWithSearch
                 key={filterBuyer}
                 ref={buyerRef}
                 options={filterBuyerList || []}
                 labelField="compname"
                 label=""
                 value={filterBuyer}
-                // className={`${filterBuyer ? "border-2 border-blue-600" : "border border-slate-300"
-                //   } w-full px-2 py-1 text-xs rounded-md focus:outline-none transition-all duration-200`}
+
                 className="w-full px-2 py-1 text-xs rounded-md"
                 setValue={(val) => dispatch(setFilterBuyer(val))}
-  autoFocus={focusBuyer}              />
+                autoFocus={focusBuyer} /> */}
+              <select
+                ref={buyerRef}
+                value={filterBuyer || ""}
+                onChange={(e) => dispatch(setFilterBuyer(e.target.value))}
+                autoFocus={focusBuyer}
+         className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"              >
+                <option value="">Select Company</option>
+
+                {(filterBuyerList || []).map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.compname}
+                  </option>
+                ))}
+              </select>
+
             </Box>
           </Grid>
         </Grid>
@@ -116,7 +146,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         <Grid item xs={12} md={7}>
           <EmpType1 key={filterBuyer}
             companyName={filterBuyer}
-            finYear={selectedYear}
+            finYear={selectedYear} finYr={finYr} filterBuyerList={filterBuyerList}
           />
         </Grid>
 
