@@ -190,6 +190,32 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardQuarterCompare: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardQuarterCompare`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricInwardMonthCompare: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardMonthCompare`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
     getFabricOutwardDetail: builder.query({
       query: ({ params }) => {
         return {
@@ -216,6 +242,18 @@ const freeLookFabric = createApi({
       },
       providesTags: ["FreeLookFabric"],
     }),
+    getFabricInwardFetchData: builder.query({
+      query: () => {
+        return {
+          url: `${FREE_LOOK_FABRIC}/fabricInwardFetchData`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
   }),
 });
 
@@ -230,12 +268,15 @@ export const {
   useGetFabricInwardQuarterDetailQuery,
   useGetFabricInwardQuarterNameDetailQuery,
   useGetFabricInwardMonthDateQuery,
-  useGetFabricOutwardDetailQuery,
-  useGetFabricOutwardCusDetailQuery,
+  useGetFabricInwardQuarterCompareQuery,
   useGetFabricInwardStateDetailQuery,
   useGetFabricInwardStateDetailTransQuery,
   useGetFabricInwardStateDropdownQuery,
-  useGetFabricInwardYearCompareQuery
+  useGetFabricInwardYearCompareQuery,
+  useGetFabricInwardFetchDataQuery,
+  useGetFabricOutwardDetailQuery,
+  useGetFabricOutwardCusDetailQuery,
+  useLazyGetFabricInwardMonthCompareQuery
 } = freeLookFabric;
 
 export default freeLookFabric;

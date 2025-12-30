@@ -173,6 +173,7 @@ const MonthWiseCus = ({
                     setCustName={setCustName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
+                    autoBorder={true}
                 />
             )}
         </Card>

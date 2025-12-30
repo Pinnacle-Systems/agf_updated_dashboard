@@ -9,6 +9,9 @@ import {
   getFabricInwardCusByMonth,
   getFabricInwardCustomer,
   getFabricInwardCustomerByName,
+  getFabricInwardFetchData,
+  getFabricInwardMonthComapare,
+  getFabricInwardQuarterComapare,
   getFabricInwardState,
   getFabricInwardStateDetail,
   getFabricInwardYearCompare,
@@ -42,6 +45,11 @@ router.get("/fabricInwardStateDetail", getFabricInwardStateDetail);
 router.get("/fabricInwardStateDropdown", getFabInwardStateDropdown);
 
 router.get("/fabricInwardYearCompare",getFabricInwardYearCompare)
+
+router.get("/fabricInwardFetchData",getFabricInwardFetchData)
+
+router.get("/fabricInwardQuarterCompare",getFabricInwardQuarterComapare)
+router.get("/fabricInwardMonthCompare",getFabricInwardMonthComapare)
 
 router.get("/getFabricOutward", getFabricOutward);
 router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);

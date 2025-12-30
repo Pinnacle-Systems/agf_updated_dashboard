@@ -116,9 +116,9 @@ export const addInsightsfreelookRow = ({
     `Month :  ${selectedMonth || ""}   |   ` +
     `Fabric category :  ${category || ""}  |   ` +
     (selectedDate ? `Date : ${selectedDate}   ` : "") +
-    (selectState ? `State : ${selectState}    ` : "") 
-    // Insert insights row
-    worksheet.insertRow(startRow, [insightText]);
+    (selectState ? `State : ${selectState}    ` : "");
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
 
   // 🔒 MUST match title merge range (A1:F1 → A2:F2)
   const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
@@ -789,13 +789,16 @@ export const DropdownNew = ({
         menuShouldScrollIntoView={false}
         maxMenuHeight={170}
         onInputChange={(value) => value.toUpperCase()}
-        className="w-full text-xs rounded-lg border border-gray-300
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          transition-all duration-150 shadow-sm"
+        className={`w-full text-xs rounded-lg border ${
+          autoFocus
+            ? " border border-blue-800 ring-1"
+            : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        } 
+          
+          transition-all duration-150 shadow-sm`}
         placeholder={placeholder}
         styles={customSelectStyles}
         onKeyDown={onKeyDown}
-        autoFocus={autoFocus}
       />
     </div>
   );
@@ -1205,7 +1208,7 @@ export const DateInput = forwardRef(
             onChange={(e) => setValue(e.target.value)}
             className={`
          w-[120px] px-2 py-0.5 text-xs text-[12px] h-6 border input-font border-gray-300 rounded-lg
-          focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500
+          ring-1 border-blue-800
           transition-all duration-150 shadow-sm
             ${
               readOnly

@@ -11,6 +11,7 @@ import DomainIcon from '@mui/icons-material/Domain';
 import FabricMonthDate from "./FabricMonthDate";
 import StateDetails from "./StateDtl";
 import FabricInwardYearCompare from "./FabricInwardYearCompare";
+import FabricInwardQuarterCompare from "./FabInwardQuarterCompare";
 const FabricInward = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
     const [selectedYear, setSelectedYear] = useState(year);
@@ -93,9 +94,8 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                                 value={selectedYear}
                                 autoFocus={true}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-    focus:border-indigo-300 focus:outline-none transition-all duration-200
-    hover:border-slate-400 `}                            >
+                                className={`w-full px-2 py-1 text-xs border border-blue-800 rounded-md 
+      transition-all duration-200 ring-1 `}                            >
                                 {finYear?.data?.map((option) => (
                                     <option key={option.finYear} value={option.finYear}>
                                         {option.finYear}
@@ -131,6 +131,9 @@ const FabricInward = ({ finYear, year, selectCategory }) => {
                 </Grid>
                 <Grid item xs={12} md={12}>
                     <FabricInwardYearCompare selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                    <FabricInwardQuarterCompare selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <StateDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />

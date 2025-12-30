@@ -5,7 +5,6 @@ import InwardType from "./FabricInward/inwardType";
 const OverallFabricInward = () => {
     const [fYear, setFYear] = useState("25-26")
     const { data: finYear } = useGetFinYearQuery()
-
     return (
         <>
             <InwardType year={fYear} finYear={finYear} />

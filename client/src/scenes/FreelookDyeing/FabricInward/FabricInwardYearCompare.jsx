@@ -29,7 +29,7 @@ const FabricInwardYearCompare = ({
 
     const customers = [...new Set(rows.map(r => r.customer))];
     const years = [...new Set(rows.map(r => r.finYear))].sort();
-
+    const yearText = years.join("  |  ");
     const dataMap = {};
     rows.forEach(({ customer, finYear, qty }) => {
         if (!dataMap[customer]) dataMap[customer] = {};
@@ -38,11 +38,15 @@ const FabricInwardYearCompare = ({
 
     const series = years.map((year) => ({
         name: year,
-        data: customers.map((cust) => ({
-            y: dataMap[cust]?.[year] || 0,
-            customer: cust,
-            finYear: year,
-        })),
+        data: customers.map((cust) => {
+            const value = dataMap[cust]?.[year];
+
+            return {
+                y: value > 0 ? value : null,   // 👈 IMPORTANT
+                customer: cust,
+                finYear: year,
+            };
+        }),
     }));
 
     /* -------- CHART OPTIONS -------- */
@@ -55,7 +59,6 @@ const FabricInwardYearCompare = ({
         },
 
         title: null,
-
         xAxis: {
             categories: customers,
             labels: {
@@ -77,7 +80,7 @@ const FabricInwardYearCompare = ({
 
         legend: {
             enabled: true,
-            itemStyle: { fontSize: "10px" },
+            itemStyle: { fontSize: "12px" },
         },
 
         tooltip: {
@@ -101,10 +104,25 @@ const FabricInwardYearCompare = ({
                 borderRadius: 4,
                 pointPadding: 0.05,
                 groupPadding: 0.15,
-                minPointLength: 4, 
+                minPointLength: 4,
             },
             series: {
                 cursor: "pointer",
+                dataLabels: {
+                    enabled: category === "INHOUSE",
+                    inside: false,        // 👈 show above bar
+                    y: -6,                // 👈 move up (cross-like)
+                    formatter: function () {
+                        return this.point.finYear; // 👈 show year
+                    },
+                    style: {
+                        fontSize: "9px",
+                        fontWeight: "600",
+                        color: "#111827",
+                        textOutline: "none",
+                    },
+                },
+
                 point: {
                     events: {
                         click: function () {

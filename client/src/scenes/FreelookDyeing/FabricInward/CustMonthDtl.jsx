@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
-import Highcharts from 'highcharts';
-import { useState } from 'react'
+import Highcharts from "highcharts";
+import { useState } from "react";
 import { useGetFabricInwardMonthDetailQuery } from "../../../redux/service/freeLookFabric";
 import CustomerTrans from "./CustomerTrans";
 
@@ -15,7 +15,6 @@ const CustMonthDtl = ({
     setSelectmonths,
 }) => {
     const [showTable, setShowTable] = useState(false);
-    const [custName, setCustName] = useState("");
 
     const { data: fabricData } = useGetFabricInwardMonthDetailQuery(
         {
@@ -31,10 +30,15 @@ const CustMonthDtl = ({
 
     const rows = fabricData?.data || [];
 
-    // 🔹 Clean month names (remove spaces)
-    const Months = rows.map((r) => r.month.trim());
+    // ======================
+    // RAW DATA (DO NOT TOUCH)
+    // ======================
+    const Months = rows.map((r) => r.month.trim()); // e.g. "APRIL"
     const QtyData = rows.map((r) => Number(r.qty || 0));
 
+    // ======================
+    // HELPERS
+    // ======================
     const normalizeMonth = (m) =>
         m.charAt(0).toUpperCase() + m.slice(1).toLowerCase();
 
@@ -46,17 +50,27 @@ const CustMonthDtl = ({
         const endYear = 2000 + end;
 
         const monthsAfterApril = [
-            "April", "May", "June", "July", "August",
-            "September", "October", "November", "December"
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
         ];
 
         const year = monthsAfterApril.includes(monthName)
             ? startYear
             : endYear;
 
-        return `${monthName} ${year}`;
+        return `${monthName} ${year}`; // ✅ EXACT FORMAT FinYear expects
     };
 
+    // ======================
+    // HIGHCHART OPTIONS
+    // ======================
     const options = {
         chart: {
             type: "line",
@@ -76,13 +90,16 @@ const CustMonthDtl = ({
             },
             labels: {
                 style: { fontSize: "10px" },
+                formatter: function () {
+                    return getFinYearMonth(this.value, selectedYear);
+                },
             },
         },
 
         yAxis: {
             min: 0,
             title: {
-                text: " Qty (kgs)",
+                text: "Qty (kgs)",
                 style: { fontSize: "12px", fontWeight: 600 },
             },
             labels: {
@@ -95,23 +112,21 @@ const CustMonthDtl = ({
             useHTML: true,
             formatter: function () {
                 const point = this.points[0].point;
-
                 return `
-      <b>${this.x}</b>
-      <table style="margin-top:4px;">
-        <tr>
-          <td>Qty (kgs)</td>
-          <td style="padding:0 6px;">:</td>
-          <td><b>${point.y.toLocaleString("en-IN", {
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
-              })}</b></td>
-        </tr>
-      </table>  
-    `;
+          <b>${getFinYearMonth(this.x, selectedYear)}</b>
+          <table style="margin-top:4px;">
+            <tr>
+              <td>Qty (kgs)</td>
+              <td style="padding:0 6px;">:</td>
+              <td><b>${point.y.toLocaleString("en-IN", {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                })}</b></td>
+            </tr>
+          </table>
+        `;
             },
         },
-
 
         plotOptions: {
             series: {
@@ -135,10 +150,11 @@ const CustMonthDtl = ({
                 point: {
                     events: {
                         click: function () {
-                            const monthName = this.category; // "JULY"
-                            const correctMonth = getFinYearMonth(monthName, selectedYear);
-                            setSelectmonths(correctMonth);
-                            console.log(correctMonth)
+                            const correctMonth = getFinYearMonth(
+                                this.category,
+                                selectedYear
+                            );
+                            setSelectmonths(correctMonth); // ✅ WORKS PERFECTLY
                             // setShowTable(true);
                         },
                     },
@@ -150,11 +166,11 @@ const CustMonthDtl = ({
             {
                 name: "Qty",
                 data: QtyData,
-                color: "#16A34A",          // Emerald Green
+                color: "#16A34A",
                 marker: {
                     fillColor: "#16A34A",
                     lineWidth: 2,
-                    lineColor: "#14532D",    // Dark green border
+                    lineColor: "#14532D",
                 },
             },
         ],
@@ -162,6 +178,9 @@ const CustMonthDtl = ({
         credits: { enabled: false },
     };
 
+    // ======================
+    // RENDER
+    // ======================
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
@@ -196,6 +215,4 @@ const CustMonthDtl = ({
     );
 };
 
-
-
-export default CustMonthDtl
+export default CustMonthDtl;

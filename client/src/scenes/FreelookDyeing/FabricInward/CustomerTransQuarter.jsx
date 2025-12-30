@@ -353,9 +353,8 @@ const CustomerTrans = ({
                             <select
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-    focus:border-indigo-300 focus:outline-none transition-all duration-200
-    hover:border-slate-400 `}                            >
+                                className={`w-full px-2 py-1 text-xs border border-blue-800 rounded-md 
+      transition-all duration-200 ring-1 `}                            >
                                 {finYear?.data?.map((option) => (
                                     <option key={option.finYear} value={option.finYear}>
                                         {option.finYear}
@@ -371,9 +370,8 @@ const CustomerTrans = ({
                                     setSelectQuarter(e.target.value);
                                     setSelectmonths("")
                                 }}
-                                className="w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-               focus:border-indigo-300 focus:outline-none 
-               hover:border-slate-400"
+                                className="w-full px-2 py-1 text-xs border border-blue-800 rounded-md 
+      transition-all duration-200 ring-1 "
                             >
                                 <option value="ALL">Select Quarter</option>
                                 <option value="Q1">Quarter 1</option>

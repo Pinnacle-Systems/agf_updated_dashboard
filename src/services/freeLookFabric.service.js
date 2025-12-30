@@ -5,31 +5,59 @@ export async function getFabricInward(req, res) {
   let connection;
 
   try {
+    // 1️⃣ Get DB Connection
     connection = await getConnectionERP();
 
     if (!connection) {
-      return res
-        .status(500)
-        .json({ statusCode: 1, message: "Database connection not available" });
+      return res.status(500).json({
+        statusCode: 1,
+        message: "Database connection not available",
+      });
     }
 
     const { finyear } = req.query;
 
+    if (!finyear) {
+      return res.status(400).json({
+        statusCode: 1,
+        message: "finyear is required",
+      });
+    }
+
+    // 2️⃣ Call Stored Procedure
+    await connection.execute(`
+      BEGIN
+        LOAD_FABRIC_INWARD_DATA();
+      END;
+    `);
+
+    // 3️⃣ Commit (IMPORTANT)
+    await connection.commit();
+
+    // 4️⃣ Execute SELECT Query
     const result = await connection.execute(
-      `SELECT A.CCATEGORY,COUNT(*) CNT,SUM(A.TOTQTY) QTY FROM DTFABINWENTRY A
-JOIN GTFINANCIALYEAR B ON A.FINYR = B.GTFINANCIALYEARID
-WHERE B.FINYR = :FINYEAR
-GROUP BY A.CCATEGORY`,
+      `SELECT CCATEGORY,
+              COUNT(*) CNT,
+              SUM(QTY) QTY
+       FROM FABRIC_INWARD_DATA
+       WHERE FINYR = :FINYEAR
+       GROUP BY CCATEGORY`,
       { FINYEAR: finyear },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
-    const data = result.rows.map((item) => ({
-      category: item.CCATEGORY,
-      count: item.CNT,
-      qty: item.QTY,
+
+    // 5️⃣ Map Result
+    const data = result.rows.map((row) => ({
+      category: row.CCATEGORY,
+      count: row.CNT,
+      qty: row.QTY,
     }));
 
-    return res.json({ statusCode: 0, data });
+    // 6️⃣ Send Response
+    return res.json({
+      statusCode: 0,
+      data,
+    });
   } catch (err) {
     console.error("Error retrieving data:", err);
 
@@ -39,6 +67,7 @@ GROUP BY A.CCATEGORY`,
       error: err.message,
     });
   } finally {
+    // 7️⃣ Close Connection
     if (connection) {
       try {
         await connection.close();
@@ -686,6 +715,173 @@ ORDER BY CUSTNAME`,
       customer: item.CUSTNAME,
       finYear: item.FINYR,
       qty: item.QTY,
+    }));
+
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardFetchData(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+
+    const result = await connection.execute(
+      `BEGIN
+	LOAD_FABRIC_INWARD_DATA();
+END;`
+    );
+    return res.json({
+      statusCode: 0,
+      message: "Stored procedure executed successfully",
+    });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardQuarterComapare(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+
+    const { category } = req.query;
+    const customer = req.query.customer || "ALL";
+    const result = await connection.execute(
+      `WITH PARAM_DATA AS (
+SELECT --ROW_NUMBER() OVER(PARTITION BY CUSTNAME ORDER BY CUSTNAME, FINYR DESC) AS rno,
+	   CUSTNAME,
+	   FINYR,
+	   QUARTER,
+	   NVL(SUM(QTY),0) AS QTY
+FROM FABRIC_INWARD_DATA
+WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND
+      ( :CUSTNAME = 'ALL' OR CUSTNAME = :CUSTNAME )
+GROUP BY FINYR,CUSTNAME,QUARTER
+),
+YEAR_DATA AS(
+SELECT (TO_CHAR(SYSDATE,'YY')) || '-' || (TO_CHAR(SYSDATE,'YY') + 1) AS currentyear,
+	   (TO_CHAR(SYSDATE,'YY')-1) || '-' || (TO_CHAR(SYSDATE,'YY')) AS previousyear,
+       (TO_CHAR(SYSDATE,'YY')-2) || '-' || (TO_CHAR(SYSDATE,'YY') - 1) AS beforepreviousyear
+FROM DUAL
+)
+SELECT CUSTNAME, currentyear AS FINYR, QUARTER, QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.currentyear
+UNION ALL
+SELECT CUSTNAME, previousyear AS FINYR, QUARTER, QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.previousyear
+UNION ALL
+SELECT CUSTNAME, beforepreviousyear AS FINYR, QUARTER, QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.beforepreviousyear
+
+ORDER BY CUSTNAME,FINYR,QUARTER`,
+      { CCATEGORY: category, CUSTNAME: customer },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    const data = result.rows.map((item) => ({
+      customer: item.CUSTNAME,
+      quarter: item.QUARTER,
+      qty: item.QTY,
+      finYear: item.FINYR,
+    }));
+
+    return res.json({ statusCode: 0, data });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+
+    return res.status(500).json({
+      statusCode: 1,
+      message: "Database error",
+      error: err.message,
+    });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeErr) {
+        console.error("Error closing connection:", closeErr);
+      }
+    }
+  }
+}
+
+export async function getFabricInwardMonthComapare(req, res) {
+  let connection;
+
+  try {
+    connection = await getConnectionERP();
+
+    if (!connection) {
+      return res
+        .status(500)
+        .json({ statusCode: 1, message: "Database connection not available" });
+    }
+
+    const { finyear, category, customer, quarter } = req.query;
+    const result = await connection.execute(
+      `SELECT 
+    COUNT(1) AS COUNT,
+    NVL(SUM(QTY), 0) AS QTY,
+    MONTHCHAR
+FROM FABRIC_INWARD_DATA
+WHERE FINYR = :FINYR
+  AND ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+  AND ( :QUARTER   = 'ALL' OR QUARTER   = :QUARTER )
+  AND ( :CUSTNAME  = 'ALL' OR CUSTNAME  = :CUSTNAME )
+GROUP BY MONTHCHAR`,
+      {
+        CCATEGORY: category,
+        FINYR: finyear,
+        QUARTER: quarter,
+        CUSTNAME: customer,
+      },
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    console.log(result, "resultt");
+    const data = result.rows.map((item) => ({
+      qty: item.QTY,
+      month: item.MONTHCHAR,
     }));
 
     return res.json({ statusCode: 0, data });

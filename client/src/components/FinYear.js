@@ -5,7 +5,7 @@ const FinYear = ({
   selectmonths,
   setSelectmonths,
   autoFocusBuyer,
-  autoSelect = false
+  autoBorder
 }) => {
   const [months, setMonths] = useState([]);
   const buyerRef = useRef(null);
@@ -50,7 +50,7 @@ const FinYear = ({
       <div>
         <select
           ref={buyerRef}
-          className="border-gray-300  p-1 w-32 h-6.5 text-gray-900 text-xs rounded-md  focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          className={`${autoBorder ? "border border-blue-800 ring-1" : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"}  p-1 w-32 h-6.5 text-gray-900 text-xs rounded-md  `}
           value={selectmonths}
           onChange={(e) => setSelectmonths(e.target.value)}
         >

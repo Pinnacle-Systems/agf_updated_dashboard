@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material"
-import DashboardHeader from "../maindashboard/DashboardHeader"
-import Trophy from "../maindashboard/Trophy"
-import StatisticsCard from "../maindashboard/StatisticsCard"
+import DashboardHeader from "../maindashboard/DashboardHeader.js"
+import Trophy from "../maindashboard/Trophy.js"
+import StatisticsCard from "../maindashboard/StatisticsCard.js"
 import CardStatisticsVerticalComponent from "../../components/CardStatsVertical.js";
 import CurrencyUsd from "mdi-material-ui/CurrencyUsd";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";

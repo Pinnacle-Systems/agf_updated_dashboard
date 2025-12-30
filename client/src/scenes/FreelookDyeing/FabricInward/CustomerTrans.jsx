@@ -33,7 +33,8 @@ const CustomerTrans = ({
     setCustName,
     setFYear,
     selectmonths,
-    setSelectmonths
+    setSelectmonths,
+    autoBorder = false
 }) => {
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
@@ -342,8 +343,8 @@ const CustomerTrans = ({
                                 clear={true}
                                 otherField="custName"
                                 otherValue="custName"
-                                autoFocus={true}
                                 placeholder={"Customer"}
+                                autoFocus={true}
                             />
                         </div>
                         <div className="flex items-center w-28 mr-2">
@@ -351,9 +352,8 @@ const CustomerTrans = ({
                                 value={selectedYear}
                                 // autoFocus={true}
                                 onChange={(e) => setSelectedYear(e.target.value)}
-                                className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-    focus:border-indigo-300 focus:outline-none transition-all duration-200
-    hover:border-slate-400 `}                            >
+                                className={`w-full px-2 py-1 text-xs border border-blue-800 rounded-md 
+      transition-all duration-200 ring-1`}                            >
                                 {finYear?.data?.map((option) => (
                                     <option key={option.finYear} value={option.finYear}>
                                         {option.finYear}
@@ -367,6 +367,7 @@ const CustomerTrans = ({
                                 selectedYear={selectedYear}
                                 selectmonths={selectmonths}
                                 setSelectmonths={setSelectmonths}
+                                autoBorder={autoBorder}
                             />
                         </div>
                         <button

@@ -28,11 +28,18 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
         Q3: "#B45309", // Softer Dark Orange
         Q4: "#991B1B", // Softer Dark Red
     };
+    const quarterMonths = {
+        Q1: ["Apr", "May", "Jun"],
+        Q2: ["Jul", "Aug", "Sep"],
+        Q3: ["Oct", "Nov", "Dec"],
+        Q4: ["Jan", "Feb", "Mar"],
+    };
     const options = {
         chart: {
             type: "pie",
             height: 260,
-            spacing: [0, 0, 0, 0]
+            spacing: [0, 0, 0, 0],
+            margin: [0, 0, 0, 0],
         },
         title: null,
 
@@ -41,18 +48,38 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
                 startAngle: -90,
                 endAngle: 90,
                 center: ["50%", "75%"],
-                size: "90%",
+                size: "120%",
+                dataLabels: {
+                    enabled: true,
+                    distance: -40,
+                    useHTML: true,   // ⭐ IMPORTANT
+                    formatter: function () {
+                        const months = quarterMonths[this.point.name] || [];
+
+                        return `
+      <div style="text-align:center; line-height:1.2">
+        <div style="font-size:11px; font-weight:600;">
+          ${this.point.name}
+        </div>
+        <div style="font-size:11px; font-weight:600;">
+          ${months.join(", ")}
+        </div>
+      </div>
+    `;
+                    },
+                },
                 point: {
                     events: {
                         click: function () {
                             setShowTable(true);
-                            setSelectQuarter(this.name)
-                            setSelectmonths("")
+                            setSelectQuarter(this.name);
+                            setSelectmonths("");
                         },
                     },
                 },
             },
         },
+
 
         tooltip: {
             useHTML: true,
@@ -64,9 +91,9 @@ const CustQuarterDtl = ({ selectedYear, setSelectedYear, category, finYear, setC
           <td>Qty (kgs)</td>
           <td style="padding:0 6px;">:</td>
           <td><b>${this.point.qty.toLocaleString("en-IN", {
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
-              })}</b></td>
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                })}</b></td>
         </tr>
         
       </table>
