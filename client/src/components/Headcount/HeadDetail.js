@@ -72,6 +72,84 @@ const HeadDetailedCom = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
+
+
+
+  const filteredData = Array.isArray(HeadData)
+    ? HeadData
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const searchValue = (search[key] || "").toString().trim();
+          if (!searchValue) return true;
+
+          const rowValue = row[key];
+
+          if (key === "AGE") {
+            const age = rowValue;
+
+            // Case 1: Age range "20-30"
+            if (searchValue.includes("-")) {
+              const [minAge, maxAge] = searchValue.split("-").map(Number);
+              return age >= minAge && age <= maxAge;
+            }
+
+            // Case 2: "50+"
+            if (searchValue.endsWith("+")) {
+              const minAge = Number(searchValue.replace("+", ""));
+              return age >= minAge;
+            }
+
+            // Case 3: exact number
+            return age === Number(searchValue);
+          }
+
+          // Default string filter
+          return rowValue
+            ?.toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase());
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+
+
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.AGE) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.AGE),
+      maxNetPay: Math.max(acc.maxNetPay, item.AGE),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  console.log("Selected Month:", selectmonths);
+  console.log("ESI Data count:", HeadData.length);
+  console.log("Filtered count:", filteredData.length);
   const downloadExcel = async () => {
     if (filteredData?.length === 0) {
       alert("No data to export!");
@@ -184,7 +262,7 @@ const HeadDetailedCom = ({
     /* =======================
        6️⃣ FREEZE HEADER
     ======================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     /* =======================
        7️⃣ EXPORT
@@ -192,84 +270,6 @@ const HeadDetailedCom = ({
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "HeadCount Report.xlsx");
   };
-
-
-  const filteredData = Array.isArray(HeadData)
-    ? HeadData
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const searchValue = (search[key] || "").toString().trim();
-          if (!searchValue) return true;
-
-          const rowValue = row[key];
-
-          if (key === "AGE") {
-            const age = rowValue;
-
-            // Case 1: Age range "20-30"
-            if (searchValue.includes("-")) {
-              const [minAge, maxAge] = searchValue.split("-").map(Number);
-              return age >= minAge && age <= maxAge;
-            }
-
-            // Case 2: "50+"
-            if (searchValue.endsWith("+")) {
-              const minAge = Number(searchValue.replace("+", ""));
-              return age >= minAge;
-            }
-
-            // Case 3: exact number
-            return age === Number(searchValue);
-          }
-
-          // Default string filter
-          return rowValue
-            ?.toString()
-            .toLowerCase()
-            .includes(searchValue.toLowerCase());
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-
-
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.AGE) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.AGE),
-      maxNetPay: Math.max(acc.maxNetPay, item.AGE),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  console.log("Selected Month:", selectmonths);
-  console.log("ESI Data count:", HeadData.length);
-  console.log("Filtered count:", filteredData.length);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1500px] max-w-[1500px]  h-[590px] max-h-[590px] relative">

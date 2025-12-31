@@ -85,6 +85,64 @@ const PFDetailedCom = ({
   };
 
 
+
+
+
+  const filteredData = Array.isArray(PFdata)
+    ? PFdata
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row[key]?.toString().toLowerCase() || "";
+          const searchValue = search[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.PF) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.PF) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.PF),
+      maxNetPay: Math.max(acc.maxNetPay, item.PF),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  // console.log("Selected Month:", selectmonths);
+  // console.log("ESI Data count:", PFdata.length);
+  // console.log("Filtered count:", filteredData.length);
   const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
@@ -159,13 +217,12 @@ const PFDetailedCom = ({
       { width: 14 },
       { width: 30 },
       { width: 35 },
-      { width: 15 },
+      { width: 20 },
     ];
 
     /* =======================
        4️⃣ NUMBER FORMAT
     ======================= */
-    worksheet.getColumn(6).numFmt = "0.00"; // PF always 0.00
 
     /* =======================
        5️⃣ DATA ROWS
@@ -196,11 +253,41 @@ const PFDetailedCom = ({
       row.getCell(5).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
       row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 };
     });
+    const totalRow = worksheet.addRow([
+      "",        // ID Card
+      "",        // Name
+      "",
+      "",    // Gender
+      "Total",        // Department
+    
+      totalNetPay,  // ESI Amount
+    ]);
+
+    totalRow.height = 24;
+
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: colNumber === 6 ? "right" : "center",
+        indent: 1,
+      };
+    });
 
     /* =======================
        7️⃣ FREEZE HEADER
     ======================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.getColumn(6).numFmt = "₹ #,##0.00"; // PF always 0.00
+
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     /* =======================
        8️⃣ EXPORT
@@ -208,64 +295,6 @@ const PFDetailedCom = ({
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "PF Contribution Report.xlsx");
   };
-
-
-  const filteredData = Array.isArray(PFdata)
-    ? PFdata
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row[key]?.toString().toLowerCase() || "";
-          const searchValue = search[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.PF) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.PF) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.PF),
-      maxNetPay: Math.max(acc.maxNetPay, item.PF),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  // console.log("Selected Month:", selectmonths);
-  // console.log("ESI Data count:", PFdata.length);
-  // console.log("Filtered count:", filteredData.length);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">
@@ -609,8 +638,8 @@ const PFDetailedCom = ({
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-md ${currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaStepBackward size={16} />
@@ -620,8 +649,8 @@ const PFDetailedCom = ({
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-md ${currentPage === 1
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaChevronLeft size={16} />
@@ -637,8 +666,8 @@ const PFDetailedCom = ({
                 }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-md ${currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaChevronRight size={16} />
@@ -648,8 +677,8 @@ const PFDetailedCom = ({
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-md ${currentPage === totalPages
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-blue-600 hover:bg-gray-200"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-blue-600 hover:bg-gray-200"
                   }`}
               >
                 <FaStepForward size={16} />

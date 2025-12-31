@@ -67,7 +67,63 @@ const AttriDetails = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
-  const downloadExcel = async () => {
+ 
+
+
+  const filteredData = Array.isArray(salaryDet)
+    ? salaryDet
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row?.[key]?.toString().toLowerCase() || "";
+          const searchValue = search?.[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.NETPAY) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  //   const totalNetPay = filteredData.reduce(
+  //     (sum, row) => sum + (Number(row.NETPAY) || 0),
+  //     0
+  //   );
+  //   console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  //   const { minNetPay, maxNetPay } = currentRecords.reduce(
+  //     (acc, item) => ({
+  //       minNetPay: Math.min(acc.minNetPay, item.NETPAY),
+  //       maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
+  //     }),
+  //     { minNetPay: Infinity, maxNetPay: -Infinity }
+  //   );
+ const downloadExcel = async () => {
     if (filteredData.length === 0) {
       alert("No data to export!");
       return;
@@ -182,7 +238,7 @@ const AttriDetails = ({
     /* =======================
        6️⃣ FREEZE TITLE + HEADER
     ======================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     /* =======================
        7️⃣ EXPORT
@@ -193,62 +249,6 @@ const AttriDetails = ({
     "Attrition Report.xlsx"
     );
   };
-
-
-  const filteredData = Array.isArray(salaryDet)
-    ? salaryDet
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row?.[key]?.toString().toLowerCase() || "";
-          const searchValue = search?.[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.NETPAY) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  //   const totalNetPay = filteredData.reduce(
-  //     (sum, row) => sum + (Number(row.NETPAY) || 0),
-  //     0
-  //   );
-  //   console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  //   const { minNetPay, maxNetPay } = currentRecords.reduce(
-  //     (acc, item) => ({
-  //       minNetPay: Math.min(acc.minNetPay, item.NETPAY),
-  //       maxNetPay: Math.max(acc.maxNetPay, item.NETPAY),
-  //     }),
-  //     { minNetPay: Infinity, maxNetPay: -Infinity }
-  //   );
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">

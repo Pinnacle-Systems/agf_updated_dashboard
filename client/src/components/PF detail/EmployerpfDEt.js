@@ -84,6 +84,68 @@ const PFShareDetailed = ({
   const handleGenderFilter = (gender) => {
     setSelectedGender(gender);
   };
+
+
+
+  const filteredData = Array.isArray(PFdata)
+    ? PFdata
+      .filter((row) =>
+        Object.keys(search || {}).every((key) => {
+          const rowValue = row[key]?.toString().toLowerCase() || "";
+          const searchValue = search[key]?.toString().toLowerCase() || "";
+          return rowValue.includes(searchValue);
+        })
+      )
+      .filter((row) => {
+        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
+        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
+        return true;
+      })
+      .filter((row) => {
+        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
+        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
+        return true;
+      })
+      .filter((row) => {
+        const netpay = Number(row?.PF) || 0;
+        return netpay >= netpayRange.min && netpay <= netpayRange.max;
+      })
+      .filter((row) => {
+        if (!selectmonths) return true;
+        return row.PAYPERIOD === selectmonths;
+      })
+    : [];
+
+  console.log(filteredData, "filteredData1");
+
+  const totalNetPay = filteredData.reduce(
+    (sum, row) => sum + (Number(row.PF) || 0),
+    0
+  );
+  const totalNetPay1 = filteredData.reduce(
+    (sum, row) => sum + (Number(Math.round(row.EMPLOYER_CON)) || 0),
+    0
+  );
+  console.log(totalNetPay, "Total Net Pay");
+
+  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalRecords = filteredData.length;
+
+  const currentRecords = filteredData.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
+
+  const { minNetPay, maxNetPay } = currentRecords.reduce(
+    (acc, item) => ({
+      minNetPay: Math.min(acc.minNetPay, item.PF),
+      maxNetPay: Math.max(acc.maxNetPay, item.PF),
+    }),
+    { minNetPay: Infinity, maxNetPay: -Infinity }
+  );
+  // console.log("Selected Month:", selectmonths);
+  // console.log("ESI Data count:", PFdata.length);
+  // console.log("Filtered count:", filteredData.length);
   const downloadExcel = async (title) => {
     if (filteredData.length === 0) {
       alert("No data to export!");
@@ -160,8 +222,7 @@ const PFShareDetailed = ({
       { width: 22 },
       { width: 22 },
     ];
-    worksheet.getColumn(5).numFmt = "#,##0.00";
-    worksheet.getColumn(6).numFmt = "#,##0.00";
+
 
     /* =======================
        4️⃣ DATA ROWS
@@ -192,10 +253,39 @@ const PFShareDetailed = ({
       row.getCell(6).alignment = { horizontal: "right", vertical: "middle", indent: 1 }; // Employee Contribute
     });
 
+    const totalRow = worksheet.addRow([
+      "",        // ID Card
+      "",        // Name
+      "",        // Gender
+      "Total",        // Department
+      totalNetPay1,   // Age column
+      totalNetPay,  // ESI Amount
+    ]);
+
+    totalRow.height = 24;
+
+
+    totalRow.height = 24;
+
+    // Style TOTAL row
+    totalRow.eachCell((cell, colNumber) => {
+      cell.font = { bold: true };
+      cell.border = {
+        top: { style: "thin" },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: [5, 6].includes(colNumber) ? "right" : "center",
+        indent: 1,
+      };
+    });
+    worksheet.getColumn(5).numFmt = "₹ #,##0.00";
+    worksheet.getColumn(6).numFmt = "₹ #,##0.00";
     /* =======================
        6️⃣ FREEZE HEADER
     ======================= */
-    worksheet.views = [{ state: "frozen", ySplit: 2 }];
+    worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
     /* =======================
        7️⃣ EXPORT
@@ -203,68 +293,6 @@ const PFShareDetailed = ({
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `${excelTitle}.xlsx` || "Employee PF Details.xlsx");
   };
-
-
-  const filteredData = Array.isArray(PFdata)
-    ? PFdata
-      .filter((row) =>
-        Object.keys(search || {}).every((key) => {
-          const rowValue = row[key]?.toString().toLowerCase() || "";
-          const searchValue = search[key]?.toString().toLowerCase() || "";
-          return rowValue.includes(searchValue);
-        })
-      )
-      .filter((row) => {
-        if (selectedState === "Labour") return row?.PAYCAT !== "STAFF";
-        if (selectedState === "Staff") return row?.PAYCAT === "STAFF";
-        return true;
-      })
-      .filter((row) => {
-        if (selectedGender === "Male") return row?.GENDER !== "FEMALE";
-        if (selectedGender === "Female") return row?.GENDER === "FEMALE";
-        return true;
-      })
-      .filter((row) => {
-        const netpay = Number(row?.PF) || 0;
-        return netpay >= netpayRange.min && netpay <= netpayRange.max;
-      })
-      .filter((row) => {
-        if (!selectmonths) return true;
-        return row.PAYPERIOD === selectmonths;
-      })
-    : [];
-
-  console.log(filteredData, "filteredData1");
-
-  const totalNetPay = filteredData.reduce(
-    (sum, row) => sum + (Number(row.PF) || 0),
-    0
-  );
-  const totalNetPay1 = filteredData.reduce(
-    (sum, row) => sum + (Number(Math.round(row.EMPLOYER_CON)) || 0),
-    0
-  );
-  console.log(totalNetPay, "Total Net Pay");
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const totalRecords = filteredData.length;
-
-  const currentRecords = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
-
-  const { minNetPay, maxNetPay } = currentRecords.reduce(
-    (acc, item) => ({
-      minNetPay: Math.min(acc.minNetPay, item.PF),
-      maxNetPay: Math.max(acc.maxNetPay, item.PF),
-    }),
-    { minNetPay: Infinity, maxNetPay: -Infinity }
-  );
-  // console.log("Selected Month:", selectmonths);
-  // console.log("ESI Data count:", PFdata.length);
-  // console.log("Filtered count:", filteredData.length);
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
       <div className="bg-white p-4 rounded-lg shadow-2xl w-[1300px] max-w-[1300px]  h-[590px] max-h-[590px] relative">
