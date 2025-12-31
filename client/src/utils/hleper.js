@@ -144,7 +144,8 @@ export const addInsightsRowTurnOver = ({
   totalColumns,
   selectedYear,
   localCompany,
-  selectedCustomer
+  dynamicValue,
+  dynamicField
 
 }) => {
 
@@ -154,7 +155,7 @@ export const addInsightsRowTurnOver = ({
 
     `FinYear -  ${selectedYear}    |    ` +
     `Comp Code :  ${localCompany}    |    ` +
-    `Customer :  ${selectedCustomer}    |    `
+    `${dynamicField} :  ${dynamicValue}    |    `
 
 
   // Insert insights row

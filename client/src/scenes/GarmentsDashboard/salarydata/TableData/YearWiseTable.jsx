@@ -9,29 +9,26 @@ import {
 } from "react-icons/fa";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import {  useSelector } from "react-redux";
-import { useGetMisDashboardErpCustomerWiseQuery } from
-    "../../../redux/service/misDashboardServiceERP";
+import { useSelector } from "react-redux";
 
-import { addInsightsRowTurnOver } from "../../../utils/hleper";
-import Loader from "../../../utils/loader";
-const CustomerWiseTable = ({
-    customerName,
+import { useGetMisDashboardErpYearWiseQuery } from
+    "../../../../redux/service/misDashboardServiceERP";
+
+import { addInsightsRowTurnOver } from "../../../../utils/hleper";
+import Loader from "../../../../utils/loader";
+const YearWiseTable = ({
+    year,
     finYr,
     closeTable, filterBuyerList
 }) => {
-   
-    const [selectedCustomer, setSelectedCustomer] = useState(customerName || "ALL");
-
+    const [selectedYear, setSelectedYear] = useState(year || "ALL");
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,
     });
-
-    const { selectedYear, filterBuyer: companyName } =
+    const { filterBuyer: companyName } =
         useSelector((state) => state.dashboardFilters);
     const [localCompany, setLocalCompany] = useState(companyName || "ALL");
-    const [localYear, setLocalYear] = useState(selectedYear);
 
     const [search, setSearch] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -39,14 +36,14 @@ const CustomerWiseTable = ({
 
     // ✅ API CALL INSIDE TABLE
     const { data: response, isLoading } =
-        useGetMisDashboardErpCustomerWiseQuery(
+        useGetMisDashboardErpYearWiseQuery(
             {
                 params: {
                     companyName: localCompany === "ALL" ? undefined : localCompany,
-                    finYear: localYear,
+
                 },
             },
-            { skip: !localYear }
+            { skip: !companyName }
         );
 
     const rawData = useMemo(() => {
@@ -55,7 +52,7 @@ const CustomerWiseTable = ({
 
     console.log(rawData, "rawData");
     const customerOptions = useMemo(() => {
-        const unique = [...new Set(rawData.map(r => r.customer))];
+        const unique = [...new Set(rawData.map(r => r.year))];
 
         return [
             { label: "ALL", value: "ALL" },
@@ -68,33 +65,33 @@ const CustomerWiseTable = ({
     const filteredData = useMemo(() => {
         return rawData.filter((row) => {
             // 🔹 Customer dropdown filter
-            if (selectedCustomer !== "ALL" && row.customer !== selectedCustomer) {
+            if (selectedYear !== "ALL" && row.year !== selectedYear) {
                 return false;
             }
 
-            // 🔹 Search filter (customer search)
-            if (search.customer) {
-                const rowCustomer = row.customer?.toLowerCase() || "";
-                if (!rowCustomer.includes(search.customer.toLowerCase())) {
+            // 🔹 Search filter (year search)
+            if (search.year) {
+                const rowCustomer = row.year?.toLowerCase() || "";
+                if (!rowCustomer.includes(search.year.toLowerCase())) {
                     return false;
                 }
             }
 
             // 🔹 Min / Max Turnover filter
-            const value = Number(row.currentValue || 0);
+            const value = Number(row.value || 0);
 
             if (value < netpayRange.min) return false;
             if (netpayRange.max !== Infinity && value > netpayRange.max) return false;
 
             return true;
         });
-    }, [rawData, selectedCustomer, search, netpayRange]);
+    }, [rawData, selectedYear, search, netpayRange]);
 
 
     useEffect(() => {
-        setSelectedCustomer(customerName || "ALL");
+        setSelectedYear(year || "ALL");
         setCurrentPage(1);
-    }, [customerName]);
+    }, [year]);
     useEffect(() => {
         setLocalCompany(companyName || "ALL");
     }, [companyName]);
@@ -104,7 +101,7 @@ const CustomerWiseTable = ({
     const totalTurnOver = useMemo(
         () =>
             filteredData.reduce(
-                (sum, r) => sum + Number(r.currentValue || 0),
+                (sum, r) => sum + Number(r.value || 0),
                 0
             ),
         [filteredData]
@@ -124,16 +121,17 @@ const CustomerWiseTable = ({
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Customer Wise Turnover Report");
+        const worksheet = workbook.addWorksheet("Year Wise Turnover Report");
         worksheet.columns = [
             { header: "Company", key: "compCode", width: 70 },
-            { header: "Customer", key: "customer", width: 30 },
-            { header: "Turnover", key: "currentValue", width: 35 },
+            { header: "Year", key: "year", width: 20 },
+            
+            { header: "Turnover", key: "value", width: 35 },
         ];
 
         /* ================= TITLE ================= */
-        worksheet.insertRow(1, ["Customer Wise Turnover Report"]);
-        worksheet.mergeCells("A1:C1");
+        worksheet.insertRow(1, ["Year Wise Turnover Report"]);
+        worksheet.mergeCells("A1:D1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -145,12 +143,10 @@ const CustomerWiseTable = ({
             worksheet,
             startRow: 2,
             totalColumns: 3,
-            selectedYear: localYear,
             localCompany,
-                        dynamicField:"Customer",
-            dynamicValue:selectedCustomer
+            dynamicField: "Year",
+            dynamicValue: selectedYear
 
-            
         });
 
         /* ================= COLUMNS ================= */
@@ -179,8 +175,9 @@ const CustomerWiseTable = ({
         filteredData.forEach((r) => {
             worksheet.addRow({
                 compCode: r.compName,
-                customer: r.customer,
-                currentValue: Number(r.currentValue || 0),
+                year: r.year,
+                month: r.monthName,
+                value: Number(r.value || 0),
             });
         });
 
@@ -189,15 +186,17 @@ const CustomerWiseTable = ({
 
             row.height = 22;
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("customer").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("currentValue").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("year").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("month").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
-            customer: "TOTAL",
-            currentValue: totalTurnOver,
+            year: "",
+            month: "TOTAL",
+            value: totalTurnOver,
         });
 
         totalRow.height = 24;
@@ -211,12 +210,12 @@ const CustomerWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 3 ? "right" : "center",
+                horizontal: colNumber === 4 ? "right" : "center",
                 indent: 1
             };
         });
 
-        worksheet.getColumn("currentValue").numFmt = '₹ #,##,##0.00';
+        worksheet.getColumn("value").numFmt = '₹ #,##,##0.00';
 
         /* ================= FREEZE ================= */
         worksheet.views = [{ state: "frozen", ySplit: 3 }];
@@ -226,7 +225,7 @@ const CustomerWiseTable = ({
             new Blob([buffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             }),
-            "Customer Wise Turnover Report.xlsx"
+            "Year Wise Turnover Report.xlsx"
         );
     };
 
@@ -239,13 +238,13 @@ const CustomerWiseTable = ({
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h2 className="font-bold uppercase">
-                        Customer Wise Turnover - <span className="text-blue-600 ">{localCompany || ""}</span>
+                        Year Wise Turnover - <span className="text-blue-600 ">{localCompany || ""}</span>
                     </h2>
 
                     <div className="flex gap-2 items-center">
                         <div className="bg-gray-300  rounded-lg shadow-2xl flex gap-x-4 gap-1 p-2">
 
-                            <div className="w-24">
+                            {/* <div className="w-24">
 
                                 <select
                                     value={localYear || ""}
@@ -264,7 +263,7 @@ const CustomerWiseTable = ({
                                             {y.finYr}
                                         </option>
                                     ))}
-                                </select></div>
+                                </select></div> */}
 
                             <div className="w-24">
                                 <select
@@ -286,9 +285,9 @@ const CustomerWiseTable = ({
 
                             <div className="w-24">
                                 <select
-                                    value={selectedCustomer}
+                                    value={selectedYear}
                                     onChange={(e) => {
-                                        setSelectedCustomer(e.target.value);
+                                        setSelectedYear(e.target.value);
                                         setCurrentPage(1);
                                     }}
                                     className="w-full px-2 py-1 text-xs border-2   rounded-md 
@@ -324,7 +323,7 @@ const CustomerWiseTable = ({
 
                 <div className="flex justify-between items-start mt-2">
                     <div className=" mb-3">
-                        {["customer"].map((key) => (
+                        {["year"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -392,8 +391,9 @@ const CustomerWiseTable = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-36">Company</th>
-                                    <th className="border p-1 text-center w-8">Customer</th>
+                                    <th className="border p-1 text-center w-28">Company</th>
+                                    <th className="border p-1 text-center w-12">Year</th>
+
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
@@ -409,12 +409,12 @@ const CustomerWiseTable = ({
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
                                             <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.customer}</td>
+                                            <td className="border p-1 text-left">{row.year}</td>
                                             <td className="border p-1 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
-                                                }).format(row.currentValue)}
+                                                }).format(row.value)}
                                             </td>
                                         </tr>
                                     );
@@ -427,14 +427,14 @@ const CustomerWiseTable = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-36">Company</th>
-                                    <th className="border p-1 text-center w-8">Customer</th>
+                                    <th className="border p-1 text-center w-28">Company</th>
+                                    <th className="border p-1 text-center w-12">Year</th>
                                     <th className="border p-1 text-center w-12">Turnover</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {currentRecords?.slice(17, 34)?.map((row, index) => {
-                                    const globalIndex = index + 17; 
+                                    const globalIndex = index + 17;
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                                     return (
                                         <tr
@@ -443,12 +443,13 @@ const CustomerWiseTable = ({
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
                                             <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.customer}</td>
+                                            <td className="border p-1 text-left">{row.year}</td>
+
                                             <td className="border p-1 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
-                                                }).format(row.currentValue)}
+                                                }).format(row.value)}
                                             </td>
                                         </tr>
                                     );
@@ -522,4 +523,4 @@ const CustomerWiseTable = ({
     );
 };
 
-export default CustomerWiseTable;
+export default YearWiseTable;

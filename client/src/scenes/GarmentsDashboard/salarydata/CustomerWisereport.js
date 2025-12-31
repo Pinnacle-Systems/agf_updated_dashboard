@@ -30,7 +30,6 @@ const Form = ({ companyName: propCompanyName, finYear: propFinYear, finYr ,filte
 
   const [showTable, setShowTable] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [search, setSearch] = useState({});
 
   // Sync Redux defaults if empty
   useEffect(() => {

@@ -9,25 +9,22 @@ import {
 } from "react-icons/fa";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import {  useSelector } from "react-redux";
-import { useGetMisDashboardErpCustomerWiseQuery } from
-    "../../../redux/service/misDashboardServiceERP";
+import { useSelector } from "react-redux";
 
-import { addInsightsRowTurnOver } from "../../../utils/hleper";
-import Loader from "../../../utils/loader";
-const CustomerWiseTable = ({
-    customerName,
+import { useGetMisDashboardErpStyleItemWiseQuery } from
+    "../../../../redux/service/misDashboardServiceERP";
+
+import { addInsightsRowTurnOver } from "../../../../utils/hleper";
+import Loader from "../../../../utils/loader";
+const ItemWiseTable = ({
     finYr,
     closeTable, filterBuyerList
 }) => {
-   
-    const [selectedCustomer, setSelectedCustomer] = useState(customerName || "ALL");
-
+    const [selectedCategory, setSelectedcategory] = useState("ALL");
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,
     });
-
     const { selectedYear, filterBuyer: companyName } =
         useSelector((state) => state.dashboardFilters);
     const [localCompany, setLocalCompany] = useState(companyName || "ALL");
@@ -39,7 +36,7 @@ const CustomerWiseTable = ({
 
     // ✅ API CALL INSIDE TABLE
     const { data: response, isLoading } =
-        useGetMisDashboardErpCustomerWiseQuery(
+        useGetMisDashboardErpStyleItemWiseQuery(
             {
                 params: {
                     companyName: localCompany === "ALL" ? undefined : localCompany,
@@ -55,7 +52,7 @@ const CustomerWiseTable = ({
 
     console.log(rawData, "rawData");
     const customerOptions = useMemo(() => {
-        const unique = [...new Set(rawData.map(r => r.customer))];
+        const unique = [...new Set(rawData.map(r => r.category))];
 
         return [
             { label: "ALL", value: "ALL" },
@@ -68,33 +65,33 @@ const CustomerWiseTable = ({
     const filteredData = useMemo(() => {
         return rawData.filter((row) => {
             // 🔹 Customer dropdown filter
-            if (selectedCustomer !== "ALL" && row.customer !== selectedCustomer) {
+            if (selectedCategory !== "ALL" && row.category !== selectedCategory) {
                 return false;
             }
 
-            // 🔹 Search filter (customer search)
-            if (search.customer) {
-                const rowCustomer = row.customer?.toLowerCase() || "";
-                if (!rowCustomer.includes(search.customer.toLowerCase())) {
+            // 🔹 Search filter (category search)
+            if (search.category) {
+                const rowCustomer = row.category?.toLowerCase() || "";
+                if (!rowCustomer.includes(search.category.toLowerCase())) {
                     return false;
                 }
             }
 
             // 🔹 Min / Max Turnover filter
-            const value = Number(row.currentValue || 0);
+            const value = Number(row.value || 0);
 
             if (value < netpayRange.min) return false;
             if (netpayRange.max !== Infinity && value > netpayRange.max) return false;
 
             return true;
         });
-    }, [rawData, selectedCustomer, search, netpayRange]);
+    }, [rawData, selectedCategory, search, netpayRange]);
 
 
-    useEffect(() => {
-        setSelectedCustomer(customerName || "ALL");
-        setCurrentPage(1);
-    }, [customerName]);
+    // useEffect(() => {
+    //     setSelectedcategory(category || "ALL");
+    //     setCurrentPage(1);
+    // }, [category]);
     useEffect(() => {
         setLocalCompany(companyName || "ALL");
     }, [companyName]);
@@ -104,7 +101,7 @@ const CustomerWiseTable = ({
     const totalTurnOver = useMemo(
         () =>
             filteredData.reduce(
-                (sum, r) => sum + Number(r.currentValue || 0),
+                (sum, r) => sum + Number(r.value || 0),
                 0
             ),
         [filteredData]
@@ -124,15 +121,15 @@ const CustomerWiseTable = ({
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Customer Wise Turnover Report");
+        const worksheet = workbook.addWorksheet("Country Wise Turnover Report");
         worksheet.columns = [
             { header: "Company", key: "compCode", width: 70 },
-            { header: "Customer", key: "customer", width: 30 },
-            { header: "Turnover", key: "currentValue", width: 35 },
+            { header: "Country", key: "category", width: 40 },
+            { header: "Turnover", key: "value", width: 35 },
         ];
 
         /* ================= TITLE ================= */
-        worksheet.insertRow(1, ["Customer Wise Turnover Report"]);
+        worksheet.insertRow(1, ["Country Wise Turnover Report"]);
         worksheet.mergeCells("A1:C1");
 
         const titleCell = worksheet.getCell("A1");
@@ -147,10 +144,9 @@ const CustomerWiseTable = ({
             totalColumns: 3,
             selectedYear: localYear,
             localCompany,
-                        dynamicField:"Customer",
-            dynamicValue:selectedCustomer
+            dynamicField: "Country",
+            dynamicValue: selectedCategory
 
-            
         });
 
         /* ================= COLUMNS ================= */
@@ -179,8 +175,8 @@ const CustomerWiseTable = ({
         filteredData.forEach((r) => {
             worksheet.addRow({
                 compCode: r.compName,
-                customer: r.customer,
-                currentValue: Number(r.currentValue || 0),
+                category: r.category,
+                value: Number(r.value || 0),
             });
         });
 
@@ -189,15 +185,15 @@ const CustomerWiseTable = ({
 
             row.height = 22;
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("customer").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("currentValue").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("category").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
-            customer: "TOTAL",
-            currentValue: totalTurnOver,
+            category: "TOTAL",
+            value: totalTurnOver,
         });
 
         totalRow.height = 24;
@@ -216,7 +212,7 @@ const CustomerWiseTable = ({
             };
         });
 
-        worksheet.getColumn("currentValue").numFmt = '₹ #,##,##0.00';
+        worksheet.getColumn("value").numFmt = '₹ #,##,##0.00';
 
         /* ================= FREEZE ================= */
         worksheet.views = [{ state: "frozen", ySplit: 3 }];
@@ -226,7 +222,7 @@ const CustomerWiseTable = ({
             new Blob([buffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             }),
-            "Customer Wise Turnover Report.xlsx"
+            "Country Wise Turnover Report.xlsx"
         );
     };
 
@@ -239,7 +235,7 @@ const CustomerWiseTable = ({
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h2 className="font-bold uppercase">
-                        Customer Wise Turnover - <span className="text-blue-600 ">{localCompany || ""}</span>
+                        Style Group Wise Turnover - <span className="text-blue-600 ">{localCompany || ""}</span>
                     </h2>
 
                     <div className="flex gap-2 items-center">
@@ -284,11 +280,11 @@ const CustomerWiseTable = ({
                                 </select>
                             </div>
 
-                            <div className="w-24">
+                            <div className="w-56">
                                 <select
-                                    value={selectedCustomer}
+                                    value={selectedCategory}
                                     onChange={(e) => {
-                                        setSelectedCustomer(e.target.value);
+                                        setSelectedcategory(e.target.value);
                                         setCurrentPage(1);
                                     }}
                                     className="w-full px-2 py-1 text-xs border-2   rounded-md 
@@ -324,7 +320,7 @@ const CustomerWiseTable = ({
 
                 <div className="flex justify-between items-start mt-2">
                     <div className=" mb-3">
-                        {["customer"].map((key) => (
+                        {["category"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -386,20 +382,21 @@ const CustomerWiseTable = ({
                     </div>
                 </div>
                 {/* TABLE */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid  gap-4">
                     <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
                         <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-36">Company</th>
-                                    <th className="border p-1 text-center w-8">Customer</th>
+                                    <th className="border p-1 text-center w-[12px]">S.No</th>
+                                    <th className="border p-1 text-center w-24">Company</th>
+                                    <th className="border p-1 text-center w-12">Category</th>
+                                    <th className="border p-1 text-center w-32">Style Item</th>
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(0, 17).map((row, index) => {
+                                {currentRecords?.slice(0, 17)?.map((row, index) => {
                                     const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                                     return (
@@ -408,13 +405,14 @@ const CustomerWiseTable = ({
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.customer}</td>
-                                            <td className="border p-1 text-right text-sky-700 ">
+                                            <td className="border p-1 pl-2 text-left ">{row.compName}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.category}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.styleItem}</td>
+                                            <td className="border p-1 pl-2 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
-                                                }).format(row.currentValue)}
+                                                }).format(row.value)}
                                             </td>
                                         </tr>
                                     );
@@ -422,40 +420,7 @@ const CustomerWiseTable = ({
                             </tbody>
                         </table>
                     </div>
-                    <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
-                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
-                            <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                                <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-36">Company</th>
-                                    <th className="border p-1 text-center w-8">Customer</th>
-                                    <th className="border p-1 text-center w-12">Turnover</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentRecords?.slice(17, 34)?.map((row, index) => {
-                                    const globalIndex = index + 17; 
-                                    const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
-                                            <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.customer}</td>
-                                            <td className="border p-1 text-right text-sky-700 ">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.currentValue)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+
                 </div>
 
                 {/* PAGINATION */}
@@ -522,4 +487,4 @@ const CustomerWiseTable = ({
     );
 };
 
-export default CustomerWiseTable;
+export default ItemWiseTable;

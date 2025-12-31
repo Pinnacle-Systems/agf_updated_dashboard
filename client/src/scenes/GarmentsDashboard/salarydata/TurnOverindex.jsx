@@ -151,14 +151,14 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         </Grid>
 
         <Grid item xs={12} md={5}>
-          <CountryWisereport companyName={filterBuyer} finYear={selectedYear} key={filterBuyer} />
+          <CountryWisereport companyName={filterBuyer} finYear={selectedYear} key={filterBuyer} finYr={finYr} filterBuyerList={filterBuyerList}/>
         </Grid>
       </Grid>
       <Grid container spacing={3}  >
         <Grid item xs={12} md={12}>
           <ItemWisereport key={filterBuyer}
             companyName={filterBuyer}
-            finYear={selectedYear}
+            finYear={selectedYear} finYr={finYr} filterBuyerList={filterBuyerList}
           />
         </Grid>
       </Grid>
@@ -168,7 +168,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         <Grid item xs={12} md={12}>
           <MonthWise key={filterBuyer}
             companyName={filterBuyer}
-            finYear={selectedYear}
+            finYear={selectedYear} finYr={finYr} filterBuyerList={filterBuyerList}
           />
         </Grid>
 
@@ -179,7 +179,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         <Grid item xs={12} md={6}>
           <QuarterWise key={filterBuyer}
             companyName={filterBuyer}
-            finYear={selectedYear}
+            finYear={selectedYear} finYr={finYr} filterBuyerList={filterBuyerList}
           />
         </Grid>
 
@@ -187,7 +187,7 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
         <Grid item xs={12} md={6}>
           <YearWise key={filterBuyer}
             companyName={filterBuyer}
-            finYear={selectedYear}
+            finYear={selectedYear} finYr={finYr} filterBuyerList={filterBuyerList}
           />
         </Grid>
 

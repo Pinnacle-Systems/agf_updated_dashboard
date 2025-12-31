@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import Drilldown from "highcharts/modules/drilldown";
@@ -6,9 +6,10 @@ import {
   Card,
   CardHeader,
   CardContent,
-  useTheme,
+  useTheme,Button
 } from "@mui/material";
 import { useGetMisDashboardErpStyleItemWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+import ItemWiseTable from "../salarydata/TableData/ItemWiseTable";
 
 Drilldown(Highcharts);
 
@@ -18,13 +19,14 @@ const COLORS = [
   "#00CED1", "#DC143C",
 ];
 
-const Form = ({ finYear, companyName }) => {
+const Form = ({ finYear, companyName, finYr, filterBuyerList }) => {
   const theme = useTheme();
+  const [showTable, setShowTable] = useState(false);
   const formatINR = (value) =>
-  `₹ ${Number(value).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   const { data: response } =
     useGetMisDashboardErpStyleItemWiseQuery({
@@ -74,6 +76,7 @@ const Form = ({ finYear, companyName }) => {
     data: Object.entries(drilldownTemp[cat]).map(
       ([style, value]) => [style, value]
     ),
+
   }));
 
 
@@ -134,6 +137,10 @@ const Form = ({ finYear, companyName }) => {
           },
         },
       },
+
+
+
+
       column: {
         borderRadius: 3,
         pointWidth: 30,
@@ -190,10 +197,33 @@ const Form = ({ finYear, companyName }) => {
         title="Style Group Wise Turnover"
         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
+         action={
+      <Button
+        variant="contained"
+        size="small"
+        color="primary"
+         sx={{ mr: 2 }}
+        onClick={() => {
+          setShowTable(true);
+        }}
+      >
+        Open Table
+      </Button>
+    }
       />
       <CardContent>
         <HighchartsReact highcharts={Highcharts} options={options} />
+
       </CardContent>
+      {showTable && (
+        <ItemWiseTable
+          companyName={companyName}
+          filterBuyerList={filterBuyerList}
+          finYr={finYr}
+
+          closeTable={() => setShowTable(false)}
+        />
+      )}
     </Card>
   );
 };

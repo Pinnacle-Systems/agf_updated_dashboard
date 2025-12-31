@@ -3,24 +3,26 @@ import { Box, Card, CardContent, CardHeader, useTheme } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import { useGetMisDashboardErpYearWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+import YearWiseTable from "./TableData/YearWiseTable";
 
-const YearWiseTurnover = ({ companyName, finYear }) => {
+const YearWiseTurnover = ({ companyName, finYear, finYr, filterBuyerList }) => {
   const [xdata, setXdata] = useState([]);
   const [ydata, setYdata] = useState([]);
   const theme = useTheme();
-
+  const [showTable, setShowTable] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(null);
   const { data: response, isLoading } = useGetMisDashboardErpYearWiseQuery({
     params: { finYear, companyName },
   });
-const formatINR = (value) =>
-  `₹ ${Number(value).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
 
   useEffect(() => {
     if (response?.data) {
-      setXdata(response.data.map((item) => item.Year));
+      setXdata(response.data.map((item) => item.year));
       setYdata(response.data.map((item) => item.value));
     }
   }, [response]);
@@ -84,7 +86,10 @@ const formatINR = (value) =>
         point: {
           events: {
             click: function () {
-              console.log("Clicked:", this.category, this.y);
+              setSelectedYear({
+                year: this.category
+              });
+              setShowTable(true);
             },
           },
         },
@@ -126,6 +131,14 @@ const formatINR = (value) =>
           <HighchartsReact highcharts={Highcharts} options={options} immutable />
         )}
       </CardContent>
+      {showTable && selectedYear && (
+        <YearWiseTable
+          year={selectedYear.year} filterBuyerList={filterBuyerList}
+          finYr={finYr}
+
+          closeTable={() => setShowTable(false)}
+        />
+      )}
     </Card>
   );
 };

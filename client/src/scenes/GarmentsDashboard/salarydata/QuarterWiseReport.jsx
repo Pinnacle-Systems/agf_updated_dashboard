@@ -9,6 +9,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { useGetMisDashboardErpQuarterWiseQuery } from "../../../redux/service/misDashboardServiceERP";
+import QuarterWiseTable from "./TableData/QuarterWiseTable";
+import { useState } from "react";
 
 // Initialize treemap module
 Treemap(Highcharts);
@@ -20,9 +22,10 @@ const COLORS = [
   "#EF4444", // Red
 ];
 
-const Form = ({ companyName, finYear }) => {
+const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
   const theme = useTheme();
-
+  const [showTable, setShowTable] = useState(false);
+  const [selectedQuarter, setSelectedQuarter] = useState(null);
   const formatINR = (value) =>
     `₹ ${Number(value).toLocaleString("en-IN", {
       minimumFractionDigits: 2,
@@ -40,7 +43,7 @@ const Form = ({ companyName, finYear }) => {
 
   // 🔹 Group by Quarter with Month details
   const quarterMap = chartData.reduce((acc, item) => {
-    const q = item.Quarter;
+    const q = item.quarter;
 
     if (!acc[q]) {
       acc[q] = {
@@ -63,6 +66,8 @@ const Form = ({ companyName, finYear }) => {
     ([quarter, data], index) => ({
       name: quarter,
       value: data.total,
+      quarter, // ✅ IMPORTANT
+
       months: data.months, // 👈 used in tooltip
       color: COLORS[index % COLORS.length],
     })
@@ -101,6 +106,16 @@ const Form = ({ companyName, finYear }) => {
     plotOptions: {
       treemap: {
         layoutAlgorithm: "squarified",
+        cursor: "pointer",
+
+        point: {
+          events: {
+            click: function () {
+              setSelectedQuarter({ quarter: this.quarter });
+              setShowTable(true);
+            },
+          },
+        },
         dataLabels: {
           enabled: true,
           align: "center",
@@ -158,6 +173,14 @@ const Form = ({ companyName, finYear }) => {
           />
         )}
       </CardContent>
+      {showTable && selectedQuarter && (
+        <QuarterWiseTable
+          quarter={selectedQuarter.quarter} filterBuyerList={filterBuyerList}
+          finYr={finYr}
+
+          closeTable={() => setShowTable(false)}
+        />
+      )}
     </Card>
   );
 };

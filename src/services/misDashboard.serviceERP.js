@@ -339,7 +339,7 @@ ORDER BY 1,2,3
             finYear: po[0],
             compCode: po[1],
             customer: po[2],
-            compName:po[3],
+            compName: po[3],
             currentValue: po[4],
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -358,13 +358,13 @@ export async function turnOverCountryWise(req, res) {
         const { finYear, companyName } = req.query; // ✅ only finYear
 
         let sql = `
- SELECT A.FINYR,C.COMPCODE,E.COUNTRYNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+SELECT A.FINYR,C.COMPCODE,C.COMPNAME,E.COUNTRYNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
 JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,C.COMPCODE,E.COUNTRYNAME
+GROUP BY A.FINYR,C.COMPCODE,E.COUNTRYNAME,C.COMPNAME
 ORDER BY 1,2,3
         `;
 
@@ -372,8 +372,9 @@ ORDER BY 1,2,3
         let resp = result.rows?.map(po => ({
             finYear: po[0],
             compCode: po[1],
-            countryName: po[2],
-            value: po[3]
+            compName: po[2],
+            countryName: po[3],
+            value: po[4]
         }))
         return res.json({ statusCode: 0, data: resp })
     }
@@ -390,38 +391,38 @@ export async function turnOverStyleItemWise(req, res) {
     try {
         const { finYear, companyName } = req.query; // ✅ only finYear
 
-//         let sql = `
-//  SELECT A.FINYR,A.COMPCODE,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
-// FROM (
-// SELECT A.ORDERNO,A.FINYR,C.COMPCODE,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,ROUND((NVL(A.PLANSALESVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
-// JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
-// JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
-// JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
-// JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY
-// JOIN (
-// SELECT DISTINCT A.ORDERNO,C.STYLEITEM, E.CATEGORYNAME
-// FROM GTNORDERENTRY A
-// JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
-// JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
-// JOIN GTSTYLEGROUPMAST D ON C.STYLEGROUP = D.GTSTYLEGROUPMASTID 
-// JOIN GTSTYLECATMAST E ON D.SUBCATEGORY = E.GTSTYLECATMASTID 
-// ) F ON F.ORDERNO = A.ORDERNO
-// JOIN (
-// SELECT DISTINCT A.ORDERNO,COUNT(*) ITEMCNT FROM GTNORDERENTRY A
-// JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
-// JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
-// GROUP BY A.ORDERNO
-// ) FF ON FF.ORDERNO = A.ORDERNO
-// ) A 
-// WHERE A.FINYR = '${finYear}'  AND  A.COMPCODE = '${companyName}'
-// GROUP BY A.FINYR,A.COMPCODE,A.STYLEITEM,A.CATEGORYNAME HAVING SUM(A.VALUE) > 0
-// ORDER BY 1,2,3
+        //         let sql = `
+        //  SELECT A.FINYR,A.COMPCODE,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
+        // FROM (
+        // SELECT A.ORDERNO,A.FINYR,C.COMPCODE,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,ROUND((NVL(A.PLANSALESVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
+        // JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
+        // JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
+        // JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
+        // JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY
+        // JOIN (
+        // SELECT DISTINCT A.ORDERNO,C.STYLEITEM, E.CATEGORYNAME
+        // FROM GTNORDERENTRY A
+        // JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
+        // JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
+        // JOIN GTSTYLEGROUPMAST D ON C.STYLEGROUP = D.GTSTYLEGROUPMASTID 
+        // JOIN GTSTYLECATMAST E ON D.SUBCATEGORY = E.GTSTYLECATMASTID 
+        // ) F ON F.ORDERNO = A.ORDERNO
+        // JOIN (
+        // SELECT DISTINCT A.ORDERNO,COUNT(*) ITEMCNT FROM GTNORDERENTRY A
+        // JOIN GTNORDERSTYLEDET B ON A.GTNORDERENTRYID = B.GTNORDERENTRYID
+        // JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
+        // GROUP BY A.ORDERNO
+        // ) FF ON FF.ORDERNO = A.ORDERNO
+        // ) A 
+        // WHERE A.FINYR = '${finYear}'  AND  A.COMPCODE = '${companyName}'
+        // GROUP BY A.FINYR,A.COMPCODE,A.STYLEITEM,A.CATEGORYNAME HAVING SUM(A.VALUE) > 0
+        // ORDER BY 1,2,3
 
-//     `;
-let sql = `
-SELECT A.FINYR,A.COMPCODE,A.CUSTOMER,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
+        //     `;
+        let sql = `
+SELECT A.FINYR,A.COMPCODE,A.CUSTOMER,A.COMPNAME,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
 FROM (
-SELECT A.ORDERNO,A.FINYR,C.COMPCODE,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,ROUND((NVL(A.ACTSALVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
+SELECT A.ORDERNO,A.FINYR,C.COMPCODE,C.COMPNAME,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,ROUND((NVL(A.PLANSALESVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
@@ -442,23 +443,20 @@ GROUP BY A.ORDERNO
 ) FF ON FF.ORDERNO = A.ORDERNO
 ) A 
  WHERE A.FINYR = '${finYear}'  AND  A.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,A.COMPCODE,A.CUSTOMER,A.STYLEITEM,A.CATEGORYNAME
+GROUP BY A.FINYR,A.COMPCODE,A.CUSTOMER,A.STYLEITEM,A.CATEGORYNAME,A.COMPNAME
+HAVING SUM(NVL(A.VALUE,0)) > 0
 ORDER BY 1,2,3
 `
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
-            // finYear: po[0],
-            // compCode: po[1],
-            // styleItem: po[2],
-            // category: po[3],
-            // value: po[4],
             finYear: po[0],
             compCode: po[1],
-            customerL:po[2],
-            styleItem: po[3],
-            category: po[4],
-            value: po[5],
+            customer: po[2],
+            compName: po[3],     // ✅ correct
+            styleItem: po[4],   // ✅ correct
+            category: po[5],    // ✅ correct
+            value: po[6]
         }))
         return res.json({ statusCode: 0, data: resp })
     }
@@ -479,25 +477,25 @@ export async function turnOverMonthWise(req, res) {
 
         let sql = `
 SELECT 
-    A.ORDMON,
+    A.ORDMON,C.COMPNAME,
     SUM(NVL(A.PLANSALESVAL,0)) VALUE,
     MAX(A.ORDDATE) ACTSHIDT
 FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.ORDMON
+GROUP BY A.ORDMON,C.COMPNAME
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 3,1,2
+ORDER BY 4,1,2
 `;
 
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
-
-            month: po[0],
-            value: po[1],
-            date: po[2]
+            month: po[0],        // ORDMON
+            compName: po[1],     // COMPNAME
+            value: po[2],        // SUM(VALUE)
+            date: po[3]
 
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -516,24 +514,24 @@ export async function turnOverQuarterWise(req, res) {
         const { finYear, companyName } = req.query;
 
         let sql = `
-SELECT D.QUARTER,SUM(NVL(A.PLANSALESVAL,0)) VALUE ,to_char(PSTARTDATE, 'MONTH') AS STARTMONTH ,to_char(PSTARTDATE, 'MM') AS STARTMONTH FROM MISORDSALESVAL A
+SELECT D.QUARTER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE ,to_char(PSTARTDATE, 'MONTH') AS STARTMONTH ,to_char(PSTARTDATE, 'MM') AS STARTMONTH FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 JOIN GTFINANCIALYEARDTL D ON A.ORDDATE BETWEEN D.PSTARTDATE AND D.PENDDATE
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY D.QUARTER ,to_char(PSTARTDATE, 'MONTH') ,to_char(PSTARTDATE, 'MM')
+GROUP BY D.QUARTER ,to_char(PSTARTDATE, 'MONTH') ,to_char(PSTARTDATE, 'MM'),C.COMPNAME
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 1,4
+ORDER BY 1,5
 `;
 
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
-
-            Quarter: po[0],
-            value: po[1],
-            monthName:po[2],
-            monthInt:po[3]
+            quarter: po[0],     // D.QUARTER
+            compName: po[1],    // C.COMPNAME
+            value: po[2],       // SUM VALUE
+            monthName: po[3],
+            monthInt: po[4]
 
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -549,24 +547,25 @@ ORDER BY 1,4
 export async function turnOverYearWise(req, res) {
     const connection = await getConnectionERP(res)
     try {
-        const { finYear, companyName } = req.query;
+        const {  companyName } = req.query;
 
         let sql = `
-SELECT A.FINYR,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+SELECT A.FINYR,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE  C.COMPCODE = '${companyName}'
-GROUP BY A.FINYR
+GROUP BY A.FINYR,C.COMPNAME
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 1,2
+ORDER BY 1,3
 `;
 
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
 
-            Year: po[0],
-            value: po[1],
+            year: po[0],
+            compName:po[1],
+            value: po[2],
 
         }))
         return res.json({ statusCode: 0, data: resp })
