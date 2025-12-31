@@ -578,7 +578,7 @@ export async function getFabricInwardStateDetail(req, res) {
         .json({ statusCode: 1, message: "Database connection not available" });
     }
     const { finyear, category, state } = req.query;
-
+    const customer = req.query.customer || "ALL";
     const result = await connection.execute(
       `SELECT DISTINCT DOCID AS INWNO,
         TO_CHAR(DOCDATE, 'DD/MM/YYYY') AS INWDATE,
@@ -592,9 +592,10 @@ export async function getFabricInwardStateDetail(req, res) {
 FROM FABRIC_INWARD_DATA
 WHERE FINYR = :FINYR AND 
  ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND
- ( :CUSTSTATE = 'ALL' OR CUSTSTATE = :CUSTSTATE ) 
+ ( :CUSTSTATE = 'ALL' OR CUSTSTATE = :CUSTSTATE ) AND
+ ( :CUSTNAME = 'ALL' OR CUSTNAME = :CUSTNAME )
 ORDER BY 1,2,3,4,5,6,7,8`,
-      { FINYR: finyear, CCATEGORY: category, CUSTSTATE: state },
+      { FINYR: finyear, CCATEGORY: category, CUSTSTATE: state,CUSTNAME: customer },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({

@@ -41,7 +41,7 @@ const InwardType = ({ year, finYear, setCategory }) => {
                 alpha: 40,
             },
             backgroundColor: "#FFFFFF",
-            height: 220,
+            height: 230,
             borderRadius: 10,
             marginTop: 0,
             marginBottom: 10,    // ✅ ADDED - Reduced bottom margin

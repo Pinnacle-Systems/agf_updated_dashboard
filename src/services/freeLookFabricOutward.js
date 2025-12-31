@@ -80,15 +80,23 @@ export async function getFabricOutward(req, res) {
     const { finyear } = req.query;
 
     const result = await connection.execute(
-      `SELECT A.CCATEGORY,COUNT(*) CNT,SUM(A.TOTQTY) QTY FROM DTFABINWENTRY A
-JOIN GTFINANCIALYEAR B ON A.FINYR = B.GTFINANCIALYEARID
-WHERE B.FINYR = :FINYEAR
-GROUP BY A.CCATEGORY`,
+      `SELECT
+    A.PROTYPE,
+    COUNT(DISTINCT A.DOCID) AS CNT,
+    SUM(B.DELQTY)           AS QTY
+FROM DTFDELCHAL A
+INNER JOIN DTFDELCHALDET B
+        ON B.DTFDELCHALID = A.DTFDELCHALID
+INNER JOIN GTFINANCIALYEAR C
+        ON C.GTFINANCIALYEARID = A.FINYR
+WHERE C.FINYR = :FINYEAR
+GROUP BY A.PROTYPE
+ORDER BY A.PROTYPE`,
       { FINYEAR: finyear },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({
-      category: item.CCATEGORY,
+      process: item.PROTYPE,
       count: item.CNT,
       qty: item.QTY,
     }));
