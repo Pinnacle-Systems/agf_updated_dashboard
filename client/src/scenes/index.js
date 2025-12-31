@@ -1,3 +1,3 @@
-export { default as Dashboard } from "./HorizonDashboard"
-export { default as MisDashboard } from "./MisDashboard"
-export {default as FreeLookDyeing } from "./FreelookDyeing/Index"
+export { default as Dashboard } from "./HorizonDashboard";
+export { default as MisDashboard } from "./MisDashboard";
+export { default as FreeLookDyeing } from "./FreelookDyeing";

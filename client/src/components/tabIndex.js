@@ -6,10 +6,9 @@ import Roles from "../scenes/User & Role/Roles";
 import mainDashboard from "../scenes/maindashboard/index";
 import NumericCard from "../../src/components/NumericCard";
 import HRDashboard from "../../src/scenes/hrdashboard/index";
-import FreeLookDyeing from "../scenes/FreelookDyeing/Index";
 import GarmentDashboard from "../../src/scenes/GarmentsDashboard/index";
 import { list } from "@chakra-ui/system";
-
+import { FreeLookDyeing } from "../scenes";
 const tabs = [
   {
     key: "Dashboard",
