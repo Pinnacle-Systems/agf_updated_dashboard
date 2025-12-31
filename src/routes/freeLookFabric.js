@@ -19,8 +19,6 @@ import {
 } from "../services/freeLookFabric.service.js";
 import {
   getFabric,
-  getFabricOutward,
-  getFabricOutwardCustomer,
 } from "../services/freeLookFabricOutward.js";
 
 const router = Router();
@@ -50,8 +48,5 @@ router.get("/fabricInwardFetchData",getFabricInwardFetchData)
 
 router.get("/fabricInwardQuarterCompare",getFabricInwardQuarterComapare)
 router.get("/fabricInwardMonthCompare",getFabricInwardMonthComapare)
-
-router.get("/getFabricOutward", getFabricOutward);
-router.get("/fabricOutwardCustomer", getFabricOutwardCustomer);
 
 export default router;

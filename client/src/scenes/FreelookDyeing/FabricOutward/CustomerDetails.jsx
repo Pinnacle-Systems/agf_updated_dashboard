@@ -209,76 +209,7 @@ const CustomerDetails = ({ year, finYear, category, setCategory }) => {
     };
 
     return (
-        <div>
-            <Card
-                sx={{
-                    borderRadius: 3,
-                    boxShadow: 4,
-                    minHeight: 500,          // 👈 increase card height
-                    display: "flex",
-                    flexDirection: "column",
-                }}
-            >
-                <CardHeader
-                    title="Customer Details"
-                    titleTypographyProps={{
-                        sx: { fontSize: "1rem", fontWeight: 600 },
-                    }}
-                    sx={{
-                        borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
-                    }}
-                />
-                <Box>
-                    <div className="flex justify-end gap-2 m-2 mr-6">
-                        <div className="flex flex-col justify-end w-32">
-                            <label className="text-xs font-medium mb-1">Category</label>
-                            <select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="border rounded-md text-xs p-1"
-                            >
-                                <option value={"INHOUSE"}>{"INHOUSE"}</option>
-                                <option value={"OUTSIDE"}>{"OUTSIDE"}</option>
-                            </select>
-                        </div>
-                        <div className="flex flex-col justify-end w-32">
-                            <label className="text-xs font-medium mb-1">FinYear</label>
-                            <select
-                                value={fYear}
-                                onChange={(e) => setFYear(e.target.value)}
-                                className="border rounded-md text-xs p-1"
-                            >{finYear?.data?.map((option) => {
-                                return <option key={option.finYear} value={option.finYear}>{option.finYear}</option>
-                            })
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <HighchartsReact
-                        highcharts={Highcharts}
-                        options={options}
-                        containerProps={{
-                            style: {
-                                minWidth: '100%',
-                                height: '100%',
-                                borderRadius: "10px",
-                            }
-                        }}
-                    />
-                </Box>
-                {showTable && (
-                    <CustomerTrans
-                        fYear={fYear}
-                        setFYear={setFYear}
-                        closeTable={() => setShowTable(false)}
-                        category={category}
-                        setCategory={setCategory}
-                        custName={custName}
-                        setCustName={setCustName}
-                    />
-                )}
-            </Card>
-        </div>
+        <></>
     )
 }
 

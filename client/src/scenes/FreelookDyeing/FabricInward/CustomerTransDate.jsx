@@ -20,6 +20,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
+import Loader from "../../../utils/loader";
 
 const CustomerTransDate = ({
     closeTable,
@@ -40,15 +41,19 @@ const CustomerTransDate = ({
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 40;
 
-    const { data: cusTransData } = useGetFabricInwardByCusNameQuery({
-        params: {
-            finyear: selectedYear,
-            category: category,
-            customer: custName
-        },
-    }, {
-        skip: !selectedYear || !category
-    });
+    const { data: cusTransData, isFetching: isSingleFetching,
+        isLoading: isSingleLoading, } = useGetFabricInwardByCusNameQuery({
+            params: {
+                finyear: selectedYear,
+                category: category,
+                customer: custName
+            },
+        }, {
+            skip: !selectedYear || !category
+        });
+
+    const isLoadingIndicator = isSingleFetching || isSingleLoading;
+
 
     const { data: custNames } = useGetFabricInwardCustQuery({
         params: {
@@ -373,7 +378,7 @@ const CustomerTransDate = ({
                                 clear={true}
                                 otherField="custName"
                                 otherValue="custName"
-                                 placeholder={"Customer"}
+                                placeholder={"Customer"}
                             />
                         </div>
                         <div className="flex items-center w-28 mr-2">
@@ -423,7 +428,7 @@ const CustomerTransDate = ({
                     <div
                         className="overflow-x-auto max-h-[450px] "
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
-                    >
+                    >   {isLoadingIndicator ? <Loader /> : (
                         <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
@@ -488,7 +493,7 @@ const CustomerTransDate = ({
                                     );
                                 })}
                             </tbody>
-                        </table>
+                        </table>)}
                     </div>
                 </div>
 

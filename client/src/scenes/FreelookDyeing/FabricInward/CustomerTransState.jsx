@@ -20,6 +20,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
+import Loader from "../../../utils/loader";
 
 const CustomerTransState = ({
     closeTable,
@@ -40,16 +41,19 @@ const CustomerTransState = ({
     const [currentPage, setCurrentPage] = useState(1);
     const recordsPerPage = 40;
 
-    const { data: cusTransData } = useGetFabricInwardStateDetailTransQuery({
-        params: {
-            finyear: selectedYear,
-            category: category,
-            customer: custName,
-            state: selectState
-        },
-    }, {
-        skip: !selectedYear || !category
-    });
+    const { data: cusTransData, isFetching: isSingleFetching,
+        isLoading: isSingleLoading, } = useGetFabricInwardStateDetailTransQuery({
+            params: {
+                finyear: selectedYear,
+                category: category,
+                customer: custName,
+                state: selectState
+            },
+        }, {
+            skip: !selectedYear || !category
+        });
+
+    const isLoadingIndicator = isSingleFetching || isSingleLoading;
 
     const { data: custNames } = useGetFabricInwardCustQuery({
         params: {
@@ -395,17 +399,17 @@ const CustomerTransState = ({
                                     placeholder={"State"}
                                 />
                             </div>
-                        <button
-                            onClick={downloadExcel}
-                            className="p-0 rounded-full flex justify-center shadow-md hover:brightness-110 transition-all duration-300"
-                            title="Download Excel"
-                        >
-                            <img
-                                src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
-                                alt="Download Excel"
-                                className="w-7 h-7 rounded-lg"
-                            />
-                        </button>
+                            <button
+                                onClick={downloadExcel}
+                                className="p-0 rounded-full flex justify-center shadow-md hover:brightness-110 transition-all duration-300"
+                                title="Download Excel"
+                            >
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/512/732/732220.png"
+                                    alt="Download Excel"
+                                    className="w-7 h-7 rounded-lg"
+                                />
+                            </button>
                         </div>
 
                     </div>
@@ -416,71 +420,72 @@ const CustomerTransState = ({
                         className="overflow-x-auto max-h-[450px] "
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
-                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
-                            <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                                <tr>
-                                    <th className="border p-1 text-center w-6">S.No</th>
-                                    <th className="border p-1 text-center w-24">Inward No</th>
-                                    <th className="border p-1 text-center w-14">Inward Date</th>
-                                    <th className="border p-1 text-center w-24">Order No</th>
-                                    <th className="border p-1 text-center w-40">Customer name</th>
-                                    <th className="border p-1 text-center w-36">Fabric name</th>
-                                    <th className="border p-1 text-center w-12">Dia</th>
-                                    <th className="border p-1 text-center w-12">Uom</th>
-                                    <th className="border p-1 text-center w-12">Qty</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentRecords.map((row, index) => {
-                                    const globalIndex = index; // 0–16
-                                    const serialNo =
-                                        (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
+                        {isLoadingIndicator ? <Loader /> : (
+                            <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
+                                <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
+                                    <tr>
+                                        <th className="border p-1 text-center w-6">S.No</th>
+                                        <th className="border p-1 text-center w-24">Inward No</th>
+                                        <th className="border p-1 text-center w-14">Inward Date</th>
+                                        <th className="border p-1 text-center w-24">Order No</th>
+                                        <th className="border p-1 text-center w-40">Customer name</th>
+                                        <th className="border p-1 text-center w-36">Fabric name</th>
+                                        <th className="border p-1 text-center w-12">Dia</th>
+                                        <th className="border p-1 text-center w-12">Uom</th>
+                                        <th className="border p-1 text-center w-12">Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentRecords.map((row, index) => {
+                                        const globalIndex = index; // 0–16
+                                        const serialNo =
+                                            (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                                        return (
+                                            <tr
+                                                key={index}
+                                                className="text-gray-800 bg-white even:bg-gray-100 "
+                                            >
 
-                                            <td className="border p-1 text-[10px] text-center">
-                                                {serialNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px] ">
-                                                {row.inwNo}
-                                            </td>
-                                            <td className="border p-1 text-[10px]  text-center">
-                                                {row.inwDate}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px] "
-                                            >
-                                                {row.orderNo}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.custName}
-                                            </td>
-                                            <td
-                                                className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
-                                                style={{ maxWidth: "100px" }}
-                                            >
-                                                {row.fabName}
-                                            </td>
-                                            <td className="border p-1 text-[10px]  ">
-                                                {row.dia}
-                                            </td>
-                                            <td className="border p-1 text-[10px] ">
-                                                {row.uom}
-                                            </td>
-                                            <td className="border p-1 text-sky-700 text-[10px] text-right ">
-                                                {Number(row.qty).toFixed(3)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                                <td className="border p-1 text-[10px] text-center">
+                                                    {serialNo}
+                                                </td>
+                                                <td className="border p-1 text-[10px] ">
+                                                    {row.inwNo}
+                                                </td>
+                                                <td className="border p-1 text-[10px]  text-center">
+                                                    {row.inwDate}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px] "
+                                                >
+                                                    {row.orderNo}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
+                                                    style={{ maxWidth: "100px" }}
+                                                >
+                                                    {row.custName}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
+                                                    style={{ maxWidth: "100px" }}
+                                                >
+                                                    {row.fabName}
+                                                </td>
+                                                <td className="border p-1 text-[10px]  ">
+                                                    {row.dia}
+                                                </td>
+                                                <td className="border p-1 text-[10px] ">
+                                                    {row.uom}
+                                                </td>
+                                                <td className="border p-1 text-sky-700 text-[10px] text-right ">
+                                                    {Number(row.qty).toFixed(3)}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>)}
                     </div>
                 </div>
 
