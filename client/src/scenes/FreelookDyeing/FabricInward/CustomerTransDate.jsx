@@ -69,108 +69,7 @@ const CustomerTransDate = ({
         setCurrentPage(1);
     }, [cusTransData, search, selectmonths]);
 
-    const downloadExcel = async () => {
-        if (filteredData.length === 0) {
-            alert("No data to export!");
-            return;
-        }
 
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Fabric Inward Details");
-
-        // 1️⃣ Define columns
-        worksheet.columns = [
-            { header: "Inward No", key: "inwNo", width: 25 },
-            { header: "Inward Date", key: "inwDate", width: 16 },
-            { header: "Order No", key: "orderNo", width: 32 },
-            { header: "Customer Name", key: "customerName", width: 48 },
-            { header: "Fabric Name", key: "fabName", width: 48 },
-            { header: "Dia", key: "dia", width: 12 },
-            { header: "Uom", key: "uom", width: 12 },
-            { header: "Qty", key: "qty", width: 17 },
-        ];
-
-        // 2️⃣ Title Row
-        worksheet.insertRow(1, ["Fabric Inward Details Report"]);
-        worksheet.mergeCells("A1:H1");
-
-        const titleCell = worksheet.getCell("A1");
-        titleCell.font = { bold: true, size: 14 };
-        titleCell.alignment = { horizontal: "center", vertical: "middle" };
-        worksheet.getRow(1).height = 30;
-        addInsightsfreelookRow({
-            worksheet,
-            startRow: 2,
-            totalColumns: 8,
-            category,
-            custName,
-            selectedYear,
-            selectedMonth: selectmonths,
-            selectedDate
-        });
-
-        // 3️⃣ Header Styling (Row 2)
-        const headerRow = worksheet.getRow(3);
-        headerRow.height = 26;
-
-        headerRow.eachCell((cell) => {
-            cell.font = { bold: true };
-            cell.fill = {
-                type: "pattern",
-                pattern: "solid",
-                fgColor: { argb: "FFD9D9D9" }, // gray background
-            };
-            cell.alignment = { horizontal: "center", vertical: "middle" };
-            cell.border = {
-                top: { style: "thin" },
-                bottom: { style: "thin" },
-                left: { style: "thin" },
-                right: { style: "thin" },
-            };
-        });
-
-        // 4️⃣ Data Rows
-        filteredData.forEach((row) => {
-            worksheet.addRow({
-                inwNo: row.inwNo,
-                inwDate: row.inwDate,
-                orderNo: row.orderNo,
-                customerName: row.custName,
-                fabName: row.fabName,
-                dia: row.dia,
-                uom: row.uom,
-                qty: row.qty,
-            });
-        });
-
-        // 5️⃣ Data Alignment
-        worksheet.eachRow((row, rowNumber) => {
-            if (rowNumber <= 3) return;
-
-            row.height = 22;
-
-            row.getCell("inwNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("inwDate").alignment = { horizontal: "center", vertical: "middle" };
-            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-        });
-
-        // 6️⃣ Quantity format
-        worksheet.getColumn("inwDate").numFmt = "dd-mm-yyyy";
-
-        worksheet.getColumn("qty").numFmt = "#,##0.00";
-
-        // 7️⃣ Freeze Header
-        worksheet.views = [{ state: "frozen", ySplit: 3 }];
-
-        // 8️⃣ Export
-        const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), "Fabric Inward Details.xlsx");
-    };
 
     const parseDDMMYYYY = (dateStr) => {
         if (!dateStr) return null;
@@ -264,7 +163,137 @@ const CustomerTransDate = ({
         filteredData.map(row => row.inwNo)
     ).size
 
+    const downloadExcel = async () => {
+        if (filteredData.length === 0) {
+            alert("No data to export!");
+            return;
+        }
 
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Fabric Inward Details");
+
+        // 1️⃣ Define columns
+        worksheet.columns = [
+            { header: "Inward No", key: "inwNo", width: 25 },
+            { header: "Inward Date", key: "inwDate", width: 16 },
+            { header: "Order No", key: "orderNo", width: 32 },
+            { header: "Customer Name", key: "customerName", width: 48 },
+            { header: "Fabric Name", key: "fabName", width: 48 },
+            { header: "Dia", key: "dia", width: 12 },
+            { header: "Uom", key: "uom", width: 12 },
+            { header: "Qty", key: "qty", width: 17 },
+        ];
+
+        // 2️⃣ Title Row
+        worksheet.insertRow(1, ["Fabric Inward Details Report"]);
+        worksheet.mergeCells("A1:H1");
+
+        const titleCell = worksheet.getCell("A1");
+        titleCell.font = { bold: true, size: 14 };
+        titleCell.alignment = { horizontal: "center", vertical: "middle" };
+        worksheet.getRow(1).height = 30;
+        addInsightsfreelookRow({
+            worksheet,
+            startRow: 2,
+            totalColumns: 8,
+            category,
+            custName,
+            selectedYear,
+            selectedMonth: selectmonths,
+            selectedDate
+        });
+
+        // 3️⃣ Header Styling (Row 2)
+        const headerRow = worksheet.getRow(3);
+        headerRow.height = 26;
+
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFD9D9D9" }, // gray background
+            };
+            cell.alignment = { horizontal: "center", vertical: "middle" };
+            cell.border = {
+                top: { style: "thin" },
+                bottom: { style: "thin" },
+                left: { style: "thin" },
+                right: { style: "thin" },
+            };
+        });
+
+        // 4️⃣ Data Rows
+        filteredData.forEach((row) => {
+            worksheet.addRow({
+                inwNo: row.inwNo,
+                inwDate: row.inwDate,
+                orderNo: row.orderNo,
+                customerName: row.custName,
+                fabName: row.fabName,
+                dia: row.dia,
+                uom: row.uom,
+                qty: row.qty,
+            });
+        });
+
+        // 5️⃣ Data Alignment
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber <= 3) return;
+
+            row.height = 22;
+
+            row.getCell("inwNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("inwDate").alignment = { horizontal: "center", vertical: "middle" };
+            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+        });
+        const totalRow = worksheet.addRow({
+            inwNo: "",
+            inwDate: "",
+            orderNo: "",
+            fabName: "",
+            customerName: "",
+            dia: "",
+            uom: "TOTAL",
+            qty: totalQty.toLocaleString("en-IN", {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+            }),
+        });
+
+        totalRow.height = 24;
+
+        // Style TOTAL row
+        totalRow.eachCell((cell, colNumber) => {
+            cell.font = { bold: true };
+            cell.border = {
+                top: { style: "thin" },
+
+            };
+            cell.alignment = {
+                vertical: "middle",
+                horizontal: colNumber === 8 ? "right" : "center",
+                indent: 1
+            };
+        });
+
+        // 6️⃣ Quantity format
+        worksheet.getColumn("inwDate").numFmt = "dd-mm-yyyy";
+
+        worksheet.getColumn("qty").numFmt = "#,##0.000";
+
+        // 7️⃣ Freeze Header
+        worksheet.views = [{ state: "frozen", ySplit: 3 }];
+
+        // 8️⃣ Export
+        const buffer = await workbook.xlsx.writeBuffer();
+        saveAs(new Blob([buffer]), "Fabric Inward Date Wise  Details.xlsx");
+    };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
             <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">

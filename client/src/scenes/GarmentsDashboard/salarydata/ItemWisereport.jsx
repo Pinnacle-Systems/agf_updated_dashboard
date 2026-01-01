@@ -207,7 +207,7 @@ const Form = ({ finYear, companyName, finYr, filterBuyerList }) => {
           setShowTable(true);
         }}
       >
-        Open Table
+        View  Details
       </Button>
     }
       />

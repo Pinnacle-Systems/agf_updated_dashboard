@@ -85,8 +85,8 @@ const GarmentsDashboard = () => {
     result?.data?.map((item) => ({
       compname: item.customer,
       id: item.customer,
-    })) || [];
-  console.log(filterBuyerList, "filterBuyerList");
+    }))?.filter(item => ["AGF", "VEL"]?.includes(item.compname)) || [];
+  console.log(filterBuyerList, "compnaycheck");
 
   return (
     <div  

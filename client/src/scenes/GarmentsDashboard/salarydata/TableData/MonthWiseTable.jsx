@@ -17,11 +17,11 @@ import { useGetMisDashboardErpMonthWiseQuery } from
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
 import Loader from "../../../../utils/loader";
 const MonthWiseTable = ({
-
+    month,
     finYr,
     closeTable, filterBuyerList
 }) => {
-    const [selectedMonth, setSelectedMonth] = useState("ALL");
+    const [selectedMonth, setSelectedMonth] = useState(month || "ALL");
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,

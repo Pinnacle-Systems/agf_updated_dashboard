@@ -14,7 +14,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useGetMisDashboardErpMonthWiseQuery } from "../../../redux/service/misDashboardServiceERP";
 import MonthWiseTable from "../salarydata/TableData/MonthWiseTable";
 
-const Form = ({ companyName, finYear,finYr,filterBuyerList }) => {
+const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
   const theme = useTheme();
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [showTable, setShowTable] = useState(false);
@@ -162,6 +162,13 @@ const Form = ({ companyName, finYear,finYr,filterBuyerList }) => {
             color: "#000",
           },
         },
+        point: {
+          events: {
+            click() {
+              setShowTable(true);   // 👈 OPEN TABLE HERE
+            },
+          },
+        },
       },
     },
 
@@ -187,19 +194,19 @@ const Form = ({ companyName, finYear,finYr,filterBuyerList }) => {
           sx: { fontSize: ".9rem", fontWeight: 600 },
         }}
         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
-        action={
-          <Button
-            variant="contained"
-            size="small"
-            color="primary"
-            sx={{ mr: 2 }}
-            onClick={() => {
-              setShowTable(true);
-            }}
-          >
-            Open Table
-          </Button>
-        }
+      // action={
+      //   <Button
+      //     variant="contained"
+      //     size="small"
+      //     color="primary"
+      //     sx={{ mr: 2 }}
+      //     onClick={() => {
+      //       setShowTable(true);
+      //     }}
+      //   >
+      //     View  Details
+      //   </Button>
+      // }
       />
 
       <CardContent>
@@ -280,15 +287,15 @@ const Form = ({ companyName, finYear,finYr,filterBuyerList }) => {
           </Box>
         )}
       </CardContent>
-            {showTable && (
-              <MonthWiseTable
-                companyName={companyName}
-                filterBuyerList={filterBuyerList}
-                finYr={finYr}
-      
-                closeTable={() => setShowTable(false)}
-              />
-            )}
+      {showTable && (
+        <MonthWiseTable
+          companyName={companyName}
+          filterBuyerList={filterBuyerList}
+          finYr={finYr}
+        month={selectedMonth}
+          closeTable={() => setShowTable(false)}
+        />
+      )}
     </Card>
   );
 };

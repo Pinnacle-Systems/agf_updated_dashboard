@@ -145,7 +145,8 @@ export const addInsightsRowTurnOver = ({
   selectedYear,
   localCompany,
   dynamicValue,
-  dynamicField
+  dynamicField,
+  disableFinYear
 
 }) => {
 
@@ -153,7 +154,7 @@ export const addInsightsRowTurnOver = ({
 
   const insightText =
 
-    `FinYear -  ${selectedYear}    |    ` +
+    `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    ` }` +
     `Comp Code :  ${localCompany}    |    ` +
     `${dynamicField} :  ${dynamicValue}    |    `
 

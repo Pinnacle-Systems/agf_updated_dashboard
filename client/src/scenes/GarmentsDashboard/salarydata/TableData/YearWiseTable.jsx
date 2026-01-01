@@ -131,7 +131,7 @@ const YearWiseTable = ({
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Year Wise Turnover Report"]);
-        worksheet.mergeCells("A1:D1");
+        worksheet.mergeCells("A1:C1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -145,7 +145,8 @@ const YearWiseTable = ({
             totalColumns: 3,
             localCompany,
             dynamicField: "Year",
-            dynamicValue: selectedYear
+            dynamicValue: selectedYear,
+            disableFinYear: true
 
         });
 
@@ -176,7 +177,6 @@ const YearWiseTable = ({
             worksheet.addRow({
                 compCode: r.compName,
                 year: r.year,
-                month: r.monthName,
                 value: Number(r.value || 0),
             });
         });
@@ -187,15 +187,13 @@ const YearWiseTable = ({
             row.height = 22;
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("year").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("month").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
-            year: "",
-            month: "TOTAL",
+            year: "TOTAL",
             value: totalTurnOver,
         });
 
@@ -210,7 +208,7 @@ const YearWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 4 ? "right" : "center",
+                horizontal: colNumber === 3 ? "right" : "center",
                 indent: 1
             };
         });

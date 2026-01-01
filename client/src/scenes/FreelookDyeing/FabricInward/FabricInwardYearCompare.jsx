@@ -65,7 +65,7 @@ const FabricInwardYearCompare = ({
                 rotation: 90,
                 style: { fontSize: "10px", color: "#6B7280" },
                 formatter: function () {
-                    return this.value.split(" ")[0]; // 👈 first word only
+                    return this?.value
                 },
             },
         },

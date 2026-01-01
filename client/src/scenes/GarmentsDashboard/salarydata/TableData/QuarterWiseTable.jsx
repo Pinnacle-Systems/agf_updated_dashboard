@@ -21,7 +21,12 @@ const QuarterWiseTable = ({
     finYr,
     closeTable, filterBuyerList
 }) => {
+
+    console.log(quarter,"paramscheck");
+    
     const [selectedQuarter, setSelectedQuarter] = useState(quarter || "ALL");
+    const [selectedMonth, setSelectedMonth] = useState("ALL");
+
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,
@@ -60,6 +65,23 @@ const QuarterWiseTable = ({
             ...unique.map(c => ({ label: c, value: c })),
         ];
     }, [rawData]);
+    const monthOptions = useMemo(() => {
+        let filtered = rawData;
+
+        // 🔹 Filter months based on selected quarter
+        if (selectedQuarter !== "ALL") {
+            filtered = rawData.filter(
+                (r) => r.quarter === selectedQuarter
+            );
+        }
+
+        const uniqueMonths = [...new Set(filtered.map(r => r.monthName))];
+
+        return [
+            { label: "ALL", value: "ALL" },
+            ...uniqueMonths.map(m => ({ label: m, value: m })),
+        ];
+    }, [rawData, selectedQuarter]);
 
 
     // ✅ FILTERING
@@ -69,6 +91,11 @@ const QuarterWiseTable = ({
             if (selectedQuarter !== "ALL" && row.quarter !== selectedQuarter) {
                 return false;
             }
+
+            if (selectedMonth !== "ALL" && row.monthName !== selectedMonth) {
+                return false;
+            }
+
 
             // 🔹 Search filter (quarter search)
             if (search.quarter) {
@@ -86,17 +113,27 @@ const QuarterWiseTable = ({
 
             return true;
         });
-    }, [rawData, selectedQuarter, search, netpayRange]);
+    }, [rawData, selectedQuarter, selectedMonth, search, netpayRange]);
 
 
     useEffect(() => {
         setSelectedQuarter(quarter || "ALL");
         setCurrentPage(1);
     }, [quarter]);
+    
+
     useEffect(() => {
         setLocalCompany(companyName || "ALL");
     }, [companyName]);
 
+    useEffect(() => {
+  if (
+    selectedMonth !== "ALL" &&
+    !monthOptions.some(m => m.value === selectedMonth)
+  ) {
+    setSelectedMonth("ALL");
+  }
+}, [selectedQuarter, monthOptions, selectedMonth]);
 
     // ✅ TOTAL
     const totalTurnOver = useMemo(
@@ -300,6 +337,25 @@ const QuarterWiseTable = ({
                                             {c.label}
                                         </option>
                                     ))}
+                                </select>
+                            </div>
+
+                            <div className="w-40">
+                                <select
+                                    value={selectedMonth}
+                                    onChange={(e) => {
+                                        setSelectedMonth(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"     >
+
+                                    {monthOptions?.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+
                                 </select>
                             </div>
 

@@ -121,16 +121,17 @@ const ItemWiseTable = ({
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Country Wise Turnover Report");
+        const worksheet = workbook.addWorksheet("Style Group Wise Turnover Report");
         worksheet.columns = [
             { header: "Company", key: "compCode", width: 70 },
-            { header: "Country", key: "category", width: 40 },
+            { header: "Style Group", key: "category", width: 30 },
+            { header: "Style Item", key: "styleItem", width: 50 },
             { header: "Turnover", key: "value", width: 35 },
         ];
 
         /* ================= TITLE ================= */
-        worksheet.insertRow(1, ["Country Wise Turnover Report"]);
-        worksheet.mergeCells("A1:C1");
+        worksheet.insertRow(1, ["Style Group Wise Turnover Report"]);
+        worksheet.mergeCells("A1:D1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -144,7 +145,7 @@ const ItemWiseTable = ({
             totalColumns: 3,
             selectedYear: localYear,
             localCompany,
-            dynamicField: "Country",
+            dynamicField: "Style Group",
             dynamicValue: selectedCategory
 
         });
@@ -176,6 +177,7 @@ const ItemWiseTable = ({
             worksheet.addRow({
                 compCode: r.compName,
                 category: r.category,
+                styleItem:r.styleItem,
                 value: Number(r.value || 0),
             });
         });
@@ -186,12 +188,14 @@ const ItemWiseTable = ({
             row.height = 22;
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("category").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("styleItem").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
+            styleItem:"",
             category: "TOTAL",
             value: totalTurnOver,
         });
@@ -207,7 +211,7 @@ const ItemWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 3 ? "right" : "center",
+                horizontal: colNumber === 4 ? "right" : "center",
                 indent: 1
             };
         });
@@ -222,7 +226,7 @@ const ItemWiseTable = ({
             new Blob([buffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             }),
-            "Country Wise Turnover Report.xlsx"
+            "Style Group Wise Turnover Report.xlsx"
         );
     };
 
@@ -389,7 +393,7 @@ const ItemWiseTable = ({
                                 <tr>
                                     <th className="border p-1 text-center w-[12px]">S.No</th>
                                     <th className="border p-1 text-center w-24">Company</th>
-                                    <th className="border p-1 text-center w-12">Category</th>
+                                    <th className="border p-1 text-center w-12">Style Group</th>
                                     <th className="border p-1 text-center w-32">Style Item</th>
                                     <th className="border p-1 text-center w-12">Turnover</th>
 

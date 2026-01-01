@@ -120,19 +120,35 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
           enabled: true,
           align: "center",
           verticalAlign: "middle",
+          useHTML: true, // allows multi-line formatting
+
+          // formatter() {
+          //   return `
+          //     <b>${this.point.name}</b><br/>
+          //     ${formatINR(this.point.value)}
+          //   `;
+          // },
           formatter() {
-            return `
-              <b>${this.point.name}</b><br/>
-              ${formatINR(this.point.value)}
-            `;
+            const { name, value, months } = this.point;
+
+            // Flatten month names and values
+            const monthsHtml = months
+              .map(m => `${m.name}: ₹${m.value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
+              .join("<br/>");
+
+            return `<b>${name}</b><br/>${monthsHtml}<br/><b>Total: ₹${value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>`;
           },
           style: {
             color: "#FFFFFF",
             textOutline: "none",
-            fontSize: "14px",
+            fontSize: "11px", // smaller font to fit all months
             fontWeight: "bold",
+            lineHeight: "1.2"
           },
+
         },
+      
+
       },
     },
 

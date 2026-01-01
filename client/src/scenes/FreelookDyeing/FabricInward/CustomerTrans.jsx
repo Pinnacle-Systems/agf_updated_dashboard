@@ -70,6 +70,70 @@ const CustomerTrans = ({
         setCurrentPage(1);
     }, [cusTransData, search, selectmonths]);
 
+
+
+    const filteredData = Array.isArray(cusTransData?.data)
+        ? cusTransData.data.filter((row) => {
+
+            // 🔹 Search filter
+            const searchMatch = Object.entries(search).every(([key, value]) => {
+                if (!value) return true;
+                return row[key]?.toString().toLowerCase().includes(value.toLowerCase());
+            });
+            if (!searchMatch) return false;
+
+            // 🔹 Month filter
+            if (!selectmonths) return true;
+
+            // ✅ Parse DD/MM/YYYY safely
+            const [day, month, year] = row.inwDate.split("/").map(Number);
+            const invDate = new Date(year, month - 1, day);
+
+            if (isNaN(invDate.getTime())) return false;
+
+            // Selected month/year
+            const [monthName, yearStr] = selectmonths.split(" ");
+            const selectedYear = parseInt(yearStr);
+
+            const monthMap = {
+                January: 0, February: 1, March: 2, April: 3,
+                May: 4, June: 5, July: 6, August: 7,
+                September: 8, October: 9, November: 10, December: 11
+            };
+
+            return (
+                invDate.getMonth() === monthMap[monthName] &&
+                invDate.getFullYear() === selectedYear
+            );
+        })
+        : [];
+
+
+    const totalNetPay = filteredData.reduce(
+        (sum, row) => sum + (Number(row.PF) || 0),
+        0
+    );
+    const totalQty = filteredData.reduce(
+        (sum, row) => sum + (Number(row.qty) || 0),
+        0
+    );
+
+    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+    const totalRecords = filteredData.length;
+
+    const currentRecords = filteredData.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+    );
+
+    const handleFilterClick = (type) => {
+        setCategory(type);
+        setCustName("")
+    };
+
+    const totalInwardCount = new Set(
+        filteredData.map(row => row.inwNo)
+    ).size;
     const downloadExcel = async () => {
         if (filteredData.length === 0) {
             alert("No data to export!");
@@ -158,83 +222,49 @@ const CustomerTrans = ({
             row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
+        // ================= TOTAL ROW =================
+        const totalRow = worksheet.addRow({
+            inwNo: "",
+            inwDate: "",
+            orderNo: "",
+            fabName: "",
+            customerName: "",
+            dia: "",
+            uom: "TOTAL",
+            qty: totalQty.toLocaleString("en-IN", {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+            }),
+        });
+
+        totalRow.height = 24;
+
+        // Style TOTAL row
+        totalRow.eachCell((cell, colNumber) => {
+            cell.font = { bold: true };
+            cell.border = {
+                top: { style: "thin" },
+
+            };
+            cell.alignment = {
+                vertical: "middle",
+                horizontal: colNumber === 8 ? "right" : "center",
+                indent: 1
+            };
+        });
 
         // 6️⃣ Quantity format
         worksheet.getColumn("inwDate").numFmt = "dd-mm-yyyy";
 
-        worksheet.getColumn("qty").numFmt = "#,##0.00";
+        worksheet.getColumn("qty").numFmt = "#,##0.000";
 
         // 7️⃣ Freeze Header
         worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
         // 8️⃣ Export
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), "Fabric Inward Details.xlsx");
+        saveAs(new Blob([buffer]), "Fabric Inward Customer Wise Details.xlsx");
     };
-
-    const filteredData = Array.isArray(cusTransData?.data)
-        ? cusTransData.data.filter((row) => {
-
-            // 🔹 Search filter
-            const searchMatch = Object.entries(search).every(([key, value]) => {
-                if (!value) return true;
-                return row[key]?.toString().toLowerCase().includes(value.toLowerCase());
-            });
-            if (!searchMatch) return false;
-
-            // 🔹 Month filter
-            if (!selectmonths) return true;
-
-            // ✅ Parse DD/MM/YYYY safely
-            const [day, month, year] = row.inwDate.split("/").map(Number);
-            const invDate = new Date(year, month - 1, day);
-
-            if (isNaN(invDate.getTime())) return false;
-
-            // Selected month/year
-            const [monthName, yearStr] = selectmonths.split(" ");
-            const selectedYear = parseInt(yearStr);
-
-            const monthMap = {
-                January: 0, February: 1, March: 2, April: 3,
-                May: 4, June: 5, July: 6, August: 7,
-                September: 8, October: 9, November: 10, December: 11
-            };
-
-            return (
-                invDate.getMonth() === monthMap[monthName] &&
-                invDate.getFullYear() === selectedYear
-            );
-        })
-        : [];
-
-
-    const totalNetPay = filteredData.reduce(
-        (sum, row) => sum + (Number(row.PF) || 0),
-        0
-    );
-    const totalQty = filteredData.reduce(
-        (sum, row) => sum + (Number(row.qty) || 0),
-        0
-    );
-
-    const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-    const totalRecords = filteredData.length;
-
-    const currentRecords = filteredData.slice(
-        (currentPage - 1) * recordsPerPage,
-        currentPage * recordsPerPage
-    );
-
-    const handleFilterClick = (type) => {
-        setCategory(type);
-        setCustName("")
-    };
-
-    const totalInwardCount = new Set(
-        filteredData.map(row => row.inwNo)
-    ).size;
-
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
             <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">
