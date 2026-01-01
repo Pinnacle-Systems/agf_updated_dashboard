@@ -10,11 +10,13 @@ import {
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useGetFabricOutwardDetailQuery } from "../../../redux/service/fabricOutward";
+import { useDispatch } from "react-redux";
+import { push } from "../../../redux/features/opentabs";
 
 const OutwardType = ({ year, finYear, setCategory }) => {
     const theme = useTheme();
     const [fYear, setFYear] = useState(year);
-
+    const dispatch = useDispatch();
     const { data: fabricData } = useGetFabricOutwardDetailQuery(
         {
             params: {
@@ -106,7 +108,17 @@ const OutwardType = ({ year, finYear, setCategory }) => {
                 point: {
                     events: {
                         click: function () {
-                            setCategory(this.name);
+                            dispatch(
+                                push({
+                                    id: "FabricOutward",
+                                    name: "FabricOutward",
+                                    component: "OutwardOverview",
+                                    data: {
+                                        finYear: finYear,
+                                        year: fYear,
+                                    },
+                                })
+                            );
                         },
                     },
                 },

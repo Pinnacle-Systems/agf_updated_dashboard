@@ -30,8 +30,8 @@ import SalaryIndex from "../maindashboard/salarydata/salaryIndex.js";
 import TurnOverIndex from "../GarmentsDashboard/salarydata/TurnOverindex.jsx";
 import HRDashboard from "../hrdashboard/index.js";
 import FabricInward from "../FreelookDyeing/FabricInward/FabricInward.jsx"
-import FabricOutward from "../FreelookDyeing/FabricOutward/FabricOutward.jsx";
 import GarmentDashboard from '../GarmentsDashboard/index';
+import OutwardOverview from "../FreelookDyeing/FabricOutward/OutwardOverview.jsx";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -105,7 +105,7 @@ const ActiveTabList = () => {
       />
     ),
     FabricOutward: (tabData) => (
-      <FabricOutward
+      <OutwardOverview
         year={tabData?.year}
         finYear={tabData?.finYear}
       />
