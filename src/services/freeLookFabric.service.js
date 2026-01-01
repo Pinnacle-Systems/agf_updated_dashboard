@@ -595,7 +595,12 @@ WHERE FINYR = :FINYR AND
  ( :CUSTSTATE = 'ALL' OR CUSTSTATE = :CUSTSTATE ) AND
  ( :CUSTNAME = 'ALL' OR CUSTNAME = :CUSTNAME )
 ORDER BY 1,2,3,4,5,6,7,8`,
-      { FINYR: finyear, CCATEGORY: category, CUSTSTATE: state,CUSTNAME: customer },
+      {
+        FINYR: finyear,
+        CCATEGORY: category,
+        CUSTSTATE: state,
+        CUSTNAME: customer,
+      },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({
@@ -685,7 +690,10 @@ export async function getFabricInwardYearCompare(req, res) {
         .json({ statusCode: 1, message: "Database connection not available" });
     }
 
-    const { category } = req.query;
+    let { category, customer } = req.query;
+    if (customer === null || customer === "" || customer === undefined) {
+      customer = "ALL";
+    }
 
     const result = await connection.execute(
       `WITH PARAM_DATA AS (
@@ -694,7 +702,8 @@ SELECT --ROW_NUMBER() OVER(PARTITION BY CUSTNAME ORDER BY CUSTNAME, FINYR DESC) 
        FINYR,
        NVL(SUM(QTY),0) AS QTY
 FROM FABRIC_INWARD_DATA
-WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY )
+WHERE ( :CCATEGORY = 'ALL' OR CCATEGORY = :CCATEGORY ) AND
+      ( :CUSTNAME = 'ALL' OR CUSTNAME = :CUSTNAME )
 GROUP BY FINYR,CUSTNAME
 ),
 YEAR_DATA AS(
@@ -709,7 +718,7 @@ SELECT CUSTNAME, previousyear,QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.F
 UNION ALL
 SELECT CUSTNAME, beforepreviousyear,QTY FROM YEAR_DATA A LEFT JOIN PARAM_DATA B ON B.FINYR = A.beforepreviousyear
 ORDER BY CUSTNAME`,
-      { CCATEGORY: category },
+      { CCATEGORY: category, CUSTNAME: customer },
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
     const data = result.rows.map((item) => ({
