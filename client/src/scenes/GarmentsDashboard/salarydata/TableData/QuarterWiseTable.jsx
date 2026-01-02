@@ -11,7 +11,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useSelector } from "react-redux";
 
-import { useGetMisDashboardErpQuarterWiseQuery } from
+import { useGetMisDashboardErpQuarterWiseBreakUpQuery } from
     "../../../../redux/service/misDashboardServiceERP";
 
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
@@ -22,8 +22,8 @@ const QuarterWiseTable = ({
     closeTable, filterBuyerList
 }) => {
 
-    console.log(quarter,"paramscheck");
-    
+    console.log(quarter, "paramscheck");
+
     const [selectedQuarter, setSelectedQuarter] = useState(quarter || "ALL");
     const [selectedMonth, setSelectedMonth] = useState("ALL");
 
@@ -42,7 +42,7 @@ const QuarterWiseTable = ({
 
     // ✅ API CALL INSIDE TABLE
     const { data: response, isLoading } =
-        useGetMisDashboardErpQuarterWiseQuery(
+        useGetMisDashboardErpQuarterWiseBreakUpQuery(
             {
                 params: {
                     companyName: localCompany === "ALL" ? undefined : localCompany,
@@ -104,7 +104,12 @@ const QuarterWiseTable = ({
                     return false;
                 }
             }
-
+            if (search.orderNo) {
+                const rowOrderNo = row.orderNo?.toString().toLowerCase() || "";
+                if (!rowOrderNo.includes(search.orderNo.toLowerCase())) {
+                    return false;
+                }
+            }
             // 🔹 Min / Max Turnover filter
             const value = Number(row.value || 0);
 
@@ -120,20 +125,20 @@ const QuarterWiseTable = ({
         setSelectedQuarter(quarter || "ALL");
         setCurrentPage(1);
     }, [quarter]);
-    
+
 
     useEffect(() => {
         setLocalCompany(companyName || "ALL");
     }, [companyName]);
 
     useEffect(() => {
-  if (
-    selectedMonth !== "ALL" &&
-    !monthOptions.some(m => m.value === selectedMonth)
-  ) {
-    setSelectedMonth("ALL");
-  }
-}, [selectedQuarter, monthOptions, selectedMonth]);
+        if (
+            selectedMonth !== "ALL" &&
+            !monthOptions.some(m => m.value === selectedMonth)
+        ) {
+            setSelectedMonth("ALL");
+        }
+    }, [selectedQuarter, monthOptions, selectedMonth]);
 
     // ✅ TOTAL
     const totalTurnOver = useMemo(
@@ -162,14 +167,16 @@ const QuarterWiseTable = ({
         const worksheet = workbook.addWorksheet("Quarter Wise Turnover Report");
         worksheet.columns = [
             { header: "Company", key: "compCode", width: 70 },
-            { header: "Quarter", key: "quarter", width: 20 },
+            { header: "Quarter", key: "quarter", width: 15 },
             { header: "Month", key: "month", width: 25 },
-            { header: "Turnover", key: "value", width: 35 },
+            { header: "Order No", key: "orderNo", width: 35 },
+            { header: "Order Date", key: "orderDate", width: 25 },
+            { header: "Turnover", key: "value", width: 30 },
         ];
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Quarter Wise Turnover Report"]);
-        worksheet.mergeCells("A1:D1");
+        worksheet.mergeCells("A1:F1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -216,6 +223,8 @@ const QuarterWiseTable = ({
                 compCode: r.compName,
                 quarter: r.quarter,
                 month: r.monthName,
+                orderNo: r.orderNo,
+                orderDate: r.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-") || '',
                 value: Number(r.value || 0),
             });
         });
@@ -227,6 +236,8 @@ const QuarterWiseTable = ({
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("quarter").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("month").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderDate").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
@@ -234,7 +245,9 @@ const QuarterWiseTable = ({
         const totalRow = worksheet.addRow({
             compCode: "",
             quarter: "",
-            month: "TOTAL",
+            month: "",
+            orderNo: "",
+            orderDate: "TOTAL",
             value: totalTurnOver,
         });
 
@@ -249,10 +262,11 @@ const QuarterWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 4 ? "right" : "center",
+                horizontal: colNumber === 6 ? "right" : "center",
                 indent: 1
             };
         });
+        worksheet.getColumn("orderDate").numFmt = "dd-mm-yyyy";
 
         worksheet.getColumn("value").numFmt = '₹ #,##,##0.00';
 
@@ -272,7 +286,7 @@ const QuarterWiseTable = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex justify-center items-center">
-            <div className="bg-white w-[1300px] h-[620px] p-4 rounded-xl relative">
+            <div className="bg-white w-[1300px] h-[630px] p-4 rounded-xl relative">
 
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
@@ -380,8 +394,8 @@ const QuarterWiseTable = ({
                 {/* SEARCH */}
 
                 <div className="flex justify-between items-start mt-2">
-                    <div className=" mb-3">
-                        {["quarter"].map((key) => (
+                    <div className="flex gap-x-4 mb-3">
+                        {["quarter", "orderNo"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -443,21 +457,23 @@ const QuarterWiseTable = ({
                     </div>
                 </div>
                 {/* TABLE */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid  gap-4">
                     <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
                         <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-28">Company</th>
-                                    <th className="border p-1 text-center w-8">Quarter</th>
+                                    <th className="border p-1 text-center w-6">S.No</th>
+                                    <th className="border p-1 text-center w-36">Company</th>
+                                    <th className="border p-1 text-center w-12">Quarter</th>
                                     <th className="border p-1 text-center w-12">Month</th>
+                                    <th className="border p-1 text-center w-24">Order No</th>
+                                    <th className="border p-1 text-center w-12">Order Date</th>
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(0, 17).map((row, index) => {
+                                {currentRecords?.map((row, index) => {
                                     const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                                     return (
@@ -466,10 +482,12 @@ const QuarterWiseTable = ({
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.quarter}</td>
-                                            <td className="border p-1 text-left">{row.monthName}</td>
-                                            <td className="border p-1 text-right text-sky-700 ">
+                                            <td className="border p-1 pl-2 text-left ">{row.compName}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.quarter}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.monthName}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0].split("-").reverse().join("-")}</td>
+                                            <td className="border p-1 pr-2 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
@@ -481,43 +499,7 @@ const QuarterWiseTable = ({
                             </tbody>
                         </table>
                     </div>
-                    <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
-                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
-                            <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                                <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-28">Company</th>
-                                    <th className="border p-1 text-center w-8">Quarter</th>
-                                    <th className="border p-1 text-center w-12">Month</th>
-                                    <th className="border p-1 text-center w-12">Turnover</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentRecords?.slice(17, 34)?.map((row, index) => {
-                                    const globalIndex = index + 17;
-                                    const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
-                                            <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.quarter}</td>
-                                            <td className="border p-1 text-left">{row.monthName}</td>
 
-                                            <td className="border p-1 text-right text-sky-700 ">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.value)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
                 {/* PAGINATION */}

@@ -11,7 +11,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useSelector } from "react-redux";
 
-import { useGetMisDashboardErpMonthWiseQuery } from
+import { useGetMisDashboardErpMonthWiseBreakUPQuery } from
     "../../../../redux/service/misDashboardServiceERP";
 
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
@@ -37,7 +37,7 @@ const MonthWiseTable = ({
 
     // ✅ API CALL INSIDE TABLE
     const { data: response, isLoading } =
-        useGetMisDashboardErpMonthWiseQuery(
+        useGetMisDashboardErpMonthWiseBreakUPQuery(
             {
                 params: {
                     companyName: localCompany === "ALL" ? undefined : localCompany,
@@ -77,7 +77,12 @@ const MonthWiseTable = ({
                     return false;
                 }
             }
-
+            if (search.orderNo) {
+                const rowOrderNo = row.orderNo?.toString().toLowerCase() || "";
+                if (!rowOrderNo.includes(search.orderNo.toLowerCase())) {
+                    return false;
+                }
+            }
             // 🔹 Min / Max Turnover filter
             const value = Number(row.value || 0);
 
@@ -126,12 +131,14 @@ const MonthWiseTable = ({
         worksheet.columns = [
             { header: "Company", key: "compCode", width: 70 },
             { header: "Month", key: "month", width: 30 },
-            { header: "Turnover", key: "value", width: 35 },
+            { header: "Order No", key: "orderNo", width: 35 },
+            { header: "Order Date", key: "orderDate", width: 25 },
+            { header: "Turnover", key: "value", width: 30 },
         ];
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Month Wise Turnover Report"]);
-        worksheet.mergeCells("A1:C1");
+        worksheet.mergeCells("A1:E1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -177,6 +184,8 @@ const MonthWiseTable = ({
             worksheet.addRow({
                 compCode: r.compName,
                 month: r.month,
+                orderNo: r.orderNo,
+                orderDate: r.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-") || '',
                 value: Number(r.value || 0),
             });
         });
@@ -187,13 +196,17 @@ const MonthWiseTable = ({
             row.height = 22;
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("month").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderDate").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
-            month: "TOTAL",
+            month: "",
+            orderNo: "",
+            orderDate: "TOTAL",
             value: totalTurnOver,
         });
 
@@ -208,10 +221,11 @@ const MonthWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 3 ? "right" : "center",
+                horizontal: colNumber === 5 ? "right" : "center",
                 indent: 1
             };
         });
+        worksheet.getColumn("orderDate").numFmt = "dd-mm-yyyy";
 
         worksheet.getColumn("value").numFmt = '₹ #,##,##0.00';
 
@@ -231,7 +245,7 @@ const MonthWiseTable = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex justify-center items-center">
-            <div className="bg-white w-[1300px] h-[620px] p-4 rounded-xl relative">
+            <div className="bg-white w-[1300px] h-[630px] p-4 rounded-xl relative">
 
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
@@ -320,8 +334,8 @@ const MonthWiseTable = ({
                 {/* SEARCH */}
 
                 <div className="flex justify-between items-start mt-2">
-                    <div className=" mb-3">
-                        {["month"].map((key) => (
+                    <div className="flex gap-x-4 mb-3">
+                        {["month", "orderNo"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -383,31 +397,35 @@ const MonthWiseTable = ({
                     </div>
                 </div>
                 {/* TABLE */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid  gap-4">
                     <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
                         <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-32">Company</th>
-                                    <th className="border p-1 text-center w-12">Month</th>
-                                    <th className="border p-1 text-center w-16">Turnover</th>
+                                    <th className="border p-1 text-center w-6">S.No</th>
+                                    <th className="border p-1 text-center w-36">Company</th>
+                                    <th className="border p-1 text-center w-16">Month</th>
+                                    <th className="border p-1 text-center w-20">Order No</th>
+                                    <th className="border p-1 text-center w-12">Order Date</th>
+                                    <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords.slice(0, 17).map((row, index) => {
+                                {currentRecords?.map((row, index) => {
                                     const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
                                     return (
                                         <tr
                                             key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
+                                            className="text-gray-800 bg-white even:bg-gray-100"
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.month}</td>
-                                            <td className="border p-1 text-right text-sky-700 ">
+                                            <td className="border p-1 pl-2 text-left ">{row.compName}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.month}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0].split("-").reverse().join("-")}</td>
+                                            <td className="border p-1 pr-2 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
@@ -419,40 +437,7 @@ const MonthWiseTable = ({
                             </tbody>
                         </table>
                     </div>
-                    <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
-                        <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
-                            <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
-                                <tr>
-                                    <th className="border p-1 text-center w-[8px]">S.No</th>
-                                    <th className="border p-1 text-center w-32">Company</th>
-                                    <th className="border p-1 text-center w-12">Month</th>
-                                    <th className="border p-1 text-center w-16">Turnover</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentRecords?.slice(17, 34)?.map((row, index) => {
-                                    const globalIndex = index + 17;  // 0–16
-                                    const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
-                                            <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 text-left ">{row.compName}</td>
-                                            <td className="border p-1 text-left">{row.month}</td>
-                                            <td className="border p-1 text-right text-sky-700 ">
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.value)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+
                 </div>
 
                 {/* PAGINATION */}

@@ -11,7 +11,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useSelector } from "react-redux";
 
-import { useGetMisDashboardErpStyleItemWiseQuery } from
+import { useGetMisDashboardErpStyleItemWiseBreakUpQuery } from
     "../../../../redux/service/misDashboardServiceERP";
 
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
@@ -21,6 +21,7 @@ const ItemWiseTable = ({
     closeTable, filterBuyerList
 }) => {
     const [selectedCategory, setSelectedcategory] = useState("ALL");
+    const [selectedStyleItem, setSelectedStyleItem] = useState("ALL");
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,
@@ -36,7 +37,7 @@ const ItemWiseTable = ({
 
     // ✅ API CALL INSIDE TABLE
     const { data: response, isLoading } =
-        useGetMisDashboardErpStyleItemWiseQuery(
+        useGetMisDashboardErpStyleItemWiseBreakUpQuery(
             {
                 params: {
                     companyName: localCompany === "ALL" ? undefined : localCompany,
@@ -59,6 +60,20 @@ const ItemWiseTable = ({
             ...unique.map(c => ({ label: c, value: c })),
         ];
     }, [rawData]);
+    const styleItemOptions = useMemo(() => {
+        let filtered = rawData;
+
+        if (selectedCategory !== "ALL") {
+            filtered = filtered.filter(r => r.category === selectedCategory);
+        }
+
+        const unique = [...new Set(filtered.map(r => r.styleItem))];
+
+        return [
+            { label: "ALL", value: "ALL" },
+            ...unique.map(c => ({ label: c, value: c })),
+        ];
+    }, [rawData, selectedCategory]);
 
 
     // ✅ FILTERING
@@ -68,6 +83,8 @@ const ItemWiseTable = ({
             if (selectedCategory !== "ALL" && row.category !== selectedCategory) {
                 return false;
             }
+            if (selectedStyleItem !== "ALL" && row.styleItem !== selectedStyleItem) return false;
+
 
             // 🔹 Search filter (category search)
             if (search.category) {
@@ -85,7 +102,7 @@ const ItemWiseTable = ({
 
             return true;
         });
-    }, [rawData, selectedCategory, search, netpayRange]);
+    }, [rawData, selectedCategory, selectedStyleItem, search, netpayRange]);
 
 
     // useEffect(() => {
@@ -126,12 +143,14 @@ const ItemWiseTable = ({
             { header: "Company", key: "compCode", width: 70 },
             { header: "Style Group", key: "category", width: 30 },
             { header: "Style Item", key: "styleItem", width: 50 },
-            { header: "Turnover", key: "value", width: 35 },
+            { header: "Order No", key: "orderNo", width: 35 },
+            { header: "Order Date", key: "orderDate", width: 25 },
+            { header: "Turnover", key: "value", width: 30 },
         ];
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Style Group Wise Turnover Report"]);
-        worksheet.mergeCells("A1:D1");
+        worksheet.mergeCells("A1:F1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -146,7 +165,10 @@ const ItemWiseTable = ({
             selectedYear: localYear,
             localCompany,
             dynamicField: "Style Group",
-            dynamicValue: selectedCategory
+            dynamicValue: selectedCategory,
+            secondDynamicField: "Style Item",
+            seconddynamicValue: selectedCategory,
+
 
         });
 
@@ -177,7 +199,9 @@ const ItemWiseTable = ({
             worksheet.addRow({
                 compCode: r.compName,
                 category: r.category,
-                styleItem:r.styleItem,
+                styleItem: r.styleItem,
+                orderNo: r.orderNo,
+                orderDate: r.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-") || '',
                 value: Number(r.value || 0),
             });
         });
@@ -189,14 +213,18 @@ const ItemWiseTable = ({
             row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("category").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("styleItem").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderDate").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
             compCode: "",
-            styleItem:"",
-            category: "TOTAL",
+            styleItem: "",
+            category: "",
+            orderNo: "",
+            orderDate: "TOTAL",
             value: totalTurnOver,
         });
 
@@ -211,10 +239,11 @@ const ItemWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 4 ? "right" : "center",
+                horizontal: colNumber === 6 ? "right" : "center",
                 indent: 1
             };
         });
+        worksheet.getColumn("orderDate").numFmt = "dd-mm-yyyy";
 
         worksheet.getColumn("value").numFmt = '₹ #,##,##0.00';
 
@@ -295,6 +324,23 @@ const ItemWiseTable = ({
       border-blue-600 transition-all duration-200"     >
 
                                     {customerOptions?.map((c) => (
+                                        <option key={c.value} value={c.value}>
+                                            {c.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="w-56">
+                                <select
+                                    value={selectedStyleItem}
+                                    onChange={(e) => {
+                                        setSelectedStyleItem(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"     >
+
+                                    {styleItemOptions?.map((c) => (
                                         <option key={c.value} value={c.value}>
                                             {c.label}
                                         </option>
@@ -395,6 +441,8 @@ const ItemWiseTable = ({
                                     <th className="border p-1 text-center w-24">Company</th>
                                     <th className="border p-1 text-center w-12">Style Group</th>
                                     <th className="border p-1 text-center w-32">Style Item</th>
+                                    <th className="border p-1 text-center w-20">Order No</th>
+                                    <th className="border p-1 text-center w-12">Order Date</th>
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
@@ -412,7 +460,9 @@ const ItemWiseTable = ({
                                             <td className="border p-1 pl-2 text-left ">{row.compName}</td>
                                             <td className="border p-1 pl-2 text-left">{row.category}</td>
                                             <td className="border p-1 pl-2 text-left">{row.styleItem}</td>
-                                            <td className="border p-1 pl-2 text-right text-sky-700 ">
+                                            <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0].split("-").reverse().join("-")}</td>
+                                            <td className="border p-1 pr-2 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",

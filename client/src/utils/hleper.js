@@ -146,7 +146,9 @@ export const addInsightsRowTurnOver = ({
   localCompany,
   dynamicValue,
   dynamicField,
-  disableFinYear
+  disableFinYear,
+  secondDynamicField,
+  seconddynamicValue
 
 }) => {
 
@@ -154,9 +156,12 @@ export const addInsightsRowTurnOver = ({
 
   const insightText =
 
-    `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    ` }` +
+    `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    `}` +
     `Comp Code :  ${localCompany}    |    ` +
-    `${dynamicField} :  ${dynamicValue}    |    `
+    `${dynamicField} :  ${dynamicValue}    |    ` +
+    `${secondDynamicField ? `${secondDynamicField}: ${seconddynamicValue}    |    ` : ""}`;
+
+
 
 
   // Insert insights row
@@ -831,11 +836,10 @@ export const DropdownNew = ({
         menuShouldScrollIntoView={false}
         maxMenuHeight={170}
         onInputChange={(value) => value.toUpperCase()}
-        className={`w-full text-xs rounded-lg border ${
-          autoFocus
-            ? " border border-blue-800 ring-1"
-            : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        } 
+        className={`w-full text-xs rounded-lg border ${autoFocus
+          ? " border border-blue-800 ring-1"
+          : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          } 
           
           transition-all duration-150 shadow-sm`}
         placeholder={placeholder}

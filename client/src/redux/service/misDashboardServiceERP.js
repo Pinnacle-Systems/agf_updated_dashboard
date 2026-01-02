@@ -24,7 +24,6 @@ const MisDashboard = createApi({
         }),
         getMisDashboardErpCustomerWise: builder.query({
             query: ({ params }) => {
-                console.log(params,"receivedparams");
                 
                 return {
                     url: MIS_DASHBOARDERP + "/customerWise",
@@ -37,9 +36,23 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpCustomerWiseBreakup: builder.query({
+            query: ({ params }) => {
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/customerWiseBreakUp",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardErpCountryWise: builder.query({
             query: ({ params }) => {
-                console.log(params,"receivedparams");
+             
                 
                 return {
                     url: MIS_DASHBOARDERP + "/countryWise",
@@ -52,9 +65,23 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpCountryWiseBreakUp: builder.query({
+            query: ({ params }) => {
+                
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/countryWiseBreakUp",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardErpStyleItemWise: builder.query({
             query: ({ params }) => {
-                console.log(params,"receivedparams");
                 
                 return {
                     url: MIS_DASHBOARDERP + "/StyleItemWise",
@@ -67,9 +94,22 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
+        getMisDashboardErpStyleItemWiseBreakUp: builder.query({
+            query: ({ params }) => {
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/StyleItemWiseBreakUp",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
         getMisDashboardErpMonthWise: builder.query({
             query: ({ params }) => {
-                console.log(params,"receivedparams");
                 
                 return {
                     url: MIS_DASHBOARDERP + "/MonthWise",
@@ -82,12 +122,40 @@ const MisDashboard = createApi({
             },
             providesTags: ['MisDashboard'],
         }),
-        getMisDashboardErpQuarterWise: builder.query({
+        getMisDashboardErpMonthWiseBreakUP: builder.query({
             query: ({ params }) => {
                 console.log(params,"receivedparams");
                 
                 return {
+                    url: MIS_DASHBOARDERP + "/MonthWiseBreakUp",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpQuarterWise: builder.query({
+            query: ({ params }) => {
+                
+                return {
                     url: MIS_DASHBOARDERP + "/QuarterWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpQuarterWiseBreakUp: builder.query({
+            query: ({ params }) => {
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/QuarterWiseBreakUp",
                     method: 'GET',
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
@@ -103,6 +171,21 @@ const MisDashboard = createApi({
                 
                 return {
                     url: MIS_DASHBOARDERP + "/YearWise",
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    },
+                    params
+                }
+            },
+            providesTags: ['MisDashboard'],
+        }),
+        getMisDashboardErpYearWiseBreakUp: builder.query({
+            query: ({ params }) => {
+                console.log(params,"receivedparams");
+                
+                return {
+                    url: MIS_DASHBOARDERP + "/YearWiseBreakUp",
                     method: 'GET',
                     headers: {
                         'Content-type': 'application/json; charset=UTF-8',
@@ -230,11 +313,17 @@ const MisDashboard = createApi({
 export const {
     useGetMisDashboardQuery,
     useGetMisDashboardErpCustomerWiseQuery,
+    useGetMisDashboardErpCustomerWiseBreakupQuery,
     useGetMisDashboardErpCountryWiseQuery,
+    useGetMisDashboardErpCountryWiseBreakUpQuery,
     useGetMisDashboardErpStyleItemWiseQuery,
+    useGetMisDashboardErpStyleItemWiseBreakUpQuery,
     useGetMisDashboardErpMonthWiseQuery,
+    useGetMisDashboardErpMonthWiseBreakUPQuery,
     useGetMisDashboardErpQuarterWiseQuery,
+    useGetMisDashboardErpQuarterWiseBreakUpQuery,
     useGetMisDashboardErpYearWiseQuery,
+    useGetMisDashboardErpYearWiseBreakUpQuery,
     useGetMisDashboardErpSingleMonthWiseQuery,
     useGetMisDashboardOrdersInHandQuery,
     useGetMisDashboardOrdersInHandMonthWiseQuery,
