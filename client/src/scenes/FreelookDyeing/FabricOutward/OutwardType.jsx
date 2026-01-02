@@ -13,19 +13,18 @@ import { useGetFabricOutwardDetailQuery } from "../../../redux/service/fabricOut
 import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
 
-const OutwardType = ({ year, finYear, setCategory }) => {
+const OutwardType = ({ year, finYear }) => {
     const theme = useTheme();
     const [fYear, setFYear] = useState(year);
     const dispatch = useDispatch();
+
     const { data: fabricData } = useGetFabricOutwardDetailQuery(
         {
             params: {
                 finyear: fYear,
             },
         },
-        {
-            skip: !fYear,
-        }
+        { skip: !fYear }
     );
 
     const rows = fabricData?.data || [];
@@ -33,7 +32,7 @@ const OutwardType = ({ year, finYear, setCategory }) => {
     const pieData = useMemo(
         () =>
             rows.map((row) => ({
-                name: row.process,
+                name: row.category,
                 y: Number(row.qty || 0),
             })),
         [rows]
@@ -48,57 +47,41 @@ const OutwardType = ({ year, finYear, setCategory }) => {
         chart: {
             type: "pie",
             backgroundColor: "#FFFFFF",
-            height: 215,
-            animation: false,
-            events: {
-                load: function () {
-                    const chart = this;
-                    chart.series[0].points.forEach((point, i) => {
-                        if (!point.graphic) return;
-                        point.graphic.attr({
-                            opacity: 0,
-                            translateY: -20,
-                        });
-                        point.graphic.animate(
-                            {
-                                opacity: 1,
-                                translateY: 0,
-                            },
-                            {
-                                duration: 1000,
-                                delay: i * 150,
-                                easing: "easeOutBounce",
-                            }
-                        );
-                    });
-                },
-            },
+            height: 220,
         },
-
+        colors: ["#0D9488", "#475569"],
         title: {
-            text: "",
+            text: null
         },
 
         tooltip: {
             useHTML: true,
+            style: {
+                color: "#374151",
+                fontSize: "10px",
+            },
             headerFormat: "<b>{point.key}</b><br/>",
             pointFormatter: function () {
                 return `
-          <span style="color:${this.color}">\u25CF</span>
-          Qty (kgs): <b>${this.y.toLocaleString("en-IN")}</b><br/>
-        `;
+        <span style="color:${this.color}">\u25CF</span>
+        Qty (kgs): <b>${this.y.toLocaleString("en-IN", {
+                    minimumFractionDigits: 3,
+                    maximumFractionDigits: 3,
+                })}</b><br/>
+      `;
             },
         },
 
         plotOptions: {
             pie: {
+                innerSize: "50%",     // ✅ Donut
                 allowPointSelect: true,
                 cursor: "pointer",
-                size: "95%",
                 dataLabels: {
                     enabled: true,
+                    distance: 10,
                     formatter: function () {
-                        return this.point.name;
+                        return `<b>${this.point.name}</b>`;
                     },
                     style: {
                         fontSize: "11px",
@@ -116,6 +99,7 @@ const OutwardType = ({ year, finYear, setCategory }) => {
                                     data: {
                                         finYear: finYear,
                                         year: fYear,
+                                        selectCategory: this.name,
                                     },
                                 })
                             );
@@ -127,7 +111,7 @@ const OutwardType = ({ year, finYear, setCategory }) => {
 
         legend: {
             align: "center",
-            verticalAlign: "top",
+            verticalAlign: "bottom",
             itemStyle: {
                 fontSize: "10px",
                 fontWeight: 500,
@@ -148,21 +132,14 @@ const OutwardType = ({ year, finYear, setCategory }) => {
     };
 
     return (
-        <Card
-            sx={{
-                borderRadius: 3,
-                boxShadow: 4,
-                width: "100%",
-                ml: 1,
-            }}
-        >
+        <Card sx={{ borderRadius: 3, boxShadow: 4, width: "100%", ml: 1 }}>
             <CardHeader
                 title="Fabric Outward Details"
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
                 sx={{
-                    borderBottom: (theme) => `2px solid ${theme.palette.divider}`,
+                    borderBottom: `2px solid ${theme.palette.divider}`,
                     pb: 1,
                 }}
             />
@@ -185,12 +162,9 @@ const OutwardType = ({ year, finYear, setCategory }) => {
                 <HighchartsReact
                     highcharts={Highcharts}
                     options={options}
-                    immutable
                 />
-
                 <Box
                     sx={{
-                        mt: 1,
                         p: 1,
                         bgcolor: "background.default",
                         borderRadius: 3,
@@ -199,12 +173,18 @@ const OutwardType = ({ year, finYear, setCategory }) => {
                     }}
                 >
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        Over All Outward Quantity : {totalQty.toLocaleString("en-IN")}
+                        Over All Outward Quantity : {rows
+                            .reduce((sum, item) => sum + Number(item.qty || 0), 0)
+                            .toLocaleString("en-IN", {
+                                minimumFractionDigits: 3,
+                                maximumFractionDigits: 3,
+                            })}
                     </Typography>
                 </Box>
             </CardContent>
         </Card>
     );
 };
+
 
 export default OutwardType;

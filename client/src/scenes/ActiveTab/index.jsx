@@ -108,6 +108,7 @@ const ActiveTabList = () => {
       <OutwardOverview
         year={tabData?.year}
         finYear={tabData?.finYear}
+        selectCategory={tabData?.selectCategory}
       />
     ),
     "Garments Dashboard": <GarmentDashboard />,
@@ -121,7 +122,7 @@ const ActiveTabList = () => {
         selectMonths={tabData?.selectMonths}
         filterBuyerList={tabData?.filterBuyerList}
         finYr={tabData?.finYr}
-      
+
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     )

@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
 import Highcharts3D from "highcharts/highcharts-3d";
 Highcharts3D(Highcharts);
-const InwardType = ({ year, finYear, setCategory }) => {
+const InwardType = ({ year, finYear }) => {
     const dispatch = useDispatch();
     const theme = useTheme();
     const [fYear, setFYear] = useState(year)
@@ -19,19 +19,6 @@ const InwardType = ({ year, finYear, setCategory }) => {
         skip: !fYear
     });
     const rows = fabricData?.data || [];
-    // const pieSeries = useMemo(() => {
-    //     return [
-    //         {
-    //             name: "Inward",
-    //             colorByPoint: true,
-    //             data: rows.map((row) => ({
-    //                 name: row.category,
-    //                 y: Number(row.qty || 0),
-    //                 // count: Number(row.count || 0),
-    //             })),
-    //         },
-    //     ];
-    // }, [rows]);
 
     const options = {
         chart: {
@@ -44,8 +31,8 @@ const InwardType = ({ year, finYear, setCategory }) => {
             height: 230,
             borderRadius: 10,
             marginTop: 0,
-            marginBottom: 10,    // ✅ ADDED - Reduced bottom margin
-            spacingTop: 0,       // ✅ ADDED - Reduced spacing top
+            marginBottom: 10,
+            spacingTop: 0,
             spacingBottom: 5,
         },
 

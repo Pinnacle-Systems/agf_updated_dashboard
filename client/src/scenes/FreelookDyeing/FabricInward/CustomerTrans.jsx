@@ -12,7 +12,6 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { useGetFabricInwardByCusNameQuery, useGetFabricInwardCustQuery } from "../../../redux/service/freeLookFabric";
-import { getDateFromDateTimeToDisplay } from "../../../utils/hleper";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
