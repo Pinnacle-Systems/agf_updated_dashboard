@@ -649,22 +649,26 @@ export async function turnOverBreakUpCustomerWise(req, res) {
 
         const sql =
             `
-SELECT A.ORDERNO,A.ORDDATE,A.CUSTOMER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+SELECT A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,A.CUSTOMER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.ORDERNO,A.ORDDATE,A.CUSTOMER,C.COMPNAME
+GROUP BY A.ORDERNO,A.ORDDATE,A.CUSTOMER,C.COMPNAME,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 1,3
+ORDER BY 1,5
      `;
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
             orderNo: po[0],
             orderDate: po[1],
-            customer: po[2],
-            compName: po[3],
-            value: po[4],
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+
+            customer: po[5],
+            compName: po[6],
+            value: po[7],
         }))
         return res.json({ statusCode: 0, data: resp })
     }
@@ -683,23 +687,27 @@ export async function turnOverBreakUpCountryWise(req, res) {
         const { finYear, companyName } = req.query; // ✅ only finYear
 
         let sql = `
-SELECT  A.ORDERNO,A.ORDDATE,C.COMPNAME,E.COUNTRYNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+SELECT  A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,C.COMPNAME,E.COUNTRYNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 JOIN GTBUYERMAST D ON D.BUYERCODE = A.CUSTOMER
 JOIN GTCOUNTRYMAST E ON E.GTCOUNTRYMASTID = D.COUNTRY
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.ORDERNO,A.ORDDATE,C.COMPNAME,E.COUNTRYNAME
-ORDER BY 1,2,4
+GROUP BY A.ORDERNO,A.ORDDATE,C.COMPNAME,E.COUNTRYNAME,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM
+ORDER BY 1,2,7
         `;
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
             orderNo: po[0],
             orderDate: po[1],
-            compName: po[2],
-            countryName: po[3],
-            value: po[4]
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+
+            compName: po[5],
+            countryName: po[6],
+            value: po[7]
         }))
         return res.json({ statusCode: 0, data: resp })
     }
@@ -719,16 +727,16 @@ export async function turnOverMonthWiseBreakUp(req, res) {
 
         let sql = `
 SELECT 
-    A.ORDERNO,A.ORDDATE,A.ORDMON,C.COMPNAME,
+    A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,A.ORDMON,C.COMPNAME,
     SUM(NVL(A.PLANSALESVAL,0)) VALUE,
     MAX(A.ORDDATE) ACTSHIDT
 FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.ORDERNO,A.ORDDATE,A.ORDMON,C.COMPNAME
+GROUP BY A.ORDERNO,A.ORDDATE,A.ORDMON,C.COMPNAME,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 6,3,4
+ORDER BY 8,6,7
 `;
 
 
@@ -736,10 +744,14 @@ ORDER BY 6,3,4
         let resp = result.rows?.map(po => ({
             orderNo: po[0],
             orderDate: po[1],
-            month: po[2],        // ORDMON
-            compName: po[3],     // COMPNAME
-            value: po[4],        // SUM(VALUE)
-            date: po[5]
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+
+            month: po[5],        // ORDMON
+            compName: po[6],     // COMPNAME
+            value: po[7],        // SUM(VALUE)
+            date: po[8]
 
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -759,14 +771,14 @@ export async function turnOverQuarterWiseBreakUp(req, res) {
         const { finYear, companyName } = req.query;
 
         let sql = `
-SELECT A.ORDERNO,A.ORDDATE,D.QUARTER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE ,to_char(PSTARTDATE, 'MONTH') AS STARTMONTH ,to_char(PSTARTDATE, 'MM') AS STARTMONTH FROM MISORDSALESVAL A
+SELECT A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,D.QUARTER,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE ,to_char(PSTARTDATE, 'MONTH') AS STARTMONTH ,to_char(PSTARTDATE, 'MM') AS STARTMONTH FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 JOIN GTFINANCIALYEARDTL D ON A.ORDDATE BETWEEN D.PSTARTDATE AND D.PENDDATE
 WHERE A.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY A.ORDERNO,A.ORDDATE,D.QUARTER ,to_char(PSTARTDATE, 'MONTH') ,to_char(PSTARTDATE, 'MM'),C.COMPNAME
+GROUP BY A.ORDERNO,A.ORDDATE,D.QUARTER ,to_char(PSTARTDATE, 'MONTH') ,to_char(PSTARTDATE, 'MM'),C.COMPNAME,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 3,7
+ORDER BY 6,7
 `;
 
 
@@ -774,11 +786,14 @@ ORDER BY 3,7
         let resp = result.rows?.map(po => ({
             orderNo: po[0],
             orderDate: po[1],
-            quarter: po[2],     // D.QUARTER
-            compName: po[3],    // C.COMPNAME
-            value: po[4],       // SUM VALUE
-            monthName: po[5],
-            monthInt: po[6]
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+            quarter: po[5],     // D.QUARTER
+            compName: po[6],    // C.COMPNAME
+            value: po[7],       // SUM VALUE
+            monthName: po[8],
+            monthInt: po[9]
 
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -798,23 +813,26 @@ export async function turnOverYearWiseBreakUp(req, res) {
         const { companyName } = req.query;
 
         let sql = `
-SELECT  A.ORDERNO,A.ORDDATE,A.FINYR,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
+SELECT  A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,A.FINYR,C.COMPNAME,SUM(NVL(A.PLANSALESVAL,0)) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
 WHERE  C.COMPCODE = '${companyName}' AND A.FINYR IS NOT NULL
-GROUP BY A.FINYR,C.COMPNAME, A.ORDERNO,A.ORDDATE
+GROUP BY A.FINYR,C.COMPNAME, A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM
 HAVING SUM(NVL(A.PLANSALESVAL,0)) > 0 
-ORDER BY 3,2
+ORDER BY 6,2
 `;
 
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
-             orderNo: po[0],
+            orderNo: po[0],
             orderDate: po[1],
-            year: po[2],
-            compName: po[3],
-            value: po[4],
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+            year: po[5],
+            compName: po[6],
+            value: po[7],
 
         }))
         return res.json({ statusCode: 0, data: resp })
@@ -835,8 +853,8 @@ export async function turnOverStyleItemWiseBreakUp(req, res) {
 
         let sql = `
 
-SELECT A.ORDERNO,A.ORDDATE,A.COMPNAME,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
-FROM (SELECT A.ORDERNO,A.ORDDATE,A.FINYR,C.COMPCODE,C.COMPNAME,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,
+SELECT A.ORDERNO,A.ORDDATE,A.STYLEREFNO,A.ORDERQTY,A.ORDERUOM,A.COMPNAME,A.STYLEITEM,A.CATEGORYNAME,SUM(A.VALUE) VALUE 
+FROM (SELECT A.ORDERNO,A.ORDDATE,B.STYLEREFNO,B.ORDERQTY,B.ORDERUOM,A.FINYR,C.COMPCODE,C.COMPNAME,A.CUSTOMER,F.STYLEITEM, F.CATEGORYNAME,
 ROUND((NVL(A.PLANSALESVAL,0))/FF.ITEMCNT,2) VALUE FROM MISORDSALESVAL A
 JOIN GTNORDERENTRY B ON A.ORDERNO = B.ORDERNO AND B.ORDERTYPE = 'ORDER'
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = B.COMPCODE
@@ -857,20 +875,23 @@ JOIN GTSTYLEITEMMAST C ON C.GTSTYLEITEMMASTID = B.STYLEITEM
 GROUP BY A.ORDERNO
 ) FF ON FF.ORDERNO = A.ORDERNO
 ) A 
-WHERE A.FINYR = '${finYear}'  AND  A.COMPCODE = '${companyName}'
-GROUP BY A.ORDERNO,A.ORDDATE,A.STYLEITEM,A.CATEGORYNAME,A.COMPNAME
+WHERE A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
+GROUP BY A.ORDERNO,A.ORDDATE,A.STYLEITEM,A.CATEGORYNAME,A.COMPNAME,A.STYLEREFNO,A.ORDERQTY,A.ORDERUOM
 HAVING SUM(NVL(A.VALUE,0)) > 0
-ORDER BY 2,1,3
+ORDER BY 2,1,3,6
 `
 
         const result = await connection.execute(sql)
         let resp = result.rows?.map(po => ({
             orderNo: po[0],
             orderDate: po[1],
-            compName: po[2],     // ✅ correct
-            styleItem: po[3],   // ✅ correct
-            category: po[4],    // ✅ correct
-            value: po[5]
+            styleRefNo: po[2],
+            orderQty: po[3],
+            orderUOM: po[4],
+            compName: po[5],     // ✅ correct
+            styleItem: po[6],   // ✅ correct
+            category: po[7],    // ✅ correct
+            value: po[8]
         }))
         return res.json({ statusCode: 0, data: resp })
     }

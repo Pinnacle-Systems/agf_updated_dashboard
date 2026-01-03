@@ -1,165 +1,6 @@
-// import React, { useState } from "react";
-// import Highcharts from "highcharts";
-// import HighchartsReact from "highcharts-react-official";
-// import Highcharts3D from "highcharts/highcharts-3d";
-// import {
-//   Card,
-//   CardHeader,
-//   CardContent,
-//   useTheme,
-// } from "@mui/material";
-// import { useGetMisDashboardErpQuarterWiseQuery } from "../../../redux/service/misDashboardServiceERP";
-// import QuarterWiseTable from "./TableData/QuarterWiseTable";
-
-// // Initialize Highcharts 3D module
-// Highcharts3D(Highcharts);
-
-// const COLORS = ["#4F46E5", "#22C55E", "#F97316", "#EF4444"];
-
-// const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
-//   const theme = useTheme();
-//   const [showTable, setShowTable] = useState(false);
-//   const [selectedQuarter, setSelectedQuarter] = useState(null);
-
-//   const formatINR = (value) =>
-//     `₹ ${Number(value).toLocaleString("en-IN", {
-//       minimumFractionDigits: 2,
-//       maximumFractionDigits: 2,
-//     })}`;
-
-//   const { data: response, isLoading } =
-//     useGetMisDashboardErpQuarterWiseQuery({
-//       params: { finYear, companyName },
-//     });
-
-//   const chartData = Array.isArray(response?.data) ? response.data : [];
-
-//   // Build pie chart data: each month as a slice
-//   const pieData = chartData.map((item) => ({
-//     name: `${item.quarter} - ${item.monthName.trim()}`,
-//     y: Number(item.value) || 0,
-//     quarter: item.quarter,
-//     color: COLORS[(Number(item.quarter.replace("Q", "")) - 1) % COLORS.length],
-//   }));
-//   const quarterLegend = Array.from(
-//     new Set(chartData.map((item) => item.quarter))
-//   ).map((q) => ({
-//     quarter: q,
-//     color: COLORS[(Number(q.replace("Q", "")) - 1) % COLORS.length],
-//   }));
-
-//   const options = {
-//     chart: {
-//       type: "pie",
-//       options3d: {
-//         enabled: true,
-//         alpha: 45,
-//         beta: 0,
-//       },
-//       height: 380,
-//     },
-
-//     title: { text: "" },
-
-//     tooltip: {
-//       pointFormatter() {
-//         return `<b>${this.name}</b>: ${formatINR(this.y)}`;
-//       },
-//     },
-//     legend: {
-//       enabled: true,             // ✅ show legend
-//       align: "center",           // center horizontally
-//       verticalAlign: "bottom",   // place at bottom of chart
-//       layout: "horizontal",      // horizontal legend
-//       itemStyle: {
-//         fontWeight: "normal",
-//         fontSize: "12px",
-//       },
-//       symbolHeight: 12,           // size of color box
-//       symbolWidth: 12,
-//       symbolRadius: 2,            // rounded corners
-//     },
-
-//     plotOptions: {
-//       pie: {
-//         allowPointSelect: true,
-//         cursor: "pointer",
-//         depth: 45,
-//         dataLabels: {
-//           enabled: true,
-//           useHTML: true, // 👈 important for rupee symbol
-//           formatter() {
-//             return `<span>${this.point.name}: ${formatINR(this.point.y)}</span>`;
-//           },
-//           style: {
-//             color: "#000",
-//             textOutline: "none",
-//             fontSize: "11px",
-//           },
-//         },
-//          showInLegend: true, 
-//         point: {
-//           events: {
-//             click() {
-//               // Show table for quarter
-//               setSelectedQuarter({ quarter: this.quarter });
-//               setShowTable(true);
-//             },
-//           },
-//         },
-//       },
-//     },
-
-//     series: [
-//       {
-//         name: "Turnover",
-//         data: pieData,
-//       },
-//     ],
-
-//     credits: { enabled: false },
-//   };
-
-//   return (
-//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
-//       <CardHeader
-//         title="Quarter Wise TurnOver"
-//         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
-//         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
-//       />
-
-//       <CardContent>
-//         {isLoading ? (
-//           <div style={{ textAlign: "center", padding: "40px" }}>
-//             Loading...
-//           </div>
-//         ) : (
-//           <>
-//             <HighchartsReact highcharts={Highcharts} options={options} />
-        
-
-//           </>
-//         )}
-//       </CardContent>
-
-//       {showTable && selectedQuarter && (
-//         <QuarterWiseTable
-//           quarter={selectedQuarter.quarter}
-//           filterBuyerList={filterBuyerList}
-//           finYr={finYr}
-//           closeTable={() => setShowTable(false)}
-//         />
-//       )}
-//     </Card>
-//   );
-// };
-
-// export default Form;
-
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import Highcharts3D from "highcharts/highcharts-3d";
 import {
   Card,
   CardHeader,
@@ -169,12 +10,21 @@ import {
 import { useGetMisDashboardErpQuarterWiseQuery } from "../../../redux/service/misDashboardServiceERP";
 import QuarterWiseTable from "./TableData/QuarterWiseTable";
 
-// Initialize Highcharts 3D module
-Highcharts3D(Highcharts);
-
-const COLORS = ["#4F46E5", "#22C55E", "#F97316", "#EF4444"];
+const MONTH_ORDER = {
+  Jan: 1, Feb: 2, Mar: 3,
+  Apr: 4, May: 5, Jun: 6,
+  Jul: 7, Aug: 8, Sep: 9,
+  Oct: 10, Nov: 11, Dec: 12,
+};
 
 const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
+
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
   const theme = useTheme();
   const [showTable, setShowTable] = useState(false);
   const [selectedQuarter, setSelectedQuarter] = useState(null);
@@ -184,73 +34,179 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
       params: { finYear, companyName },
     });
 
-  const chartData = Array.isArray(response?.data) ? response.data : [];
+  const QUARTER_COLORS = {
+    Q1: "#DC143C", // green
+    Q2: "#FF8042", // blue
+    Q3: "#00C49F", // orange
+    Q4: "#0088FE", // purple
+  };
+  /* ---------- PROCESS DATA ---------- */
+  const chartData = useMemo(() => {
+    const rawData = Array.isArray(response?.data) ? response.data : [];
 
-  // Aggregate data by quarter
-  const quarters = ["Q1", "Q2", "Q3", "Q4"];
-  const pieData = quarters.map((q, index) => {
-    const quarterItems = chartData.filter((item) => item.quarter === q);
-    const quarterValue = quarterItems.reduce(
-      (sum, item) => sum + Number(item.value || 0),
-      0
+    const sorted = [...rawData].sort(
+      (a, b) =>
+        MONTH_ORDER[a.monthName.trim()] -
+        MONTH_ORDER[b.monthName.trim()]
     );
 
-    // Month names only
-    const monthLabels = quarterItems.map((item) => item.monthName.trim()).join("<br/>");
+    const categories = sorted.map(d => d.monthName);
+    const quarterAxis = sorted.map(d => d.quarter);
 
     return {
-      name: q,
-      y: quarterValue,
-      color: COLORS[index % COLORS.length],
-      monthLabels,
-      quarter: q, // for click event
-    };
-  });
+      categories,
+      quarterAxis,
+      data: sorted.map(d => ({
+        y: Number(d.value) || 0,
+        quarter: d.quarter,
+        monthName: d.monthName,   // ✅ ADD THIS
 
+        color: QUARTER_COLORS[d.quarter], // 👈 COLOR BY QUARTER
+
+      })),
+    };
+  }, [response?.data]);
+
+  /* ---------- CHART OPTIONS ---------- */
   const options = {
     chart: {
-      type: "pie",
-      options3d: {
-        enabled: true,
-        alpha: 45,
-        beta: 0,
-      },
+      type: "column",
       height: 380,
     },
 
     title: { text: "" },
 
+    // xAxis: [
+    //   {
+    //     categories: chartData.categories,
+    //     labels: {
+    //       style: {
+    //         fontSize: "11px",
+    //         fontWeight: "600",
+    //       },
+    //     },
+    //   },
+    //   {
+    //     linkedTo: 0,
+    //     categories: chartData.quarterAxis,
+    //     opposite: false,
+    //     labels: {
+    //       groupedOptions: [
+    //         { rotation: 0 }
+    //       ],
+    //       style: {
+    //         fontSize: "13px",
+    //         fontWeight: "700",
+    //       },
+    //     },
+    //     tickPositions: [1, 4, 7, 10], // 👈 center of each quarter
+    //     tickLength: 0,
+    //     lineWidth: 0,
+    //   },
+    // ],
+    xAxis: [
+      {
+        categories: chartData.categories,
+        labels: {
+          style: {
+            fontSize: "11px",
+            fontWeight: "600",
+          },
+        },
+
+        plotLines: [
+          {
+            value: 2.5, // after Mar
+            color: "#999",
+            width: 1,
+            zIndex: 5,
+          },
+          {
+            value: 5.5, // after Jun
+            color: "#999",
+            width: 1,
+            zIndex: 5,
+          },
+          {
+            value: 8.5, // after Sep
+            color: "#999",
+            width: 1,
+            zIndex: 5,
+          },
+        ],
+      },
+      {
+        linkedTo: 0,
+        categories: chartData.quarterAxis,
+        opposite: false,
+        tickPositions: [1, 4, 7, 10],
+        tickLength: 0,
+        lineWidth: 0,
+
+        labels: {
+          useHTML: true,
+          formatter() {
+            const q = this.value;
+            const color = QUARTER_COLORS[q] || "#ccc";
+
+            return `
+        <span
+          style="
+            background:${color};
+            color:#fff;
+            padding:4px 10px;
+            border-radius:12px;
+            font-size:12px;
+            font-weight:700;
+            display:inline-block;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+
+          "
+        >
+          ${q}
+        </span>
+      `;
+          },
+        },
+      }
+
+    ],
+
+    yAxis: {
+      visible: false,
+    },
+
+    legend: { enabled: false },
+
     tooltip: {
-      pointFormatter() {
-        return `<b>${this.name}</b>: ₹ ${this.y.toLocaleString("en-IN", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`;
+      useHTML: true,
+      backgroundColor: "#ffffff",
+      borderWidth: 1,
+      borderRadius: 6,
+      shadow: true,
+
+      formatter() {
+        return `
+      <div style="padding:6px 8px">
+        <div><b>Quarter :</b> ${this.point.quarter}</div>
+        <div><b>Month :</b> ${this.point.monthName}</div>
+        <div><b>Value :</b> ${formatINR(this.y)}</div>
+      </div>
+    `;
       },
     },
 
     plotOptions: {
-      pie: {
-        allowPointSelect: true,
+      column: {
+        pointPadding: 0,
+        groupPadding: 0.15,
+        borderWidth: 0,
+        minPointLength: 100,
+
+      },
+
+      series: {
         cursor: "pointer",
-        depth: 45,
-        dataLabels: {
-          enabled: true,
-          useHTML: true,
-          formatter() {
-            // Show quarter name + months inside the slice
-            return `<div style="text-align:center">
-                      <b>${this.point.name}</b><br/>
-                      ${this.point.monthLabels}
-                    </div>`;
-          },
-          style: {
-            color: "#000",
-            textOutline: "none",
-            fontSize: "11px",
-          },
-        },
-        showInLegend: false, // hide legend
         point: {
           events: {
             click() {
@@ -259,20 +215,40 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
             },
           },
         },
+        dataLabels: [
+          {
+            enabled: true,
+            inside: true,
+            rotation: -90, // 👈 VALUE ROTATED
+            overflow: 'allow',  // 👈 force showing even if small
+            crop: false,
+            formatter() {
+              return formatINR(this.y); // 👈 use formatINR here
+            },
+
+            style: {
+              color: "#ffffff",
+              fontSize: "11px",
+              fontWeight: "600",
+              textOutline: "1px contrast",
+            },
+          },
+
+        ],
       },
     },
 
-    series: [
-      {
-        name: "Turnover",
-        data: pieData,
-      },
-    ],
 
     credits: { enabled: false },
-    legend: { enabled: false },
+
+    series: [
+      {
+        data: chartData.data,
+      },
+    ],
   };
 
+  /* ---------- RENDER ---------- */
   return (
     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
       <CardHeader
@@ -283,7 +259,9 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList }) => {
 
       <CardContent>
         {isLoading ? (
-          <div style={{ textAlign: "center", padding: "40px" }}>Loading...</div>
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            Loading...
+          </div>
         ) : (
           <HighchartsReact highcharts={Highcharts} options={options} />
         )}

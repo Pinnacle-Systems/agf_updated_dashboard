@@ -166,17 +166,19 @@ const QuarterWiseTable = ({
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Quarter Wise Turnover Report");
         worksheet.columns = [
-            { header: "Company", key: "compCode", width: 70 },
             { header: "Quarter", key: "quarter", width: 15 },
             { header: "Month", key: "month", width: 25 },
             { header: "Order No", key: "orderNo", width: 35 },
             { header: "Order Date", key: "orderDate", width: 25 },
+            { header: "style Ref No", key: "styleRefNo", width: 60 },
+            { header: "Order Qty", key: "orderQty", width: 20 },
+            { header: "UOM", key: "orderUOM", width: 15 },
             { header: "Turnover", key: "value", width: 30 },
         ];
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Quarter Wise Turnover Report"]);
-        worksheet.mergeCells("A1:F1");
+        worksheet.mergeCells("A1:H1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -220,11 +222,13 @@ const QuarterWiseTable = ({
         /* ================= DATA ================= */
         filteredData.forEach((r) => {
             worksheet.addRow({
-                compCode: r.compName,
                 quarter: r.quarter,
                 month: r.monthName,
                 orderNo: r.orderNo,
                 orderDate: r.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-") || '',
+                styleRefNo: r.styleRefNo,
+                orderQty: r.orderQty,
+                orderUOM: r.orderUOM,
                 value: Number(r.value || 0),
             });
         });
@@ -233,22 +237,25 @@ const QuarterWiseTable = ({
             if (rowNumber <= 3) return;
 
             row.height = 22;
-            row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("quarter").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("month").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("orderDate").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("styleRefNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderQty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("orderUOM").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
-            compCode: "",
             quarter: "",
             month: "",
             orderNo: "",
-            orderDate: "TOTAL",
-            value: totalTurnOver,
+            orderDate: "",
+            styleRefNo: "",
+            orderQty: "",
+            orderUOM: "TOTAL", value: totalTurnOver,
         });
 
         totalRow.height = 24;
@@ -262,7 +269,7 @@ const QuarterWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 6 ? "right" : "center",
+                horizontal: colNumber === 8 ? "right" : "center",
                 indent: 1
             };
         });
@@ -463,11 +470,14 @@ const QuarterWiseTable = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-center w-6">S.No</th>
-                                    <th className="border p-1 text-center w-36">Company</th>
                                     <th className="border p-1 text-center w-12">Quarter</th>
                                     <th className="border p-1 text-center w-12">Month</th>
                                     <th className="border p-1 text-center w-24">Order No</th>
                                     <th className="border p-1 text-center w-12">Order Date</th>
+                                    <th className="border p-1 text-center w-32">Style Ref No</th>
+                                    <th className="border p-1 text-center w-16">Order Qty</th>
+                                    <th className="border p-1 text-center w-8">UOM</th>
+
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
@@ -476,17 +486,29 @@ const QuarterWiseTable = ({
                                 {currentRecords?.map((row, index) => {
                                     const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                                    const uomType = row?.orderUOM
+                                    let orderQtyValue;
+                                    if (uomType == "KGS") {
+                                        orderQtyValue = row?.orderQty.tofixed(3)
+                                    }
+                                    else {
+                                        orderQtyValue = row?.orderQty
+
+                                    }
+
                                     return (
                                         <tr
                                             key={index}
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.compName}</td>
                                             <td className="border p-1 pl-2 text-left">{row.quarter}</td>
                                             <td className="border p-1 pl-2 text-left">{row.monthName}</td>
                                             <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0].split("-").reverse().join("-")}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-")}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.styleRefNo}</td>
+                                            <td className="border p-1 pr-2 text-right">{orderQtyValue}</td>
+                                            <td className="border p-1 pl-2 text-leftt">{row.orderUOM}</td>
                                             <td className="border p-1 pr-2 text-right text-sky-700 ">
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",

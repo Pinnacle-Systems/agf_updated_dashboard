@@ -17,11 +17,13 @@ import { useGetMisDashboardErpStyleItemWiseBreakUpQuery } from
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
 import Loader from "../../../../utils/loader";
 const ItemWiseTable = ({
-    finYr,
+    finYr, styleName, category,
     closeTable, filterBuyerList
 }) => {
+
     const [selectedCategory, setSelectedcategory] = useState("ALL");
     const [selectedStyleItem, setSelectedStyleItem] = useState("ALL");
+
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
         max: Infinity,
@@ -30,6 +32,11 @@ const ItemWiseTable = ({
         useSelector((state) => state.dashboardFilters);
     const [localCompany, setLocalCompany] = useState(companyName || "ALL");
     const [localYear, setLocalYear] = useState(selectedYear);
+    const normalize = (v) => (v ? v.toString().trim() : "");
+
+
+
+    console.log(category, styleName, selectedStyleItem, "afajasfajkfjkask");
 
     const [search, setSearch] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
@@ -67,13 +74,14 @@ const ItemWiseTable = ({
             filtered = filtered.filter(r => r.category === selectedCategory);
         }
 
-        const unique = [...new Set(filtered.map(r => r.styleItem))];
+        const unique = [...new Set(filtered.map(r => r.styleItem?.trim()))];
 
         return [
             { label: "ALL", value: "ALL" },
-            ...unique.map(c => ({ label: c, value: c })),
+            ...unique.map(v => ({ label: v, value: v })),
         ];
     }, [rawData, selectedCategory]);
+
 
 
     // ✅ FILTERING
@@ -113,6 +121,19 @@ const ItemWiseTable = ({
         setLocalCompany(companyName || "ALL");
     }, [companyName]);
 
+    useEffect(() => {
+        setSelectedcategory(category || "ALL");
+        setCurrentPage(1);
+    }, [category]);
+    useEffect(() => {
+        if (!styleName || !styleItemOptions.length) return;
+
+        const exists = styleItemOptions.some(
+            (opt) => normalize(opt.value) === normalize(styleName)
+        );
+
+        setSelectedStyleItem(exists ? styleName : "ALL");
+    }, [styleName, styleItemOptions]);
 
     // ✅ TOTAL
     const totalTurnOver = useMemo(
@@ -140,17 +161,19 @@ const ItemWiseTable = ({
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Style Group Wise Turnover Report");
         worksheet.columns = [
-            { header: "Company", key: "compCode", width: 70 },
             { header: "Style Group", key: "category", width: 30 },
             { header: "Style Item", key: "styleItem", width: 50 },
             { header: "Order No", key: "orderNo", width: 35 },
             { header: "Order Date", key: "orderDate", width: 25 },
+            { header: "style Ref No", key: "styleRefNo", width: 60 },
+            { header: "Order Qty", key: "orderQty", width: 20 },
+            { header: "UOM", key: "orderUOM", width: 15 },
             { header: "Turnover", key: "value", width: 30 },
         ];
 
         /* ================= TITLE ================= */
         worksheet.insertRow(1, ["Style Group Wise Turnover Report"]);
-        worksheet.mergeCells("A1:F1");
+        worksheet.mergeCells("A1:H1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -167,7 +190,7 @@ const ItemWiseTable = ({
             dynamicField: "Style Group",
             dynamicValue: selectedCategory,
             secondDynamicField: "Style Item",
-            seconddynamicValue: selectedCategory,
+            seconddynamicValue: selectedStyleItem,
 
 
         });
@@ -197,11 +220,13 @@ const ItemWiseTable = ({
         /* ================= DATA ================= */
         filteredData.forEach((r) => {
             worksheet.addRow({
-                compCode: r.compName,
                 category: r.category,
                 styleItem: r.styleItem,
                 orderNo: r.orderNo,
                 orderDate: r.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-") || '',
+                styleRefNo: r.styleRefNo,
+                orderQty: r.orderQty,
+                orderUOM: r.orderUOM,
                 value: Number(r.value || 0),
             });
         });
@@ -210,22 +235,25 @@ const ItemWiseTable = ({
             if (rowNumber <= 3) return;
 
             row.height = 22;
-            row.getCell("compCode").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("category").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("styleItem").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("orderDate").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("styleRefNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("orderQty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("orderUOM").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("value").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
 
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
-            compCode: "",
             styleItem: "",
             category: "",
             orderNo: "",
-            orderDate: "TOTAL",
-            value: totalTurnOver,
+            orderDate: "",
+            styleRefNo: "",
+            orderQty: "",
+            orderUOM: "TOTAL", value: totalTurnOver,
         });
 
         totalRow.height = 24;
@@ -239,7 +267,7 @@ const ItemWiseTable = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 6 ? "right" : "center",
+                horizontal: colNumber === 8 ? "right" : "center",
                 indent: 1
             };
         });
@@ -438,11 +466,14 @@ const ItemWiseTable = ({
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>
                                     <th className="border p-1 text-center w-[12px]">S.No</th>
-                                    <th className="border p-1 text-center w-24">Company</th>
                                     <th className="border p-1 text-center w-12">Style Group</th>
                                     <th className="border p-1 text-center w-32">Style Item</th>
                                     <th className="border p-1 text-center w-20">Order No</th>
                                     <th className="border p-1 text-center w-12">Order Date</th>
+                                    <th className="border p-1 text-center w-32">Style Ref No</th>
+                                    <th className="border p-1 text-center w-16">Order Qty</th>
+                                    <th className="border p-1 text-center w-8">UOM</th>
+
                                     <th className="border p-1 text-center w-12">Turnover</th>
 
                                 </tr>
@@ -451,18 +482,31 @@ const ItemWiseTable = ({
                                 {currentRecords?.slice(0, 17)?.map((row, index) => {
                                     const globalIndex = index;  // 0–16
                                     const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                                    const uomType = row?.orderUOM
+                                    let orderQtyValue;
+                                    if (uomType == "KGS") {
+                                        orderQtyValue = row?.orderQty.tofixed(3)
+                                    }
+                                    else {
+                                        orderQtyValue = row?.orderQty
+
+                                    }
                                     return (
                                         <tr
                                             key={index}
                                             className="text-gray-800 bg-white even:bg-gray-100 "
                                         >
                                             <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.compName}</td>
                                             <td className="border p-1 pl-2 text-left">{row.category}</td>
                                             <td className="border p-1 pl-2 text-left">{row.styleItem}</td>
                                             <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0].split("-").reverse().join("-")}</td>
+                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-")}</td>
+                                            <td className="border p-1 pl-2 text-left">{row.styleRefNo}</td>
+                                            <td className="border p-1 pr-2 text-right">{orderQtyValue}</td>
+                                            <td className="border p-1 pl-2 text-leftt">{row.orderUOM}</td>
+
                                             <td className="border p-1 pr-2 text-right text-sky-700 ">
+
                                                 {new Intl.NumberFormat("en-IN", {
                                                     style: "currency",
                                                     currency: "INR",
