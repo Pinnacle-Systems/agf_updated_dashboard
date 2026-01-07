@@ -91,8 +91,8 @@ const TurnOverIndex = ({ companyName, autoFocusBuyer, filterBuyerList, }) => {
                 <option value="">Select Year</option>
 
                 {(finYr?.data || []).map((item) => (
-                  <option key={item.finYr} value={item.finYr}>
-                    {item.finYr}
+                  <option key={item.finYear} value={item.finYear}>
+                    {item.finYear}
                   </option>
                 ))}
               </select>

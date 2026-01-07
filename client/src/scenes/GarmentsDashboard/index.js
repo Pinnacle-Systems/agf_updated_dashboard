@@ -15,7 +15,7 @@ import { useGetYearlyCompQuery } from "../../redux/service/misDashboardService";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { getCommonParams } from "../../utils/hleper";
 import { useGetFnameQuery } from "../../redux/service/user";
-import { useGetFinYrQuery } from "../../redux/service/poData";
+import { useGetFinYearQuery } from "../../redux/service/misDashboardService";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedYear, setFilterBuyer, setSelectMonths, setFinYr, setLastSection } from "../../redux/features/dashboardFiltersSlice";
 const GarmentsDashboard = () => {
@@ -57,7 +57,8 @@ const GarmentsDashboard = () => {
   // const [filterBuyer, setFilterBuyer] = useState('');
   // const [selectedYear, setSelectedYear] = useState('25-26');
   // const [selectMonths, setSelectMonths] = useState( "");
-  const { data: finYrData } = useGetFinYrQuery();
+  const { data: finYrData } = useGetFinYearQuery();
+console.log(finYrData,"finYrData");
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
   useEffect(() => {
@@ -66,7 +67,7 @@ const GarmentsDashboard = () => {
 
       // ✅ auto select latest year ONLY ONCE
       if (!selectedYear) {
-        dispatch(setSelectedYear(finYrData.data[0]));
+        dispatch(setSelectedYear(finYrData?.data[0]));
       }
     }
   }, [finYrData, dispatch, selectedYear]);

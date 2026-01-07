@@ -178,6 +178,8 @@ const DashboardHeader = ({
   onYearChange,
   onMonthChange,
 }) => {
+    console.log(finYr, "kjddlfjlkdr");
+
   return (
     <Box
       sx={{
@@ -207,7 +209,7 @@ const DashboardHeader = ({
         {/* FIN YEAR */}
         <DropdownWithSearch
           options={finYr?.data || []}
-          labelField="finYr"
+          labelField="finYear"
           value={selectedYear}
           setValue={onYearChange}
         />

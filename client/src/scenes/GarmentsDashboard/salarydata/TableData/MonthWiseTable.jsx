@@ -286,8 +286,8 @@ const MonthWiseTable = ({
                                     </option>
 
                                     {finYr?.data?.map((y) => (
-                                        <option key={y.finYr} value={y.finYr}>
-                                            {y.finYr}
+                                        <option key={y.finYear} value={y.finYear}>
+                                            {y.finYear}
                                         </option>
                                     ))}
                                 </select></div>

@@ -330,8 +330,8 @@ useEffect(() => {
                                     </option>
 
                                     {finYr?.data?.map((y) => (
-                                        <option key={y.finYr} value={y.finYr}>
-                                            {y.finYr}
+                                        <option key={y.finYear} value={y.finYear}>
+                                            {y.finYear}
                                         </option>
                                     ))}
                                 </select></div>
@@ -360,7 +360,6 @@ useEffect(() => {
                                     onChange={(e) => {
                                         setSelectedcategory(e.target.value);
                                         setCurrentPage(1);
-                                        setSelectedStyleItem("")
                                     }}
                                     className="w-full px-2 py-1 text-xs border-2   rounded-md 
       border-blue-600 transition-all duration-200"     >
