@@ -60,6 +60,32 @@ const fabricOutward = createApi({
       },
       providesTags: ["FabricOutward"],
     }),
+    getFabricOutwardQuarterDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabOutwardByQuarter`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
+    getFabricOutwardQuarterNameDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabOutwardByQuarterName`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FreeLookFabric"],
+    }),
   }),
 });
 
@@ -68,6 +94,8 @@ export const {
   useGetFabricOutwardDetailQuery,
   useGetFabricOutwardCusDetailQuery,
   useGetFabOutByCusNameQuery,
+  useGetFabricOutwardQuarterDetailQuery,
+  useGetFabricOutwardQuarterNameDetailQuery
 } = fabricOutward;
 
 export default fabricOutward;

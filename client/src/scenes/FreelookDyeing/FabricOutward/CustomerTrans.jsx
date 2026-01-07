@@ -273,7 +273,7 @@ const CustomerTrans = ({
     };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">
+            <div className="bg-white p-4 rounded-lg shadow-2xl w-full max-w-full  h-[590px] max-h-[590px] relative">
                 <button
                     onClick={closeTable}
                     className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -351,7 +351,7 @@ const CustomerTrans = ({
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center justify-between">
                     <div className="grid grid-cols-5 gap-2">
                         {[
                             { label: "Delivery NO", key: "delNo" },
@@ -434,17 +434,17 @@ const CustomerTrans = ({
                             <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                     <tr>
-                                        <th className="border p-1 text-center w-6">S.No</th>
-                                        <th className="border p-1 text-center w-16">Delivery No</th>
-                                        <th className="border p-1 text-center w-14">Delivery Date</th>
-                                        <th className="border p-1 text-center w-16">Order No</th>
-                                        <th className="border p-1 text-center w-16">GRN No</th>
-                                        {/* <th className="border p-1 text-center w-28">Customer name</th> */}
-                                        <th className="border p-1 text-center w-28">Fabric name</th>
-                                        <th className="border p-1 text-center w-14">Process Type</th>
-                                        <th className="border p-1 text-center w-14">Route</th>
-                                        <th className="border p-1 text-center w-8">Dia</th>
-                                        <th className="border p-1 text-center w-8">Uom</th>
+                                        <th className="border p-1 text-center w-5">S.No</th>
+                                        <th className="border p-1 text-center w-12">Delivery No</th>
+                                        <th className="border p-1 text-center w-12">Delivery Date</th>
+                                        <th className="border p-1 text-center w-14">Order No</th>
+                                        <th className="border p-1 text-center w-14">GRN No</th>
+                                        <th className="border p-1 text-center w-24">Customer name</th>
+                                        <th className="border p-1 text-center w-24">Fabric name</th>
+                                        <th className="border p-1 text-center w-10">Process</th>
+                                        <th className="border p-1 text-center w-12">Route</th>
+                                        <th className="border p-1 text-center w-6">Dia</th>
+                                        <th className="border p-1 text-center w-4">Uom</th>
                                         <th className="border p-1 text-center w-8">Qty</th>
                                     </tr>
                                 </thead>
@@ -478,12 +478,12 @@ const CustomerTrans = ({
                                                 >
                                                     {row.grnNo}
                                                 </td>
-                                                {/* <td
+                                                <td
                                                     className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
                                                     style={{ maxWidth: "100px" }}
                                                 >
                                                     {row.custName}
-                                                </td> */}
+                                                </td>
                                                 <td
                                                     className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
                                                     style={{ maxWidth: "100px" }}

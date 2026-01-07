@@ -5,6 +5,7 @@ import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import DomainIcon from '@mui/icons-material/Domain';
 import CustomerDetails from "./CustomerDetails";
+import CustQuarterDtl from "./CustQuarterDtl";
 
 const OutwardOverview = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
@@ -110,6 +111,9 @@ const OutwardOverview = ({ finYear, year, selectCategory }) => {
             <Grid container spacing={1} sx={{ p: 1, }}>
                 <Grid item xs={12} md={8}>
                     <CustomerDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    <CustQuarterDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>

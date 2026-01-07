@@ -11,7 +11,6 @@ import {
     FaVenus,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { useGetFabricInwardCustQuery, useGetFabricInwardQuarterNameDetailQuery } from "../../../redux/service/freeLookFabric";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
@@ -22,6 +21,7 @@ import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
 import FinYearQuarter from "../../../components/FinYearQuarter";
 import Loader from "../../../utils/loader";
+import { useGetFabOutCustQuery, useGetFabricOutwardQuarterNameDetailQuery } from "../../../redux/service/fabricOutward";
 
 const CustomerTrans = ({
     closeTable,
@@ -44,7 +44,7 @@ const CustomerTrans = ({
     const recordsPerPage = 40;
 
     const { data: cusTransData, isFetching: isSingleFetching,
-        isLoading: isSingleLoading, } = useGetFabricInwardQuarterNameDetailQuery({
+        isLoading: isSingleLoading, } = useGetFabricOutwardQuarterNameDetailQuery({
             params: {
                 finyear: selectedYear,
                 category: category,
@@ -54,7 +54,7 @@ const CustomerTrans = ({
             skip: !selectedYear || !category || !selectQuarter
         });
     const isLoadingIndicator = isSingleFetching || isSingleLoading;
-    const { data: custNames } = useGetFabricInwardCustQuery({
+    const { data: custNames } = useGetFabOutCustQuery({
         params: {
             category: category
         },
@@ -66,9 +66,9 @@ const CustomerTrans = ({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [cusTransData, search, selectmonths,custName]);
+    }, [cusTransData, search, selectmonths, custName]);
 
-    
+
 
     const filteredData = Array.isArray(cusTransData?.data)
         ? cusTransData.data.filter((row) => {
@@ -87,10 +87,10 @@ const CustomerTrans = ({
             if (!selectmonths) return true;
 
             // ✅ Parse DD/MM/YYYY safely
-            const [day, month, year] = row.inwDate.split("/").map(Number);
-            const invDate = new Date(year, month - 1, day);
+            const [day, month, year] = row.delDate.split("/").map(Number);
+            const delDate = new Date(year, month - 1, day);
 
-            if (isNaN(invDate.getTime())) return false;
+            if (isNaN(delDate.getTime())) return false;
 
             // Selected month/year
             const [monthName, yearStr] = selectmonths.split(" ");
@@ -103,8 +103,8 @@ const CustomerTrans = ({
             };
 
             return (
-                invDate.getMonth() === monthMap[monthName] &&
-                invDate.getFullYear() === selectedYear
+                delDate.getMonth() === monthMap[monthName] &&
+                delDate.getFullYear() === selectedYear
             );
         })
         : [];
@@ -130,33 +130,36 @@ const CustomerTrans = ({
         setCategory(type);
     };
 
-    const totalInwardCount = new Set(
-        filteredData.map(row => row.inwNo)
+    const totalOutwrdCount = new Set(
+        filteredData.map(row => row.delNo)
     ).size;
-const downloadExcel = async () => {
+    const downloadExcel = async () => {
         if (filteredData.length === 0) {
             alert("No data to export!");
             return;
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Fabric Inward Details");
+        const worksheet = workbook.addWorksheet("Fabric Outward Details");
 
         // 1️⃣ Define columns
         worksheet.columns = [
-            { header: "Inward No", key: "inwNo", width: 25 },
-            { header: "Inward Date", key: "inwDate", width: 16 },
+            { header: "Delivery No", key: "delNo", width: 25 },
+            { header: "Delivery Date", key: "delDate", width: 16 },
             { header: "Order No", key: "orderNo", width: 32 },
+            { header: "GRN No", key: "grnNo", width: 30 },
             { header: "Customer Name", key: "customerName", width: 48 },
             { header: "Fabric Name", key: "fabName", width: 48 },
+            { header: "Process Type", key: "process", width: 16 },
+            { header: "Route", key: "route", width: 18 },
             { header: "Dia", key: "dia", width: 12 },
             { header: "Uom", key: "uom", width: 12 },
             { header: "Qty", key: "qty", width: 17 },
         ];
 
         // 2️⃣ Title Row
-        worksheet.insertRow(1, ["Fabric Inward Details Report"]);
-        worksheet.mergeCells("A1:H1");
+        worksheet.insertRow(1, ["Fabric Outward Details Report"]);
+        worksheet.mergeCells("A1:K1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -196,11 +199,14 @@ const downloadExcel = async () => {
         // 4️⃣ Data Rows
         filteredData.forEach((row) => {
             worksheet.addRow({
-                inwNo: row.inwNo,
-                inwDate: row.inwDate,
+                delNo: row.delNo,
+                delDate: row.delDate,
                 orderNo: row.orderNo,
+                grnNo: row.grnNo,
                 customerName: row.custName,
                 fabName: row.fabName,
+                process: row.process,
+                route: row.route,
                 dia: row.dia,
                 uom: row.uom,
                 qty: row.qty,
@@ -213,21 +219,27 @@ const downloadExcel = async () => {
 
             row.height = 22;
 
-            row.getCell("inwNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("inwDate").alignment = { horizontal: "center", vertical: "middle" };
+            row.getCell("delNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("delDate").alignment = { horizontal: "center", vertical: "middle" };
             row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("grnNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("process").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("route").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
         });
         const totalRow = worksheet.addRow({
-            inwNo: "",
-            inwDate: "",
+            delNo: "",
+            delDate: "",
             orderNo: "",
+            grnNo: "",
             fabName: "",
             customerName: "",
+            process: "",
+            route: "",
             dia: "",
             uom: "TOTAL",
             qty: totalQty.toLocaleString("en-IN", {
@@ -252,7 +264,7 @@ const downloadExcel = async () => {
             };
         });
         // 6️⃣ Quantity format
-        worksheet.getColumn("inwDate").numFmt = "dd-mm-yyyy";
+        worksheet.getColumn("delDate").numFmt = "dd-mm-yyyy";
 
         worksheet.getColumn("qty").numFmt = "#,##0.000";
 
@@ -261,11 +273,11 @@ const downloadExcel = async () => {
 
         // 8️⃣ Export
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), "Fabric Inward Quarter Wise Details.xlsx");
+        saveAs(new Blob([buffer]), "Fabric Outward Quarter Wise Details.xlsx");
     };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">
+            <div className="bg-white p-4 rounded-lg shadow-2xl w-full max-w-full  h-[590px] max-h-[590px] relative">
                 <button
                     onClick={closeTable}
                     className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -286,9 +298,9 @@ const downloadExcel = async () => {
                             </p> */}
                             <div className="text-right text-[12px]">
                                 <p className=" text-gray-500 font-medium">
-                                    Total Inward:{" "}
+                                    Total Outward:{" "}
                                     <span className="text-sky-700 pl-1">
-                                        {totalInwardCount}
+                                        {totalOutwrdCount}
                                     </span>
                                 </p>
                             </div>
@@ -346,10 +358,10 @@ const downloadExcel = async () => {
                 <div className="flex items-center gap-16">
                     <div className="grid grid-cols-4 gap-2">
                         {[
-                            { label: "INWARD NO", key: "inwNo" },
-                            { label: "ORDER NO", key: "orderNo" },
+                            { label: "Delivery NO", key: "delNo" },
+                            { label: "GRN NO", key: "grnNo" },
                             { label: "FABRIC..", key: "fabName" },
-                            { label: "DIA", key: "dia" },
+                            { label: "PROCESS..", key: "process" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -442,15 +454,18 @@ const downloadExcel = async () => {
                             <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                     <tr>
-                                        <th className="border p-1 text-center w-6">S.No</th>
-                                        <th className="border p-1 text-center w-24">Inward No</th>
-                                        <th className="border p-1 text-center w-14">Inward Date</th>
-                                        <th className="border p-1 text-center w-24">Order No</th>
-                                        <th className="border p-1 text-center w-40">Customer name</th>
-                                        <th className="border p-1 text-center w-36">Fabric name</th>
-                                        <th className="border p-1 text-center w-12">Dia</th>
-                                        <th className="border p-1 text-center w-12">Uom</th>
-                                        <th className="border p-1 text-center w-12">Qty</th>
+                                        <th className="border p-1 text-center w-5">S.No</th>
+                                        <th className="border p-1 text-center w-12">Delivery No</th>
+                                        <th className="border p-1 text-center w-12">Delivery Date</th>
+                                        <th className="border p-1 text-center w-14">Order No</th>
+                                        <th className="border p-1 text-center w-14">GRN No</th>
+                                        <th className="border p-1 text-center w-28">Customer name</th>
+                                        <th className="border p-1 text-center w-20">Fabric name</th>
+                                        <th className="border p-1 text-center w-10">Process</th>
+                                        <th className="border p-1 text-center w-12">Route</th>
+                                        <th className="border p-1 text-center w-6">Dia</th>
+                                        <th className="border p-1 text-center w-4">Uom</th>
+                                        <th className="border p-1 text-center w-8">Qty</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -468,15 +483,20 @@ const downloadExcel = async () => {
                                                     {serialNo}
                                                 </td>
                                                 <td className="border p-1 text-[10px] ">
-                                                    {row.inwNo}
+                                                    {row.delNo}
                                                 </td>
                                                 <td className="border p-1 text-[10px]  text-center">
-                                                    {row.inwDate}
+                                                    {row.delDate}
                                                 </td>
                                                 <td
                                                     className="border p-1 text-[10px] "
                                                 >
                                                     {row.orderNo}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px] "
+                                                >
+                                                    {row.grnNo}
                                                 </td>
                                                 <td
                                                     className="border p-1 text-[10px]  overflow-hidden text-ellipsis "
@@ -489,6 +509,16 @@ const downloadExcel = async () => {
                                                     style={{ maxWidth: "100px" }}
                                                 >
                                                     {row.fabName}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px]  overflow-hidden text-ellipsis"
+                                                >
+                                                    {row.process}
+                                                </td>
+                                                <td
+                                                    className="border p-1 text-[10px]  overflow-hidden text-ellipsis"
+                                                >
+                                                    {row.route}
                                                 </td>
                                                 <td className="border p-1 text-[10px]  ">
                                                     {row.dia}
