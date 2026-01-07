@@ -13,16 +13,15 @@ import { useSelector } from "react-redux";
 
 import { useGetMisDashboardErpStyleItemWiseBreakUpQuery } from
     "../../../../redux/service/misDashboardServiceERP";
-
+import SpinLoader from '../../../../utils/spinLoader'
 import { addInsightsRowTurnOver } from "../../../../utils/hleper";
-import Loader from "../../../../utils/loader";
 const ItemWiseTable = ({
     finYr, styleName, category,
     closeTable, filterBuyerList
 }) => {
 
     const [selectedCategory, setSelectedcategory] = useState("ALL");
-    const [selectedStyleItem, setSelectedStyleItem] = useState("ALL");
+    const [selectedStyleItem, setSelectedStyleItem] = useState("");
 
     const [netpayRange, setNetpayRange] = useState({
         min: 0,
@@ -101,6 +100,22 @@ const ItemWiseTable = ({
                     return false;
                 }
             }
+            if (search.orderNo) {
+                const rowOrderNo = row.orderNo?.toString().toLowerCase() || "";
+                if (!rowOrderNo.includes(search.orderNo.toLowerCase())) {
+                    return false;
+                }
+            }
+            // 🔹 Style Ref No search
+            if (search.styleRefNo) {
+                const rowStyle = row.styleRefNo?.toLowerCase() || "";
+                if (!rowStyle.includes(search.styleRefNo.toLowerCase())) {
+                    return false;
+                }
+            }
+
+
+
 
             // 🔹 Min / Max Turnover filter
             const value = Number(row.value || 0);
@@ -125,15 +140,14 @@ const ItemWiseTable = ({
         setSelectedcategory(category || "ALL");
         setCurrentPage(1);
     }, [category]);
-    useEffect(() => {
-        if (!styleName || !styleItemOptions.length) return;
+useEffect(() => {
+  setSelectedStyleItem(
+    category && styleName ? `${category}/${styleName}` : "ALL"
+  );
+  setCurrentPage(1);
+}, [category, styleName]);
 
-        const exists = styleItemOptions.some(
-            (opt) => normalize(opt.value) === normalize(styleName)
-        );
 
-        setSelectedStyleItem(exists ? styleName : "ALL");
-    }, [styleName, styleItemOptions]);
 
     // ✅ TOTAL
     const totalTurnOver = useMemo(
@@ -287,11 +301,10 @@ const ItemWiseTable = ({
         );
     };
 
-    if (isLoading) return <Loader />;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex justify-center items-center">
-            <div className="bg-white w-[1300px] h-[620px] p-4 rounded-xl relative">
+            <div className="bg-white w-[1300px] h-[630px] p-4 rounded-xl relative">
 
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
@@ -341,12 +354,13 @@ const ItemWiseTable = ({
                                 </select>
                             </div>
 
-                            <div className="w-56">
+                            <div className="w-52">
                                 <select
                                     value={selectedCategory}
                                     onChange={(e) => {
                                         setSelectedcategory(e.target.value);
                                         setCurrentPage(1);
+                                        setSelectedStyleItem("")
                                     }}
                                     className="w-full px-2 py-1 text-xs border-2   rounded-md 
       border-blue-600 transition-all duration-200"     >
@@ -358,7 +372,7 @@ const ItemWiseTable = ({
                                     ))}
                                 </select>
                             </div>
-                            <div className="w-56">
+                            <div className="w-60">
                                 <select
                                     value={selectedStyleItem}
                                     onChange={(e) => {
@@ -397,8 +411,8 @@ const ItemWiseTable = ({
                 {/* SEARCH */}
 
                 <div className="flex justify-between items-start mt-2">
-                    <div className=" mb-3">
-                        {["category"].map((key) => (
+                    <div className=" flex gap-x-4 mb-3">
+                        {["category", "orderNo", "styleRefNo"].map((key) => (
                             <div key={key} className="relative">
                                 <input
                                     type="text"
@@ -437,12 +451,14 @@ const ItemWiseTable = ({
                             <input
                                 type="text"
                                 value={netpayRange.max === Infinity ? "" : netpayRange.max}
-                                onChange={(e) =>
+                                onChange={(e) => {
+                                    const val = e.target.value;
+
                                     setNetpayRange({
                                         ...netpayRange,
-                                        max: Number(e.target.value),
-                                    })
-                                }
+                                        max: val === "" ? Infinity : Number(val),
+                                    });
+                                }}
                                 className="w-24 h-6 p-1 border ml-1 border-gray-300 rounded-md text-[11px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                         </div>
@@ -479,42 +495,58 @@ const ItemWiseTable = ({
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentRecords?.slice(0, 17)?.map((row, index) => {
-                                    const globalIndex = index;  // 0–16
-                                    const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
-                                    const uomType = row?.orderUOM
-                                    let orderQtyValue;
-                                    if (uomType == "KGS") {
-                                        orderQtyValue = row?.orderQty.tofixed(3)
-                                    }
-                                    else {
-                                        orderQtyValue = row?.orderQty
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={8} className="h-[300px] text-center">
+                                            <div className="flex justify-center items-center">
+                                                <SpinLoader />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : currentRecords?.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="text-center py-6 text-gray-500">
+                                            No data found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentRecords?.map((row, index) => {
+                                        const globalIndex = index;  // 0–16
+                                        const serialNo = (currentPage - 1) * recordsPerPage + globalIndex + 1;
+                                        const uomType = row?.orderUOM
+                                        let orderQtyValue;
+                                        if (uomType == "KGS") {
+                                            orderQtyValue = row?.orderQty.tofixed(3)
+                                        }
+                                        else {
+                                            orderQtyValue = row?.orderQty
 
-                                    }
-                                    return (
-                                        <tr
-                                            key={index}
-                                            className="text-gray-800 bg-white even:bg-gray-100 "
-                                        >
-                                            <td className="border p-1 text-center">{serialNo}</td>
-                                            <td className="border p-1 pl-2 text-left">{row.category}</td>
-                                            <td className="border p-1 pl-2 text-left">{row.styleItem}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
-                                            <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-")}</td>
-                                            <td className="border p-1 pl-2 text-left">{row.styleRefNo}</td>
-                                            <td className="border p-1 pr-2 text-right">{orderQtyValue}</td>
-                                            <td className="border p-1 pl-2 text-leftt">{row.orderUOM}</td>
+                                        }
+                                        return (
+                                            <tr
+                                                key={index}
+                                                className="text-gray-800 bg-white even:bg-gray-100 "
+                                            >
+                                                <td className="border p-1 text-center">{serialNo}</td>
+                                                <td className="border p-1 pl-2 text-left">{row.category}</td>
+                                                <td className="border p-1 pl-2 text-left">{row.styleItem}</td>
+                                                <td className="border p-1 pl-2 text-left ">{row.orderNo}</td>
+                                                <td className="border p-1 pl-2 text-left ">{row.orderDate?.split("T")[0]?.split("-")?.reverse()?.join("-")}</td>
+                                                <td className="border p-1 pl-2 text-left">{row.styleRefNo}</td>
+                                                <td className="border p-1 pr-2 text-right">{orderQtyValue}</td>
+                                                <td className="border p-1 pl-2 text-leftt">{row.orderUOM}</td>
 
-                                            <td className="border p-1 pr-2 text-right text-sky-700 ">
+                                                <td className="border p-1 pr-2 text-right text-sky-700 ">
 
-                                                {new Intl.NumberFormat("en-IN", {
-                                                    style: "currency",
-                                                    currency: "INR",
-                                                }).format(row.value)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                                    {new Intl.NumberFormat("en-IN", {
+                                                        style: "currency",
+                                                        currency: "INR",
+                                                    }).format(row.value)}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
                             </tbody>
                         </table>
                     </div>
