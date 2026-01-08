@@ -71,7 +71,7 @@ const fabricOutward = createApi({
           params,
         };
       },
-      providesTags: ["FreeLookFabric"],
+      providesTags: ["FabricOutward"],
     }),
     getFabricOutwardQuarterNameDetail: builder.query({
       query: ({ params }) => {
@@ -84,8 +84,73 @@ const fabricOutward = createApi({
           params,
         };
       },
-      providesTags: ["FreeLookFabric"],
+      providesTags: ["FabricOutward"],
     }),
+    getFabricOutwardMonthDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardByMonth`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardCusByMonthDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardCusByMonth`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardMonthDate: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardByMonthDate`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
+     getFabricOutwardYearCompare: builder.query({
+          query: ({ params }) => {
+            return {
+              url: `${FABRIC_OUTWARD}/fabricOutwardYearCompare`,
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              params,
+            };
+          },
+          providesTags: ["FabricOutward"],
+        }),
+        getFabricOutwardQuarterCompare: builder.query({
+          query: ({ params }) => {
+            return {
+              url: `${FABRIC_OUTWARD}/fabricOutwardQuarterCompare`,
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              params,
+            };
+          },
+          providesTags: ["FabricOutward"],
+        }),
   }),
 });
 
@@ -95,7 +160,12 @@ export const {
   useGetFabricOutwardCusDetailQuery,
   useGetFabOutByCusNameQuery,
   useGetFabricOutwardQuarterDetailQuery,
-  useGetFabricOutwardQuarterNameDetailQuery
+  useGetFabricOutwardQuarterNameDetailQuery,
+  useGetFabricOutwardMonthDetailQuery,
+  useGetFabricOutwardCusByMonthDetailQuery,
+  useGetFabricOutwardMonthDateQuery,
+  useGetFabricOutwardQuarterCompareQuery,
+  useGetFabricOutwardYearCompareQuery,
 } = fabricOutward;
 
 export default fabricOutward;

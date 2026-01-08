@@ -67,7 +67,7 @@ const CustomerTrans = ({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [cusTransData, search, selectmonths]);
+    }, [cusTransData, search, selectmonths, selectedYear, category, custName]);
 
 
 
@@ -219,8 +219,8 @@ const CustomerTrans = ({
             row.getCell("grnNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("process").alignment = { horizontal: "left", vertical: "middle",indent: 1 };
-            row.getCell("route").alignment = { horizontal: "left", vertical: "middle",indent: 1 };
+            row.getCell("process").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("route").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
@@ -254,8 +254,8 @@ const CustomerTrans = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 8 ? "right" : "center",
-                indent: 1
+                horizontal: colNumber === 11 ? "right" : "center",
+                indent: 1,
             };
         });
 

@@ -22,6 +22,7 @@ import DomainIcon from '@mui/icons-material/Domain';
 import FinYearQuarter from "../../../components/FinYearQuarter";
 import Loader from "../../../utils/loader";
 import { useGetFabOutCustQuery, useGetFabricOutwardQuarterNameDetailQuery } from "../../../redux/service/fabricOutward";
+import SpinLoader from "../../../utils/spinLoader";
 
 const CustomerTrans = ({
     closeTable,
@@ -259,7 +260,7 @@ const CustomerTrans = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 8 ? "right" : "center",
+                horizontal: colNumber === 11 ? "right" : "center",
                 indent: 1
             };
         });
@@ -447,10 +448,10 @@ const CustomerTrans = ({
 
                 <div className="grid grid-cols-1 gap-6">
                     <div
-                        className="overflow-x-auto max-h-[450px] "
+                        className="relative overflow-x-auto max-h-[450px] min-h-[450px]"
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
-                        {isLoadingIndicator ? <Loader /> : (
+                        {isLoadingIndicator ? <SpinLoader /> : (
                             <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                     <tr>

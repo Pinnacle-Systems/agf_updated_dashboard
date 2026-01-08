@@ -67,7 +67,7 @@ const CustomerTrans = ({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [cusTransData, search, selectmonths]);
+    }, [cusTransData, search, selectmonths,selectedYear, category, custName]);
 
 
 

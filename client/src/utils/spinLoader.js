@@ -4,10 +4,10 @@ const SpinLoader = () => {
   return (
     <div style={styles.overlay}>
       <div style={styles.spinner}>
-        <div style={{ ...styles.blade, transform: "rotate(0deg)" }} />
-        <div style={{ ...styles.blade, transform: "rotate(90deg)" }} />
-        <div style={{ ...styles.blade, transform: "rotate(180deg)" }} />
-        <div style={{ ...styles.blade, transform: "rotate(270deg)" }} />
+        <div style={{ ...styles.blade, transform: "translateY(-50%) rotate(0deg)" }} />
+        <div style={{ ...styles.blade, transform: "translateY(-50%) rotate(90deg)" }} />
+        <div style={{ ...styles.blade, transform: "translateY(-50%) rotate(180deg)" }} />
+        <div style={{ ...styles.blade, transform: "translateY(-50%) rotate(270deg)" }} />
         <div style={styles.center} />
       </div>
 
@@ -55,7 +55,6 @@ const styles = {
     background: `linear-gradient(to right, transparent, ${GREY})`,
     borderRadius: "0 10px 10px 0",
     transformOrigin: "0% 50%",
-    transform: "translateY(-50%)",
   },
 
   center: {

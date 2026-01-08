@@ -6,6 +6,11 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import DomainIcon from '@mui/icons-material/Domain';
 import CustomerDetails from "./CustomerDetails";
 import CustQuarterDtl from "./CustQuarterDtl";
+import CustMonthDtl from "./CustMonthDtl";
+import MonthWiseCus from "./MonthWiseCus";
+import FabricMonthDate from "./FabricMonthDate";
+import FabricOutwardYearCompare from "./FabricOutwardYearCompare";
+import FabricOutwardQuarterCompare from "./FabricOutwardQuarterCompare";
 
 const OutwardOverview = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
@@ -114,6 +119,21 @@ const OutwardOverview = ({ finYear, year, selectCategory }) => {
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <CustQuarterDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <CustMonthDtl selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <MonthWiseCus selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                    <FabricMonthDate selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                    <FabricOutwardYearCompare selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={12}>
+                    <FabricOutwardQuarterCompare selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>
