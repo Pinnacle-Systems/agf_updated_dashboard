@@ -125,7 +125,7 @@ const fabricOutward = createApi({
       },
       providesTags: ["FabricOutward"],
     }),
-     getFabricOutwardYearCompare: builder.query({
+    getFabricOutwardYearCompare: builder.query({
           query: ({ params }) => {
             return {
               url: `${FABRIC_OUTWARD}/fabricOutwardYearCompare`,
@@ -137,8 +137,8 @@ const fabricOutward = createApi({
             };
           },
           providesTags: ["FabricOutward"],
-        }),
-        getFabricOutwardQuarterCompare: builder.query({
+    }),
+    getFabricOutwardQuarterCompare: builder.query({
           query: ({ params }) => {
             return {
               url: `${FABRIC_OUTWARD}/fabricOutwardQuarterCompare`,
@@ -150,7 +150,85 @@ const fabricOutward = createApi({
             };
           },
           providesTags: ["FabricOutward"],
-        }),
+    }),
+    getFabricOutwardStateDetail: builder.query({
+    query: ({ params }) => {
+            return {
+              url: `${FABRIC_OUTWARD}/fabricOutwardState`,
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              params,
+            };
+          },
+          providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardStateDetailTrans: builder.query({
+    query: ({ params }) => {
+            return {
+              url: `${FABRIC_OUTWARD}/fabricOutwardStateDetail`,
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              params,
+            };
+          },
+          providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardStateDropdown: builder.query({
+          query: ({ params }) => {
+            return {
+              url: `${FABRIC_OUTWARD}/fabricOutwardStateDropdown`,
+              method: "GET",
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+              params,
+            };
+          },
+          providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardProcess: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardProcess`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardProcessDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardProcessDetail`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
+    getFabricOutwardProcessDropdown: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${FABRIC_OUTWARD}/fabricOutwardProcessDropdown`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["FabricOutward"],
+    }),
   }),
 });
 
@@ -166,6 +244,12 @@ export const {
   useGetFabricOutwardMonthDateQuery,
   useGetFabricOutwardQuarterCompareQuery,
   useGetFabricOutwardYearCompareQuery,
+  useGetFabricOutwardStateDetailQuery,
+  useGetFabricOutwardStateDetailTransQuery,
+  useGetFabricOutwardStateDropdownQuery,
+  useGetFabricOutwardProcessQuery,
+  useGetFabricOutwardProcessDetailQuery,
+  useGetFabricOutwardProcessDropdownQuery,
 } = fabricOutward;
 
 export default fabricOutward;

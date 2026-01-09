@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   getFabOutCust,
+  getFabOutwardProcessDropdown,
+  getFabOutwardStateDropdown,
   getFabricOutward,
   getFabricOutwardByMonth,
   getFabricOutwardByMonthDate,
@@ -9,7 +11,11 @@ import {
   getFabricOutwardCusByMonth,
   getFabricOutwardCustomer,
   getFabricOutwardCustomerByName,
+  getFabricOutwardProcess,
+  getFabricOutwardProcessByName,
   getFabricOutwardQuarterCompare,
+  getFabricOutwardState,
+  getFabricOutwardStateDetail,
   getFabricOutwardYearCompare,
 } from "../services/freeLookFabricOutward.js";
 
@@ -29,7 +35,15 @@ router.get("/fabricOutwardCusByMonth", getFabricOutwardCusByMonth);
 
 router.get("/fabricOutwardByMonthDate", getFabricOutwardByMonthDate);
 
-router.get("/fabricOutwardYearCompare",getFabricOutwardYearCompare)
-router.get("/fabricOutwardQuarterCompare",getFabricOutwardQuarterCompare)
+router.get("/fabricOutwardYearCompare",getFabricOutwardYearCompare);
+router.get("/fabricOutwardQuarterCompare",getFabricOutwardQuarterCompare);
+
+router.get("/fabricOutwardState", getFabricOutwardState);
+router.get("/fabricOutwardStateDetail", getFabricOutwardStateDetail);
+router.get("/fabricOutwardStateDropdown", getFabOutwardStateDropdown);
+
+router.get("/fabricOutwardProcess", getFabricOutwardProcess);
+router.get("/fabricOutwardProcessDetail", getFabricOutwardProcessByName);
+router.get("/fabricOutwardProcessDropdown", getFabOutwardProcessDropdown);
 
 export default router;

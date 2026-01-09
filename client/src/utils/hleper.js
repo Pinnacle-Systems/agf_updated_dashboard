@@ -108,15 +108,23 @@ export const addInsightsfreelookRow = ({
   selectedMonth,
   selectedDate,
   selectState,
+  processName,
 }) => {
+  const formatDateDDMMYYYY = (dateStr) => {
+    if (!dateStr) return "";
+    const [yyyy, mm, dd] = dateStr.split("-");
+    return `${dd}-${mm}-${yyyy}`;
+  };
+  const formattedDate = formatDateDDMMYYYY(selectedDate);
   const insightText =
     `Customer -  ${custName || ""}    |    ` +
     `Fin Year :  ${selectedYear || ""}    |    ` +
     (selectQuarter ? `Quarter : ${selectQuarter}    |    ` : "") +
     `Month :  ${selectedMonth || ""}   |   ` +
     `Fabric category :  ${category || ""}  |   ` +
-    (selectedDate ? `Date : ${selectedDate}   ` : "") +
-    (selectState ? `State : ${selectState}    ` : "")
+    (formattedDate ? `Date : ${formattedDate}    ` : "") +
+    (selectState ? `State : ${selectState}    ` : "") +
+    (processName ? `Process : ${processName}    ` : "");
   // Insert insights row
   worksheet.insertRow(startRow, [insightText]);
 
@@ -148,21 +156,17 @@ export const addInsightsRowTurnOver = ({
   dynamicField,
   disableFinYear,
   secondDynamicField,
-  seconddynamicValue
-
+  seconddynamicValue,
 }) => {
-
-
-
   const insightText =
-
     `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    `}` +
     `Comp Code :  ${localCompany}    |    ` +
     `${dynamicField} :  ${dynamicValue}    |    ` +
-    `${secondDynamicField ? `${secondDynamicField}: ${seconddynamicValue}    |    ` : ""}`;
-
-
-
+    `${
+      secondDynamicField
+        ? `${secondDynamicField}: ${seconddynamicValue}    |    `
+        : ""
+    }`;
 
   // Insert insights row
   worksheet.insertRow(startRow, [insightText]);
@@ -649,8 +653,8 @@ export async function classListData(data) {
       num = num
         ? parseInt(num, 10)
         : order[prefix] !== undefined
-          ? order[prefix]
-          : Infinity;
+        ? order[prefix]
+        : Infinity;
 
       return [order[prefix] !== undefined ? order[prefix] : num, num, suffix];
     };
@@ -799,12 +803,12 @@ export const DropdownNew = ({
   const options = [
     ...(clear
       ? [
-        {
-          value: "",
-          label: `Select ${name || placeholder || "Option"}`,
-          isDisabled: false,
-        },
-      ]
+          {
+            value: "",
+            label: `Select ${name || placeholder || "Option"}`,
+            isDisabled: false,
+          },
+        ]
       : []),
     ...(dataList?.map((item) => ({
       value: otherValue ? item?.[otherValue] : item?.id,
@@ -836,10 +840,11 @@ export const DropdownNew = ({
         menuShouldScrollIntoView={false}
         maxMenuHeight={170}
         onInputChange={(value) => value.toUpperCase()}
-        className={`w-full text-xs rounded-lg border ${autoFocus
-          ? " border border-blue-800 ring-1"
-          : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          } 
+        className={`w-full text-xs rounded-lg border ${
+          autoFocus
+            ? " border border-blue-800 ring-1"
+            : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        } 
           
           transition-all duration-150 shadow-sm`}
         placeholder={placeholder}
@@ -1093,17 +1098,17 @@ export const handleOnChange = (event, setValue) => {
 
   setValue(
     valueBeforeCursor +
-    inputValue.slice(inputSelectionStart, inputSelectionEnd) +
-    valueAfterCursor
+      inputValue.slice(inputSelectionStart, inputSelectionEnd) +
+      valueAfterCursor
   );
 
   // Set the cursor position to the end of the input value
   setTimeout(() => {
     event.target.setSelectionRange(
       valueBeforeCursor.length +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length,
       valueBeforeCursor.length +
-      inputValue.slice(inputSelectionStart, inputSelectionEnd).length
+        inputValue.slice(inputSelectionStart, inputSelectionEnd).length
     );
   });
 };
@@ -1179,7 +1184,8 @@ export function ReusableInput({
             disabled={disabled}
             className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
               focus:border-indigo-300 focus:outline-none transition-all duration-200
-              hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
+              hover:border-slate-400 ${
+                readOnly || disabled ? "bg-slate-100" : ""
               } ${className}`}
             autoFocus={autoFocus}
           />
@@ -1203,7 +1209,8 @@ export function ReusableInput({
           disabled={disabled}
           className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
             focus:border-indigo-300 focus:outline-none transition-all duration-200
-            hover:border-slate-400 ${readOnly || disabled ? "bg-slate-100" : ""
+            hover:border-slate-400 ${
+              readOnly || disabled ? "bg-slate-100" : ""
             } ${className}`}
           autoFocus={autoFocus}
         />
@@ -1254,10 +1261,11 @@ export const DateInput = forwardRef(
          w-[120px] px-2 py-0.5 text-xs text-[12px] h-6 border input-font border-gray-300 rounded-lg
           ring-1 border-blue-800
           transition-all duration-150 shadow-sm
-            ${readOnly
+            ${
+              readOnly
                 ? "bg-gray-100 text-gray-500 cursor-not-allowed"
                 : "bg-white"
-              }
+            }
             ${disabled ? "opacity-50 bg-gray-100 cursor-not-allowed" : ""}
             ${inputClass}
           `}
@@ -1334,8 +1342,8 @@ export const customStyles = {
     backgroundColor: state.isSelected
       ? "#d1d5db" // gray-200
       : state.isFocused
-        ? "#e5e7eb" // gray-100
-        : "white",
+      ? "#e5e7eb" // gray-100
+      : "white",
     color: "black",
   }),
 

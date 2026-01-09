@@ -11,6 +11,8 @@ import MonthWiseCus from "./MonthWiseCus";
 import FabricMonthDate from "./FabricMonthDate";
 import FabricOutwardYearCompare from "./FabricOutwardYearCompare";
 import FabricOutwardQuarterCompare from "./FabricOutwardQuarterCompare";
+import StateDetails from "./StateDtl";
+import ProcessDetails from "./FabricOutwardProcess";
 
 const OutwardOverview = ({ finYear, year, selectCategory }) => {
     const [category, setCategory] = useState(selectCategory);
@@ -134,6 +136,12 @@ const OutwardOverview = ({ finYear, year, selectCategory }) => {
                 </Grid>
                 <Grid item xs={12} md={12}>
                     <FabricOutwardQuarterCompare selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                    <StateDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
+                </Grid>
+                <Grid item xs={12} md={8}>
+                    <ProcessDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} category={category} finYear={finYear} setCategory={setCategory} selectmonths={selectmonths} setSelectmonths={setSelectmonths} />
                 </Grid>
             </Grid>
         </>
