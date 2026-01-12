@@ -8,7 +8,7 @@ import NumericCard from "../../src/components/NumericCard";
 import HRDashboard from "../../src/scenes/hrdashboard/index";
 import GarmentDashboard from "../../src/scenes/GarmentsDashboard/index";
 import { list } from "@chakra-ui/system";
-import { FreeLookDyeing } from "../scenes";
+import { FreeLookDyeing, PurchaseDashboard } from "../scenes";
 const tabs = [
   {
     key: "Dashboard",
@@ -49,6 +49,13 @@ const tabs = [
     list: true,
     list_name: "Garments Dashboard",
   },
+  {
+    key: "Purchase Dashboard",
+    name: "Purchase Dashboard",
+    component: PurchaseDashboard,
+    list: true,
+    list_name: "Purchase Dashboard",
+  }
 ];
 
 export default tabs;

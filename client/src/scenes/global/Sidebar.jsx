@@ -19,6 +19,7 @@ import {
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import OpacityIcon from "@mui/icons-material/Opacity";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useDispatch, useSelector } from "react-redux";
 import { push } from "../../redux/features/opentabs";
 import { useGetUsersQuery } from "../../redux/service/user";
@@ -418,6 +419,7 @@ const Sidebar = () => {
                 {page.link === "HRDashboard" && <PersonIcon sx={{ color }} />}
                 {page.link === "Dyeing Dashboard" && <OpacityIcon sx={{ color }} />}
                 {page.link === "Garments Dashboard" && <DashboardIcon sx={{ color }} />}
+                {page.link === "Purchase Dashboard" && <ShoppingCartIcon sx={{ color }} />}
               </StyledListItemIcon>
 
               <ListItemText

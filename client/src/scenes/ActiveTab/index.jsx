@@ -6,7 +6,7 @@ import { CLOSE_ICON, DOUBLE_NEXT_ICON } from "../../icons";
 import { useState } from "react";
 import useOutsideClick from "../../CustomHooks/handleOutsideClick";
 import PoRegister from "../poRegister";
-import { FreeLookDyeing, MisDashboard, } from "../../scenes";
+import { FreeLookDyeing, MisDashboard, PurchaseDashboard, } from "../../scenes";
 import MisDashboardERP from "../MisDashboard copy";
 import OrderManagement from "../OrderManagement";
 // import OutlinedCard from "../Users/Users";
@@ -125,7 +125,8 @@ const ActiveTabList = () => {
 
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
-    )
+    ),
+    "Purchase Dashboard": <PurchaseDashboard />,
   };
 
   // console.log(openTabs, "openTabs");
