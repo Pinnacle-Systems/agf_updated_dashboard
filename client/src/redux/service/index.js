@@ -9,3 +9,4 @@ export { default as UsersApi } from "./user";
 export { default as RoleApi } from "./Rolemaster.js";
 export { default as freeLookFabric } from "./freeLookFabric.js";
 export { default as fabricOutward } from "./fabricOutward.js";
+export { default as purchaseOrder } from "./purchaseOrder.js";

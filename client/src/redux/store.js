@@ -13,7 +13,8 @@ import {
   misDashboardServiceERP,
   RoleApi,
   freeLookFabric,
-  fabricOutward
+  fabricOutward,
+  purchaseOrder
 } from "./service";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
@@ -32,7 +33,8 @@ export const store = configureStore({
     [UsersApi.reducerPath]: UsersApi.reducer,
     [RoleApi.reducerPath]: RoleApi.reducer,
     [freeLookFabric.reducerPath]: freeLookFabric.reducer,
-    [fabricOutward.reducerPath]: fabricOutward.reducer
+    [fabricOutward.reducerPath]: fabricOutward.reducer,
+    [purchaseOrder.reducerPath]: purchaseOrder.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -46,7 +48,8 @@ export const store = configureStore({
       UsersApi.middleware,
       RoleApi.middleware,
       freeLookFabric.middleware,
-      fabricOutward.middleware
+      fabricOutward.middleware,
+      purchaseOrder.middleware,
     ]),
 });
 

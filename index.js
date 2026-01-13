@@ -28,6 +28,7 @@ import {
   role,
   freeLookFabric,
   fabricOutward,
+  purchaseOrder,
 } from "./src/routes/index.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -84,7 +85,9 @@ app.use("/role", role);
 
 app.use("/freeLookFabric", freeLookFabric);
 
-app.use("/fabricOutward",fabricOutward)
+app.use("/fabricOutward",fabricOutward);
+
+app.use("/purchaseOrder",purchaseOrder);
 
 // const PORT = 9008;
 const PORT = process.env.PORT || 9000;

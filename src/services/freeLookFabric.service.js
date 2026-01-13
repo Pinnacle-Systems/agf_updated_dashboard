@@ -31,9 +31,6 @@ export async function getFabricInward(req, res) {
       END;
     `);
 
-    // 3️⃣ Commit (IMPORTANT)
-    await connection.commit();
-
     // 4️⃣ Execute SELECT Query
     const result = await connection.execute(
       `SELECT CCATEGORY,
