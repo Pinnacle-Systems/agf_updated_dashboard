@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { getLoadPurchaseData, getSupplierPOS, getSupplierPOSMonth } from "../services/purchaseOrder.service.js";
+import { getLoadPurchaseData, getSupplierByName, getSupplierList, getSupplierPOS, getSupplierPOSMonth } from "../services/purchaseOrder.service.js";
 const router = Router();
 
 router.get("/purLoadData", getLoadPurchaseData);
 router.get("/supplierPOs", getSupplierPOS);
 router.get("/supplierPOSMonth", getSupplierPOSMonth);
-
+router.get("/getSupplierDetails",getSupplierByName)
+router.get("/getSuppliers", getSupplierList);
 
 export default router;

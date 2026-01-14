@@ -3,10 +3,9 @@ import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
-
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-
+import SupplierTrans from "./SupplierTrans";
 
 const SupplierDetails = ({
     selectedYear,
@@ -32,8 +31,7 @@ const SupplierDetails = ({
             type: "column",
             height: 380,
             backgroundColor: "#ffffff",
-            spacingBottom: 0, // reduce bottom spacing
-            // spacingTop: 10,
+            spacingBottom: 0,
         },
 
         title: {
@@ -104,9 +102,9 @@ const SupplierDetails = ({
                 ],
                 dataLabels: {
                     enabled: true,
-                    inside: true,          // 👈 KEY
+                    inside: true,
                     rotation: -90,
-                    color: "#ffffff",      // white looks best inside bar
+                    color: "#ffffff",
                     align: "center",
                     verticalAlign: "middle",
                     formatter: function () {
@@ -121,6 +119,20 @@ const SupplierDetails = ({
                         fontFamily: "Arial, sans-serif",
                         fontWeight: "bold",
                         textOutline: "none",
+                    },
+                },
+            },
+            series: {
+                cursor: "pointer",
+                point: {
+                    events: {
+                        click: function () {
+                            setSupplierName(this.category);
+                            // Reset month filter
+                            setSelectmonths("");
+                            // Show the table
+                            setShowTable(true);
+                        },
                     },
                 },
             },
@@ -160,19 +172,17 @@ const SupplierDetails = ({
                 <HighchartsReact highcharts={Highcharts} options={options} />
             </CardContent>
 
-            {/* Drill-down table (optional)
-      {showTable && (
-        <CustomerTrans
-          closeTable={() => setShowTable(false)}
-          finYear={finYear}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          supplierName={supplierName}
-          selectmonths={selectmonths}
-          setSelectmonths={setSelectmonths}
-        />
-      )}
-      */}
+            {showTable && (
+                <SupplierTrans
+                    closeTable={() => setShowTable(false)}
+                    finYear={finYear}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    supplierName={supplierName}
+                    selectmonths={selectmonths}
+                    setSelectmonths={setSelectmonths}
+                />
+            )}
         </Card>
     );
 };

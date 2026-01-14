@@ -47,8 +47,38 @@ const purchaseOrder = createApi({
       },
       providesTags: ["PurchaseOrder"],
     }),
+    getSupplierPODetails: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${PURCHASE_ORDER}/getSupplierDetails`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
+    getSupplierList: builder.query({
+      query: () => {
+        return {
+          url: `${PURCHASE_ORDER}/getSuppliers`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
   }),
 });
-export const { useGetPurchaseOrderLoadDataQuery, useGetSupplierPOSDataQuery,useGetSupplierPOSMonthDataQuery } =
-  purchaseOrder;
+export const {
+  useGetPurchaseOrderLoadDataQuery,
+  useGetSupplierPOSDataQuery,
+  useGetSupplierPOSMonthDataQuery,
+  useGetSupplierPODetailsQuery,
+  useGetSupplierListQuery
+} = purchaseOrder;
 export default purchaseOrder;
