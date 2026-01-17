@@ -1,13 +1,17 @@
-import { useGetSupplierPOSDataQuery } from "../../../redux/service/purchaseOrder";
 import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import SupplierTrans from "./SupplierTrans";
+import { useGetSupplierPOSRejectedQuery } from "../../../redux/service/purchaseOrder";
+import SupplierTrans from "../Supplier/SupplierTrans";
+import Highcharts3D from "highcharts/highcharts-3d";
+import Cylinder from "highcharts/modules/cylinder";
+Highcharts3D(Highcharts);
+Cylinder(Highcharts);
 
-const SupplierDetails = ({
+const RejectedPO = ({
     selectedYear,
     setSelectedYear,
     finYear,
@@ -17,7 +21,7 @@ const SupplierDetails = ({
     const [showTable, setShowTable] = useState(false);
     const [supplierName, setSupplierName] = useState("");
 
-    const { data: supplierData } = useGetSupplierPOSDataQuery(
+    const { data: supplierData } = useGetSupplierPOSRejectedQuery(
         {
             params: { finyear: selectedYear },
         },
@@ -30,10 +34,17 @@ const SupplierDetails = ({
 
     const options = {
         chart: {
-            type: "column",
+            type: "cylinder",
             height: 300,
             backgroundColor: "#ffffff",
             spacingBottom: 0,
+            options3d: {
+                enabled: true,
+                alpha: 10,
+                beta: 10,
+                depth: 60,
+                viewDistance: 25,
+            },
         },
 
         title: {
@@ -53,7 +64,7 @@ const SupplierDetails = ({
         },
 
         yAxis: {
-            min: 0,
+            min: 1,
             title: {
                 text: "Qty",
             },
@@ -88,51 +99,29 @@ const SupplierDetails = ({
         },
 
         plotOptions: {
-            column: {
-                colorByPoint: true,
-                colors: [
-                    "#8e24aa", // deep purple
-                    "#7b1fa2",
-                    "#6a1b9a",
-                    "#ab47bc",
-                    "#ba68c8",
-                    "#ec407a",
-                    "#e91e63",
-                    "#d81b60",
-                    "#c2185b",
-                    "#ad1457"
-                ],
+            series: {
+                depth: 60,            // 🔥 cylinder thickness
+                colorByPoint: true,   // 🔥 different colors
                 dataLabels: {
                     enabled: true,
-                    inside: true,
-                    rotation: -90,
-                    color: "#ffffff",
-                    align: "center",
-                    verticalAlign: "middle",
-                    formatter: function () {
+                    inside: false,
+                    formatter() {
                         return this.y.toLocaleString("en-IN", {
                             minimumFractionDigits: this.point.unit === "KGS" ? 3 : 0,
                             maximumFractionDigits: this.point.unit === "KGS" ? 3 : 0,
                         });
                     },
-                    y: 0,
                     style: {
                         fontSize: "11px",
-                        fontFamily: "Arial, sans-serif",
                         fontWeight: "bold",
                         textOutline: "none",
                     },
                 },
-            },
-            series: {
-                cursor: "pointer",
                 point: {
                     events: {
                         click: function () {
-                             setSupplierName(this.name);
-                            // Reset month filter
+                            setSupplierName(this.name);
                             setSelectmonths("");
-                            // Show the table
                             setShowTable(true);
                         },
                     },
@@ -144,10 +133,10 @@ const SupplierDetails = ({
             {
                 name: "Qty",
                 data: rows.map((r) => ({
-                    y: Number(r.qty || 0),
+                    y: Math.max(1, Number(r.qty || 0)), // 👈 enforce minimum 1
                     amountValue: Number(r.amountValue || 0),
                     name: r.supplier,
-                     unit: r.unit,
+                    unit: r.unit,
                 })),
             },
         ],
@@ -160,7 +149,7 @@ const SupplierDetails = ({
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title={`Top 10 Suppliers in (${selectedYear}) Year`}
+                title={`PO Pending Approval (${selectedYear}) Year`}
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -185,10 +174,11 @@ const SupplierDetails = ({
                     setSupplierName={setSupplierName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
+                    isRejected={true}
                 />
             )}
         </Card>
     );
 };
 
-export default SupplierDetails;
+export default RejectedPO;

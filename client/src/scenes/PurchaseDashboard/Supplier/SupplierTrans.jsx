@@ -14,13 +14,13 @@ import * as XLSX from "xlsx";
 import HouseIcon from '@mui/icons-material/House';
 import FactoryIcon from '@mui/icons-material/Factory';
 import FinYear from "../../../components/FinYear";
-import { DropdownNew } from "../../../utils/hleper";
+import { addInsightsPurchaseOrderRow, DropdownNew } from "../../../utils/hleper";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
 import Loader from "../../../utils/loader";
-import { useGetSupplierListQuery, useGetSupplierPODetailsQuery } from "../../../redux/service/purchaseOrder";
+import { useGetSupplierListQuery, useGetSupplierPODetailsQuery, useGetSupplierPOSRejectedBySupplierQuery } from "../../../redux/service/purchaseOrder";
 
 const SupplierTrans = ({
     closeTable,
@@ -31,7 +31,8 @@ const SupplierTrans = ({
     setSupplierName,
     selectmonths,
     setSelectmonths,
-    autoBorder = false
+    autoBorder = false,
+    isRejected = false,
 }) => {
     const [search, setSearch] = useState("")
     const [currentPage, setCurrentPage] = useState(1);
@@ -45,10 +46,22 @@ const SupplierTrans = ({
                 supplier: supplierName
             },
         }, {
-            skip: !selectedYear
+            skip: !selectedYear || isRejected,
+        });
+
+    const { data: supplierTransDataRejected, isFetching: isSingleFetchingRejected,
+        isLoading: isSingleLoadingRejected, } = useGetSupplierPOSRejectedBySupplierQuery({
+            params: {
+                finyear: selectedYear,
+                supplier: supplierName
+            },
+        }, {
+            skip: !selectedYear || !isRejected
         });
 
     const isLoadingIndicator = isSingleFetching || isSingleLoading;
+    const isLoadingIndicatorRejected = isSingleFetchingRejected || isSingleLoadingRejected;
+
 
 
     const { data: supplierNames } = useGetSupplierListQuery({
@@ -64,8 +77,8 @@ const SupplierTrans = ({
 
 
 
-    const filteredData = Array.isArray(supplierTransData?.data)
-        ? supplierTransData.data.filter((row) => {
+    const filteredData = Array.isArray(isRejected ? supplierTransDataRejected?.data : supplierTransData?.data)
+        ? (isRejected ? supplierTransDataRejected.data : supplierTransData.data).filter((row) => {
 
             // 🔹 Search filter
             const searchMatch = Object.entries(search).every(([key, value]) => {
@@ -101,8 +114,8 @@ const SupplierTrans = ({
         : [];
 
 
-    const totalNetPay = filteredData.reduce(
-        (sum, row) => sum + (Number(row.PF) || 0),
+    const totalAmount = filteredData.reduce(
+        (sum, row) => sum + (Number(row.amount) || 0),
         0
     );
     const totalQty = filteredData.reduce(
@@ -118,8 +131,8 @@ const SupplierTrans = ({
         currentPage * recordsPerPage
     );
 
-    const totalInwardCount = new Set(
-        filteredData.map(row => row.inwNo)
+    const totalPoCount = new Set(
+        filteredData.map(row => row.poNo)
     ).size;
     const downloadExcel = async () => {
         if (filteredData.length === 0) {
@@ -128,29 +141,34 @@ const SupplierTrans = ({
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Fabric Inward Details");
+        const worksheet = workbook.addWorksheet("Purchase Order Details");
 
         // 1️⃣ Define columns
         worksheet.columns = [
-            { header: "Inward No", key: "inwNo", width: 25 },
-            { header: "Inward Date", key: "poDate", width: 16 },
-            { header: "Order No", key: "orderNo", width: 32 },
-            { header: "Customer Name", key: "customerName", width: 48 },
-            { header: "Fabric Name", key: "fabName", width: 48 },
-            { header: "Dia", key: "dia", width: 12 },
+            { header: "PO No", key: "poNo", width: 25 },
+            { header: "PO Date", key: "poDate", width: 16 },
+            { header: "Supplier Name", key: "supplier", width: 48 },
+            { header: "Item Name", key: "itemName", width: 48 },
             { header: "Uom", key: "uom", width: 12 },
             { header: "Qty", key: "qty", width: 17 },
+            { header: "Rate", key: "rate", width: 17 },
+            { header: "Amount", key: "amount", width: 17 },
+            { header: "Status", key: "approvalStatus", width: 32 },
         ];
 
         // 2️⃣ Title Row
-        worksheet.insertRow(1, ["Fabric Inward Details Report"]);
-        worksheet.mergeCells("A1:H1");
+        worksheet.insertRow(1, [
+            isRejected
+                ? "PO Pending Approval Report"
+                : "Purchase Order Details Report"
+        ]);
+        worksheet.mergeCells("A1:I1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
         titleCell.alignment = { horizontal: "center", vertical: "middle" };
         worksheet.getRow(1).height = 30;
-        addInsightsfreelookRow({
+        addInsightsPurchaseOrderRow({
             worksheet,
             startRow: 2,
             totalColumns: 8,
@@ -182,14 +200,15 @@ const SupplierTrans = ({
         // 4️⃣ Data Rows
         filteredData.forEach((row) => {
             worksheet.addRow({
-                inwNo: row.inwNo,
+                poNo: row.poNo,
                 poDate: row.poDate,
-                orderNo: row.orderNo,
-                customerName: row.supplierName,
-                fabName: row.fabName,
-                dia: row.dia,
+                supplier: row.supplier,
+                itemName: row.itemName,
                 uom: row.uom,
                 qty: row.qty,
+                rate: row.rate,
+                amount: row.amount,
+                approvalStatus: row.approvalStatus,
             });
         });
 
@@ -199,28 +218,40 @@ const SupplierTrans = ({
 
             row.height = 22;
 
-            row.getCell("inwNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("poNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("poDate").alignment = { horizontal: "center", vertical: "middle" };
-            row.getCell("orderNo").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("fabName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("customerName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
-            row.getCell("dia").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("supplier").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+            row.getCell("itemName").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
             row.getCell("uom").alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+
+            const uomValue = row.getCell("uom").value;
+            const qtyCell = row.getCell("qty");
+
+            qtyCell.alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            qtyCell.numFmt = uomValue === "KGS" ? "#,##0.000" : "#,##0";
+
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("rate").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("amount").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
+            row.getCell("approvalStatus").alignment = { horizontal: "center", vertical: "middle", indent: 1 };
         });
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
-            inwNo: "",
+            poNo: "",
             poDate: "",
-            orderNo: "",
-            fabName: "",
-            customerName: "",
-            dia: "",
+            supplier: "",
+            itemName: "",
             uom: "TOTAL",
             qty: totalQty.toLocaleString("en-IN", {
                 minimumFractionDigits: 3,
                 maximumFractionDigits: 3,
             }),
+            rate: "",
+            amount: totalAmount.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }),
+            approvalStatus: "",
         });
 
         totalRow.height = 24;
@@ -234,7 +265,7 @@ const SupplierTrans = ({
             };
             cell.alignment = {
                 vertical: "middle",
-                horizontal: colNumber === 8 ? "right" : "center",
+                horizontal: colNumber === 5 ? "center" : "right",
                 indent: 1
             };
         });
@@ -242,18 +273,18 @@ const SupplierTrans = ({
         // 6️⃣ Quantity format
         worksheet.getColumn("poDate").numFmt = "dd-mm-yyyy";
 
-        worksheet.getColumn("qty").numFmt = "#,##0.000";
-
         // 7️⃣ Freeze Header
         worksheet.views = [{ state: "frozen", ySplit: 3 }];
 
         // 8️⃣ Export
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), "Fabric Inward Customer Wise Details.xlsx");
+        saveAs(new Blob([buffer]), isRejected
+            ? "PO Pending Approval Details.xlsx"
+            : "Purchase Order Supplier Wise Details.xlsx");
     };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
-            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1250px] max-w-[1250px]  h-[590px] max-h-[590px] relative">
+            <div className="bg-white p-4 rounded-lg shadow-2xl w-[1150px] max-w-[1150px]  h-[590px] max-h-[590px] relative">
                 <button
                     onClick={closeTable}
                     className="absolute top-2 right-2 text-red-500 hover:text-red-700 p-2 rounded-full transition-all"
@@ -267,6 +298,9 @@ const SupplierTrans = ({
                             Supplier Insights -{" "}
                             <span className="text-blue-600">{supplierName}</span>
                         </h2>
+
+                    </div>
+                    <div className="flex justify-end gap-1 items-center mb-2  mr-8">
                         <div className="flex items-start justify-start">
                             {/* Left: Total Records */}
                             {/* <p className="text-[12px] text-gray-500 font-medium">
@@ -274,13 +308,13 @@ const SupplierTrans = ({
                             </p> */}
                             <div className="text-right text-[12px]">
                                 <p className=" text-gray-500 font-medium">
-                                    Total Inward:{" "}
+                                    Total Orders:{" "}
                                     <span className="text-sky-700 pl-1">
-                                        {totalInwardCount}
+                                        {totalPoCount}
                                     </span>
                                 </p>
                             </div>
-                            <div className="text-right ml-5 text-[12px]">
+                            <div className="text-right ml-3 text-[12px]">
                                 <p className=" text-gray-500 font-medium">
                                     Total Qty:{" "}
                                     <span className="text-sky-700 pl-1">
@@ -291,19 +325,27 @@ const SupplierTrans = ({
                                     </span>
                                 </p>
                             </div>
+                            <div className="text-right ml-3 text-[12px]">
+                                <p className=" text-gray-500 font-medium">
+                                    Total Amount:{" "}
+                                    <span className="text-sky-700 pl-1">
+                                        {totalAmount.toLocaleString("en-IN", {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        })}
+                                    </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 items-center mb-2  mr-5">
-
-                    </div>
                 </div>
-                <div className="flex items-center">
-                    <div className="grid grid-cols-5 gap-2">
+                <div className="flex items-center gap-5">
+                    <div className="grid grid-cols-4 gap-2">
                         {[
-                            { label: "INWARD NO", key: "inwNo" },
-                            { label: "ORDER NO", key: "orderNo" },
-                            { label: "FABRIC..", key: "fabName" },
-                            { label: "DIA", key: "dia" },
+                            { label: "PO NO", key: "poNo" },
+                            { label: "SUPPLIER", key: "supplier" },
+                            { label: "ITEM..", key: "itemName" },
+                            { label: "STATUS", key: "approvalStatus" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -376,7 +418,7 @@ const SupplierTrans = ({
                         className="overflow-x-auto max-h-[450px] "
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
-                        {isLoadingIndicator ? <Loader /> : (
+                        {isLoadingIndicator || isLoadingIndicatorRejected ? <Loader /> : (
                             <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                     <tr>
@@ -384,12 +426,12 @@ const SupplierTrans = ({
                                         <th className="border p-1 text-center w-24">PO No</th>
                                         <th className="border p-1 text-center w-14">PO Date</th>
                                         <th className="border p-1 text-center w-40">Supplier Name</th>
-                                        <th className="border p-1 text-center w-24">Item Name</th>
-                                        <th className="border p-1 text-center w-36">Qty</th>
-                                        <th className="border p-1 text-center w-36">UOM</th>
+                                        <th className="border p-1 text-center w-40">Item Name</th>
+                                        <th className="border p-1 text-center w-12">UOM</th>
+                                        <th className="border p-1 text-center w-12">Qty</th>
                                         <th className="border p-1 text-center w-12">Rate</th>
-                                        <th className="border p-1 text-center w-12">Amount</th>
-                                        <th className="border p-1 text-center w-12">STATUS</th>
+                                        <th className="border p-1 text-center w-16">Amount</th>
+                                        <th className="border p-1 text-center w-14">STATUS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -426,20 +468,21 @@ const SupplierTrans = ({
                                                 <td
                                                     className="border p-1 text-[10px]"
                                                 >
-                                                    {row.qty}
-                                                </td>
-                                                <td
-                                                    className="border p-1 text-[10px]"
-                                                >
                                                     {row.uom}
                                                 </td>
-                                                <td className="border p-1 text-[10px]  ">
+                                                <td
+                                                    className="border p-1 text-[10px] text-right text-sky-700"
+                                                >
+                                                    {row.qty}
+                                                </td>
+
+                                                <td className="border p-1 text-[10px]  text-right">
                                                     {Number(row.rate).toFixed(2)}
                                                 </td>
-                                                <td className="border p-1 text-[10px] ">
+                                                <td className="border p-1 text-[10px] text-right text-sky-700">
                                                     {Number(row.amount).toFixed(2)}
                                                 </td>
-                                                <td className="border p-1 text-sky-700 text-[10px] text-right ">
+                                                <td className="border p-1  text-[10px] text-center">
                                                     {row.approvalStatus}
                                                 </td>
                                             </tr>

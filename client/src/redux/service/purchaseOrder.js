@@ -72,6 +72,32 @@ const purchaseOrder = createApi({
       },
       providesTags: ["PurchaseOrder"],
     }),
+     getSupplierPOSRejected: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${PURCHASE_ORDER}/rejectedPOs`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
+     getSupplierPOSRejectedBySupplier: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${PURCHASE_ORDER}/rejectedPOsBySupplier`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
   }),
 });
 export const {
@@ -79,6 +105,8 @@ export const {
   useGetSupplierPOSDataQuery,
   useGetSupplierPOSMonthDataQuery,
   useGetSupplierPODetailsQuery,
-  useGetSupplierListQuery
+  useGetSupplierListQuery,
+  useGetSupplierPOSRejectedQuery,
+  useGetSupplierPOSRejectedBySupplierQuery,
 } = purchaseOrder;
 export default purchaseOrder;

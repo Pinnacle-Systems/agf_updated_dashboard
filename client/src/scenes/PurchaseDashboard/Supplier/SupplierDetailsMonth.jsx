@@ -6,6 +6,7 @@ import CardContent from "@mui/material/CardContent";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useGetSupplierPOSMonthDataQuery } from "../../../redux/service/purchaseOrder";
+import SupplierTrans from "./SupplierTrans";
 
 
 const SupplierDetailsMonth = ({
@@ -27,10 +28,12 @@ const SupplierDetailsMonth = ({
 
     const rows = supplierData?.data || [];
 
+    const suppliers = rows.map((r) => r.supplier.split(" ")[0]);
+
     const options = {
         chart: {
             type: "column",
-            height: 380,
+            height: 300,
             backgroundColor: "#ffffff",
             spacingBottom: 0, // reduce bottom spacing
             // spacingTop: 10,
@@ -41,7 +44,7 @@ const SupplierDetailsMonth = ({
         },
 
         xAxis: {
-            categories: rows.map((r) => r.supplier),
+            categories: suppliers,
             labels: {
                 rotation: -45,
                 align: "right",
@@ -124,6 +127,17 @@ const SupplierDetailsMonth = ({
                     },
                 },
             },
+            series: {
+                cursor: "pointer",
+                point: {
+                    events: {
+                        click: function () {
+                             setSupplierName(this.name);
+                            setShowTable(true);
+                        },
+                    },
+                },
+            },
         },
 
         series: [
@@ -132,7 +146,8 @@ const SupplierDetailsMonth = ({
                 data: rows.map((r) => ({
                     y: Number(r.qty || 0),
                     amountValue: Number(r.amountValue || 0),
-                    unit: r.unit,
+                    name: r.supplier,
+                     unit: r.unit,
                 })),
             },
         ],
@@ -145,7 +160,7 @@ const SupplierDetailsMonth = ({
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title={`Top 10 Suppliers in - ${selectmonths.split(" ")[0]} Month`}
+                title={`Top 10 Suppliers in ${selectmonths.split(" ")[0]} Month`}
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -160,19 +175,18 @@ const SupplierDetailsMonth = ({
                 <HighchartsReact highcharts={Highcharts} options={options} />
             </CardContent>
 
-            {/* Drill-down table (optional)
-      {showTable && (
-        <CustomerTrans
-          closeTable={() => setShowTable(false)}
-          finYear={finYear}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          supplierName={supplierName}
-          selectmonths={selectmonths}
-          setSelectmonths={setSelectmonths}
-        />
-      )}
-      */}
+            {showTable && (
+                <SupplierTrans
+                    closeTable={() => setShowTable(false)}
+                    finYear={finYear}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    supplierName={supplierName}
+                    setSupplierName={setSupplierName}
+                    selectmonths={selectmonths}
+                    setSelectmonths={setSelectmonths}
+                />
+            )}
         </Card>
     );
 };

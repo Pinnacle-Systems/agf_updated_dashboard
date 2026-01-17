@@ -146,6 +146,49 @@ export const addInsightsfreelookRow = ({
   worksheet.getRow(startRow).height = 30;
 };
 
+export const addInsightsPurchaseOrderRow = ({
+  worksheet,
+  startRow = 2,
+  totalColumns,
+  supplierName,
+  selectedYear,
+  selectQuarter,
+  selectedMonth,
+  selectedDate,
+}) => {
+  const formatDateDDMMYYYY = (dateStr) => {
+    if (!dateStr) return "";
+    const [yyyy, mm, dd] = dateStr.split("-");
+    return `${dd}-${mm}-${yyyy}`;
+  };
+  const formattedDate = formatDateDDMMYYYY(selectedDate);
+  const insightText =
+    `Supplier -  ${supplierName || ""}    |    ` +
+    `Fin Year :  ${selectedYear || ""}    |    ` +
+    (selectQuarter ? `Quarter : ${selectQuarter}    |    ` : "") +
+    `Month :  ${selectedMonth || ""}   |   ` +
+    (formattedDate ? `Date : ${formattedDate}    ` : "") 
+  // Insert insights row
+  worksheet.insertRow(startRow, [insightText]);
+
+  // 🔒 MUST match title merge range (A1:F1 → A2:F2)
+  const lastColumnLetter = worksheet.getColumn(totalColumns)._letter;
+
+  worksheet.mergeCells(`A${startRow}:${lastColumnLetter}${startRow}`);
+
+  const cell = worksheet.getCell(`A${startRow}`);
+
+  cell.font = { bold: true, size: 12 };
+  cell.alignment = {
+    horizontal: "left",
+    vertical: "middle",
+    wrapText: false,
+    indent: 1, // spacing from left
+  };
+
+  worksheet.getRow(startRow).height = 30;
+};
+
 export const addInsightsRowTurnOver = ({
   worksheet,
   startRow = 2,

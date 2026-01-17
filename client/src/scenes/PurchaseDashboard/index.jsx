@@ -12,6 +12,7 @@ import { useGetFinYearQuery } from "../../redux/service/misDashboardService.js";
 import { useState } from "react";
 import SupplierDetails from "./Supplier/SupplierDetails.jsx";
 import SupplierDetailsMonth from "./Supplier/SupplierDetailsMonth.jsx";
+import RejectedPO from "./InComplete/RejectedPO.jsx";
 
 const index = () => {
   const [selectedYear, setSelectedYear] = useState("25-26");
@@ -26,10 +27,10 @@ const index = () => {
     },
   });
   return (
-    <div className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
-      <Grid container spacing={1} gap={2}>
+    <div className="w-full  rounded-md shadow-lg py-1 overflow-y-auto">
+      <Grid container spacing={1} gap={1}>
 
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={12} >
           <DashboardHeader selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectMonths={selectMonths} setSelectMonths={setSelectMonths} />
         </Grid>
         {/* <Grid item xs={12} md={4}>
@@ -38,7 +39,7 @@ const index = () => {
         <Grid item xs={12} md={8}>
           <StatisticsCard />
         </Grid>  */}
-        <Grid container spacing={1} sx={{ ml: 1 }}>
+        <Grid container sx={{ paddingX: 1 }}>
           <Grid item xs={6} md={3}>
             <CardStatisticsVerticalComponent
               stats="$25.6k"
@@ -83,13 +84,19 @@ const index = () => {
           </Grid>
 
         </Grid>
-        <Grid container spacing={2} sx={{ ml: 1 }}>
+        <Grid container spacing={1} sx={{ marginX: 1 }}>
           <Grid item xs={12} md={6}>
             <SupplierDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
           </Grid>
           <Grid item xs={12} md={6}>
             <SupplierDetailsMonth selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
           </Grid>
+        </Grid>
+        <Grid container spacing={1} sx={{ marginX: 1 }}>
+          <Grid item xs={12} md={6}>
+            <RejectedPO selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
+          </Grid>
+         
         </Grid>
       </Grid>
     </div>
