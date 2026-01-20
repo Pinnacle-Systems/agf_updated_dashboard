@@ -8,6 +8,7 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import { Poll } from "@mui/icons-material";
 import OverallFabricInward from "./OverallFabricInward.jsx";
 import FabricOutward from "./FabricOutward/FabricOutward.jsx";
+import TotalPurchase from "./TotalPurchase.jsx";
 
 const index = () => {
   return (
@@ -66,12 +67,15 @@ const index = () => {
           </Grid>
 
         </Grid>
-        <Grid container spacing={2} sx={{ mt: 1, ml: 1 }}>
+        <Grid container  columnSpacing={2} sx={{ mt: 2, paddingX: 2 }}>
           <Grid item xs={12} md={4}>
             <OverallFabricInward />
           </Grid>
           <Grid item xs={12} md={4}>
             <FabricOutward />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TotalPurchase />
           </Grid>
         </Grid>
       </Grid>

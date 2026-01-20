@@ -1,9 +1,9 @@
 import PurchaseDashboard from "./PurchaseDashboard"
 
-const index = () => {
+const index = ({ year }) => {
   return (
     <div className="">
-      <PurchaseDashboard />
+      <PurchaseDashboard year={year} />
     </div>
   )
 }

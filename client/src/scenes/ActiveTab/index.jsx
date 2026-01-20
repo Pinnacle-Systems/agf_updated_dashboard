@@ -126,10 +126,10 @@ const ActiveTabList = () => {
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     ),
-    "Purchase Dashboard": <PurchaseDashboard />,
+    "Purchase Dashboard": (tabData) => (<PurchaseDashboard
+      year={tabData?.year}
+    />),
   };
-
-  // console.log(openTabs, "openTabs");
 
   const innerWidth = window.innerWidth;
   const itemsToShow = innerWidth / 130;

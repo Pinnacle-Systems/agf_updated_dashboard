@@ -58,7 +58,7 @@ const SupplierDetailsMonth = ({
         yAxis: {
             min: 0,
             title: {
-                text: "Qty",
+                text: "Amount (₹)",
             },
             gridLineWidth: 1,
         },
@@ -76,22 +76,23 @@ const SupplierDetailsMonth = ({
             headerFormat: "<b>{point.key}</b><br/>",
             pointFormatter: function () {
                 return `
-                <span style="color:${this.color}">\u25CF</span>
-            Qty : <b>${this.y.toLocaleString("en-IN", {
-                    minimumFractionDigits: this.unit === "KGS" ? 3 : 0,
-                    maximumFractionDigits: this.unit === "KGS" ? 3 : 0,
-                })} (${this.unit})</b><br/>
-                 <span style="color:${this.color}">\u25CF</span>
-            Amt (₹): <b>${this.amountValue.toLocaleString("en-IN", {
+      <span style="color:${this.color}">\u25CF</span>
+      Amount (₹): <b>${this.y.toLocaleString("en-IN", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                })}</b>
-        `;
+                })}</b><br/>
+      <span style="color:${this.color}">\u25CF</span>
+      Qty: <b>${this.qty.toLocaleString("en-IN", {
+                    minimumFractionDigits: this.unit === "KGS" ? 3 : 0,
+                    maximumFractionDigits: this.unit === "KGS" ? 3 : 0,
+                })} (${this.unit})</b>
+    `;
             },
         },
 
         plotOptions: {
             column: {
+                minPointLength: 80,
                 colorByPoint: true,
                 colors: [
                     "#00897b", // teal
@@ -113,9 +114,9 @@ const SupplierDetailsMonth = ({
                     align: "center",
                     verticalAlign: "middle",
                     formatter: function () {
-                        return this.y.toLocaleString("en-IN", {
-                            minimumFractionDigits: this.point.unit === "KGS" ? 3 : 0,
-                            maximumFractionDigits: this.point.unit === "KGS" ? 3 : 0,
+                        return "₹ " + this.y.toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                         });
                     },
                     y: 0,
@@ -132,7 +133,7 @@ const SupplierDetailsMonth = ({
                 point: {
                     events: {
                         click: function () {
-                             setSupplierName(this.name);
+                            setSupplierName(this.name);
                             setShowTable(true);
                         },
                     },
@@ -144,10 +145,10 @@ const SupplierDetailsMonth = ({
             {
                 name: "Qty",
                 data: rows.map((r) => ({
-                    y: Number(r.qty || 0),
-                    amountValue: Number(r.amountValue || 0),
+                    y: Number(r.amountValue || 0), // ✅ AMOUNT
+                    qty: Number(r.qty || 0),       // keep qty for tooltip
                     name: r.supplier,
-                     unit: r.unit,
+                    unit: r.unit,
                 })),
             },
         ],

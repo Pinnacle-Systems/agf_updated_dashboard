@@ -1,4 +1,4 @@
-import { Grid } from "@mui/material"
+import { Box, Grid, Typography } from "@mui/material"
 import Trophy from "../maindashboard/Trophy.js"
 import StatisticsCard from "../maindashboard/StatisticsCard.js"
 import CardStatisticsVerticalComponent from "../../components/CardStatsVertical.js";
@@ -13,10 +13,12 @@ import { useState } from "react";
 import SupplierDetails from "./Supplier/SupplierDetails.jsx";
 import SupplierDetailsMonth from "./Supplier/SupplierDetailsMonth.jsx";
 import RejectedPO from "./InComplete/RejectedPO.jsx";
+import FinYear from "../../components/FinYear";
+import PendingPO from "./InComplete/PendingPO.jsx";
 
-const PurchaseDashboard = () => {
-  const [selectedYear, setSelectedYear] = useState("25-26");
-  const [selectMonths, setSelectMonths] = useState("")
+const PurchaseDashboard = ({ year }) => {
+  const [selectedYear, setSelectedYear] = useState(year);
+  const [selectMonths, setSelectMonths] = useState("");
   const { data: finYear } = useGetFinYearQuery()
   const {
     data: loadData,
@@ -27,19 +29,63 @@ const PurchaseDashboard = () => {
     },
   });
   return (
-    <div className="w-full  rounded-md shadow-lg py-1 overflow-y-auto">
-      <Grid container spacing={1} gap={1}>
+    <div className="">
+      <div
+        className="mt-2"
+        style={{
+          position: "sticky",
+          top: 30,
+          zIndex: 50,
+          backgroundColor: "white",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "white",
+            p: 0.5,
+            borderBottom: "1px solid #afafaf",
+            borderTop: "1px solid #afafaf",
+          }}
+        >
+          {/* LEFT TITLE */}
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 600, ml: 1 }}
+          >
+            Overview of Purchase Order
+          </Typography>
 
-        <Grid item xs={12} md={12} >
-          <DashboardHeader selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectMonths={selectMonths} setSelectMonths={setSelectMonths} />
-        </Grid>
-        {/* <Grid item xs={12} md={4}>
-          <Trophy />
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <StatisticsCard />
-        </Grid>  */}
-        <Grid container sx={{ paddingX: 1 }}>
+          {/* RIGHT FILTERS */}
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <div className="flex items-center">
+              <select
+                value={selectedYear}
+                autoFocus={true}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className={`w-full px-2 py-1 text-xs border border-blue-800 rounded-md 
+      transition-all duration-200 ring-1 `}                            >
+                {finYear?.data?.map((option) => (
+                  <option key={option.finYear} value={option.finYear}>
+                    {option.finYear}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <FinYear
+              selectedYear={selectedYear}
+              selectmonths={selectMonths}
+              setSelectmonths={setSelectMonths}
+              autoSelect={true}
+            />
+          </Box>
+        </Box>
+
+      </div>
+      <Grid container spacing={1} gap={1} sx={{ marginTop: 1 }}>
+        {/* <Grid container sx={{ paddingX: 1 }}>
           <Grid item xs={6} md={3}>
             <CardStatisticsVerticalComponent
               stats="$25.6k"
@@ -83,7 +129,7 @@ const PurchaseDashboard = () => {
             />
           </Grid>
 
-        </Grid>
+        </Grid> */}
         <Grid container spacing={1} sx={{ marginX: 1 }}>
           <Grid item xs={12} md={6}>
             <SupplierDetails selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
@@ -91,12 +137,12 @@ const PurchaseDashboard = () => {
           <Grid item xs={12} md={6}>
             <SupplierDetailsMonth selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
           </Grid>
-        </Grid>
-        <Grid container spacing={1} sx={{ marginX: 1 }}>
           <Grid item xs={12} md={6}>
             <RejectedPO selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
           </Grid>
-         
+          <Grid item xs={12} md={6}>
+            <PendingPO selectedYear={selectedYear} setSelectedYear={setSelectedYear} finYear={finYear} selectmonths={selectMonths} setSelectmonths={setSelectMonths} />
+          </Grid>
         </Grid>
       </Grid>
     </div>

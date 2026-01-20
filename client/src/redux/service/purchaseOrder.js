@@ -98,7 +98,45 @@ const purchaseOrder = createApi({
       },
       providesTags: ["PurchaseOrder"],
     }),
-  }),
+    getLatestPurchase: builder.query({
+      query: () => {
+        return {
+          url: `${PURCHASE_ORDER}/getLatestPurchaseData`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
+    getPendingInward: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${PURCHASE_ORDER}/getPendingInward`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    }),
+    getPendingInwardDetails: builder.query({
+      query: ({ params }) => {
+        return {
+          url: `${PURCHASE_ORDER}/getPendingInwardDetails`,
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["PurchaseOrder"],
+    })
+  })
 });
 export const {
   useGetPurchaseOrderLoadDataQuery,
@@ -108,5 +146,8 @@ export const {
   useGetSupplierListQuery,
   useGetSupplierPOSRejectedQuery,
   useGetSupplierPOSRejectedBySupplierQuery,
+  useGetLatestPurchaseQuery,
+  useGetPendingInwardQuery,
+  useGetPendingInwardDetailsQuery
 } = purchaseOrder;
 export default purchaseOrder;

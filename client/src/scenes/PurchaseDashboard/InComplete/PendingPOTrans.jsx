@@ -20,9 +20,9 @@ import { saveAs } from "file-saver";
 import { addInsightsfreelookRow } from "../../../utils/hleper";
 import DomainIcon from '@mui/icons-material/Domain';
 import Loader from "../../../utils/loader";
-import { useGetSupplierListQuery, useGetSupplierPODetailsQuery, useGetSupplierPOSRejectedBySupplierQuery } from "../../../redux/service/purchaseOrder";
+import { useGetPendingInwardDetailsQuery, useGetSupplierListQuery } from "../../../redux/service/purchaseOrder";
 
-const SupplierTrans = ({
+const PendingPOTrans = ({
     closeTable,
     finYear,
     selectedYear,
@@ -39,30 +39,17 @@ const SupplierTrans = ({
 
     const recordsPerPage = 40;
 
-    const { data: supplierTransData, isFetching: isSingleFetching,
-        isLoading: isSingleLoading, } = useGetSupplierPODetailsQuery({
+    const { data: PendingPOTransData, isFetching: isSingleFetching,
+        isLoading: isSingleLoading, } = useGetPendingInwardDetailsQuery({
             params: {
                 finyear: selectedYear,
                 supplier: supplierName
             },
         }, {
-            skip: !selectedYear || isRejected,
-        });
-
-    const { data: supplierTransDataRejected, isFetching: isSingleFetchingRejected,
-        isLoading: isSingleLoadingRejected, } = useGetSupplierPOSRejectedBySupplierQuery({
-            params: {
-                finyear: selectedYear,
-                supplier: supplierName
-            },
-        }, {
-            skip: !selectedYear || !isRejected
+            skip: !selectedYear,
         });
 
     const isLoadingIndicator = isSingleFetching || isSingleLoading;
-    const isLoadingIndicatorRejected = isSingleFetchingRejected || isSingleLoadingRejected;
-
-
 
     const { data: supplierNames } = useGetSupplierListQuery({
     });
@@ -73,12 +60,12 @@ const SupplierTrans = ({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [supplierTransData, search, selectmonths, selectedYear, supplierName]);
+    }, [PendingPOTransData, search, selectmonths, selectedYear, supplierName]);
 
 
 
-    const filteredData = Array.isArray(isRejected ? supplierTransDataRejected?.data : supplierTransData?.data)
-        ? (isRejected ? supplierTransDataRejected.data : supplierTransData.data).filter((row) => {
+    const filteredData = Array.isArray(PendingPOTransData?.data)
+        ? (PendingPOTransData.data).filter((row) => {
 
             // 🔹 Search filter
             const searchMatch = Object.entries(search).every(([key, value]) => {
@@ -141,7 +128,7 @@ const SupplierTrans = ({
         }
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Purchase Order Details");
+        const worksheet = workbook.addWorksheet("PO Pending Inward Details");
 
         // 1️⃣ Define columns
         worksheet.columns = [
@@ -153,16 +140,13 @@ const SupplierTrans = ({
             { header: "Qty", key: "qty", width: 17 },
             { header: "Rate", key: "rate", width: 17 },
             { header: "Amount", key: "amount", width: 17 },
-            { header: "Status", key: "approvalStatus", width: 32 },
         ];
 
         // 2️⃣ Title Row
         worksheet.insertRow(1, [
-            isRejected
-                ? "PO Pending Approval Report"
-                : "Purchase Order Details Report"
+            "PO Pending Inward Report"
         ]);
-        worksheet.mergeCells("A1:I1");
+        worksheet.mergeCells("A1:H1");
 
         const titleCell = worksheet.getCell("A1");
         titleCell.font = { bold: true, size: 14 };
@@ -208,7 +192,6 @@ const SupplierTrans = ({
                 qty: row.qty,
                 rate: row.rate,
                 amount: row.amount,
-                approvalStatus: row.approvalStatus,
             });
         });
 
@@ -233,7 +216,6 @@ const SupplierTrans = ({
             row.getCell("qty").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
             row.getCell("rate").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
             row.getCell("amount").alignment = { horizontal: "right", vertical: "middle", indent: 1 };
-            row.getCell("approvalStatus").alignment = { horizontal: "center", vertical: "middle", indent: 1 };
         });
         // ================= TOTAL ROW =================
         const totalRow = worksheet.addRow({
@@ -251,7 +233,6 @@ const SupplierTrans = ({
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
             }),
-            approvalStatus: "",
         });
 
         totalRow.height = 24;
@@ -278,9 +259,9 @@ const SupplierTrans = ({
 
         // 8️⃣ Export
         const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), isRejected
-            ? "PO Pending Approval Details.xlsx"
-            : "Purchase Order Supplier Wise Details.xlsx");
+        saveAs(new Blob([buffer]),
+            "PO Pending Inward Details.xlsx"
+        );
     };
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999]">
@@ -345,7 +326,6 @@ const SupplierTrans = ({
                             { label: "PO NO", key: "poNo" },
                             { label: "SUPPLIER", key: "supplier" },
                             { label: "ITEM..", key: "itemName" },
-                            { label: "STATUS", key: "approvalStatus" },
                         ].map(({ label, key }) => (
                             <div key={key} className="relative">
                                 <input
@@ -418,7 +398,7 @@ const SupplierTrans = ({
                         className="overflow-x-auto max-h-[450px] min-h-[450px]"
                         style={{ border: "1px solid gray", borderRadius: "16px" }}
                     >
-                        {isLoadingIndicator || isLoadingIndicatorRejected ? <Loader /> : (
+                        {isLoadingIndicator ? <Loader /> : (
                             <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                     <tr>
@@ -431,7 +411,6 @@ const SupplierTrans = ({
                                         <th className="border p-1 text-center w-12">Qty</th>
                                         <th className="border p-1 text-center w-12">Rate</th>
                                         <th className="border p-1 text-center w-16">Amount</th>
-                                        <th className="border p-1 text-center w-14">STATUS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -487,9 +466,6 @@ const SupplierTrans = ({
                                                 </td>
                                                 <td className="border p-1 text-[10px] text-right text-sky-700">
                                                     {Number(row.amount).toFixed(2)}
-                                                </td>
-                                                <td className={`border p-1  text-[10px] text-center ${row.approvalStatus === "APPROVED" ? "text-green-600" : "text-red-600"}` }>
-                                                    {row.approvalStatus}
                                                 </td>
                                             </tr>
                                         );
@@ -565,4 +541,4 @@ const SupplierTrans = ({
     );
 };
 
-export default SupplierTrans;
+export default PendingPOTrans;

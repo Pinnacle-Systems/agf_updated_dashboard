@@ -4,14 +4,14 @@ import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { useGetSupplierPOSRejectedQuery } from "../../../redux/service/purchaseOrder";
-import SupplierTrans from "../Supplier/SupplierTrans";
 import Highcharts3D from "highcharts/highcharts-3d";
 import Cylinder from "highcharts/modules/cylinder";
+import { useGetPendingInwardQuery } from "../../../redux/service/purchaseOrder";
+import PendingPOTrans from "./PendingPOTrans";
 Highcharts3D(Highcharts);
 Cylinder(Highcharts);
 
-const RejectedPO = ({
+const PendingPO = ({
     selectedYear,
     setSelectedYear,
     finYear,
@@ -21,11 +21,11 @@ const RejectedPO = ({
     const [showTable, setShowTable] = useState(false);
     const [supplierName, setSupplierName] = useState("");
 
-    const { data: supplierData } = useGetSupplierPOSRejectedQuery(
+    const { data: supplierData } = useGetPendingInwardQuery(
         {
-            params: { finyear: selectedYear },
+            params: { finyear: selectedYear, month: selectmonths },
         },
-        { skip: !selectedYear }
+        { skip: !selectedYear || !selectmonths }
     );
 
     const rows = supplierData?.data || [];
@@ -38,10 +38,10 @@ const RejectedPO = ({
             height: 300,
             backgroundColor: "#ffffff",
             spacingBottom: 0,
-            marginLeft: 40,     // ✅ remove left margin
+            marginLeft: 20,     // ✅ remove left margin
             spacingLeft: 0,    // ✅ remove internal padding
-            marginRight: 0,
-            spacingRight: 0,
+            marginRight:0,
+            spacingRight:0,
             options3d: {
                 enabled: true,
                 alpha: 10,
@@ -125,7 +125,6 @@ const RejectedPO = ({
                     events: {
                         click: function () {
                             setSupplierName(this.name);
-                            setSelectmonths("");
                             setShowTable(true);
                         },
                     },
@@ -153,7 +152,7 @@ const RejectedPO = ({
     return (
         <Card sx={{ borderRadius: 1, boxShadow: 4 }}>
             <CardHeader
-                title={`PO Pending Approval (${selectedYear}) Year`}
+                title={`PO Pending Inward in ${selectmonths.split(" ")[0]} Month`}
                 titleTypographyProps={{
                     sx: { fontSize: "1rem", fontWeight: 600 },
                 }}
@@ -169,7 +168,7 @@ const RejectedPO = ({
             </CardContent>
 
             {showTable && (
-                <SupplierTrans
+                <PendingPOTrans
                     closeTable={() => setShowTable(false)}
                     finYear={finYear}
                     selectedYear={selectedYear}
@@ -178,11 +177,10 @@ const RejectedPO = ({
                     setSupplierName={setSupplierName}
                     selectmonths={selectmonths}
                     setSelectmonths={setSelectmonths}
-                    isRejected={true}
                 />
             )}
         </Card>
     );
 };
 
-export default RejectedPO;
+export default PendingPO;
