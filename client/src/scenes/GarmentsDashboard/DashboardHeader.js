@@ -215,19 +215,19 @@ const DashboardHeader = ({
         />
 
         {/* MONTH */}
-        <FinYear
+        {/* <FinYear
           selectedYear={selectedYear}
           selectmonths={selectMonths}
           setSelectmonths={onMonthChange}
-        />
+        /> */}
 
         {/* COMPANY */}
-        <DropdownWithSearch
+        {/* <DropdownWithSearch
           options={filterBuyerList || []}
           labelField="compname"
           value={filterBuyer}
           setValue={onFilterBuyerChange}
-        />
+        /> */}
       </Stack>
     </Box>
   );

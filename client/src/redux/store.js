@@ -14,7 +14,8 @@ import {
   RoleApi,
   freeLookFabric,
   fabricOutward,
-  purchaseOrder
+  purchaseOrder,
+  purchase,
 } from "./service";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
@@ -35,6 +36,7 @@ export const store = configureStore({
     [freeLookFabric.reducerPath]: freeLookFabric.reducer,
     [fabricOutward.reducerPath]: fabricOutward.reducer,
     [purchaseOrder.reducerPath]: purchaseOrder.reducer,
+    [purchase.reducerPath]: purchase.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -50,6 +52,7 @@ export const store = configureStore({
       freeLookFabric.middleware,
       fabricOutward.middleware,
       purchaseOrder.middleware,
+      purchase.middleware,
     ]),
 });
 

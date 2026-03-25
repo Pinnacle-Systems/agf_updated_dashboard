@@ -9,24 +9,28 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import HeadCount from "./Headcount/HeadCount.jsx";
 import HomeAttrition from "./Attrition/HomeAttrition.jsx";
 import HomePF from "./PFdata/HomePF.jsx";
-import HomeESI from "./ESIdata/ESI Det.js";
 import TurnOver from "./salarydata/TurnOver.jsx";
+import PurchaseIndex from "./Purchase/index.jsx";
 import { useGetYearlyCompQuery } from "../../redux/service/misDashboardService";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { getCommonParams } from "../../utils/hleper";
 import { useGetFnameQuery } from "../../redux/service/user";
 import { useGetFinYearQuery } from "../../redux/service/misDashboardService";
 import { useSelector, useDispatch } from "react-redux";
-import { setSelectedYear, setFilterBuyer, setSelectMonths, setFinYr, setLastSection } from "../../redux/features/dashboardFiltersSlice";
+import {
+  setSelectedYear,
+  setFilterBuyer,
+  setSelectMonths,
+  setFinYr,
+  setLastSection,
+} from "../../redux/features/dashboardFiltersSlice";
 const GarmentsDashboard = () => {
   const dispatch = useDispatch();
-  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection } = useSelector(
-    (state) => state.dashboardFilters
-  );
-    const [user, setUser] = useState(null);
-    const [showTurnoverIndex, setShowTurnoverIndex] = useState(false);
+  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection } =
+    useSelector((state) => state.dashboardFilters);
+  const [user, setUser] = useState(null);
 
-    useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (typeof lastSection === "number") {
       setTimeout(() => {
         window.scrollTo({
@@ -36,8 +40,6 @@ const GarmentsDashboard = () => {
       }, 300); // wait for charts & layout
     }
   }, []);
-
-
 
   const params = getCommonParams();
   const { isSuperAdmin, employeeId } = params;
@@ -58,7 +60,7 @@ const GarmentsDashboard = () => {
   // const [selectedYear, setSelectedYear] = useState('25-26');
   // const [selectMonths, setSelectMonths] = useState( "");
   const { data: finYrData } = useGetFinYearQuery();
-console.log(finYrData,"finYrData");
+  console.log(finYrData, "finYrData");
 
   const { data: result } = useGetYearlyCompQuery({ params: {} });
   useEffect(() => {
@@ -73,7 +75,6 @@ console.log(finYrData,"finYrData");
   }, [finYrData, dispatch, selectedYear]);
   console.log(finYr, "finYr");
 
-
   // useEffect(() => {
   //   setFilterBuyer(companyName);
   // }, [companyName]);
@@ -83,15 +84,21 @@ console.log(finYrData,"finYrData");
   // }, [selectedmonth]);
 
   const filterBuyerList =
+    result?.data
+      ?.map((item) => ({
+        compname: item.customer,
+        id: item.customer,
+      }))
+      ?.filter((item) => ["AGF", "VEL"]?.includes(item.compname)) || [];
+  const filterBuyerListPurchase =
     result?.data?.map((item) => ({
       compname: item.customer,
       id: item.customer,
-    }))?.filter(item => ["AGF", "VEL"]?.includes(item.compname)) || [];
+    })) || [];
   console.log(filterBuyerList, "compnaycheck");
 
   return (
-    <div  
-      className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
+    <div className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
       <Grid container spacing={2}>
         <Grid item xs={12} md={12}>
           <DashboardHeader
@@ -104,7 +111,6 @@ console.log(finYrData,"finYrData");
             onYearChange={(val) => dispatch(setSelectedYear(val))}
             onMonthChange={(val) => dispatch(setSelectMonths(val))}
             filterBuyerList={filterBuyerList}
-
           />
         </Grid>
         <Grid item xs={10} md={4}>
@@ -155,10 +161,22 @@ console.log(finYrData,"finYrData");
               subtitle="Weekly Profit"
             />
           </Grid>
-
         </Grid>
-
-        <Grid item xs={12} md={7} >
+        <Grid item xs={12} md={6}>
+          <PurchaseIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
           <TurnOver
             filterBuyer={filterBuyer}
             selectedYear={selectedYear}
@@ -168,15 +186,12 @@ console.log(finYrData,"finYrData");
             onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
             onYearChange={(val) => dispatch(setSelectedYear(val))}
             onMonthChange={(val) => dispatch(setSelectMonths(val))}
-            filterBuyerList={filterBuyerList}      onOpen={() => dispatch(setLastSection("turnover"))}
-
+            filterBuyerList={filterBuyerList}
+            onOpen={() => dispatch(setLastSection("turnover"))}
           />
         </Grid>
 
-        <Grid item xs={12} md={5}>
-          <HomeESI />
-        </Grid>
-        <Grid item xs={12} md={4} >
+        <Grid item xs={12} md={4}>
           <HomePF />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -185,11 +200,11 @@ console.log(finYrData,"finYrData");
         <Grid item xs={12} md={4}>
           <HomeAttrition />
         </Grid>
-        <Grid item xs={12} md={6} >
+        <Grid item xs={12} md={6}>
           {/* <HomeRegion /> */}
         </Grid>
 
-        <Grid item xs={12} md={6} >
+        <Grid item xs={12} md={6}>
           {/* <Table /> */}
           {/* <HomeOTWages/> */}
         </Grid>

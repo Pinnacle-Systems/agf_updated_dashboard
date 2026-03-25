@@ -417,7 +417,7 @@ const CustomerWiseTable = ({
                 </div>
                 {/* TABLE */}
                 <div className="grid  gap-4">
-                    <div className="overflow-x-auto max-h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
+                    <div className="overflow-x-auto h-[470px] " style={{ border: "1px solid gray", borderRadius: "16px" }}>
                         <table className="w-full border-collapse border border-gray-300 text-[11px] table-fixed">
                             <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                                 <tr>

@@ -29,6 +29,7 @@ import {
   freeLookFabric,
   fabricOutward,
   purchaseOrder,
+  purchase,
 } from "./src/routes/index.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -40,11 +41,11 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization",
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS",
   );
   next();
 });
@@ -85,9 +86,11 @@ app.use("/role", role);
 
 app.use("/freeLookFabric", freeLookFabric);
 
-app.use("/fabricOutward",fabricOutward);
+app.use("/fabricOutward", fabricOutward);
 
-app.use("/purchaseOrder",purchaseOrder);
+app.use("/purchaseOrder", purchaseOrder);
+
+app.use("/purchase", purchase);
 
 // const PORT = 9008;
 const PORT = process.env.PORT || 9000;
