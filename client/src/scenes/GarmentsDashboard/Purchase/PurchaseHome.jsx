@@ -2,10 +2,8 @@ import { Box, Grid, Typography } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
-// import EmpType1 from "./CustomerWisereport";
-// import CountryWisereport from "../CountryWise/CountryWiseReport";
-// import ItemWisereport from "./ItemWisereport";
-// import MonthWise from "./MonthWiseReport";
+
+import Form from "./MonthWiseReport";
 // import QuarterWise from "./QuarterWiseReport";
 // import YearWise from "./YearWise";
 import {
@@ -154,52 +152,21 @@ console.log(selectedYear,filterBuyer,"checking");
 
       {/* Child Components */}
 
+    
+  
+      <Grid container className="">
+        <Grid item xs={12} md={12}>
+          <Form
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+      </Grid>
+
       {/* <Grid container className="">
-        <Grid item xs={12} md={7}>
-          <EmpType1
-            key={filterBuyer}
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            finYr={finYr}
-            filterBuyerList={filterBuyerList}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={5}>
-          <CountryWisereport
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            key={filterBuyer}
-            finYr={finYr}
-            filterBuyerList={filterBuyerList}
-          />
-        </Grid>
-      </Grid>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
-          <ItemWisereport
-            key={filterBuyer}
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            finYr={finYr}
-            filterBuyerList={filterBuyerList}
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container className="">
-        <Grid item xs={12} md={12}>
-          <MonthWise
-            key={filterBuyer}
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            finYr={finYr}
-            filterBuyerList={filterBuyerList}
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container className="">
         <Grid item xs={12} md={6}>
           <QuarterWise
             key={filterBuyer}

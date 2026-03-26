@@ -162,20 +162,7 @@ const GarmentsDashboard = () => {
             />
           </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <PurchaseIndex
-            filterBuyer={filterBuyer}
-            selectedYear={selectedYear}
-            selectMonths={selectMonths}
-            finYr={finYr}
-            user={user}
-            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
-            onYearChange={(val) => dispatch(setSelectedYear(val))}
-            onMonthChange={(val) => dispatch(setSelectMonths(val))}
-            filterBuyerList={filterBuyerListPurchase}
-            onOpen={() => dispatch(setLastSection("purchase"))}
-          />
-        </Grid>
+
         <Grid item xs={12} md={6}>
           <TurnOver
             filterBuyer={filterBuyer}
@@ -190,7 +177,20 @@ const GarmentsDashboard = () => {
             onOpen={() => dispatch(setLastSection("turnover"))}
           />
         </Grid>
-
+        <Grid item xs={12} md={6}>
+          <PurchaseIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
         <Grid item xs={12} md={4}>
           <HomePF />
         </Grid>

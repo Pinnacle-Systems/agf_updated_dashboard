@@ -1,6 +1,8 @@
 import { getConnectionERP } from "../constants/db.connection.js";
 import oracledb from "oracledb";
 
+// FRONTPAGE DASHBOARD
+
 export async function getPurchase(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -30,6 +32,9 @@ ORDER BY 1,2
     await connection.close();
   }
 }
+
+// COMPCODE DROPDOWN DATA
+
 export async function getCompany(req, res) {
   const connection = await getConnectionERP(res);
   try {
