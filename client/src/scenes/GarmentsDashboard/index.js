@@ -22,11 +22,11 @@ import {
   setFilterBuyer,
   setSelectMonths,
   setFinYr,
-  setLastSection,
+  setLastSection,setPoType
 } from "../../redux/features/dashboardFiltersSlice";
 const GarmentsDashboard = () => {
   const dispatch = useDispatch();
-  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection } =
+  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection ,poType} =
     useSelector((state) => state.dashboardFilters);
   const [user, setUser] = useState(null);
 
@@ -163,7 +163,7 @@ const GarmentsDashboard = () => {
           </Grid>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={5}>
           <TurnOver
             filterBuyer={filterBuyer}
             selectedYear={selectedYear}
@@ -177,7 +177,7 @@ const GarmentsDashboard = () => {
             onOpen={() => dispatch(setLastSection("turnover"))}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={7}>
           <PurchaseIndex
             filterBuyer={filterBuyer}
             selectedYear={selectedYear}
@@ -187,7 +187,7 @@ const GarmentsDashboard = () => {
             onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
             onYearChange={(val) => dispatch(setSelectedYear(val))}
             onMonthChange={(val) => dispatch(setSelectMonths(val))}
-            filterBuyerList={filterBuyerListPurchase}
+            filterBuyerList={filterBuyerListPurchase} poType={poType} setPoType={setPoType}
             onOpen={() => dispatch(setLastSection("purchase"))}
           />
         </Grid>

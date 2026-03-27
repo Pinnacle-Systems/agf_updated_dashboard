@@ -4,12 +4,14 @@ import { DropdownWithSearch } from "../../../input/inputcomponent";
 import FinYear from "../../../components/FinYear";
 
 import Form from "./MonthWiseReport";
+import RawMeterialWiseReport from "./RawMeterialWiseReport";
 // import QuarterWise from "./QuarterWiseReport";
 // import YearWise from "./YearWise";
 import {
   setSelectedYear,
   setFilterBuyer,
   setSelectMonths,
+  setPoType,
 } from "../../../redux/features/dashboardFiltersSlice";
 import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
 
@@ -19,24 +21,21 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
   const dispatch = useDispatch();
   const buyerRef = useRef();
   // Redux state
-  const { selectedYear, filterBuyer, selectMonths, finYr } = useSelector(
-    (state) => state.dashboardFilters,
-  );
+  const { selectedYear, filterBuyer, selectMonths, finYr, poType } =
+    useSelector((state) => state.dashboardFilters);
   const [focusBuyer, setFocusBuyer] = useState(false);
 
   const { data: companyList } = useGetCompanyQuery(
     { params: { selectedYear } },
     { skip: !selectedYear },
   );
-console.log(selectedYear,filterBuyer,"checking");
+  console.log(selectedYear, filterBuyer, "checking");
 
   useEffect(() => {
     setFocusBuyer(true);
 
     return () => setFocusBuyer(false);
   }, []); // runs when page/tab is entered
-
-
 
   return (
     <>
@@ -86,14 +85,6 @@ console.log(selectedYear,filterBuyer,"checking");
             }}
           >
             <Box sx={{ display: "flex", gap: 2 }}>
-              {/* FIN YEAR */}
-              {/* <DropdownWithSearch
-                options={finYr?.data || []}
-                labelField="finYr"
-                label=""
-                value={selectedYear}
-                setValue={(val) => dispatch(setSelectedYear(val))}
-              /> */}
               <select
                 value={selectedYear || ""}
                 onChange={(e) => dispatch(setSelectedYear(e.target.value))}
@@ -109,26 +100,17 @@ console.log(selectedYear,filterBuyer,"checking");
                 ))}
               </select>
 
-              {/* MONTH */}
-              {/* <FinYear
-                selectedYear={selectedYear}
-                selectmonths={selectMonths}
-                setSelectmonths={(val) => dispatch(setSelectMonths(val))}
-                autoFocusBuyer={autoFocusBuyer}
-              /> */}
+              <select
+                value={poType || ""}
+                onChange={(e) => dispatch(setPoType(e.target.value))}
+                className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"
+              >
+                <option value="">Select Type</option>
+                <option value="General">General</option>
+                <option value="Order">Order</option>
+              </select>
 
-              {/* COMPANY FILTER */}
-              {/* <DropdownWithSearch
-                key={filterBuyer}
-                ref={buyerRef}
-                options={filterBuyerList || []}
-                labelField="compname"
-                label=""
-                value={filterBuyer}
-
-                className="w-full px-2 py-1 text-xs rounded-md"
-                setValue={(val) => dispatch(setFilterBuyer(val))}
-                autoFocus={focusBuyer} /> */}
               <select
                 ref={buyerRef}
                 value={filterBuyer || ""}
@@ -152,8 +134,6 @@ console.log(selectedYear,filterBuyer,"checking");
 
       {/* Child Components */}
 
-    
-  
       <Grid container className="">
         <Grid item xs={12} md={12}>
           <Form
@@ -161,23 +141,25 @@ console.log(selectedYear,filterBuyer,"checking");
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
+            poType={poType}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
       </Grid>
 
-      {/* <Grid container className="">
+      <Grid container className="">
         <Grid item xs={12} md={6}>
-          <QuarterWise
+          <RawMeterialWiseReport
             key={filterBuyer}
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
+            poType={poType}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <YearWise
             key={filterBuyer}
             companyName={filterBuyer}
@@ -185,8 +167,8 @@ console.log(selectedYear,filterBuyer,"checking");
             finYr={finYr}
             filterBuyerList={filterBuyerList}
           />
-        </Grid>
-      </Grid> */}
+        </Grid> */}
+      </Grid>
     </>
   );
 };

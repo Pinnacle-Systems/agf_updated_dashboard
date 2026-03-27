@@ -1,7 +1,7 @@
 import { getConnectionERP } from "../constants/db.connection.js";
 import oracledb from "oracledb";
 
-// FRONTPAGE DASHBOARD
+// General purchase Home page
 
 export async function getPurchase(req, res) {
   const connection = await getConnectionERP(res);
@@ -54,6 +54,197 @@ GROUP BY C.COMPCODE
      
       COMPCODE: po[0]
       
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// order against purchase home pahe
+
+export async function getPurchaseOrder(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { filterYear } = req.query;
+
+    const sql = `
+SELECT 
+    A.FINYR,
+    A.COMPCODE,
+    SUM(A.VAL) AS VAL
+FROM 
+(
+    SELECT A.FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PRICE AS VAL 
+    FROM YARNPURREG A
+
+    UNION ALL
+
+    SELECT A.FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PRICE 
+    FROM DYARNPURREG A
+
+    UNION ALL
+
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    FROM GFABPOREG A
+
+    UNION ALL
+
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    FROM DFABPOREG A
+
+    UNION ALL
+
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    FROM ACCPOREG A
+
+) A
+WHERE A.FINYR = '${filterYear}'
+GROUP BY 
+    A.FINYR,
+    A.COMPCODE
+HAVING 
+    SUM(A.VAL) > 0
+ORDER BY 
+    A.FINYR,
+    A.COMPCODE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      FINYEAR: po[0],
+      COMPCODE: po[1],
+      VAL: po[2],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// order against purchase month wise
+
+export async function getPurchaseOrderMonthWise(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear,companyName } = req.query;
+
+    const sql = `
+SELECT A.FINYR, INITCAP(TRIM(A.Month)) AS Month_Name, A.COMPCODE,SUM(A.VAL) VAL,MNO,YNO FROM 
+(
+SELECT A.FINYR, TO_CHAR(DOCDATE,'MONTH') AS Month, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+UNION ALL
+SELECT A.FINYR, TO_CHAR(DOCDATE,'MONTH') AS Month, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+UNION ALL
+SELECT A.FINYEAR, TO_CHAR(PODATE,'MONTH') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+UNION ALL
+SELECT A.FINYEAR, TO_CHAR(PODATE,'MONTH') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+UNION ALL
+SELECT A.FINYEAR, TO_CHAR(ACCPODATE,'MONTH') AS Month, TO_CHAR(ACCPODATE,'MM') AS MNO, TO_CHAR(ACCPODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+) A
+where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
+GROUP BY A.FINYR,A.COMPCODE,MONTH,MNO,YNO
+HAVING SUM(A.VAL) > 0
+ORDER BY 1,YNO,MNO
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      finyear: po[0],
+      month:po[1],
+      company: po[2],
+      value: po[3],
+      monthNumber:po[4],
+      yearNo:po[5]
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+// order against purchase year 
+
+export async function getPurchaseOrderYear(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear,companyName } = req.query;
+
+    const sql = `
+    SELECT A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM 
+(
+SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+UNION ALL
+SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+UNION ALL
+SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+UNION ALL
+SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+UNION ALL
+SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+) A
+where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
+GROUP BY A.FINYR,A.COMPCODE
+HAVING SUM(A.VAL) > 0
+ORDER BY 2,3,1
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      FINYEAR: po[0],
+      COMPCODE: po[1],
+      VAL: po[2],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+// order against raw material wise
+
+export async function getPurchaseOrderMaterial(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear,companyName } = req.query;
+
+    const sql = `
+SELECT A.TYPENAME,A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM 
+(
+SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+UNION ALL
+SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+UNION ALL
+SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+UNION ALL
+SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+UNION ALL
+SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+) A
+where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'GROUP BY TYPENAME,A.FINYR,A.COMPCODE
+HAVING SUM(A.VAL) > 0
+ORDER BY 2,3,1
+     `;
+
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      TYPENAME:po[0],
+      FINYEAR: po[1],
+      COMPCODE: po[2],
+      VAL: po[3],
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {

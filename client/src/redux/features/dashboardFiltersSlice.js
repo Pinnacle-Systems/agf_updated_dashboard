@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  selectedYear: '25-26',
+  selectedYear: "25-26",
   filterBuyer: null,
   selectMonths: [],
   finYr: null,
   user: null,
   lastSection: null, // ✅ NEW
-
+  poType: "General",
 };
 
 const dashboardFiltersSlice = createSlice({
@@ -32,6 +32,9 @@ const dashboardFiltersSlice = createSlice({
     setLastSection: (state, action) => {
       state.lastSection = action.payload;
     },
+    setPoType: (state, action) => {
+      state.poType  = action.payload;
+    },
     resetDashboardFilters: () => initialState,
   },
 });
@@ -43,7 +46,7 @@ export const {
   setFinYr,
   setUser,
   setLastSection,
-  resetDashboardFilters,
+  resetDashboardFilters,setPoType
 } = dashboardFiltersSlice.actions;
 
 export default dashboardFiltersSlice.reducer;

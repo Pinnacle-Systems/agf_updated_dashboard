@@ -137,7 +137,7 @@ const ActiveTabList = () => {
         user={tabData?.user}
         selectMonths={tabData?.selectMonths}
         filterBuyerList={tabData?.filterBuyerList}
-        finYr={tabData?.finYr}
+        finYr={tabData?.finYr} poType={tabData?.poType}
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     ),

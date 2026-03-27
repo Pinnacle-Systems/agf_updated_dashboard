@@ -9,13 +9,19 @@ import {
   CardHeader,
   Box,
 } from "@mui/material";
-import { useGetPurchaseQuery } from "../../../redux/service/purchaseService";
+import {
+  useGetPurchaseQuery,
+  useGetPurchaseOrderQuery,
+} from "../../../redux/service/purchaseService";
 import { useGetsallastmonthQuery } from "../../../redux/service/misDashboardService";
 import { useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { push } from "../../../redux/features/opentabs";
-
-import { setFilterBuyer } from "../../../redux/features/dashboardFiltersSlice";
+import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import {
+  setFilterBuyer,
+  setPoType,
+} from "../../../redux/features/dashboardFiltersSlice";
 
 const PurchaseIndex = ({
   filterBuyer,
@@ -28,8 +34,9 @@ const PurchaseIndex = ({
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const formatINR = (value) => `₹ ${Number(value).toLocaleString("en-IN")}`;
-
+  const poType = useSelector((state) => state.dashboardFilters.poType);
+const formatINR = (value) =>
+  `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   /* ---------------- YEAR HANDLING ---------------- */
   const filterYear = useMemo(() => {
     if (!selectedYear) return "";
@@ -47,17 +54,27 @@ const PurchaseIndex = ({
     )}`;
   }, [filterYear]);
 
-  /* ---------------- API ---------------- */
-  const {
-    data: turnOverData,
-    isLoading,
-    isError,
-    error,
-  } = useGetPurchaseQuery(
+  const purchaseQuery = useGetPurchaseQuery(
     { params: { filterYear, previousYear } },
-    { skip: !filterYear },
+    { skip: !filterYear || poType !== "General" }, // skip if not General
   );
-  console.log(turnOverData, "turnOverData");
+
+  const purchaseOrderQuery = useGetPurchaseOrderQuery(
+    { params: { filterYear, previousYear } },
+    { skip: !filterYear || poType !== "Order" }, // skip if not Order
+  );
+
+  // pick data from the active PO type
+  const turnOverData =
+    poType === "General" ? purchaseQuery.data : purchaseOrderQuery.data;
+  const isLoading =
+    poType === "General"
+      ? purchaseQuery.isLoading
+      : purchaseOrderQuery.isLoading;
+  const isError =
+    poType === "General" ? purchaseQuery.isError : purchaseOrderQuery.isError;
+  const error =
+    poType === "General" ? purchaseQuery.error : purchaseOrderQuery.error;
 
   const { data: lastmonth } = useGetsallastmonthQuery();
   const Year = lastmonth?.data?.find((x) => x.Year);
@@ -169,7 +186,7 @@ const PurchaseIndex = ({
                     user,
                     selectMonths,
                     filterBuyerList,
-                    finYr,
+                    finYr,poType
                   },
                 }),
               );
@@ -191,6 +208,7 @@ const PurchaseIndex = ({
 
     credits: { enabled: false },
   };
+  console.log(poType, "poType");
 
   return (
     <Card sx={{ borderRadius: 3, boxShadow: 4, width: "100%", ml: 1 }}>
@@ -199,6 +217,41 @@ const PurchaseIndex = ({
         titleTypographyProps={{
           sx: { fontSize: "1rem", fontWeight: 600 },
         }}
+        action={
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              minWidth: 180,
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              PO Type:
+            </Typography>
+            <Select
+              size="small"
+              value={poType || ""}
+              onChange={(e) => dispatch(setPoType(e.target.value))}
+              sx={{
+                minWidth: 120,
+                height: 28, // 👈 reduce height
+                "& .MuiSelect-select": {
+                  paddingTop: 3,
+                  paddingBottom: 3, // 👈 adjust text vertical padding
+                  fontSize: "12px", // optional smaller text
+                },
+              }}
+            >
+              <MenuItem value="General" sx={{ fontSize: "12px" }}>
+                General
+              </MenuItem>
+              <MenuItem value="Order" sx={{ fontSize: "12px" }}>
+                Order
+              </MenuItem>
+            </Select>
+          </Box>
+        }
         sx={{ borderBottom: `2px solid ${theme.palette.divider}` }}
       />
       <CardContent>
