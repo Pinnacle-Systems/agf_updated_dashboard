@@ -254,3 +254,65 @@ ORDER BY 2,3,1
     await connection.close();
   }
 }
+export async function getTopTenSupplier(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear,companyName } = req.query;
+
+    const sql = `
+WITH Combined AS (
+    SELECT A.SUPPLIER, 'GREY YARN' AS TYPENAME, A.FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PRICE AS VAL
+    FROM YARNPURREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0
+
+    UNION ALL
+
+    SELECT A.SUPPLIER, 'DYED YARN' AS TYPENAME, A.FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PRICE AS VAL
+    FROM DYARNPURREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0
+
+    UNION ALL
+
+    SELECT A.SUPPLIER, 'GREY FABRIC' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
+    FROM GFABPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
+
+    UNION ALL
+
+    SELECT A.SUPPLIER, 'DYED FABRIC' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
+    FROM DFABPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
+
+    UNION ALL
+
+    SELECT A.SUPPLIER, 'ACCESSORY' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
+    FROM ACCPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
+)
+SELECT *
+FROM (
+    SELECT SUPPLIER, SUM(VAL) AS TOTAL_VAL
+    FROM Combined
+    WHERE FINYR = '25-26' AND COMPCODE = 'VEL'
+    GROUP BY SUPPLIER
+    ORDER BY SUM(VAL) DESC
+)
+WHERE ROWNUM <= 10
+     `;
+
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      TYPENAME:po[0],
+      FINYEAR: po[1],
+      COMPCODE: po[2],
+      VAL: po[3],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
