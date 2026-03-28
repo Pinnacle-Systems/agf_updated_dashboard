@@ -5,8 +5,7 @@ import FinYear from "../../../components/FinYear";
 
 import Form from "./MonthWiseReport";
 import RawMeterialWiseReport from "./RawMeterialWiseReport";
-// import QuarterWise from "./QuarterWiseReport";
-// import YearWise from "./YearWise";
+import TopTenSupplierYear from "./TopTenSupplierYear";
 import {
   setSelectedYear,
   setFilterBuyer,
@@ -107,6 +106,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
       border-blue-600 transition-all duration-200"
               >
                 <option value="">Select Type</option>
+                <option value="All">All</option>
                 <option value="General">General</option>
                 <option value="Order">Order</option>
               </select>
@@ -159,15 +159,16 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
           />
         </Grid>
 
-        {/* <Grid item xs={12} md={6}>
-          <YearWise
+        <Grid item xs={12} md={6}>
+          <TopTenSupplierYear
             key={filterBuyer}
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
+            poType={poType}
             filterBuyerList={filterBuyerList}
           />
-        </Grid> */}
+        </Grid>
       </Grid>
     </>
   );

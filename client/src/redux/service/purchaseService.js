@@ -8,10 +8,10 @@ const purchase = createApi({
   }),
   tagTypes: ["purchase"],
   endpoints: (builder) => ({
-    getPurchase: builder.query({
+    getCompany: builder.query({
       query: ({ params }) => {
         return {
-          url: PURCHASE + "/getPurchase",
+          url: PURCHASE + "/getCompany",
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -21,10 +21,10 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
-    getCompany: builder.query({
+    getPurchase: builder.query({
       query: ({ params }) => {
         return {
-          url: PURCHASE + "/getCompany",
+          url: PURCHASE + "/getPurchase",
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -47,10 +47,10 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
-    getMonthPurchaseOrder: builder.query({
+    getCombinedPurchaseOrder: builder.query({
       query: ({ params }) => {
         return {
-          url: PURCHASE + "/getMonthPurchaseOrder",
+          url: PURCHASE + "/getCombinedPurchaseOrder",
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -60,6 +60,8 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+
+
     getYearPurchaseOrder: builder.query({
       query: ({ params }) => {
         return {
@@ -73,6 +75,49 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+    getYearPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getYearPurchaseGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getYearPurchaseCombinedCOMP: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getYearPurchaseCombinedCOMP",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+
+    
+    getMonthPurchaseOrder: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getMonthPurchaseOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
     getQuarterPurchaseOrder: builder.query({
       query: ({ params }) => {
         return {
@@ -99,17 +144,34 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+    getTopTenSupplier: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplier",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
   }),
 });
 
 export const {
   useGetPurchaseQuery,
   useGetCompanyQuery,
+  useGetCombinedPurchaseOrderQuery,
   useGetPurchaseOrderQuery,
+  useGetYearPurchaseGeneralQuery,
+  useGetYearPurchaseCombinedCOMPQuery,
   useGetMonthPurchaseOrderQuery,
   useGetYearPurchaseOrderQuery,
   useGetQuarterPurchaseOrderQuery,
-  useGetRawMaterialWiseQuery
+  useGetRawMaterialWiseQuery,
+  useGetTopTenSupplierQuery,
 } = purchase;
 
 export default purchase;

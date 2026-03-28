@@ -7,7 +7,7 @@ const initialState = {
   finYr: null,
   user: null,
   lastSection: null, // ✅ NEW
-  poType: "General",
+  poType: "All",
 };
 
 const dashboardFiltersSlice = createSlice({

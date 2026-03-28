@@ -1,28 +1,18 @@
 import React, { useState, useMemo } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Box,
-  MenuItem,
-  Select,
-  FormControl,
-  useTheme,
-} from "@mui/material";
+import { Card, CardHeader, CardContent, Box, useTheme } from "@mui/material";
 import {
   useGetMonthPurchaseOrderQuery,
   useGetYearPurchaseOrderQuery,
+  useGetYearPurchaseGeneralQuery,
+  useGetYearPurchaseCombinedCOMPQuery,
   useGetQuarterPurchaseOrderQuery, // add if you have it
 } from "../../../redux/service/purchaseService";
-
-const VIEW_OPTIONS = [
-  { value: "month", label: "Month" },
-  { value: "year", label: "Year" },
-  { value: "quarter", label: "Quarter" },
-];
-
+import MonthWiseTable from "./TableData/MonthTable";
+import QuarterWiseTable from "./TableData/QuarterTable";
+import YearWiseTable from "./TableData/TopTenSupplier";
+import { skipToken } from "@reduxjs/toolkit/query";
 const YEAR_COLORS = [
   "#0088FE",
   "#00C49F",
@@ -36,11 +26,9 @@ const YEAR_COLORS = [
 
 const ViewDropdown = ({ viewBy, setViewBy, autoBorder }) => (
   <select
-    className={`${
-      autoBorder
-        ? "border-2 border-blue-600"
-        : "border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-    } p-1 w-36 h-6.5 text-gray-900 text-xs rounded-md`}
+    className={`
+       border-blue-600 transition-all duration-200 border-2   rounded-md 
+    p-1 w-36 h-6.5 text-gray-900 text-xs`}
     value={viewBy}
     onChange={(e) => setViewBy(e.target.value)}
   >
@@ -49,13 +37,17 @@ const ViewDropdown = ({ viewBy, setViewBy, autoBorder }) => (
     <option value="year">Year</option>
   </select>
 );
+
 const Form = ({ companyName, finYear, finYr, filterBuyerList, poType }) => {
   const theme = useTheme();
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [viewBy, setViewBy] = useState("month");
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+  const [selectedMonthColor, setSelectedMonthColor] = useState("#00C49F");
+  console.log(poType, "poType");
 
-const formatINR = (value) =>
-  `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatINR = (value) =>
+    `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const formatINRShort = (value) => {
     const num = Number(value);
@@ -76,14 +68,47 @@ const formatINR = (value) =>
     { skip: !finYear || !companyName || viewBy !== "month" },
   );
 
-  const {
-    data: yearResponse,
-    isLoading: yearLoading,
-    isFetching: yearFetching,
-  } = useGetYearPurchaseOrderQuery(
-    { params: { finYear, companyName } },
-    { skip: !finYear || !companyName || viewBy !== "year" },
+  /* ================================================================
+   Year API — choose dynamically based on poType
+================================================================ */
+  // Call all hooks unconditionally
+
+  const yearOrder = useGetYearPurchaseOrderQuery(
+    viewBy === "year" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
   );
+  const yearGeneral = useGetYearPurchaseGeneralQuery(
+    viewBy === "year" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const yearAll = useGetYearPurchaseCombinedCOMPQuery(
+    viewBy === "year" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  // Pick the response based on poType
+  const yearResponse =
+    poType === "All" ? yearAll : poType === "Order" ? yearOrder : yearGeneral;
+  // Extract data and loading states
+const yearChartData = useMemo(
+  () =>
+    (Array.isArray(yearResponse?.data?.data) ? yearResponse.data.data : []).map(
+      (i) => ({
+        label: i.FINYEAR,
+        value: Number(i.VAL),
+        compCode: i.COMPCODE,
+      }),
+    ),
+  [yearResponse?.data?.data],
+);
+ 
+
+  const yearLoading = yearResponse?.isLoading;
+  const yearFetching = yearResponse?.isFetching;
 
   // ── same skip pattern for quarter ──
   const {
@@ -119,15 +144,15 @@ const formatINR = (value) =>
   );
 
   // year API returns { FINYEAR, COMPCODE, VAL }
-  const yearChartData = useMemo(
-    () =>
-      (Array.isArray(yearResponse?.data) ? yearResponse.data : []).map((i) => ({
-        label: i.FINYEAR,
-        value: Number(i.VAL),
-        compCode: i.COMPCODE,
-      })),
-    [yearResponse?.data],
-  );
+  // const yearChartData = useMemo(
+  //   () =>
+  //     (Array.isArray(yearResponse?.data) ? yearResponse.data : []).map((i) => ({
+  //       label: i.FINYEAR,
+  //       value: Number(i.VAL),
+  //       compCode: i.COMPCODE,
+  //     })),
+  //   [yearResponse?.data],
+  // );
 
   // adjust field names to match your quarter API shape
   const quarterChartData = useMemo(
@@ -148,10 +173,10 @@ const formatINR = (value) =>
   );
 
   const selectedMonthData = useMemo(
-    () => monthChartData.find((i) => (i.month ?? i.label) === selectedMonth),
-    [selectedMonth, monthChartData],
+    () =>
+      selectedMonthIndex !== null ? monthChartData[selectedMonthIndex] : null,
+    [selectedMonthIndex, monthChartData],
   );
-
   /* ================================================================
      Quarter chart mappings (same shape as month — adjust if different)
   ================================================================ */
@@ -217,6 +242,8 @@ const formatINR = (value) =>
             events: {
               click() {
                 setSelectedMonth(this.category);
+                setSelectedMonthIndex(this.index);
+                setSelectedMonthColor(this.color);
               },
             },
           },
@@ -418,8 +445,8 @@ const formatINR = (value) =>
             color: {
               linearGradient: [0, 0, 0, 300],
               stops: [
-                [0, "#00C49F"],
-                [1, "#00E396"],
+                [0, selectedMonthColor],
+                [1, Highcharts.color(selectedMonthColor).brighten(0.2).get()], // slightly lighter at bottom
               ],
             },
           },
@@ -428,57 +455,6 @@ const formatINR = (value) =>
         credits: { enabled: false },
       }
     : null;
-
-  /* ================================================================
-     Year KPI summary cards
-  ================================================================ */
-  const YearSummaryCards = () => {
-    if (!yearChartData.length) return null;
-    const total = yearChartData.reduce((s, i) => s + i.value, 0);
-    const highest = yearChartData.reduce((a, b) => (a.value > b.value ? a : b));
-    const lowest = yearChartData.reduce((a, b) => (a.value < b.value ? a : b));
-
-    return (
-      <Box sx={{ display: "flex", gap: 1, mt: 1, px: 1 }}>
-        {[
-          {
-            label: "Total Purchase",
-            value: formatINRShort(total),
-            color: "#0088FE",
-          },
-          {
-            label: `Highest (FY ${highest.label})`,
-            value: formatINRShort(highest.value),
-            color: "#00C49F",
-          },
-          {
-            label: `Lowest  (FY ${lowest.label})`,
-            value: formatINRShort(lowest.value),
-            color: "#FF8042",
-          },
-        ].map((c) => (
-          <Box
-            key={c.label}
-            sx={{
-              flex: 1,
-              borderRadius: 2,
-              p: 1.2,
-              background: `linear-gradient(135deg, ${c.color}22, ${c.color}11)`,
-              border: `1.5px solid ${c.color}55`,
-              textAlign: "center",
-            }}
-          >
-            <Box sx={{ fontSize: "0.7rem", color: "text.secondary", mb: 0.3 }}>
-              {c.label}
-            </Box>
-            <Box sx={{ fontSize: "0.85rem", fontWeight: 700, color: c.color }}>
-              {c.value}
-            </Box>
-          </Box>
-        ))}
-      </Box>
-    );
-  };
 
   /* ================================================================
      RENDER
@@ -596,7 +572,6 @@ const formatINR = (value) =>
               highcharts={Highcharts}
               options={yearChartOptions}
             />
-            {/* <YearSummaryCards /> */}
           </Box>
         )}
 
