@@ -4,10 +4,14 @@ import HighchartsReact from "highcharts-react-official";
 import { Card, CardHeader, CardContent, Box, useTheme } from "@mui/material";
 import {
   useGetMonthPurchaseOrderQuery,
+  useGetMonthGeneralPurchaseQuery,
+  useGetMonthCombinedPurchaseQuery,
   useGetYearPurchaseOrderQuery,
   useGetYearPurchaseGeneralQuery,
   useGetYearPurchaseCombinedCOMPQuery,
-  useGetQuarterPurchaseOrderQuery, // add if you have it
+  useGetQuarterPurchaseOrderQuery,
+  useGetQuarterPurchaseGeneralQuery,
+  useGetQuarterPurchaseCombinedCOMPQuery,
 } from "../../../redux/service/purchaseService";
 import MonthWiseTable from "./TableData/MonthTable";
 import QuarterWiseTable from "./TableData/QuarterTable";
@@ -32,16 +36,17 @@ const ViewDropdown = ({ viewBy, setViewBy, autoBorder }) => (
     value={viewBy}
     onChange={(e) => setViewBy(e.target.value)}
   >
-    <option value="month">Month</option>
-    <option value="quarter">Quarter</option>
     <option value="year">Year</option>
+
+    <option value="quarter">Quarter</option>
+    <option value="month">Month</option>
   </select>
 );
 
 const Form = ({ companyName, finYear, finYr, filterBuyerList, poType }) => {
   const theme = useTheme();
   const [selectedMonth, setSelectedMonth] = useState(null);
-  const [viewBy, setViewBy] = useState("month");
+  const [viewBy, setViewBy] = useState("year");
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
   const [selectedMonthColor, setSelectedMonthColor] = useState("#00C49F");
   console.log(poType, "poType");
@@ -56,22 +61,43 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList, poType }) => {
     return formatINR(num);
   };
 
-  /* ================================================================
-     APIs — same skip pattern as SlowMovement
-  ================================================================ */
-  const {
-    data: monthResponse,
-    isLoading: monthLoading,
-    isFetching: monthFetching,
-  } = useGetMonthPurchaseOrderQuery(
-    { params: { finYear, companyName } },
-    { skip: !finYear || !companyName || viewBy !== "month" },
+  const monthOrder = useGetMonthPurchaseOrderQuery(
+    viewBy === "month" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
   );
 
-  /* ================================================================
-   Year API — choose dynamically based on poType
-================================================================ */
-  // Call all hooks unconditionally
+  const monthGeneral = useGetMonthGeneralPurchaseQuery(
+    viewBy === "month" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const monthAll = useGetMonthCombinedPurchaseQuery(
+    viewBy === "month" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const monthResponse =
+    poType === "All"
+      ? monthAll
+      : poType === "Order"
+        ? monthOrder
+        : monthGeneral;
+
+  const monthChartData = useMemo(
+    () =>
+      (Array.isArray(monthResponse?.data?.data)
+        ? monthResponse.data.data
+        : []
+      ).map((i) => ({
+        month: i.month || i.label,
+        value: Number(i.VAL || i.value),
+        year: i.yearNo,
+      })),
+    [monthResponse?.data?.data],
+  );
 
   const yearOrder = useGetYearPurchaseOrderQuery(
     viewBy === "year" && finYear && companyName
@@ -94,54 +120,69 @@ const Form = ({ companyName, finYear, finYr, filterBuyerList, poType }) => {
   const yearResponse =
     poType === "All" ? yearAll : poType === "Order" ? yearOrder : yearGeneral;
   // Extract data and loading states
-const yearChartData = useMemo(
-  () =>
-    (Array.isArray(yearResponse?.data?.data) ? yearResponse.data.data : []).map(
-      (i) => ({
+  const yearChartData = useMemo(
+    () =>
+      (Array.isArray(yearResponse?.data?.data)
+        ? yearResponse.data.data
+        : []
+      ).map((i) => ({
         label: i.FINYEAR,
         value: Number(i.VAL),
         compCode: i.COMPCODE,
-      }),
-    ),
-  [yearResponse?.data?.data],
-);
- 
+      })),
+    [yearResponse?.data?.data],
+  );
 
   const yearLoading = yearResponse?.isLoading;
   const yearFetching = yearResponse?.isFetching;
 
   // ── same skip pattern for quarter ──
-  const {
-    data: quarterResponse,
-    isLoading: quarterLoading,
-    isFetching: quarterFetching,
-  } = useGetQuarterPurchaseOrderQuery(
-    { params: { finYear, companyName } },
-    { skip: !finYear || !companyName || viewBy !== "quarter" },
+  const quarterOrder = useGetQuarterPurchaseOrderQuery(
+    viewBy === "quarter" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const quarterGeneral = useGetQuarterPurchaseGeneralQuery(
+    viewBy === "quarter" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const quarterAll = useGetQuarterPurchaseCombinedCOMPQuery(
+    viewBy === "quarter" && finYear && companyName
+      ? { params: { finYear, companyName } }
+      : skipToken,
+  );
+
+  const quarterResponse =
+    poType === "All"
+      ? quarterAll
+      : poType === "Order"
+        ? quarterOrder
+        : quarterGeneral;
+
+  const quarterChartData = useMemo(
+    () =>
+      (Array.isArray(quarterResponse?.data?.data)
+        ? quarterResponse.data.data
+        : []
+      ).map((i) => ({
+        quarter: i.quarter || i.label,
+        value: Number(i.VAL || i.value),
+        month: i.month,
+        year: i.yearNo,
+      })),
+    [quarterResponse?.data?.data],
   );
 
   /* ── combined loading — same as SlowMovement's isLoading / isFetching ── */
-  const isLoading =
-    viewBy === "month"
-      ? monthLoading
-      : viewBy === "year"
-        ? yearLoading
-        : quarterLoading;
-
-  const isFetching =
-    viewBy === "month"
-      ? monthFetching
-      : viewBy === "year"
-        ? yearFetching
-        : quarterFetching;
+  const monthLoading = monthResponse?.isLoading;
+  const monthFetching = monthResponse?.isFetching;
 
   /* ================================================================
      Data normalization
   ================================================================ */
-  const monthChartData = useMemo(
-    () => (Array.isArray(monthResponse?.data) ? monthResponse.data : []),
-    [monthResponse?.data],
-  );
 
   // year API returns { FINYEAR, COMPCODE, VAL }
   // const yearChartData = useMemo(
@@ -155,10 +196,6 @@ const yearChartData = useMemo(
   // );
 
   // adjust field names to match your quarter API shape
-  const quarterChartData = useMemo(
-    () => (Array.isArray(quarterResponse?.data) ? quarterResponse.data : []),
-    [quarterResponse?.data],
-  );
 
   /* ================================================================
      Month chart mappings
@@ -223,7 +260,9 @@ const yearChartData = useMemo(
         style: { color: "#fff" },
         borderRadius: 8,
         formatter() {
-          return `<b>${this.x}</b><br/>${formatINR(this.y)}`;
+          // Use the month and year from the data
+          const data = monthChartData[this.point.index]; // get the raw data
+          return `<b>${data.month}</b> - ${data.year}<br/>${formatINR(this.y)}`;
         },
       },
       plotOptions: {
@@ -347,6 +386,15 @@ const yearChartData = useMemo(
   /* ================================================================
      QUARTER CHART — column (colorByPoint, same style as year)
   ================================================================ */
+
+  // Define a color map for quarters
+  const QUARTER_COLORS = {
+    Q1: "#0088FE", // Apr-Jun
+    Q2: "#00C49F", // Jul-Sep
+    Q3: "#FFBB28", // Oct-Dec
+    Q4: "#FF8042", // Jan-Mar
+  };
+
   const quarterChartOptions = useMemo(
     () => ({
       chart: { type: "column", height: 430, backgroundColor: "transparent" },
@@ -372,25 +420,42 @@ const yearChartData = useMemo(
         style: { color: "#fff" },
         borderRadius: 8,
         formatter() {
-          return `<b>${this.x}</b><br/>${formatINR(this.y)}`;
+          return `<b>${this.x}</b><br/>${this.point.month} - ${this.point.year}<br/>${formatINR(this.y)}`;
         },
       },
       plotOptions: {
         column: {
           borderRadius: 8,
-          colorByPoint: true,
+           minPointLength: 90,
           dataLabels: {
             enabled: true,
-            inside: false,
-            style: { fontSize: "11px", fontWeight: "400", color: "#000" },
+            inside: true, // put label inside the bar
+            rotation: -90, // rotate label -90 degrees
+            align: "center", // horizontal alignment
+            verticalAlign: "middle", // vertical alignment
+            style: {
+              fontSize: "13px",
+              fontWeight: "600",
+              color: "white", // white text for inside bars
+            },
             formatter() {
-              return formatINRShort(this.y);
+              return formatINR(this.y);
             },
           },
         },
       },
       colors: YEAR_COLORS,
-      series: [{ name: "Purchase", data: quarterSeriesData }],
+      series: [
+        {
+          name: "Purchase",
+          data: quarterChartData.map((i) => ({
+            y: i.value,
+            month: i.month, // 👈 pass month here
+            year: i.year,
+            color: QUARTER_COLORS[i.quarter],
+          })),
+        },
+      ],
       legend: { enabled: false },
       credits: { enabled: false },
     }),
@@ -490,7 +555,7 @@ const yearChartData = useMemo(
         }}
       >
         {/* ── Loading overlay — same as SlowMovement ── */}
-        {(isLoading || isFetching) && (
+        {(monthLoading || monthFetching) && (
           <Box
             sx={{
               position: "absolute",

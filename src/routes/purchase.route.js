@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import {getCombinedPurchase, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplier,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear} from "../services/purchase.service.js";
+import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup} from "../services/purchase.service.js";
 
 const router = Router();
 
@@ -17,8 +17,27 @@ router.get("/getYearPurchaseGeneral", getPurchaseGeneralYear);
 router.get("/getYearPurchaseCombinedCOMP", getPurchaseCombinedCOMPYear);
 
 
+
+
+router.get("/getQuarterPurchaseOrder", getPurchaseOrderQuarterWise);
+router.get("/getQuarterPurchaseGeneral", getPurchaseGeneralQuarterWise);
+router.get("/getQuarterPurchaseCombinedCOMP", getCombinedPurchaseQuarterWise);
+
+
 router.get("/getMonthPurchaseOrder", getPurchaseOrderMonthWise);
+router.get("/getMonthGeneralPurchaseOrder", getGenaralPurchaseMonthWise);
+router.get("/getMonthCombinedPurchaseOrder", getCombinedPurchaseOrderMonthWise);
+
+
+
+router.get("/getTopTenSupplierOrder", getTopTenSupplierOrder);
+router.get("/getTopTenSupplierGeneral", getTopTenSupplierGeneral);
+router.get("/getTopTenSupplierCombined", getTopTenSupplierCombined);
+
+
+
+
 router.get("/getMaterialWise", getPurchaseOrderMaterial);
-router.get("/getTopTenSupplier", getTopTenSupplier);
+router.get("/getItemGroupWise", getPurchaseGeneralItemGroup);
 
 export default router;

@@ -233,7 +233,7 @@ const RawMeterialWiseReport = ({ companyName, finYear }) => {
         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
       />
-      <CardContent sx={{ position: "relative", minHeight: 380 }}>
+      <CardContent sx={{ position: "relative", height: 420 }}>
         {isLoading ? (
           <div style={{ textAlign: "center", padding: 40 }}>Loading...</div>
         ) : (

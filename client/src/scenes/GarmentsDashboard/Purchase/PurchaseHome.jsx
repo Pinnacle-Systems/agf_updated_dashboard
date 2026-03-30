@@ -5,6 +5,7 @@ import FinYear from "../../../components/FinYear";
 
 import Form from "./MonthWiseReport";
 import RawMeterialWiseReport from "./RawMeterialWiseReport";
+import ItemGroupWise from "./ItemGroupWise";
 import TopTenSupplierYear from "./TopTenSupplierYear";
 import {
   setSelectedYear,
@@ -77,21 +78,39 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             md={7}
             sx={{
               display: "flex",
-              justifyContent: "flex-end", // push the group to the right
+              justifyContent: "flex-end",
               alignItems: "center",
+              gap: 2, // space between button group & selects
               pt: 0.5,
               pb: 0.4,
             }}
           >
-            <Box sx={{ display: "flex", gap: 2 }}>
+            {/* 🔵 PO TYPE BUTTON GROUP */}
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {["All", "General", "Order"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => dispatch(setPoType(type))}
+                  className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-full shadow-md transition-all ${
+                    poType === type
+                      ? "bg-blue-600 text-white scale-105"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </Box>
+
+            {/* 🟡 DROPDOWNS */}
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              {/* YEAR */}
               <select
                 value={selectedYear || ""}
                 onChange={(e) => dispatch(setSelectedYear(e.target.value))}
-                className="w-full px-2 py-1 text-xs border-2   rounded-md 
-      border-blue-600 transition-all duration-200"
+                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600"
               >
                 <option value="">Select Year</option>
-
                 {(finYr?.data || []).map((item) => (
                   <option key={item.finYear} value={item.finYear}>
                     {item.finYear}
@@ -99,28 +118,15 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
                 ))}
               </select>
 
-              <select
-                value={poType || ""}
-                onChange={(e) => dispatch(setPoType(e.target.value))}
-                className="w-full px-2 py-1 text-xs border-2   rounded-md 
-      border-blue-600 transition-all duration-200"
-              >
-                <option value="">Select Type</option>
-                <option value="All">All</option>
-                <option value="General">General</option>
-                <option value="Order">Order</option>
-              </select>
-
+              {/* COMPANY */}
               <select
                 ref={buyerRef}
                 value={filterBuyer || ""}
                 onChange={(e) => dispatch(setFilterBuyer(e.target.value))}
                 autoFocus={focusBuyer}
-                className="w-full px-2 py-1 text-xs border-2   rounded-md 
-      border-blue-600 transition-all duration-200"
+                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600"
               >
                 <option value="">Select Company</option>
-
                 {companyList?.data.map((item) => (
                   <option key={item.COMPCODE} value={item.COMPCODE}>
                     {item.COMPCODE}
@@ -149,17 +155,6 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
 
       <Grid container className="">
         <Grid item xs={12} md={6}>
-          <RawMeterialWiseReport
-            key={filterBuyer}
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            finYr={finYr}
-            poType={poType}
-            filterBuyerList={filterBuyerList}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6}>
           <TopTenSupplierYear
             key={filterBuyer}
             companyName={filterBuyer}
@@ -169,6 +164,30 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             filterBuyerList={filterBuyerList}
           />
         </Grid>
+        <Grid item xs={12} md={6}>
+          <RawMeterialWiseReport
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+      </Grid>
+      <Grid container className="">
+        <Grid item xs={12} md={12}>
+          <ItemGroupWise
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+     
+    
       </Grid>
     </>
   );

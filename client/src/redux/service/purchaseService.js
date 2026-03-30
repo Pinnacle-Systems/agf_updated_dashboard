@@ -61,7 +61,6 @@ const purchase = createApi({
       providesTags: ["purchase"],
     }),
 
-
     getYearPurchaseOrder: builder.query({
       query: ({ params }) => {
         return {
@@ -102,22 +101,6 @@ const purchase = createApi({
       providesTags: ["purchase"],
     }),
 
-
-    
-    getMonthPurchaseOrder: builder.query({
-      query: ({ params }) => {
-        return {
-          url: PURCHASE + "/getMonthPurchaseOrder",
-          method: "GET",
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-          params,
-        };
-      },
-      providesTags: ["purchase"],
-    }),
-
     getQuarterPurchaseOrder: builder.query({
       query: ({ params }) => {
         return {
@@ -131,7 +114,116 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
-    getRawMaterialWise: builder.query({
+    getQuarterPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getQuarterPurchaseGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getQuarterPurchaseCombinedCOMP: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getQuarterPurchaseCombinedCOMP",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+    getMonthPurchaseOrder: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getMonthPurchaseOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getMonthGeneralPurchase: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getMonthGeneralPurchaseOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getMonthCombinedPurchase: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getMonthCombinedPurchaseOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+   
+    getTopTenSupplier: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getTopTenSupplierPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getTopTenSupplierCombined: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierCombined",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+
+     getRawMaterialWise: builder.query({
       query: ({ params }) => {
         return {
           url: PURCHASE + "/getMaterialWise",
@@ -144,10 +236,12 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
-    getTopTenSupplier: builder.query({
+
+
+     getItemGroupWise: builder.query({
       query: ({ params }) => {
         return {
-          url: PURCHASE + "/getTopTenSupplier",
+          url: PURCHASE + "/getItemGroupWise",
           method: "GET",
           headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -164,14 +258,26 @@ export const {
   useGetPurchaseQuery,
   useGetCompanyQuery,
   useGetCombinedPurchaseOrderQuery,
+
   useGetPurchaseOrderQuery,
   useGetYearPurchaseGeneralQuery,
   useGetYearPurchaseCombinedCOMPQuery,
-  useGetMonthPurchaseOrderQuery,
   useGetYearPurchaseOrderQuery,
+
   useGetQuarterPurchaseOrderQuery,
-  useGetRawMaterialWiseQuery,
+  useGetQuarterPurchaseGeneralQuery,
+  useGetQuarterPurchaseCombinedCOMPQuery,
+
+  useGetMonthPurchaseOrderQuery,
+  useGetMonthGeneralPurchaseQuery,
+  useGetMonthCombinedPurchaseQuery,
+
   useGetTopTenSupplierQuery,
+  useGetTopTenSupplierPurchaseGeneralQuery,
+  useGetTopTenSupplierCombinedQuery,
+
+  useGetRawMaterialWiseQuery,
+  useGetItemGroupWiseQuery
 } = purchase;
 
 export default purchase;
