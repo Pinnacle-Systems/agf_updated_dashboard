@@ -16,6 +16,7 @@ import {
   fabricOutward,
   purchaseOrder,
   purchase,
+  purchaseTable,
 } from "./service";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
@@ -37,6 +38,7 @@ export const store = configureStore({
     [fabricOutward.reducerPath]: fabricOutward.reducer,
     [purchaseOrder.reducerPath]: purchaseOrder.reducer,
     [purchase.reducerPath]: purchase.reducer,
+    [purchaseTable.reducerPath] : purchaseTable.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -53,6 +55,7 @@ export const store = configureStore({
       fabricOutward.middleware,
       purchaseOrder.middleware,
       purchase.middleware,
+      purchaseTable.middleware,
     ]),
 });
 

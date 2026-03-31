@@ -148,22 +148,22 @@ FROM
 
     UNION ALL
 
-    SELECT A.FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PRICE 
+    SELECT A.FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PRICE AS VAL
     FROM DYARNPURREG A
 
     UNION ALL
 
-    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE AS VAL
     FROM GFABPOREG A
 
     UNION ALL
 
-    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE AS VAL
     FROM DFABPOREG A
 
     UNION ALL
 
-    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE 
+    SELECT A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY - A.CANQTY) * A.PORATE AS VAL
     FROM ACCPOREG A
 
 ) A
@@ -195,36 +195,124 @@ ORDER BY
 
 // order against purchase year
 
+// export async function getPurchaseOrderYear(req, res) {
+//   const connection = await getConnectionERP(res);
+//   try {
+//     const { finYear, companyName } = req.query;
+
+//     const sql = `
+//     SELECT A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM
+// (
+// SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+// UNION ALL
+// SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+// UNION ALL
+// SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+// UNION ALL
+// SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+// UNION ALL
+// SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+// ) A
+// where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
+// GROUP BY A.FINYR,A.COMPCODE
+// HAVING SUM(A.VAL) > 0
+// ORDER BY 2,3,1
+//      `;
+
+//     const result = await connection.execute(sql);
+//     let resp = result.rows?.map((po) => ({
+//       FINYEAR: po[0],
+//       COMPCODE: po[1],
+//       VAL: po[2],
+//     }));
+//     return res.json({ statusCode: 0, data: resp });
+//   } catch (err) {
+//     console.error("Error retrieving data:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   } finally {
+//     await connection.close();
+//   }
+// }
+
 export async function getPurchaseOrderYear(req, res) {
   const connection = await getConnectionERP(res);
+
   try {
     const { finYear, companyName } = req.query;
 
-    const sql = `
-    SELECT A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM 
-(
-SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
-UNION ALL
-SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
-UNION ALL
-SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
-UNION ALL
-SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
-UNION ALL
-SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
-) A
-where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,A.COMPCODE
-HAVING SUM(A.VAL) > 0
-ORDER BY 2,3,1
-     `;
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+          SELECT A.FINYR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PRICE) VAL
+          FROM YARNPURREG A
+          WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYR, A.COMPCODE
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+          SELECT A.FINYR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PRICE) VAL
+          FROM DYARNPURREG A
+          WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYR, A.COMPCODE
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+          SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM GFABPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+          SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM DFABPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+          SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM ACCPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE
+        `,
+      },
+    ];
 
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      FINYEAR: po[0],
-      COMPCODE: po[1],
-      VAL: po[2],
-    }));
+    // Run all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+    );
+
+    // Format and filter response: exclude rows where VAL <= 0, and exclude types with no rows
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows
+          .map((row) => ({
+            FINYEAR: row[0],
+            COMPCODE: row[1],
+            VAL: row[2],
+          }))
+          .filter((r) => r.VAL > 0); // only keep VAL > 0
+
+        if (filteredData.length === 0) return null; // exclude entire type if no valid rows
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean); // remove nulls
+
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -234,7 +322,7 @@ ORDER BY 2,3,1
   }
 }
 
-// general purchase order year
+// general purchase  year
 
 export async function getPurchaseGeneralYear(req, res) {
   const connection = await getConnectionERP(res);
@@ -242,7 +330,7 @@ export async function getPurchaseGeneralYear(req, res) {
     const { finYear, companyName } = req.query;
 
     const sql = `
-  SELECT D.FINYR FINYEAR,C.COMPCODE,SUM(B.AMOUNT) VAL FROM GTGENPO A
+  SELECT D.FINYR FINYEAR,C.COMPCODE,SUM((B.POQTY-B.CANQTY)*B.PORATE) VAL FROM GTGENPO A
 JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
 JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
@@ -277,39 +365,39 @@ export async function getPurchaseCombinedCOMPYear(req, res) {
   SELECT A.FINYR, A.COMPCODE, SUM(A.VAL) AS VAL
 FROM (
    
-    SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE AS VAL
+    SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE  VAL
     FROM YARNPURREG
     WHERE FINYR = '${finYear}' AND COMPCODE = '${companyName}'
 
     UNION ALL
-    SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE
+    SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE VAL
     FROM DYARNPURREG
     WHERE FINYR = '${finYear}' AND COMPCODE = '${companyName}'
 
     UNION ALL
-    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE
+    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM GFABPOREG
     WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
 
     UNION ALL
-    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE
+    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM DFABPOREG
     WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
 
     UNION ALL
-    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE
+    SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM ACCPOREG
     WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
 
     
     UNION ALL
-    SELECT D.FINYR, C.COMPCODE, B.AMOUNT
+    SELECT D.FINYR, C.COMPCODE, SUM((B.POQTY-B.CANQTY)*B.PORATE)
     FROM GTGENPO A
     JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
     JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
     JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
     WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-
+    GROUP BY D.FINYR, C.COMPCODE 
 ) A
 GROUP BY A.FINYR, A.COMPCODE
 HAVING SUM(A.VAL) > 0
@@ -508,9 +596,7 @@ ORDER BY YEARNO, MONTHNUMBER
   }
 }
 
-
 // combined purchase quarter wise
-
 
 export async function getCombinedPurchaseQuarterWise(req, res) {
   const connection = await getConnectionERP(res);
@@ -695,9 +781,6 @@ ORDER BY YEARNO, MONTHNUMBER
     await connection.close();
   }
 }
-
-
-
 
 // order against purchase month wise
 
@@ -948,8 +1031,6 @@ ORDER BY YEARNO, MONTHNUMBER
   }
 }
 
-
-
 // top ten supplier order against
 
 export async function getTopTenSupplierOrder(req, res) {
@@ -1117,8 +1198,6 @@ WHERE ROWNUM <= 10
   }
 }
 
-
-
 // order against raw material wise
 
 export async function getPurchaseOrderMaterial(req, res) {
@@ -1195,6 +1274,3 @@ ORDER BY 1,2
     await connection.close();
   }
 }
-
-
-

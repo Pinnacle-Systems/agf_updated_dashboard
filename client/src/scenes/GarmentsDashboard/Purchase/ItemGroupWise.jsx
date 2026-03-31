@@ -123,7 +123,13 @@ const ItemGroupWiseReport = ({ companyName, finYear }) => {
             {/* Child chart shown only if group selected */}
             {selectedGroup && (
               <Box
-                sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}
+                sx={{
+                  mb: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 2,
+                }}
               >
                 {/* Selected group name */}
                 <Box sx={{ fontWeight: 600, fontSize: "1rem" }}>
@@ -136,13 +142,13 @@ const ItemGroupWiseReport = ({ companyName, finYear }) => {
                   size="small"
                   onClick={() => setSelectedGroup(null)}
                 >
-                  Go Back
+                  Back
                 </Button>
               </Box>
             )}
             {selectedGroup && (
-  <HighchartsReact highcharts={Highcharts} options={childOptions} />
-)}
+              <HighchartsReact highcharts={Highcharts} options={childOptions} />
+            )}
           </>
         )}
       </CardContent>

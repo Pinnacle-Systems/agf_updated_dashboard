@@ -231,6 +231,33 @@ export const addInsightsRowTurnOver = ({
 
   worksheet.getRow(startRow).height = 30;
 };
+const UOM_DECIMALS = {
+  NOS: 0,
+  SET: 0,
+  DOZEN: 1,
+
+  MTR: 2,
+  FEET: 3,
+  YARD: 3,
+  SQFT: 3,
+  LTRS:3,
+  KGS: 3,REEM:0,POCKET:0,ROLL:0,BOX:0,"MET.TON":3
+}
+export const formatQtyByUOM = (qty, uom) => {
+  if (qty === null || qty === undefined) return "-";
+
+  const decimals = UOM_DECIMALS[uom?.toUpperCase()] ?? 2;
+
+  return Number(qty).toFixed(decimals);
+};
+export const getExcelQtyFormatByUOM = (uom) => {
+  const decimals = UOM_DECIMALS[uom?.toUpperCase()] ?? 2;
+
+  // Build Excel number format dynamically
+  if (decimals === 0) return "#,##,##0";
+
+  return `#,##,##0.${"0".repeat(decimals)}`;
+};
 export const currentDate = (date) => moment(date).format("DD/MM/YYYY ");
 // import { IMAGE_UPLOAD_URL } from "../Constants";
 

@@ -147,7 +147,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType}
+            poType={poType} companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
@@ -160,7 +160,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType}
+            poType={poType} companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
@@ -170,7 +170,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType}
+            poType={poType} companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
@@ -182,7 +182,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType}
+            poType={poType} companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
