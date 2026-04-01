@@ -34,13 +34,68 @@ const purchaseTable = createApi({
       },
       providesTags: ["purchaseTable"],
     }),
- 
+    getDyedYarnTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getDyedYarnTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getGreyFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getGreyFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getDyedFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getDyedFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getAccessoryTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getAccessoryTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
   }),
 });
 
 export const {
-  useGetGeneralYearQuery,useGetGreyYarnTableQuery
-
+  useGetGeneralYearQuery,
+  useGetGreyYarnTableQuery,
+  useGetDyedYarnTableQuery,
+  useGetGreyFabricTableQuery,
+  useGetDyedFabricTableQuery,
+  useGetAccessoryTableQuery,
 } = purchaseTable;
 
 export default purchaseTable;

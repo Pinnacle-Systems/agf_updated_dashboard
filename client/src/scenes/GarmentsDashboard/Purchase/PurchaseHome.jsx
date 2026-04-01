@@ -7,6 +7,8 @@ import Form from "./MonthWiseReport";
 import RawMeterialWiseReport from "./RawMeterialWiseReport";
 import ItemGroupWise from "./ItemGroupWise";
 import TopTenSupplierYear from "./TopTenSupplierYear";
+import QuarterWise from './QuarterWise'
+import MonthChart from "./MonthChart";
 import {
   setSelectedYear,
   setFilterBuyer,
@@ -24,7 +26,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
   const { selectedYear, filterBuyer, selectMonths, finYr, poType } =
     useSelector((state) => state.dashboardFilters);
   const [focusBuyer, setFocusBuyer] = useState(false);
-
+  const [chartToshow, setChartToShow] = useState("year");
   const { data: companyList } = useGetCompanyQuery(
     { params: { selectedYear } },
     { skip: !selectedYear },
@@ -36,7 +38,12 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
 
     return () => setFocusBuyer(false);
   }, []); // runs when page/tab is entered
+  const purchaseTypeOptions = [
+    { label: "Year", value: "year" },
 
+    { label: "Quarter", value: "quarter" },
+    { label: "Month", value: "month" },
+  ];
   return (
     <>
       {/* Header and Filters */}
@@ -142,29 +149,68 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
 
       <Grid container className="">
         <Grid item xs={12} md={12}>
-          <Form
-            key={filterBuyer}
-            companyName={filterBuyer}
-            finYear={selectedYear}
-            finYr={finYr}
-            poType={poType} companyList={companyList}
-            filterBuyerList={filterBuyerList}
-          />
+          {chartToshow === "year" ? (
+            <>
+              <Form
+                key={filterBuyer}
+                companyName={filterBuyer}
+                finYear={selectedYear}
+                finYr={finYr}
+                poType={poType}
+                companyList={companyList}
+                filterBuyerList={filterBuyerList}
+                purchaseTypeOptions={purchaseTypeOptions}
+                setChartToShow={setChartToShow}
+                chartToshow={chartToshow}
+              />
+            </>
+          ) : chartToshow === "month" ? (
+            <>
+              <MonthChart
+                key={filterBuyer}
+                companyName={filterBuyer}
+                finYear={selectedYear}
+                finYr={finYr}
+                poType={poType}
+                companyList={companyList}
+                filterBuyerList={filterBuyerList}
+                purchaseTypeOptions={purchaseTypeOptions}
+                setChartToShow={setChartToShow}
+                chartToshow={chartToshow}
+              />
+            </>
+          ) : (
+            <>
+              <QuarterWise
+                key={filterBuyer}
+                companyName={filterBuyer}
+                finYear={selectedYear}
+                finYr={finYr}
+                poType={poType}
+                companyList={companyList}
+                filterBuyerList={filterBuyerList}
+                purchaseTypeOptions={purchaseTypeOptions}
+                setChartToShow={setChartToShow}
+                chartToshow={chartToshow}
+              />
+            </>
+          )}
         </Grid>
       </Grid>
 
       <Grid container className="">
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={12}>
           <TopTenSupplierYear
             key={filterBuyer}
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType} companyList={companyList}
+            poType={poType}
+            companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}>
           <RawMeterialWiseReport
             key={filterBuyer}
             companyName={filterBuyer}
@@ -173,7 +219,7 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             poType={poType} companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
-        </Grid>
+        </Grid> */}
       </Grid>
       <Grid container className="">
         <Grid item xs={12} md={12}>
@@ -182,12 +228,11 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
             companyName={filterBuyer}
             finYear={selectedYear}
             finYr={finYr}
-            poType={poType} companyList={companyList}
+            poType={poType}
+            companyList={companyList}
             filterBuyerList={filterBuyerList}
           />
         </Grid>
-     
-    
       </Grid>
     </>
   );

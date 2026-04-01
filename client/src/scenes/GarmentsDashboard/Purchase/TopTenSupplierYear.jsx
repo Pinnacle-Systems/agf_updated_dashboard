@@ -26,10 +26,7 @@ const generalQuery = useGetTopTenSupplierPurchaseGeneralQuery(
 // pick the active response based on poType
 const { data: response, isLoading } =
   poType === "All"
-    ? combinedQuery
-    : poType === "Order"
-    ? orderQuery
-    : generalQuery;
+    ? combinedQuery : generalQuery;
 
   const formatINR = (value) =>
     `₹ ${Number(value).toLocaleString("en-IN", {

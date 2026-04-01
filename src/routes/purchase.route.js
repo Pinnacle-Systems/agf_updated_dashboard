@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup} from "../services/purchase.service.js";
-import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable } from "../services/purchaseTable.service.js";
+import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable,getGeneralSupplierToptenTable } from "../services/purchaseTable.service.js";
 
 const router = Router();
 
@@ -51,6 +51,9 @@ router.get("/getDyedYarnTable", getDyedYarnTable);
 router.get("/getGreyFabricTable", getGreyFabricTable);
 router.get("/getDyedFabricTable", getDyedFabricTable);
 router.get("/getAccessoryTable", getAccessoryTable);
+
+
+router.get('/getGeneralSupplierToptenTable',getGeneralSupplierToptenTable)
 
 
 export default router;

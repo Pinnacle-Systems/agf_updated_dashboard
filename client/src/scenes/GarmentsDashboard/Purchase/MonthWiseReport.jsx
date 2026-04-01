@@ -3,7 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import highchartsMore from "highcharts/highcharts-more";
 
-import { Card, CardHeader, CardContent, useTheme } from "@mui/material";
+import { Card, CardHeader, CardContent, useTheme, Radio, RadioGroup, FormControlLabel } from "@mui/material";
 import {
   useGetYearPurchaseOrderQuery,
   useGetYearPurchaseGeneralQuery,
@@ -11,6 +11,7 @@ import {
 } from "../../../redux/service/purchaseService";
 import YearWiseTable from "./TableData/YearTable";
 import { useEffect } from "react";
+import SpinLoader from "../../../utils/spinLoader";
 
 const YEAR_COLORS = [
   "#0088FE",
@@ -24,11 +25,12 @@ const YEAR_COLORS = [
 ];
 highchartsMore(Highcharts);
 
-const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
+const Form = ({ companyName, finYear, finYr, poType, companyList ,setChartToShow,chartToshow,purchaseTypeOptions}) => {
   const theme = useTheme();
   const [showYearTable, setShowYearTable] = useState(false);
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedCompCode, setSelectedCompCode] = useState("");
+  const [selectedOrderType, setSelectedOrderType] = useState("");
   console.log(poType, "poType");
   const formatINR = (value) =>
     `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -41,18 +43,40 @@ const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
   };
 
   // API calls
-  const { data: yearOrderResponse } = useGetYearPurchaseOrderQuery(
+  const {
+    data: yearOrderResponse,
+    isLoading: yearOrderResponseLoading,
+    isFetching: yearOrderResponseFetching,
+  } = useGetYearPurchaseOrderQuery(
     { params: { finYear, companyName } },
     { skip: !finYear || !companyName },
   );
-  const { data: yearGeneralResponse } = useGetYearPurchaseGeneralQuery(
+  const {
+    data: yearGeneralResponse,
+    isLoading: yearGeneralResponseLoading,
+    isFetching: yearGeneralResponseFetching,
+  } = useGetYearPurchaseGeneralQuery(
     { params: { finYear, companyName } },
     { skip: !finYear || !companyName },
   );
-  const { data: yearAllResponse } = useGetYearPurchaseCombinedCOMPQuery(
+  const {
+    data: yearAllResponse,
+    isLoading: yearAllResponseLoading,
+    isFetching: yearAllResponseFetching,
+  } = useGetYearPurchaseCombinedCOMPQuery(
     { params: { finYear, companyName } },
     { skip: !finYear || !companyName },
   );
+
+  const isChartLoading =
+    yearOrderResponseLoading ||
+    yearGeneralResponseLoading ||
+    yearAllResponseLoading;
+  const isChartFetching =
+    yearOrderResponseFetching ||
+    yearGeneralResponseFetching ||
+    yearAllResponseFetching;
+
   useEffect(() => {
     setShowYearTable(false);
     setSelectedYear(null);
@@ -90,6 +114,20 @@ const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
           return formatINR(this.y);
         },
         style: { fontSize: "12px", fontWeight: "bold", color: "#000" },
+      },
+      cursor: "pointer",
+      point: {
+        events: {
+          click: function () {
+            const clickedYear = this.category; // FY
+            const type = item.type; // series name
+            setSelectedYear(clickedYear);
+            setSelectedOrderType(type); // <-- store clicked type
+            setSelectedCompCode(""); // optional
+            setShowYearTable(true);
+            console.log("Clicked:", type, clickedYear);
+          },
+        },
       },
     }));
 
@@ -305,6 +343,24 @@ const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
         title={"Year Wise Purchase"}
         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
+         action={
+          <RadioGroup
+            row
+            value={chartToshow}
+             onChange={(e) => setChartToShow(e.target.value)}
+            sx={{ gap: 1 }}
+          >
+            {purchaseTypeOptions.map((opt) => (
+              <FormControlLabel
+                key={opt.value}
+                value={opt.value}
+                control={<Radio size="small" />}
+                label={opt.label}
+                sx={{ fontSize: "11px" }}
+              />
+            ))}
+          </RadioGroup>
+        }
       />
       <CardContent
         sx={{
@@ -317,6 +373,11 @@ const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
           flexDirection: "column",
         }}
       >
+      {
+        (isChartLoading || isChartFetching) && (
+          <SpinLoader/>
+        )
+      }
         {!showYearTable && chartToRender && (
           <HighchartsReact
             highcharts={Highcharts}
@@ -329,9 +390,11 @@ const Form = ({ companyName, finYear, finYr, poType, companyList }) => {
           <YearWiseTable
             year={selectedYear}
             poType={poType}
+            type={selectedOrderType}
             companyList={companyList}
             selectedCompCode={selectedCompCode}
-            finYr={finYr} valOptions={valOptions}
+            finYr={finYr}
+            valOptions={valOptions}
             closeTable={() => setShowYearTable(false)}
           />
         )}
