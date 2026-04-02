@@ -423,105 +423,194 @@ ORDER BY A.FINYR, A.COMPCODE
 
 export async function getPurchaseOrderQuarterWise(req, res) {
   const connection = await getConnectionERP(res);
+
   try {
     const { finYear, companyName } = req.query;
 
-    const sql = `
-SELECT A.FINYR, 
-	  MONTH,
-	  QUARTER,
-	  A.COMPCODE,
-	  SUM(A.VAL) VAL,
-	  MNO,
-	  YNO 
-FROM (SELECT A.FINYR, 
-             TO_CHAR(DOCDATE,'MONTH') AS Month, 
-		     CASE WHEN TO_CHAR(A.DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
-		   		  ELSE 'NA'
-		     END QUARTER,
-			 TO_CHAR(DOCDATE,'MM') AS MNO, 
-			 TO_CHAR(DOCDATE,'YYYY') AS YNO, 
-			 A.COMPCODE,
-			 (A.POQTY-A.CANQTY)*A.PRICE VAL 
-      FROM YARNPURREG A
-	  UNION ALL
-	  SELECT A.FINYR, 
-	  		 TO_CHAR(DOCDATE,'MONTH') AS Month,
-		     CASE WHEN TO_CHAR(A.DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
-		   		  WHEN TO_CHAR(A.DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
-		   		  ELSE 'NA'
-		     END QUARTER,
-	  		 TO_CHAR(DOCDATE,'MM') AS MNO, 
-	  		 TO_CHAR(DOCDATE,'YYYY') AS YNO, 
-	  		 A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL 
-      FROM DYARNPURREG A
-	  UNION ALL
-	  SELECT A.FINYEAR, 
-	         TO_CHAR(PODATE,'MONTH') AS Month,
-		     CASE WHEN TO_CHAR(A.PODATE, 'MM') IN (4,5,6) THEN 'Q1'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (7,8,9) THEN 'Q2'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (10,11,12) THEN 'Q3'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (1,2,3) THEN 'Q4'
-		   		  ELSE 'NA'
-		     END QUARTER,
-	         TO_CHAR(PODATE,'MM') AS MNO, 
-	         TO_CHAR(PODATE,'YYYY') AS YNO, 
-	         A.COMPCODE,
-	         (A.POQTY-A.CANQTY)*A.PORATE VAL 
-      FROM GFABPOREG  A
-	  UNION ALL
-	  SELECT A.FINYEAR, 
-	  		 TO_CHAR(PODATE,'MONTH') AS Month,
-		     CASE WHEN TO_CHAR(A.PODATE, 'MM') IN (4,5,6) THEN 'Q1'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (7,8,9) THEN 'Q2'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (10,11,12) THEN 'Q3'
-		   		  WHEN TO_CHAR(A.PODATE, 'MM') IN (1,2,3) THEN 'Q4'
-		   		  ELSE 'NA'
-		     END QUARTER,
-	  		 TO_CHAR(PODATE,'MM') AS MNO, 
-	  		 TO_CHAR(PODATE,'YYYY') AS YNO, 
-	  		 A.COMPCODE,
-	  		 (A.POQTY-A.CANQTY)*A.PORATE VAL 
-      FROM DFABPOREG A
-	  UNION ALL
-	  SELECT A.FINYEAR, 
-	  	     TO_CHAR(ACCPODATE,'MONTH') AS Month,
-		     CASE WHEN TO_CHAR(A.ACCPODATE, 'MM') IN (4,5,6) THEN 'Q1'
-		   		  WHEN TO_CHAR(A.ACCPODATE, 'MM') IN (7,8,9) THEN 'Q2'
-		   		  WHEN TO_CHAR(A.ACCPODATE, 'MM') IN (10,11,12) THEN 'Q3'
-		   		  WHEN TO_CHAR(A.ACCPODATE, 'MM') IN (1,2,3) THEN 'Q4'
-		   		  ELSE 'NA'
-		     END QUARTER,
-	  	     TO_CHAR(ACCPODATE,'MM') AS MNO, 
-	  	     TO_CHAR(ACCPODATE,'YYYY') AS YNO, 
-	  	     A.COMPCODE,
-	  	     (A.POQTY-A.CANQTY)*A.PORATE VAL 
-      FROM ACCPOREG  A
-) A
-WHERE A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,A.COMPCODE,MONTH,MNO,YNO,QUARTER
-HAVING SUM(A.VAL) > 0
-ORDER BY 1,YNO,MNO
-     `;
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+          SELECT COMPCODE,
+                 FINYR,
+                 CASE 
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
+                 END AS QUARTER,
+                 TO_CHAR(DOCDATE,'MM') AS MNO,
+                 TO_CHAR(DOCDATE,'YYYY') AS YNO,
+                 INITCAP(TRIM(TO_CHAR(DOCDATE,'MONTH'))) || ' ' || TO_CHAR(DOCDATE,'YYYY') AS MONTH,
+                 SUM((POQTY-CANQTY)*PRICE) AS VAL
+          FROM YARNPURREG
+          WHERE FINYR = :finYear AND COMPCODE = :companyName
+          GROUP BY COMPCODE, FINYR, 
+                   CASE 
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
+                   END,
+                   TO_CHAR(DOCDATE,'MM'),
+                   TO_CHAR(DOCDATE,'YYYY'),
+                   INITCAP(TRIM(TO_CHAR(DOCDATE,'MONTH'))) || ' ' || TO_CHAR(DOCDATE,'YYYY')
+          HAVING SUM((POQTY-CANQTY)*PRICE) > 0
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+          SELECT COMPCODE,
+                 FINYR,
+                 CASE 
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
+                   WHEN TO_CHAR(DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
+                 END AS QUARTER,
+                 TO_CHAR(DOCDATE,'MM') AS MNO,
+                 TO_CHAR(DOCDATE,'YYYY') AS YNO,
+                 INITCAP(TRIM(TO_CHAR(DOCDATE,'MONTH'))) || ' ' || TO_CHAR(DOCDATE,'YYYY') AS MONTH,
+                 SUM((POQTY-CANQTY)*PRICE) AS VAL
+          FROM DYARNPURREG
+          WHERE FINYR = :finYear AND COMPCODE = :companyName
+          GROUP BY COMPCODE, FINYR, 
+                   CASE 
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
+                     WHEN TO_CHAR(DOCDATE, 'MM') IN (1,2,3) THEN 'Q4'
+                   END,
+                   TO_CHAR(DOCDATE,'MM'),
+                   TO_CHAR(DOCDATE,'YYYY'),
+                   INITCAP(TRIM(TO_CHAR(DOCDATE,'MONTH'))) || ' ' || TO_CHAR(DOCDATE,'YYYY')
+          HAVING SUM((POQTY-CANQTY)*PRICE) > 0
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+          SELECT COMPCODE,
+                 FINYEAR AS FINYR,
+                 CASE 
+                   WHEN TO_CHAR(PODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                 END AS QUARTER,
+                 TO_CHAR(PODATE,'MM') AS MNO,
+                 TO_CHAR(PODATE,'YYYY') AS YNO,
+                 INITCAP(TRIM(TO_CHAR(PODATE,'MONTH'))) || ' ' || TO_CHAR(PODATE,'YYYY') AS MONTH,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM GFABPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY COMPCODE, FINYEAR, 
+                   CASE 
+                     WHEN TO_CHAR(PODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                   END,
+                   TO_CHAR(PODATE,'MM'),
+                   TO_CHAR(PODATE,'YYYY'),
+                   INITCAP(TRIM(TO_CHAR(PODATE,'MONTH'))) || ' ' || TO_CHAR(PODATE,'YYYY')
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+          SELECT COMPCODE,
+                 FINYEAR AS FINYR,
+                 CASE 
+                   WHEN TO_CHAR(PODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                   WHEN TO_CHAR(PODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                 END AS QUARTER,
+                 TO_CHAR(PODATE,'MM') AS MNO,
+                 TO_CHAR(PODATE,'YYYY') AS YNO,
+                 INITCAP(TRIM(TO_CHAR(PODATE,'MONTH'))) || ' ' || TO_CHAR(PODATE,'YYYY') AS MONTH,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM DFABPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY COMPCODE, FINYEAR, 
+                   CASE 
+                     WHEN TO_CHAR(PODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                     WHEN TO_CHAR(PODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                   END,
+                   TO_CHAR(PODATE,'MM'),
+                   TO_CHAR(PODATE,'YYYY'),
+                   INITCAP(TRIM(TO_CHAR(PODATE,'MONTH'))) || ' ' || TO_CHAR(PODATE,'YYYY')
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+          SELECT COMPCODE,
+                 FINYEAR AS FINYR,
+                 CASE 
+                   WHEN TO_CHAR(ACCPODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                   WHEN TO_CHAR(ACCPODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                   WHEN TO_CHAR(ACCPODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                   WHEN TO_CHAR(ACCPODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                 END AS QUARTER,
+                 TO_CHAR(ACCPODATE,'MM') AS MNO,
+                 TO_CHAR(ACCPODATE,'YYYY') AS YNO,
+                 INITCAP(TRIM(TO_CHAR(ACCPODATE,'MONTH'))) || ' ' || TO_CHAR(ACCPODATE,'YYYY') AS MONTH,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM ACCPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY COMPCODE, FINYEAR, 
+                   CASE 
+                     WHEN TO_CHAR(ACCPODATE, 'MM') IN (4,5,6) THEN 'Q1'
+                     WHEN TO_CHAR(ACCPODATE, 'MM') IN (7,8,9) THEN 'Q2'
+                     WHEN TO_CHAR(ACCPODATE, 'MM') IN (10,11,12) THEN 'Q3'
+                     WHEN TO_CHAR(ACCPODATE, 'MM') IN (1,2,3) THEN 'Q4'
+                   END,
+                   TO_CHAR(ACCPODATE,'MM'),
+                   TO_CHAR(ACCPODATE,'YYYY'),
+                   INITCAP(TRIM(TO_CHAR(ACCPODATE,'MONTH'))) || ' ' || TO_CHAR(ACCPODATE,'YYYY')
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+        `,
+      },
+    ];
 
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      finyear: po[0],
-      month: po[1],
-      quarter: po[2],
-      company: po[3],
-      value: po[4],
-      monthNumber: po[5],
-      yearNo: po[6],
-    }));
+    // Execute all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName }))
+    );
+
+    // Map results into expected format
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows.map((row) => ({
+          company: row[0],
+          finyear: row[1],
+          quarter: row[2],
+          monthNumber: row[3],
+          yearNo: row[4],
+          month: row[5],  // "April 2025"
+          value: row[6],
+        }));
+
+        if (!filteredData.length) return null;
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean);
+
     return res.json({ statusCode: 0, data: resp });
+
   } catch (err) {
-    console.error("Error retrieving data:", err);
+    console.error("Error retrieving quarter-wise data:", err);
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();
@@ -537,7 +626,7 @@ export async function getPurchaseGeneralQuarterWise(req, res) {
 
     const sql = `
 SELECT D.FINYR AS FINYEAR,
-       INITCAP(TRIM(TO_CHAR(A.DOCDATE,'MON'))) AS MONTH,
+       INITCAP(TRIM(TO_CHAR(A.DOCDATE,'MONTH'))) || ' ' || TO_CHAR(A.DOCDATE,'YYYY') AS MONTH,
        CASE WHEN TO_CHAR(A.DOCDATE, 'MM') IN (4,5,6) THEN 'Q1'
 		   	WHEN TO_CHAR(A.DOCDATE, 'MM') IN (7,8,9) THEN 'Q2'
 		   	WHEN TO_CHAR(A.DOCDATE, 'MM') IN (10,11,12) THEN 'Q3'
@@ -559,7 +648,7 @@ WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
 GROUP BY 
     D.FINYR,
     C.COMPCODE,
-    TO_CHAR(A.DOCDATE,'MON'),
+    INITCAP(TRIM(TO_CHAR(A.DOCDATE,'MONTH'))) || ' ' || TO_CHAR(A.DOCDATE,'YYYY'),
     CASE 
         WHEN TO_CHAR(A.DOCDATE,'MM') >= '04' 
             THEN TO_NUMBER(TO_CHAR(A.DOCDATE,'MM')) - 3
@@ -784,40 +873,164 @@ ORDER BY YEARNO, MONTHNUMBER
 
 // order against purchase month wise
 
+// export async function getPurchaseOrderMonthWise(req, res) {
+//   const connection = await getConnectionERP(res);
+//   try {
+//     const { finYear, companyName } = req.query;
+
+//     const sql = `
+// SELECT A.FINYR,  A.Month AS Month_Name, A.COMPCODE,SUM(A.VAL) VAL,MNO,YNO FROM 
+// (
+// SELECT A.FINYR, TO_CHAR(DOCDATE,'FMMonth YYYY') AS Monthh, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+// UNION ALL
+// SELECT A.FINYR, TO_CHAR(DOCDATE,'FMMonth YYYY') AS Monthh, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+// UNION ALL
+// SELECT A.FINYEAR, TO_CHAR(PODATE,'FMMonth YYYY') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+// UNION ALL
+// SELECT A.FINYEAR, TO_CHAR(PODATE,'FMMonth YYYY') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+// UNION ALL
+// SELECT A.FINYEAR, TO_CHAR(ACCPODATE,'FMMonth YYYY') AS Month, TO_CHAR(ACCPODATE,'MM') AS MNO, TO_CHAR(ACCPODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+// ) A
+// where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
+// GROUP BY A.FINYR,A.COMPCODE,MONTH,MNO,YNO
+// HAVING SUM(A.VAL) > 0
+// ORDER BY 1,YNO,MNO
+//      `;
+
+//     const result = await connection.execute(sql);
+//     let resp = result.rows?.map((po) => ({
+//       finyear: po[0],
+//       month: po[1],
+//       company: po[2],
+//       value: po[3],
+//       monthNumber: po[4],
+//       yearNo: po[5],
+//     }));
+//     return res.json({ statusCode: 0, data: resp });
+//   } catch (err) {
+//     console.error("Error retrieving data:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   } finally {
+//     await connection.close();
+//   }
+// }
+
 export async function getPurchaseOrderMonthWise(req, res) {
   const connection = await getConnectionERP(res);
+
   try {
     const { finYear, companyName } = req.query;
 
-    const sql = `
-SELECT A.FINYR, INITCAP(TRIM(A.Month)) AS Month_Name, A.COMPCODE,SUM(A.VAL) VAL,MNO,YNO FROM 
-(
-SELECT A.FINYR, TO_CHAR(DOCDATE,'MONTH') AS Month, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
-UNION ALL
-SELECT A.FINYR, TO_CHAR(DOCDATE,'MONTH') AS Month, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
-UNION ALL
-SELECT A.FINYEAR, TO_CHAR(PODATE,'MONTH') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
-UNION ALL
-SELECT A.FINYEAR, TO_CHAR(PODATE,'MONTH') AS Month, TO_CHAR(PODATE,'MM') AS MNO, TO_CHAR(PODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
-UNION ALL
-SELECT A.FINYEAR, TO_CHAR(ACCPODATE,'MONTH') AS Month, TO_CHAR(ACCPODATE,'MM') AS MNO, TO_CHAR(ACCPODATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
-) A
-where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}'
-GROUP BY A.FINYR,A.COMPCODE,MONTH,MNO,YNO
-HAVING SUM(A.VAL) > 0
-ORDER BY 1,YNO,MNO
-     `;
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+          SELECT FINYR,
+                 TO_CHAR(DOCDATE,'FMMonth YYYY') AS MONTH_NAME,
+                 TO_CHAR(DOCDATE,'MM') AS MONTHNUMBER,
+                 TO_CHAR(DOCDATE,'YYYY') AS YEARNO,
+                 COMPCODE,
+                 SUM((POQTY-CANQTY)*PRICE) AS VAL
+          FROM YARNPURREG
+          WHERE FINYR = :finYear AND COMPCODE = :companyName
+          GROUP BY FINYR, TO_CHAR(DOCDATE,'FMMonth YYYY'), TO_CHAR(DOCDATE,'MM'), TO_CHAR(DOCDATE,'YYYY'), COMPCODE
+          HAVING SUM((POQTY-CANQTY)*PRICE) > 0
+          ORDER BY TO_CHAR(DOCDATE,'YYYY'), TO_CHAR(DOCDATE,'MM')
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+          SELECT FINYR,
+                 TO_CHAR(DOCDATE,'FMMonth YYYY') AS MONTH_NAME,
+                 TO_CHAR(DOCDATE,'MM') AS MONTHNUMBER,
+                 TO_CHAR(DOCDATE,'YYYY') AS YEARNO,
+                 COMPCODE,
+                 SUM((POQTY-CANQTY)*PRICE) AS VAL
+          FROM DYARNPURREG
+          WHERE FINYR = :finYear AND COMPCODE = :companyName
+          GROUP BY FINYR, TO_CHAR(DOCDATE,'FMMonth YYYY'), TO_CHAR(DOCDATE,'MM'), TO_CHAR(DOCDATE,'YYYY'), COMPCODE
+          HAVING SUM((POQTY-CANQTY)*PRICE) > 0
+          ORDER BY TO_CHAR(DOCDATE,'YYYY'), TO_CHAR(DOCDATE,'MM')
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+          SELECT FINYEAR AS FINYR,
+                 TO_CHAR(PODATE,'FMMonth YYYY') AS MONTH_NAME,
+                 TO_CHAR(PODATE,'MM') AS MONTHNUMBER,
+                 TO_CHAR(PODATE,'YYYY') AS YEARNO,
+                 COMPCODE,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM GFABPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY FINYEAR, TO_CHAR(PODATE,'FMMonth YYYY'), TO_CHAR(PODATE,'MM'), TO_CHAR(PODATE,'YYYY'), COMPCODE
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+          ORDER BY TO_CHAR(PODATE,'YYYY'), TO_CHAR(PODATE,'MM')
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+          SELECT FINYEAR AS FINYR,
+                 TO_CHAR(PODATE,'FMMonth YYYY') AS MONTH_NAME,
+                 TO_CHAR(PODATE,'MM') AS MONTHNUMBER,
+                 TO_CHAR(PODATE,'YYYY') AS YEARNO,
+                 COMPCODE,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM DFABPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY FINYEAR, TO_CHAR(PODATE,'FMMonth YYYY'), TO_CHAR(PODATE,'MM'), TO_CHAR(PODATE,'YYYY'), COMPCODE
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+          ORDER BY TO_CHAR(PODATE,'YYYY'), TO_CHAR(PODATE,'MM')
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+          SELECT FINYEAR AS FINYR,
+                 TO_CHAR(ACCPODATE,'FMMonth YYYY') AS MONTH_NAME,
+                 TO_CHAR(ACCPODATE,'MM') AS MONTHNUMBER,
+                 TO_CHAR(ACCPODATE,'YYYY') AS YEARNO,
+                 COMPCODE,
+                 SUM((POQTY-CANQTY)*PORATE) AS VAL
+          FROM ACCPOREG
+          WHERE FINYEAR = :finYear AND COMPCODE = :companyName
+          GROUP BY FINYEAR, TO_CHAR(ACCPODATE,'FMMonth YYYY'), TO_CHAR(ACCPODATE,'MM'), TO_CHAR(ACCPODATE,'YYYY'), COMPCODE
+          HAVING SUM((POQTY-CANQTY)*PORATE) > 0
+          ORDER BY TO_CHAR(ACCPODATE,'YYYY'), TO_CHAR(ACCPODATE,'MM')
+        `,
+      },
+    ];
 
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      finyear: po[0],
-      month: po[1],
-      company: po[2],
-      value: po[3],
-      monthNumber: po[4],
-      yearNo: po[5],
-    }));
+    // Run all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName }))
+    );
+
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows.map((row) => ({
+          finyear: row[0],      // <-- added FINYR here
+          month: row[1],
+          monthNumber: row[2],
+          yearNo: row[3],
+          company: row[4],
+          value: row[5],
+        })).filter(r => r.value > 0);
+
+        if (filteredData.length === 0) return null;
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean);
+
     return res.json({ statusCode: 0, data: resp });
+
   } catch (err) {
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -836,7 +1049,7 @@ export async function getGenaralPurchaseMonthWise(req, res) {
     const sql = `
 SELECT 
     D.FINYR AS FINYEAR,
-    INITCAP(TRIM(TO_CHAR(A.DOCDATE,'MON'))) AS MONTH,
+    TO_CHAR(A.DOCDATE, 'FMMonth YYYY') AS MONTH,
     C.COMPCODE AS COMPANY,
     SUM(B.AMOUNT) AS VAL,
     CASE 
@@ -855,7 +1068,7 @@ WHERE D.FINYR = '${finYear}'
 GROUP BY 
     D.FINYR,
     C.COMPCODE,
-    TO_CHAR(A.DOCDATE,'MON'),
+    TO_CHAR(A.DOCDATE, 'FMMonth YYYY'),
     CASE 
         WHEN TO_CHAR(A.DOCDATE,'MM') >= '04' 
             THEN TO_NUMBER(TO_CHAR(A.DOCDATE,'MM')) - 3
@@ -1038,52 +1251,98 @@ export async function getTopTenSupplierOrder(req, res) {
   try {
     const { finYear, companyName } = req.query;
 
-    const sql = `
-WITH Combined AS (
-    SELECT A.SUPPLIER, 'GREY YARN' AS TYPENAME, A.FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PRICE AS VAL
-    FROM YARNPURREG A
-    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0
-
-    UNION ALL
-
-    SELECT A.SUPPLIER, 'DYED YARN' AS TYPENAME, A.FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PRICE AS VAL
-    FROM DYARNPURREG A
-    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0
-
-    UNION ALL
-
-    SELECT A.SUPPLIER, 'GREY FABRIC' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
-    FROM GFABPOREG A
-    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
-
-    UNION ALL
-
-    SELECT A.SUPPLIER, 'DYED FABRIC' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
-    FROM DFABPOREG A
-    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
-
-    UNION ALL
-
-    SELECT A.SUPPLIER, 'ACCESSORY' AS TYPENAME, A.FINYEAR AS FINYR, A.COMPCODE, (A.POQTY-A.CANQTY)*A.PORATE AS VAL
-    FROM ACCPOREG A
-    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0
-)
-SELECT *
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+          SELECT *
 FROM (
-    SELECT SUPPLIER, SUM(VAL) AS TOTAL_VAL
-    FROM Combined
-    where FINYR = '${finYear}' AND COMPCODE = '${companyName}' 
-     GROUP BY SUPPLIER
-    ORDER BY SUM(VAL) DESC
+    SELECT A.FINYR,A.COMPCODE,A.SUPPLIER,SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+    FROM YARNPURREG A
+   WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+    GROUP BY A.FINYR, A.COMPCODE, A.SUPPLIER
+    ORDER BY VAL DESC
 )
 WHERE ROWNUM <= 10
-     `;
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+  SELECT *      FROM (
+          SELECT A.FINYR, A.COMPCODE, A.SUPPLIER,SUM((A.POQTY-A.CANQTY)*A.PRICE) VAL
+          FROM DYARNPURREG A
+          WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYR, A.COMPCODE,A.SUPPLIER    
+          ORDER BY VAL DESC
+)
+WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+  SELECT *      FROM (  SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM GFABPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE,A.SUPPLIER
+                    ORDER BY VAL DESC
+)
+WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+  SELECT *       FROM (  SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM DFABPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE,A.SUPPLIER
+                           ORDER BY VAL DESC
+)
+WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+  SELECT *       FROM ( SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
+          FROM ACCPOREG A
+          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          GROUP BY A.FINYEAR, A.COMPCODE,A.SUPPLIER
+                                     ORDER BY VAL DESC
+)
+WHERE ROWNUM <= 10
+        `,
+      },
+    ];
 
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      supplierName: po[0],
-      TOTAL_VAL: po[1],
-    }));
+    // Run all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+    );
+
+    // Format and filter response: exclude rows where VAL <= 0, and exclude types with no rows
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows
+          .map((row) => ({
+            FINYEAR: row[0],
+            COMPCODE: row[1],
+            SUPPLIER: row[2],
+            VAL: row[3],
+          }))
+          .filter((r) => r.VAL > 0); // only keep VAL > 0
+
+        if (filteredData.length === 0) return null; // exclude entire type if no valid rows
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean); // remove nulls
+
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -1104,13 +1363,13 @@ export async function getTopTenSupplierGeneral(req, res) {
 
 SELECT *
 FROM (
-    SELECT A.SUPPLIER, SUM(B.AMOUNT) AS VAL
+    SELECT A.SUPPLIER,C.COMPCODE,D.FINYR, SUM(B.AMOUNT) AS VAL
     FROM GTGENPO A
     JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
     JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
     JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
     WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-    GROUP BY A.SUPPLIER
+    GROUP BY A.SUPPLIER,D.FINYR,C.COMPCODE
     ORDER BY SUM(B.AMOUNT) DESC
 )
 WHERE ROWNUM <= 10
@@ -1119,7 +1378,9 @@ WHERE ROWNUM <= 10
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
       supplierName: po[0],
-      TOTAL_VAL: po[1],
+      compCode: po[1],
+      finYear: po[2],
+      TOTAL_VAL: po[3],
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
@@ -1269,6 +1530,173 @@ ORDER BY 1,2
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// supplier getting
+
+export async function getTopSupplierListGreyYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYR, A.COMPCODE, A.SUPPLIER,
+               SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+        FROM YARNPURREG A
+        WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYR, A.COMPCODE, A.SUPPLIER
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getTopSupplierListDyedYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYR, A.COMPCODE, A.SUPPLIER,
+               SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+        FROM DYARNPURREG A
+        WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYR, A.COMPCODE, A.SUPPLIER
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getTopSupplierListGreyFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM GFABPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.SUPPLIER
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getTopSupplierListDyedFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM DFABPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.SUPPLIER
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getTopSupplierListAccessory(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.SUPPLIER,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM ACCPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.SUPPLIER
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();

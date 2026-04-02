@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup} from "../services/purchase.service.js";
-import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable,getGeneralSupplierToptenTable } from "../services/purchaseTable.service.js";
+import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup, getTopSupplierListGreyYarn, getTopSupplierListDyedYarn, getTopSupplierListGreyFabric, getTopSupplierListDyedFabric, getTopSupplierListAccessory} from "../services/purchase.service.js";
+import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable,getGeneralSupplierToptenTable,getGreyYarnSupplierToptenTable,getDyedYarnSupplierToptenTable,getGreyFabricSupplierToptenTable,getDyedFabricSupplierToptenTable ,getAccessorySupplierToptenTable,getQuarterGeneralTable} from "../services/purchaseTable.service.js";
 
 const router = Router();
 
@@ -53,7 +53,26 @@ router.get("/getDyedFabricTable", getDyedFabricTable);
 router.get("/getAccessoryTable", getAccessoryTable);
 
 
-router.get('/getGeneralSupplierToptenTable',getGeneralSupplierToptenTable)
+router.get('/getTopTenSupplierGeneralTable',getGeneralSupplierToptenTable)
+router.get('/getTopTenSupplierGreyYarnTable',getGreyYarnSupplierToptenTable)
+router.get('/getTopTenSupplierDyedYarnTable',getDyedYarnSupplierToptenTable)
+router.get('/getTopTenSupplierGreyFabricTable',getGreyFabricSupplierToptenTable)
+router.get('/getTopTenSupplierDyedFabricTable',getDyedFabricSupplierToptenTable)
+router.get('/getTopTenSupplierAccessoryTable',getAccessorySupplierToptenTable)
+
+
+
+
+
+
+router.get('/getTopTenSupplierListGreyYarnTable',getTopSupplierListGreyYarn)
+router.get('/getTopTenSupplierListDyedYarnTable',getTopSupplierListDyedYarn)
+router.get('/getTopTenSupplierListGreyFabricTable',getTopSupplierListGreyFabric)
+router.get('/getTopTenSupplierListDyedFabricTable',getTopSupplierListDyedFabric)
+router.get('/getTopTenSupplierListAccessoryTable',getTopSupplierListAccessory)
+
+
+router.get('/getQuarterwiseGeneralTable',getQuarterGeneralTable)
 
 
 export default router;

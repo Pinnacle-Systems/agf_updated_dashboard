@@ -200,6 +200,7 @@ export const addInsightsRowTurnOver = ({
   disableFinYear,
   secondDynamicField,
   seconddynamicValue,
+  thirdDynamicField,thirdDynamicValue
 }) => {
   const insightText =
     `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    `}` +
@@ -209,7 +210,12 @@ export const addInsightsRowTurnOver = ({
       secondDynamicField
         ? `${secondDynamicField}: ${seconddynamicValue}    |    `
         : ""
-    }`;
+    }` +
+    `${
+      thirdDynamicField
+        ? `${thirdDynamicField}: ${thirdDynamicValue}    |    `
+        : ""
+    }` ;
 
   // Insert insights row
   worksheet.insertRow(startRow, [insightText]);

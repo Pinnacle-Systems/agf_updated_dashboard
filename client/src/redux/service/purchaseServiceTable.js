@@ -86,6 +86,220 @@ const purchaseTable = createApi({
       },
       providesTags: ["purchaseTable"],
     }),
+    getTopTenSupplierGeneralTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierGeneralTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierGreyYarnTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierGreyYarnTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierDyedYarnTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierDyedYarnTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierGreyFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierGreyFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierDyedFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierDyedFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierAccessoryTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierAccessoryTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierListGreyYarnTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierListGreyYarnTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierListDyedYarnTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierListDyedYarnTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierListGreyFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierListGreyFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierListDyedFabricTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierListDyedFabricTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getTopTenSupplierListAccessoryTable: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenSupplierListAccessoryTable",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchaseTable"],
+    }),
+    getQuarterwiseGeneralTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseGeneralTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
+
+    getQuarterwiseGreyYarnTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseGreyYarnTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
+
+    getQuarterwiseDyedYarnTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseDyedYarnTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
+
+    getQuarterwiseGreyFabricTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseGreyFabricTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
+
+    getQuarterwiseDyedFabricTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseDyedFabricTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
+
+    getQuarterwiseAccessoryTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getQuarterwiseAccessoryTable",
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+        params,
+      }),
+      providesTags: ["purchaseTable"],
+    }),
   }),
 });
 
@@ -96,6 +310,23 @@ export const {
   useGetGreyFabricTableQuery,
   useGetDyedFabricTableQuery,
   useGetAccessoryTableQuery,
+  useGetTopTenSupplierGeneralTableQuery,
+  useGetTopTenSupplierGreyYarnTableQuery,
+  useGetTopTenSupplierDyedYarnTableQuery,
+  useGetTopTenSupplierGreyFabricTableQuery,
+  useGetTopTenSupplierDyedFabricTableQuery,
+  useGetTopTenSupplierAccessoryTableQuery,
+  useGetTopTenSupplierListGreyYarnTableQuery,
+  useGetTopTenSupplierListDyedYarnTableQuery,
+  useGetTopTenSupplierListDyedFabricTableQuery,
+  useGetTopTenSupplierListGreyFabricTableQuery,
+  useGetTopTenSupplierListAccessoryTableQuery,
+  useGetQuarterwiseGeneralTableQuery,
+  useGetQuarterwiseGreyYarnTableQuery,
+  useGetQuarterwiseDyedYarnTableQuery,
+  useGetQuarterwiseGreyFabricTableQuery,
+  useGetQuarterwiseDyedFabricTableQuery,
+  useGetQuarterwiseAccessoryTableQuery
 } = purchaseTable;
 
 export default purchaseTable;
