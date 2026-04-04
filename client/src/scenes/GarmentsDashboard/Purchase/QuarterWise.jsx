@@ -1,283 +1,3 @@
-// import React, { useMemo, useState } from "react";
-// import Highcharts from "highcharts";
-// import HighchartsReact from "highcharts-react-official";
-// import highchartsMore from "highcharts/highcharts-more";
-
-// import {
-//   Card,
-//   CardHeader,
-//   CardContent,
-//   useTheme,
-//   Radio,
-//   RadioGroup,
-//   FormControlLabel,
-//   Box,
-// } from "@mui/material";
-// import {
-//   useGetQuarterPurchaseOrderQuery,
-//   useGetQuarterPurchaseGeneralQuery,
-//   useGetQuarterPurchaseCombinedCOMPQuery,
-// } from "../../../redux/service/purchaseService";
-// import YearWiseTable from "./TableData/YearTable";
-// import { useEffect } from "react";
-// import SpinLoader from "../../../utils/spinLoader";
-
-// highchartsMore(Highcharts);
-
-// const QuarterWise = ({
-//   companyName,
-//   finYear,
-//   finYr,
-//   poType,
-//   companyList,
-//   setChartToShow,
-//   chartToshow,
-//   purchaseTypeOptions,
-// }) => {
-//   const theme = useTheme();
-//   const [showYearTable, setShowYearTable] = useState(false);
-//   const [selectedYear, setSelectedYear] = useState(null);
-//   const [selectedCompCode, setSelectedCompCode] = useState("");
-//   const [selectedOrderType, setSelectedOrderType] = useState("");
-//   const [selectedMonth, setSelectedMonth] = useState(null);
-//   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
-//   const [selectedMonthColor, setSelectedMonthColor] = useState("#00C49F");
-//   const [selectedType, setSelectedType] = useState("");
-
-//   console.log(poType, "poType");
-//   const formatINR = (value) =>
-//     `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-//   const formatINRShort = (value) => {
-//     const num = Number(value);
-//     if (num >= 1e7) return `₹ ${(num / 1e7).toFixed(2)} Cr`;
-//     if (num >= 1e5) return `₹ ${(num / 1e5).toFixed(2)} L`;
-//     return `₹ ${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-//   };
-
-//   const {
-//     data: quarterResponse,
-//     isLoading,
-//     isFetching,
-//   } = useGetQuarterPurchaseCombinedCOMPQuery(
-//     { params: { finYear, companyName } },
-//     { skip: !finYear || !companyName },
-//   );
-
-//   const { data: quarterOrderRespone } = useGetQuarterPurchaseOrderQuery(
-//     { params: { finYear, companyName } },
-//     { skip: !finYear || !companyName },
-//   );
-// const {
-//     data: quarterGeneralResponse,
-
-//   } = useGetQuarterPurchaseGeneralQuery(
-//     { params: { finYear, companyName } },
-//     { skip: !finYear || !companyName },
-//   );
-//   console.log(quarterResponse, "quarterResponse");
-
-//   useEffect(() => {
-//     setShowYearTable(false);
-//     setSelectedYear(null);
-//     setSelectedCompCode("");
-//   }, [poType]);
-
-//   let responseToshow =
-//     poType === "All" ? quarterResponse?.data : quarterGeneralResponse?.data;
-
-//   const quarterChartData = useMemo(
-//     () =>
-//       (Array.isArray(responseToshow) ? responseToshow : []).map((i) => ({
-//         quarter: i.quarter || i.label,
-//         value: Number(i.VAL || i.value),
-//         month: i.month,
-//         year: i.yearNo,
-//         finYear: i.finyear,
-//         company: i.company,
-//       })),
-//     [responseToshow],
-//   );
-
-//   const quarterCategories = useMemo(
-//     () => quarterChartData.map((i) => i.quarter ?? i.label),
-//     [quarterChartData],
-//   );
-//   const quarterSeriesData = useMemo(
-//     () => quarterChartData.map((i) => Number(i.value)),
-//     [quarterChartData],
-//   );
-//   const QUARTER_COLORS = {
-//     Q1: "#0088FE", // Apr-Jun
-//     Q2: "#00C49F", // Jul-Sep
-//     Q3: "#FFBB28", // Oct-Dec
-//     Q4: "#FF8042", // Jan-Mar
-//   };
-
-//   const quarterChartOptions = useMemo(
-//     () => ({
-//       chart: { type: "column", height: 430, backgroundColor: "transparent" },
-//       title: { text: "" },
-//       xAxis: {
-//         categories: quarterCategories,
-//         lineColor: "#ddd",
-//         tickColor: "#ddd",
-//         labels: { style: { fontSize: "12px" } },
-//       },
-//       yAxis: {
-//         title: { text: "" },
-//         gridLineDashStyle: "Dash",
-//         labels: {
-//           formatter() {
-//             return formatINRShort(this.value);
-//           },
-//           style: { fontSize: "12px" },
-//         },
-//       },
-//       tooltip: {
-//         backgroundColor: "#000",
-//         style: { color: "#fff" },
-//         borderRadius: 8,
-//         formatter() {
-//           return `<b>${this.x}</b><br/>${this.point.month}<br/>${formatINR(this.y)}`;
-//         },
-//       },
-//       plotOptions: {
-//         column: {
-//           borderRadius: 8,
-//           minPointLength: 40,
-//           dataLabels: {
-//             enabled: true,
-//             inside: false, // put label inside the bar
-//             rotation: 0, // rotate label -90 degrees
-//             align: "center", // horizontal alignment
-//             y: -8,
-//             verticalAlign: "middle", // vertical alignment
-//             style: {
-//               fontSize: "13px",
-//               fontWeight: "600",
-//               color: "black", // white text for inside bars
-//             },
-//             formatter() {
-//               return formatINRShort(this.y);
-//             },
-//           },
-//         },
-//       },
-//       colors: QUARTER_COLORS,
-//       series: [
-//         {
-//           name: "Purchase",
-//           data: quarterChartData.map((i) => ({
-//             y: i.value,
-//             month: i.month, // 👈 pass month here
-//             year: i.year,
-//             color: QUARTER_COLORS[i.quarter],
-//           })),
-//         },
-//       ],
-//       legend: { enabled: false },
-//       credits: { enabled: false },
-//     }),
-//     [quarterCategories, quarterSeriesData, QUARTER_COLORS],
-//   );
-
-//   return (
-//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
-//       <CardHeader
-//         title={"Quarter Wise Purchase"}
-//         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
-//         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
-//         action={
-//           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-//             {/* Radio buttons */}
-//             <RadioGroup
-//               row
-//               value={chartToshow}
-//               onChange={(e) => setChartToShow(e.target.value)}
-//               sx={{ gap: 1 }}
-//             >
-//               {purchaseTypeOptions.map((opt) => (
-//                 <FormControlLabel
-//                   key={opt.value}
-//                   value={opt.value}
-//                   control={<Radio size="small" />}
-//                   label={opt.label}
-//                   sx={{ fontSize: "11px" }}
-//                 />
-//               ))}
-//             </RadioGroup>
-
-//             {/* Conditional select for PO Type */}
-//             {poType === "Order" && (
-//               <select
-//                 value={selectedType}
-//                 onChange={(e) => setSelectedType(e.target.value)}
-//                 style={{
-//                   fontSize: "11px",
-//                   padding: "0px 14px",
-//                   borderRadius: "6px",
-//                   border: "2px solid #2563eb",
-//                   marginTop: "2px",
-//                   marginLeft: "-12px",
-//                   minWidth: "120px",
-//                 }}
-//               >
-//                 {[
-//                   { label: "GREY YARN", value: "GREY YARN" },
-//                   { label: "DYED YARN", value: "DYED YARN" },
-//                   { label: "GREY FABRIC", value: "GREY FABRIC" },
-//                   { label: "DYED FABRIC", value: "DYED FABRIC" },
-//                   { label: "ACCESSORY", value: "ACCESSORY" },
-//                 ].map((opt) => (
-//                   <option key={opt.value} value={opt.value}>
-//                     {opt.label}
-//                   </option>
-//                 ))}
-//               </select>
-//             )}
-//           </Box>
-//         }
-//       />
-//       <CardContent
-//         sx={{
-//           position: "relative",
-//           backgroundColor: "#fff",
-//           mt: 1,
-//           ml: 1,
-//           height: 460,
-//           display: "flex",
-//           flexDirection: "column",
-//         }}
-//       >
-//         {(isLoading || isFetching) && <SpinLoader />}
-
-//         <Box>
-//           <HighchartsReact
-//             key="quarter-chart"
-//             highcharts={Highcharts}
-//             options={quarterChartOptions}
-//           />
-//         </Box>
-
-//         {showYearTable && selectedYear && (
-//           <YearWiseTable
-//             year={selectedYear}
-//             poType={poType}
-//             type={selectedOrderType}
-//             companyList={companyList}
-//             selectedCompCode={selectedCompCode}
-//             finYr={finYr}
-//             closeTable={() => setShowYearTable(false)}
-//           />
-//         )}
-//       </CardContent>
-//     </Card>
-//   );
-// };
-
-// export default QuarterWise;
-
 import React, { useMemo, useState, useEffect } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -325,6 +45,7 @@ const QuarterWise = ({
   const QUARTER_ORDER = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
   const formatINR = (value) =>
     `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  console.log(selectedMonth, selectedQuarter, "checking");
 
   const formatINRShort = (value) => {
     const num = Number(value);
@@ -352,15 +73,16 @@ const QuarterWise = ({
     { params: { finYear, companyName } },
     { skip: !finYear || !companyName },
   );
+  console.log(quarterGeneralResponse, "quarterGeneralResponse");
 
   // ── Reset on poType change ───────────────────────────────────────────────
-  useEffect(() => {
-    setShowYearTable(false);
-    setSelectedYear(null);
-    setSelectedCompCode("");
-    setOrderChartData([]);
-    setSelectedType("");
-  }, [poType]);
+  // useEffect(() => {
+  //   setShowYearTable(false);
+  //   setSelectedYear(null);
+  //   setSelectedCompCode("");
+  //   setOrderChartData([]);
+  //   setSelectedType("");
+  // }, [poType]);
 
   // ── Process Order response → grouped by type (mirrors TopTenSupplierYear) ─
   useEffect(() => {
@@ -400,6 +122,8 @@ const QuarterWise = ({
     } else {
       const responseToShow =
         poType === "All" ? quarterResponse?.data : quarterGeneralResponse?.data;
+      console.log(responseToShow, "responseToShow");
+
       dataToUse = (Array.isArray(responseToShow) ? responseToShow : []).map(
         (i) => ({
           quarter: i.quarter || i.label,
@@ -412,6 +136,7 @@ const QuarterWise = ({
         }),
       );
     }
+    console.log(dataToUse, "dataToUse");
 
     // ── Sort by Q1→Q4, then by year/month if needed
     return dataToUse.sort((a, b) => {
@@ -436,7 +161,23 @@ const QuarterWise = ({
     Q3: "#FFBB28",
     Q4: "#FF8042",
   };
-
+  const quarterEndIndices = (() => {
+    const indices = [];
+    let lastQuarter = "";
+    activeChartData.forEach((item, idx) => {
+      if (item.quarter !== lastQuarter) {
+        lastQuarter = item.quarter;
+      }
+      // check if next item is a new quarter or last item
+      if (
+        idx === activeChartData.length - 1 || // last item
+        activeChartData[idx + 1].quarter !== item.quarter
+      ) {
+        indices.push(idx + 0.5); // place line after this column
+      }
+    });
+    return indices;
+  })();
   const quarterChartOptions = useMemo(
     () => ({
       chart: { type: "column", height: 430, backgroundColor: "transparent" },
@@ -445,7 +186,14 @@ const QuarterWise = ({
         categories: activeChartData.map((i) => i.quarter),
         lineColor: "#ddd",
         tickColor: "#ddd",
+
         labels: { style: { fontSize: "12px" } },
+        plotLines: quarterEndIndices.map((idx) => ({
+          color: "#ccc",
+          width: 2,
+          value: idx,
+          zIndex: 5,
+        })),
       },
       yAxis: {
         title: { text: "" },
@@ -485,12 +233,14 @@ const QuarterWise = ({
           point: {
             events: {
               click(e) {
+                console.log(e.point, "modal");
+
                 if (poType === "All") return;
-                setSelectedYear(e.point.finYear);
-                setSelectedCompCode(e.point.company ?? companyName);
+                setSelectedYear(this.finYear);
+                setSelectedCompCode(this.company ?? companyName);
                 setSelectedOrderType(poType === "Order" ? selectedType : "");
-                setSelectedQuarter(e.point.quarter); // ← ADD
-                setSelectedMonth(e.point.month);
+                setSelectedQuarter(this.category); // ← this.category = "Q4"
+                setSelectedMonth(this.month); // ← this.month = "January 2026"
                 setShowYearTable(true);
               },
             },
@@ -599,17 +349,21 @@ const QuarterWise = ({
             year={selectedYear}
             poType={poType}
             type={selectedOrderType}
+            initialOrderType={selectedType}
             companyList={companyList}
             selectedCompCode={selectedCompCode}
+            setSelectedCompCode={setSelectedCompCode}
             finYr={finYr}
             initialQuarter={selectedQuarter} // ← ADD
             initialMonth={selectedMonth}
-              closeTable={() => {
-            setShowYearTable(false);
-            setSelectedCompCode(companyName);
-            setSelectedYear(finYear);
-            setSelectedType(orderChartData[0].type)
-          }}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            closeTable={() => {
+              setShowYearTable(false);
+              setSelectedCompCode(companyName);
+              setSelectedYear(finYear);
+              setSelectedType(orderChartData[0].type);
+            }}
           />
         )}
       </CardContent>

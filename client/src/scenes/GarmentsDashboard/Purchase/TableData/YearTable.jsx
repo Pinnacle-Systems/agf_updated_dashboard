@@ -638,10 +638,11 @@ const YearWiseTable = ({
     worksheet.columns = [
       { header: "S.No", key: "sno", width: 8 },
       { header: "Doc No", key: "docNo", width: 24 },
+       { header: "Supplier", key: "supplier", width: 60 },
       { header: "Doc Date", key: "docDate", width: 16 },
       { header: "Item Group", key: "itemGroup", width: 20 },
       { header: "Item Name", key: "item", width: 80 },
-      { header: "Supplier", key: "supplier", width: 60 },
+     
       { header: "Qty", key: "qty", width: 14 },
       { header: "UOM", key: "uom", width: 14 },
       { header: "Rate", key: "rate", width: 18 },
@@ -798,9 +799,10 @@ const YearWiseTable = ({
       { header: "S.No", key: "sno", width: 8 },
       { header: "Doc No", key: "docNo", width: 24 },
       { header: "Doc Date", key: "docDate", width: 16 },
-      { header: "Yarn", key: "yarn", width: 50 },
-      { header: "Order No", key: "orderNo", width: 25 },
+          { header: "Order No", key: "orderNo", width: 25 },
       { header: "Supplier", key: "supplier", width: 60 },
+      { header: "Yarn Name", key: "yarn", width: 50 },
+  
       { header: "Color", key: "color", width: 25 },
       { header: "Qty", key: "qty", width: 15 },
       { header: "UOM", key: "uom", width: 14 },
@@ -968,9 +970,10 @@ const YearWiseTable = ({
       { header: "S.No", key: "sno", width: 8 },
       { header: "Doc No", key: "docNo", width: 24 },
       { header: "Doc Date", key: "docDate", width: 16 },
-      { header: "Yarn", key: "yarn", width: 50 },
       { header: "Order No", key: "orderNo", width: 25 },
       { header: "Supplier", key: "supplier", width: 60 },
+      { header: "Yarn Name", key: "yarn", width: 50 },
+      
       { header: "Color", key: "color", width: 25 },
       { header: "Qty", key: "qty", width: 15 },
       { header: "UOM", key: "uom", width: 14 },
@@ -1139,9 +1142,10 @@ const YearWiseTable = ({
       { header: "S.No", key: "sno", width: 8 },
       { header: "Doc No", key: "docNo", width: 24 },
       { header: "Doc Date", key: "docDate", width: 16 },
-      { header: "Fabric Name", key: "fabric", width: 90 },
-      { header: "Order No", key: "orderNo", width: 25 },
+       { header: "Order No", key: "orderNo", width: 25 },
       { header: "Supplier", key: "supplier", width: 60 },
+      { header: "Fabric Name", key: "fabric", width: 90 },
+     
       { header: "Color", key: "color", width: 25 },
       { header: "Design", key: "design", width: 25 },
       { header: "GSM", key: "gsm", width: 15 },
@@ -1325,9 +1329,10 @@ const YearWiseTable = ({
       { header: "S.No", key: "sno", width: 8 },
       { header: "Doc No", key: "docNo", width: 24 },
       { header: "Doc Date", key: "docDate", width: 16 },
-      { header: "Fabric Name", key: "fabric", width: 90 },
-      { header: "Order No", key: "orderNo", width: 25 },
+         { header: "Order No", key: "orderNo", width: 25 },
       { header: "Supplier", key: "supplier", width: 60 },
+      { header: "Fabric Name", key: "fabric", width: 90 },
+   
       { header: "Color", key: "color", width: 25 },
       { header: "Design", key: "design", width: 25 },
       { header: "GSM", key: "gsm", width: 15 },
@@ -1821,7 +1826,7 @@ const YearWiseTable = ({
           <div className="flex gap-x-4 mb-3">
             {localPoType === "General" ? (
               <>
-                {["docId", "itemGroup", "itemName", "supplier"].map((key) => (
+                {["docId","supplier",  "itemGroup", "itemName",].map((key) => (
                   <div key={key} className="relative">
                     <input
                       type="text"
@@ -1838,7 +1843,7 @@ const YearWiseTable = ({
               </>
             ) : localPoType === "Order" && selectedOrderType === "GREY YARN" ? (
               <>
-                {["docId", "yarnName", "orderNo", "supplier", "color"].map(
+                {["docId","orderNo", "supplier",  "yarnName", "color"].map(
                   (key) => (
                     <div key={key} className="relative">
                       <input
@@ -1860,7 +1865,7 @@ const YearWiseTable = ({
               </>
             ) : localPoType === "Order" && selectedOrderType === "DYED YARN" ? (
               <>
-                {["docId", "yarnName", "orderNo", "supplier", "color"].map(
+                {["docId", "orderNo","supplier","yarnName",   "color"].map(
                   (key) => (
                     <div key={key} className="relative">
                       <input
@@ -1883,7 +1888,7 @@ const YearWiseTable = ({
             ) : localPoType === "Order" &&
               selectedOrderType === "GREY FABRIC" ? (
               <>
-                {["docId", "fabricName", "orderNo", "supplier", "color"].map(
+                {["docId","orderNo", "supplier", "fabricName",  "color"].map(
                   (key) => (
                     <div key={key} className="relative">
                       <input
@@ -1906,7 +1911,7 @@ const YearWiseTable = ({
             ) : localPoType === "Order" &&
               selectedOrderType === "DYED FABRIC" ? (
               <>
-                {["docId", "fabricName", "orderNo", "supplier", "color"].map(
+                {["docId",  "orderNo","supplier",  "fabricName","color"].map(
                   (key) => (
                     <div key={key} className="relative">
                       <input
@@ -2203,11 +2208,12 @@ const YearWiseTable = ({
                       <th className="border p-1 text-center w-[38px]">
                         Doc Date
                       </th>
+                      <th className="border p-1 text-center w-36">Supplier</th>
                       <th className="border p-1 text-center w-12">
                         Item Group
                       </th>
                       <th className="border p-1 text-center w-52">Item Name</th>
-                      <th className="border p-1 text-center w-36">Supplier</th>
+                      
                       <th className="border p-1 text-center w-8">Qty</th>
                       <th className="border p-1 text-center w-8">UOM</th>
                       <th className="border p-1 text-center w-8">Rate</th>
@@ -2256,15 +2262,16 @@ const YearWiseTable = ({
                             <td className="border p-1 pl-2 text-left ">
                               {formateDate(row.docDate)}
                             </td>
+                              <td className="border p-1 pr-2 text-left">
+                              {row.supplier}
+                            </td>
                             <td className="border p-1 pl-2 text-left ">
                               {row.itemGroup}
                             </td>
                             <td className="border p-1 pr-2 text-left">
                               {row.item}
                             </td>
-                            <td className="border p-1 pr-2 text-left">
-                              {row.supplier}
-                            </td>
+                          
                             <td className="border p-1 pr-2 text-right">
                               {" "}
                               {formatQtyByUOM(row.qty, row.uom)}
@@ -2305,9 +2312,10 @@ const YearWiseTable = ({
                       <th className="border p-1 text-center w-[48px]">
                         Doc Date
                       </th>
-                      <th className="border p-1 text-center w-72">Yarn</th>
-                      <th className="border p-1 text-center w-20">Order No</th>
+                        <th className="border p-1 text-center w-20">Order No</th>
                       <th className="border p-1 text-center w-44">Supplier</th>
+                      <th className="border p-1 text-center w-72">Yarn Name</th>
+                    
                       <th className="border p-1 text-center w-20">Color</th>
                       <th className="border p-1 text-center w-8">Qty</th>
                       <th className="border p-1 text-center w-8">UOM</th>
@@ -2359,15 +2367,16 @@ const YearWiseTable = ({
                             <td className="border p-1 pl-2 text-left ">
                               {formateDate(row.docDate)}
                             </td>
-                            <td className="border p-1 pl-2 text-left ">
-                              {row.yarnName}
-                            </td>
-                            <td className="border p-1 pr-2 text-left">
+                                 <td className="border p-1 pr-2 text-left">
                               {row.orderNo}
                             </td>
                             <td className="border p-1 pr-2 text-left">
                               {row.supplier}
                             </td>
+                            <td className="border p-1 pl-2 text-left ">
+                              {row.yarnName}
+                            </td>
+                       
                             <td className="border p-1 pr-2 text-left">
                               {row.color}
                             </td>
@@ -2411,9 +2420,10 @@ const YearWiseTable = ({
                       <th className="border p-1 text-center w-[48px]">
                         Doc Date
                       </th>
-                      <th className="border p-1 text-center w-72">Yarn</th>
-                      <th className="border p-1 text-center w-20">Order No</th>
+                            <th className="border p-1 text-center w-20">Order No</th>
                       <th className="border p-1 text-center w-44">Supplier</th>
+                      <th className="border p-1 text-center w-72">Yarn</th>
+                
                       <th className="border p-1 text-center w-20">Color</th>
                       <th className="border p-1 text-center w-8">Qty</th>
                       <th className="border p-1 text-center w-8">UOM</th>
@@ -2465,15 +2475,16 @@ const YearWiseTable = ({
                             <td className="border p-1 pl-2 text-left ">
                               {formateDate(row.docDate)}
                             </td>
-                            <td className="border p-1 pl-2 text-left ">
-                              {row.yarnName}
-                            </td>
-                            <td className="border p-1 pr-2 text-left">
+                                <td className="border p-1 pr-2 text-left">
                               {row.orderNo}
                             </td>
                             <td className="border p-1 pr-2 text-left">
                               {row.supplier}
                             </td>
+                            <td className="border p-1 pl-2 text-left ">
+                              {row.yarnName}
+                            </td>
+                        
                             <td className="border p-1 pr-2 text-left">
                               {row.color}
                             </td>
@@ -2516,11 +2527,13 @@ const YearWiseTable = ({
                       {/* <th className="border p-1 text-center w-8">Year</th> */}
                       <th className="border p-1 text-center w-24">Doc No</th>
                       <th className="border p-1 text-center w-16">Doc Date</th>
+                       <th className="border p-1 text-center w-24">Order No</th>
+                                  <th className="border p-1 text-center w-44">Supplier</th>
                       <th className="border p-1 text-center w-80">
                         Fabric Name
                       </th>
-                      <th className="border p-1 text-center w-24">Order No</th>
-                      <th className="border p-1 text-center w-44">Supplier</th>
+                     
+           
                       <th className="border p-1 text-center w-20">Color</th>
                       <th className="border p-1 text-center w-20">Design</th>
                       <th className="border p-1 text-center w-12">GSM</th>
@@ -2575,15 +2588,17 @@ const YearWiseTable = ({
                               <td className="border p-1 pl-2 text-left ">
                                 {formateDate(row.docDate)}
                               </td>
+                                 <td className="border p-1 pr-2 text-left">
+                                {row.orderNo}
+                              </td>
+                               <td className="border p-1 pr-2 text-left">
+                                {row.supplier}
+                              </td>
                               <td className="border p-1 pl-2 text-left ">
                                 {row.fabricName}
                               </td>
-                              <td className="border p-1 pr-2 text-left">
-                                {row.orderNo}
-                              </td>
-                              <td className="border p-1 pr-2 text-left">
-                                {row.supplier}
-                              </td>
+                           
+                             
                               <td className="border p-1 pr-2 text-left">
                                 {row.color}
                               </td>
@@ -2637,11 +2652,13 @@ const YearWiseTable = ({
                       {/* <th className="border p-1 text-center w-8">Year</th> */}
                       <th className="border p-1 text-center w-24">Doc No</th>
                       <th className="border p-1 text-center w-16">Doc Date</th>
+                        <th className="border p-1 text-center w-24">Order No</th>
+                              <th className="border p-1 text-center w-44">Supplier</th>
                       <th className="border p-1 text-center w-80">
                         Fabric Name
                       </th>
-                      <th className="border p-1 text-center w-24">Order No</th>
-                      <th className="border p-1 text-center w-44">Supplier</th>
+                    
+                
                       <th className="border p-1 text-center w-20">Color</th>
                       <th className="border p-1 text-center w-20">Design</th>
                       <th className="border p-1 text-center w-12">GSM</th>
@@ -2696,15 +2713,16 @@ const YearWiseTable = ({
                               <td className="border p-1 pl-2 text-left ">
                                 {formateDate(row.docDate)}
                               </td>
-                              <td className="border p-1 pl-2 text-left ">
-                                {row.fabricName}
-                              </td>
-                              <td className="border p-1 pr-2 text-left">
+                                <td className="border p-1 pr-2 text-left">
                                 {row.orderNo}
                               </td>
                               <td className="border p-1 pr-2 text-left">
                                 {row.supplier}
                               </td>
+                              <td className="border p-1 pl-2 text-left ">
+                                {row.fabricName}
+                              </td>
+                            
                               <td className="border p-1 pr-2 text-left">
                                 {row.color}
                               </td>

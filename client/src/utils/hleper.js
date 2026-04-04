@@ -200,7 +200,7 @@ export const addInsightsRowTurnOver = ({
   disableFinYear,
   secondDynamicField,
   seconddynamicValue,
-  thirdDynamicField,thirdDynamicValue
+  thirdDynamicField,thirdDynamicValue,fourthDynamicField,fourthDynamicValue
 }) => {
   const insightText =
     `${disableFinYear ? "" : `FinYear -  ${selectedYear}    |    `}` +
@@ -214,6 +214,11 @@ export const addInsightsRowTurnOver = ({
     `${
       thirdDynamicField
         ? `${thirdDynamicField}: ${thirdDynamicValue}    |    `
+        : ""
+    }` +
+    `${
+      fourthDynamicField
+        ? `${fourthDynamicField}: ${fourthDynamicValue}    |    `
         : ""
     }` ;
 

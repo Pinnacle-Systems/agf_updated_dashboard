@@ -582,7 +582,7 @@ export async function getPurchaseOrderQuarterWise(req, res) {
 
     // Execute all queries in parallel
     const results = await Promise.all(
-      queries.map((q) => connection.execute(q.sql, { finYear, companyName }))
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
     );
 
     // Map results into expected format
@@ -594,7 +594,7 @@ export async function getPurchaseOrderQuarterWise(req, res) {
           quarter: row[2],
           monthNumber: row[3],
           yearNo: row[4],
-          month: row[5],  // "April 2025"
+          month: row[5], // "April 2025"
           value: row[6],
         }));
 
@@ -608,7 +608,6 @@ export async function getPurchaseOrderQuarterWise(req, res) {
       .filter(Boolean);
 
     return res.json({ statusCode: 0, data: resp });
-
   } catch (err) {
     console.error("Error retrieving quarter-wise data:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -879,7 +878,7 @@ ORDER BY YEARNO, MONTHNUMBER
 //     const { finYear, companyName } = req.query;
 
 //     const sql = `
-// SELECT A.FINYR,  A.Month AS Month_Name, A.COMPCODE,SUM(A.VAL) VAL,MNO,YNO FROM 
+// SELECT A.FINYR,  A.Month AS Month_Name, A.COMPCODE,SUM(A.VAL) VAL,MNO,YNO FROM
 // (
 // SELECT A.FINYR, TO_CHAR(DOCDATE,'FMMonth YYYY') AS Monthh, TO_CHAR(DOCDATE,'MM') AS MNO, TO_CHAR(DOCDATE,'YYYY') AS YNO, A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
 // UNION ALL
@@ -1006,19 +1005,21 @@ export async function getPurchaseOrderMonthWise(req, res) {
 
     // Run all queries in parallel
     const results = await Promise.all(
-      queries.map((q) => connection.execute(q.sql, { finYear, companyName }))
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
     );
 
     const resp = results
       .map((result, index) => {
-        const filteredData = result.rows.map((row) => ({
-          finyear: row[0],      // <-- added FINYR here
-          month: row[1],
-          monthNumber: row[2],
-          yearNo: row[3],
-          company: row[4],
-          value: row[5],
-        })).filter(r => r.value > 0);
+        const filteredData = result.rows
+          .map((row) => ({
+            finyear: row[0], // <-- added FINYR here
+            month: row[1],
+            monthNumber: row[2],
+            yearNo: row[3],
+            company: row[4],
+            value: row[5],
+          }))
+          .filter((r) => r.value > 0);
 
         if (filteredData.length === 0) return null;
 
@@ -1030,7 +1031,6 @@ export async function getPurchaseOrderMonthWise(req, res) {
       .filter(Boolean);
 
     return res.json({ statusCode: 0, data: resp });
-
   } catch (err) {
     console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -1051,7 +1051,7 @@ SELECT
     D.FINYR AS FINYEAR,
     TO_CHAR(A.DOCDATE, 'FMMonth YYYY') AS MONTH,
     C.COMPCODE AS COMPANY,
-    SUM(B.AMOUNT) AS VAL,
+    SUM((B.POQTY-B.CANQTY)*B.PORATE) AS VAL,
     CASE 
         WHEN TO_CHAR(A.DOCDATE,'MM') >= '04' 
             THEN TO_NUMBER(TO_CHAR(A.DOCDATE,'MM')) - 3
@@ -1076,7 +1076,7 @@ GROUP BY
             TO_NUMBER(TO_CHAR(A.DOCDATE,'MM')) + 9
     END,
     TO_CHAR(A.DOCDATE,'YYYY')
-HAVING SUM(B.AMOUNT) > 0
+HAVING SUM((B.POQTY-B.CANQTY)*B.PORATE) > 0
 ORDER BY YEARNO, MONTHNUMBER
 `;
 
@@ -1363,14 +1363,14 @@ export async function getTopTenSupplierGeneral(req, res) {
 
 SELECT *
 FROM (
-    SELECT A.SUPPLIER,C.COMPCODE,D.FINYR, SUM(B.AMOUNT) AS VAL
+    SELECT A.SUPPLIER,C.COMPCODE,D.FINYR, SUM((B.POQTY-B.CANQTY)*B.PORATE) AS VAL
     FROM GTGENPO A
     JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
     JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
     JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
     WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
     GROUP BY A.SUPPLIER,D.FINYR,C.COMPCODE
-    ORDER BY SUM(B.AMOUNT) DESC
+    ORDER BY SUM((B.POQTY-B.CANQTY)*B.PORATE) DESC
 )
 WHERE ROWNUM <= 10
      `;
@@ -1426,7 +1426,7 @@ WITH Combined AS (
 
     UNION ALL
    
-    SELECT A.SUPPLIER, SUM(B.AMOUNT)
+    SELECT A.SUPPLIER, SUM((B.POQTY-B.CANQTY)*B.PORATE)
     FROM GTGENPO A
     JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
     JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
@@ -1450,83 +1450,6 @@ WHERE ROWNUM <= 10
       TOTAL_VAL: po[1],
     }));
 
-    return res.json({ statusCode: 0, data: resp });
-  } catch (err) {
-    console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await connection.close();
-  }
-}
-
-// order against raw material wise
-
-export async function getPurchaseOrderMaterial(req, res) {
-  const connection = await getConnectionERP(res);
-  try {
-    const { finYear, companyName } = req.query;
-
-    const sql = `
-SELECT A.TYPENAME,A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM 
-(
-SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
-UNION ALL
-SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
-UNION ALL
-SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
-UNION ALL
-SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
-UNION ALL
-SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
-) A
-where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}' 
-GROUP BY TYPENAME,A.FINYR,A.COMPCODE
-HAVING SUM(A.VAL) > 0
-ORDER BY 2,3,1
-     `;
-
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      TYPENAME: po[0],
-      FINYEAR: po[1],
-      COMPCODE: po[2],
-      VAL: po[3],
-    }));
-    return res.json({ statusCode: 0, data: resp });
-  } catch (err) {
-    console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await connection.close();
-  }
-}
-// general purchase item wise
-
-export async function getPurchaseGeneralItemGroup(req, res) {
-  const connection = await getConnectionERP(res);
-  try {
-    const { finYear, companyName } = req.query;
-
-    const sql = `
- SELECT D.FINYR FINYEAR,C.COMPCODE,G.ITEMGRPNAME,I.ITEMNAME,SUM(B.AMOUNT) VAL FROM GTGENPO A
-JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
-JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
-JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
-JOIN GTITEMGRPMAST G ON G.GTITEMGRPMASTID = B.ITEMGRPNAME
-JOIN GTGENITEMMAST I ON I.GTGENITEMMASTID = B.ITEMNAME
-where D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
-GROUP BY D.FINYR,C.COMPCODE,G.ITEMGRPNAME,I.ITEMNAME
-ORDER BY 1,2
-     `;
-
-    const result = await connection.execute(sql);
-    let resp = result.rows?.map((po) => ({
-      finYear: po[0],
-      compcode: po[1],
-      ItemGroup: po[2],
-      ItemName: po[3],
-      value: po[4],
-    }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -1692,6 +1615,500 @@ export async function getTopSupplierListAccessory(req, res) {
 
     const resp = result.rows.map((row) => ({
       supplier: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// top items against order
+
+export async function getTopTenItemsOrder(req, res) {
+  const connection = await getConnectionERP(res);
+
+  try {
+    const { finYear, companyName } = req.query;
+
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+          SELECT *
+          FROM (
+            SELECT A.FINYR, A.COMPCODE, A.YARN AS ITEM, 
+                   SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+            FROM YARNPURREG A
+            WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+            GROUP BY A.FINYR, A.COMPCODE, A.YARN
+            ORDER BY VAL DESC
+          )
+          WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+          SELECT *
+          FROM (
+            SELECT A.FINYR, A.COMPCODE, A.YARN AS ITEM,
+                   SUM((A.POQTY - A.CANQTY) * A.PRICE) VAL
+            FROM DYARNPURREG A
+            WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+            GROUP BY A.FINYR, A.COMPCODE, A.YARN
+            ORDER BY VAL DESC
+          )
+          WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+          SELECT *
+          FROM (
+            SELECT A.FINYEAR, A.COMPCODE, A.FABRIC AS ITEM,
+                   SUM((A.POQTY - A.CANQTY) * A.PORATE) VAL
+            FROM GFABPOREG A
+            WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+            GROUP BY A.FINYEAR, A.COMPCODE, A.FABRIC
+            ORDER BY VAL DESC
+          )
+          WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+          SELECT *
+          FROM (
+            SELECT A.FINYEAR, A.COMPCODE, A.FABRIC AS ITEM,
+                   SUM((A.POQTY - A.CANQTY) * A.PORATE) VAL
+            FROM DFABPOREG A
+            WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+            GROUP BY A.FINYEAR, A.COMPCODE, A.FABRIC
+            ORDER BY VAL DESC
+          )
+          WHERE ROWNUM <= 10
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+          SELECT *
+          FROM (
+            SELECT A.FINYEAR, A.COMPCODE, A.ACCNAME2 AS ITEM,
+                   SUM((A.POQTY - A.CANQTY) * A.PORATE) VAL
+            FROM ACCPOREG A
+            WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+            GROUP BY A.FINYEAR, A.COMPCODE, A.ACCNAME2
+            ORDER BY VAL DESC
+          )
+          WHERE ROWNUM <= 10
+        `,
+      },
+    ];
+
+    // Execute all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+    );
+
+    // Format response
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows
+          .map((row) => ({
+            FINYEAR: row[0],
+            COMPCODE: row[1],
+            ITEM: row[2],
+            VAL: row[3],
+          }))
+          .filter((r) => r.VAL > 0);
+
+        if (filteredData.length === 0) return null;
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean);
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// top ten iTEMS against general
+
+export async function getTopTenItemsGeneral(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+
+
+SELECT *
+FROM (
+    SELECT I.ITEMNAME,C.COMPCODE,D.FINYR, SUM((B.POQTY-B.CANQTY)*B.PORATE) AS VAL
+    FROM GTGENPO A
+    JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
+    JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
+    JOIN GTGENITEMMAST I ON I.GTGENITEMMASTID = B.ITEMNAME
+    JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
+    WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+    GROUP BY I.ITEMNAME,D.FINYR,C.COMPCODE
+    ORDER BY SUM(B.AMOUNT) DESC
+)
+WHERE ROWNUM <= 10
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      ITEM: po[0],
+      COMPCODE: po[1],
+      FINYEAR: po[2],
+      VAL: po[3],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+//top items combined
+
+export async function getTopTenItemsCombined(req, res) {
+  const connection = await getConnectionERP(res);
+
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+WITH Combined AS (
+    SELECT A.YARN AS ITEM, (A.POQTY-A.CANQTY)*A.PRICE AS VAL
+    FROM YARNPURREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0 
+      AND A.FINYR = :finYear 
+      AND A.COMPCODE = :companyName
+
+    UNION ALL
+
+    SELECT A.YARN AS ITEM, (A.POQTY-A.CANQTY)*A.PRICE
+    FROM DYARNPURREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PRICE > 0 
+      AND A.FINYR = :finYear 
+      AND A.COMPCODE = :companyName
+
+    UNION ALL
+
+    SELECT A.FABRIC AS ITEM, (A.POQTY-A.CANQTY)*A.PORATE
+    FROM GFABPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0 
+      AND A.FINYEAR = :finYear 
+      AND A.COMPCODE = :companyName
+
+    UNION ALL
+
+    SELECT A.FABRIC AS ITEM, (A.POQTY-A.CANQTY)*A.PORATE
+    FROM DFABPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0 
+      AND A.FINYEAR = :finYear 
+      AND A.COMPCODE = :companyName
+
+    UNION ALL
+
+    SELECT A.ACCNAME2 AS ITEM, (A.POQTY-A.CANQTY)*A.PORATE
+    FROM ACCPOREG A
+    WHERE (A.POQTY-A.CANQTY)*A.PORATE > 0 
+      AND A.FINYEAR = :finYear 
+      AND A.COMPCODE = :companyName
+
+    UNION ALL
+
+    SELECT I.ITEMNAME AS ITEM, SUM((B.POQTY-B.CANQTY)*B.PORATE) AS VAL
+    FROM GTGENPO A
+    JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
+    JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
+    JOIN GTGENITEMMAST I ON I.GTGENITEMMASTID = B.ITEMNAME
+    JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
+    WHERE D.FINYR = :finYear 
+      AND C.COMPCODE = :companyName
+    GROUP BY I.ITEMNAME
+)
+SELECT *
+FROM (
+    SELECT ITEM, SUM(VAL) AS TOTAL_VAL
+    FROM Combined
+    GROUP BY ITEM
+    ORDER BY SUM(VAL) DESC
+)
+WHERE ROWNUM <= 10
+`;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows?.map((po) => ({
+      ITEM: po[0],
+      VAL: po[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// order against raw material wise
+
+export async function getPurchaseOrderMaterial(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+SELECT A.TYPENAME,A.FINYR,A.COMPCODE,SUM(A.VAL) VAL FROM 
+(
+SELECT 'GREY YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM YARNPURREG A
+UNION ALL
+SELECT 'DYED YARN' TYPENAME,A.FINYR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PRICE VAL FROM DYARNPURREG A
+UNION ALL
+SELECT 'GREY FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM GFABPOREG  A
+UNION ALL
+SELECT 'DYED FABRIC' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM DFABPOREG A
+UNION ALL
+SELECT 'ACCESSORY' TYPENAME,A.FINYEAR,A.COMPCODE,(A.POQTY-A.CANQTY)*A.PORATE VAL FROM ACCPOREG  A
+) A
+where A.FINYR = '${finYear}' AND A.COMPCODE = '${companyName}' 
+GROUP BY TYPENAME,A.FINYR,A.COMPCODE
+HAVING SUM(A.VAL) > 0
+ORDER BY 2,3,1
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      TYPENAME: po[0],
+      FINYEAR: po[1],
+      COMPCODE: po[2],
+      VAL: po[3],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+// general purchase item wise
+
+export async function getPurchaseGeneralItemGroup(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+ SELECT D.FINYR FINYEAR,C.COMPCODE,G.ITEMGRPNAME,I.ITEMNAME,SUM((B.POQTY-B.CANQTY)*B.PORATE) VAL FROM GTGENPO A
+JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
+JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
+JOIN GTITEMGRPMAST G ON G.GTITEMGRPMASTID = B.ITEMGRPNAME
+JOIN GTGENITEMMAST I ON I.GTGENITEMMASTID = B.ITEMNAME
+where D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+GROUP BY D.FINYR,C.COMPCODE,G.ITEMGRPNAME,I.ITEMNAME
+HAVING SUM((B.POQTY - B.CANQTY) * B.PORATE) > 0
+ORDER BY 1,2
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      finYear: po[0],
+      compcode: po[1],
+      ItemGroup: po[2],
+      ItemName: po[3],
+      value: po[4],
+    }));
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+
+
+export async function getToptenItemListGreyYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYR, A.COMPCODE, A.YARN,
+               SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+        FROM YARNPURREG A
+        WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYR, A.COMPCODE, A.YARN
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      item: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getToptenItemListDyedYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYR, A.COMPCODE, A.YARN,
+               SUM((A.POQTY - A.CANQTY) * A.PRICE) AS VAL
+        FROM DYARNPURREG A
+        WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYR, A.COMPCODE, A.YARN
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      item: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getToptenItemListGreyFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.FABRIC,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM GFABPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.FABRIC
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      item: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getToptenItemListDyedFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.FABRIC,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM DFABPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.FABRIC
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      item: row[2],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getToptenItemListAccessory(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT *
+      FROM (
+        SELECT A.FINYEAR, A.COMPCODE, A.ACCNAME2,
+               SUM((A.POQTY - A.CANQTY) * A.PORATE) AS VAL
+        FROM ACCPOREG A
+        WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+        GROUP BY A.FINYEAR, A.COMPCODE, A.ACCNAME2
+        ORDER BY VAL DESC
+      )
+      WHERE ROWNUM <= 10
+    `;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      item: row[2],
     }));
 
     return res.json({ statusCode: 0, data: resp });

@@ -3005,3 +3005,830 @@ console.log(supplierOptions,"supplierOptions");
 };
 
 export default TopTenSupplierYear;
+
+
+
+
+
+///// moth wise 
+// import React, { useMemo, useState } from "react";
+// import Highcharts from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
+// import highchartsMore from "highcharts/highcharts-more";
+
+// import {
+//   Card,
+//   CardHeader,
+//   CardContent,
+//   useTheme,
+//   Radio,
+//   RadioGroup,
+//   FormControlLabel,
+//   Box,
+// } from "@mui/material";
+// import {
+//   useGetMonthPurchaseOrderQuery,
+//   useGetMonthGeneralPurchaseQuery,
+//   useGetMonthCombinedPurchaseQuery,
+// } from "../../../redux/service/purchaseService";
+// import YearWiseTable from "./TableData/YearTable";
+// import { useEffect } from "react";
+// import SpinLoader from "../../../utils/spinLoader";
+
+// const YEAR_COLORS = [
+//   "#0088FE",
+//   "#00C49F",
+//   "#FFBB28",
+//   "#FF8042",
+//   "#A28DFF",
+//   "#FF6699",
+//   "#33CC99",
+//   "#66B2FF",
+// ];
+// highchartsMore(Highcharts);
+
+// const MonthChart = ({
+//   companyName,
+//   finYear,
+//   finYr,
+//   poType,
+//   companyList,
+//   setChartToShow,
+//   chartToshow,
+//   purchaseTypeOptions,
+// }) => {
+//   const theme = useTheme();
+//   const [showYearTable, setShowYearTable] = useState(false);
+//   const [selectedYear, setSelectedYear] = useState(null);
+//   const [selectedCompCode, setSelectedCompCode] = useState("");
+//   const [selectedOrderType, setSelectedOrderType] = useState("");
+//   const [selectedMonth, setSelectedMonth] = useState(null);
+//   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+//   const [selectedMonthColor, setSelectedMonthColor] = useState("#00C49F");
+//   console.log(poType, "poType");
+//   const formatINR = (value) =>
+//     `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+//   const formatINRShort = (value) => {
+//     const num = Number(value);
+//     if (num >= 1e7) return `₹ ${(num / 1e7).toFixed(2)} Cr`;
+//     if (num >= 1e5) return `₹ ${(num / 1e5).toFixed(2)} L`;
+//     return `₹ ${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+//   };
+
+//   // API calls
+// //   const {
+// //     data: monthResponse,
+// //     isLoading,
+// //     isFetching,
+// //   } = useGetMonthPurchaseOrderQuery(
+// //     { params: { finYear, companyName } },
+// //     { skip: !finYear || !companyName },
+// //   );
+//   const {
+//     data: monthGeneralResponse,
+//     isLoading : monthGeneralResponseLoading,
+//     isFetching : monthGeneralResponseFetching,
+//   } = useGetMonthGeneralPurchaseQuery(
+//     { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+//   );
+//   const {
+//     data: monthResponse,
+//     isLoading,
+//     isFetching,
+//   } = useGetMonthCombinedPurchaseQuery(
+//     { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+//   );
+ 
+// const {
+//   data : useGetMonthPurchaseOrderQuery
+// } = useGetMonthPurchaseOrderQuery(
+//    { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+// )
+
+//   console.log(monthResponse, "monthResponse");
+  
+//   useEffect(() => {
+//     setShowYearTable(false);
+//     setSelectedYear(null);
+//     setSelectedCompCode("");
+//   }, [poType]);
+
+// let responseToshow = poType === "All" ? monthResponse?.data : monthGeneralResponse?.data
+
+//   const monthChartData = useMemo(
+//     () =>
+//       (Array.isArray(responseToshow) ? responseToshow : []).map(
+//         (i) => ({
+//           month: i.month || i.label,
+//           value: Number(i.VAL || i.value),
+//           year: i.yearNo,
+//         }),
+//       ),
+//     [responseToshow],
+//   );
+//   console.log(monthChartData, "monthChartData");
+
+//   const monthCategories = useMemo(
+//     () => monthChartData.map((i) => i.month ?? i.label),
+//     [monthChartData],
+//   );
+//   const monthSeriesData = useMemo(
+//     () => monthChartData.map((i) => Number(i.value)),
+//     [monthChartData],
+//   );
+
+//   const selectedMonthData = useMemo(
+//     () =>
+//       selectedMonthIndex !== null ? monthChartData[selectedMonthIndex] : null,
+//     [selectedMonthIndex, monthChartData],
+//   );
+//   const monthChartOptions = useMemo(
+//     () => ({
+//       chart: { type: "spline", height: 430, backgroundColor: "transparent" },
+//       title: { text: "" },
+//       xAxis: {
+//         categories: monthCategories,
+//         lineColor: "#ddd",
+//         tickColor: "#ddd",
+//         labels: { style: { fontSize: "12px" } },
+//       },
+//       yAxis: {
+//         title: { text: "" },
+//         gridLineDashStyle: "Dash",
+//         labels: {
+//           formatter() {
+//             return formatINR(this.value);
+//           },
+//           style: { fontSize: "12px" },
+//         },
+//       },
+//       tooltip: {
+//         backgroundColor: "#000",
+//         style: { color: "#fff" },
+//         borderRadius: 8,
+//         formatter() {
+//           // Use the month and year from the data
+//           const data = monthChartData[this.point.index]; // get the raw data
+//           return `<b>${data.month}</b><br/>${formatINR(this.y)}`;
+//         },
+//       },
+//       plotOptions: {
+//         spline: {
+//           lineWidth: 3,
+//           marker: { enabled: true, radius: 4 },
+//           states: { hover: { lineWidth: 4 } },
+//           dataLabels: {
+//             enabled: true,
+//             formatter() {
+//               return formatINR(this.y);
+//             },
+//             style: { fontSize: "12px", fontWeight: "400", color: "#000" },
+//           },
+//           point: {
+//             events: {
+//               click() {
+//                 setSelectedMonth(this.category);
+//                 setSelectedMonthIndex(this.index);
+//                 setSelectedMonthColor(this.color);
+//               },
+//             },
+//           },
+//         },
+//       },
+//       series: [
+//         {
+//           name: "Purchase",
+//           data: monthSeriesData,
+//           zoneAxis: "x",
+//           zones: [
+//             { value: 1, color: "#0088FE" },
+//             { value: 2, color: "#00C6FF" },
+//             { value: 3, color: "#00C49F" },
+//             { value: 4, color: "#FFBB28" },
+//             { value: 5, color: "#FF8042" },
+//             { value: 6, color: "#A28DFF" },
+//             { value: 7, color: "#FF6699" },
+//             { value: 8, color: "#33CC99" },
+//             { value: 9, color: "#FF6666" },
+//             { value: 10, color: "#66B2FF" },
+//             { value: 11, color: "#99FF66" },
+//             { color: "#FF9933" },
+//           ],
+//           marker: { enabled: true, radius: 4 },
+//         },
+//       ],
+//       legend: { enabled: false },
+//       credits: { enabled: false },
+//     }),
+//     [monthCategories, monthSeriesData,monthChartData],
+//   );
+
+//   const childOptions = selectedMonthData
+//     ? {
+//         chart: { type: "column", height: 383, backgroundColor: "transparent" },
+//         title: { text: "" },
+//         xAxis: {
+//           categories: [selectedMonth],
+//           lineColor: "#ddd",
+//           labels: { style: { fontSize: "12px" } },
+//         },
+//         yAxis: {
+//           title: { text: "" },
+//           gridLineDashStyle: "Dash",
+//           labels: { enabled: false },
+//         },
+//         tooltip: {
+//           backgroundColor: "#000",
+//           style: { color: "#fff" },
+//           borderRadius: 8,
+//           formatter() {
+//             return `<b>${this.x}</b><br/>${formatINRShort(this.y)}`;
+//           },
+//         },
+//         plotOptions: {
+//           column: {
+//             borderRadius: 8,
+//             pointWidth: 50,
+//             dataLabels: {
+//               enabled: true,
+//               inside: false,
+//               verticalAlign: "bottom",
+//               y: -10,
+//               style: { color: "#000", fontSize: "12px", fontWeight: "600" },
+//               formatter() {
+//                 return formatINR(this.y);
+//               },
+//             },
+//           },
+//         },
+//         series: [
+//           {
+//             name: "Purchase",
+//             data: [Number(selectedMonthData.value)],
+//             color: {
+//               linearGradient: [0, 0, 0, 300],
+//               stops: [
+//                 [0, selectedMonthColor],
+//                 [1, Highcharts.color(selectedMonthColor).brighten(0.2).get()], // slightly lighter at bottom
+//               ],
+//             },
+//           },
+//         ],
+//         legend: { enabled: false },
+//         credits: { enabled: false },
+//       }
+//     : null;
+
+//   return (
+//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
+//       <CardHeader
+//         title={"Month Wise Purchase"}
+//         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
+//         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
+//         action={
+//           <RadioGroup
+//             row
+//             value={chartToshow}
+//             onChange={(e) => setChartToShow(e.target.value)}
+//             sx={{ gap: 1 }}
+//           >
+//             {purchaseTypeOptions.map((opt) => (
+//               <FormControlLabel
+//                 key={opt.value}
+//                 value={opt.value}
+//                 control={<Radio size="small" />}
+//                 label={opt.label}
+//                 sx={{ fontSize: "11px" }}
+//               />
+//             ))}
+//           </RadioGroup>
+//         }
+//       />
+//       <CardContent
+//         sx={{
+//           position: "relative",
+//           backgroundColor: "#fff",
+//           mt: 1,
+//           ml: 1,
+//           height: 460,
+//           display: "flex",
+//           flexDirection: "column",
+//         }}
+//       >
+//         {(isLoading || isFetching) && <SpinLoader />}
+//         <Box sx={{ display: "flex", width: "100%", overflow: "hidden" }}>
+//           <Box sx={{ width: "80%", transition: "width 0.35s ease" }}>
+//             <HighchartsReact
+//               key="month-chart"
+//               highcharts={Highcharts}
+//               options={monthChartOptions}
+//               immutable
+//             />
+//           </Box>
+//           <Box sx={{ width: "20%", transition: "width 0.35s ease" }}>
+//             <Card sx={{ height: "100%", ml: 1 }}>
+//               <Box
+//                 sx={{
+//                   display: "flex",
+//                   justifyContent: "space-between",
+//                   alignItems: "center",
+//                   px: 1,
+//                   py: 0.5,
+//                   borderBottom: `1px solid ${theme.palette.divider}`,
+//                 }}
+//               >
+//                 <Box sx={{ fontWeight: 600, fontSize: "0.8rem" }}>
+//                   {selectedMonth || ""} Purchase Details
+//                 </Box>
+//               </Box>
+//               <CardContent>
+//                 {selectedMonth && childOptions ? (
+//                   <HighchartsReact
+//                     highcharts={Highcharts}
+//                     options={childOptions}
+//                     immutable
+//                   />
+//                 ) : (
+//                   <Box
+//                     sx={{
+//                       height: 260,
+//                       display: "flex",
+//                       alignItems: "center",
+//                       justifyContent: "center",
+//                       color: "text.secondary",
+//                       fontSize: "0.85rem",
+//                     }}
+//                   >
+//                     Click a month to view details
+//                   </Box>
+//                 )}
+//               </CardContent>
+//             </Card>
+//           </Box>
+//         </Box>
+//         {showYearTable && selectedYear && (
+//           <YearWiseTable
+//             year={selectedYear}
+//             poType={poType}
+//             type={selectedOrderType}
+//             companyList={companyList}
+//             selectedCompCode={selectedCompCode}
+//             finYr={finYr}
+//             closeTable={() => setShowYearTable(false)}
+//           />
+//         )}
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default MonthChart;
+
+// itemname 
+
+
+// import React, { useMemo, useState } from "react";
+// import {
+//   Box,
+//   Card,
+//   CardContent,
+//   CardHeader,
+//   Button,
+//   useTheme,
+// } from "@mui/material";
+// import Highcharts from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
+// import { useGetItemGroupWiseQuery } from "../../../redux/service/purchaseService";
+
+// const ItemGroupWiseReport = ({ companyName, finYear }) => {
+//   const theme = useTheme();
+//   const { data: response, isLoading } = useGetItemGroupWiseQuery({
+//     params: { finYear, companyName },
+//   });
+
+//   const [selectedGroup, setSelectedGroup] = useState(null); // null = show parent
+
+//   const formatINR = (value) =>
+//     `₹ ${Number(value).toLocaleString("en-IN", {
+//       minimumFractionDigits: 2,
+//       maximumFractionDigits: 2,
+//     })}`;
+
+//   // Aggregate data by ItemGroup
+//   const groupMap = useMemo(() => {
+//     if (!Array.isArray(response?.data)) return {};
+//     const map = {};
+//     response.data.forEach((item) => {
+//       if (!map[item.ItemGroup]) map[item.ItemGroup] = [];
+//       map[item.ItemGroup].push(item);
+//     });
+//     return map;
+//   }, [response]);
+
+//   // Parent chart options
+//   const parentOptions = useMemo(() => {
+//     const seriesData = Object.entries(groupMap).map(([groupName, items]) => ({
+//       name: groupName,
+//       y: items.reduce((acc, i) => acc + i.value, 0),
+//     }));
+
+//     return {
+//       chart: { type: "column", backgroundColor: "transparent", height: 450 },
+//       title: { text: "" },
+//       xAxis: { type: "category", labels: { style: { fontSize: "12px" } } },
+//       yAxis: { title: { text: "Total Value" } },
+//       tooltip: {
+//         formatter() {
+//           return `<b>${this.key}</b><br/>${formatINR(this.y)}`;
+//         },
+//       },
+//       plotOptions: {
+//         column: {
+//           borderRadius: 6,
+//           minPointLength: 40,
+//           cursor: "pointer",
+//           point: {
+//             events: {
+//               click() {
+//                 setSelectedGroup(this.name); // show child chart
+//               },
+//             },
+//           },
+//         },
+//       },
+//       series: [{ name: "Item Groups", colorByPoint: true, data: seriesData }],
+//       credits: { enabled: false },
+//       legend: { enabled: false },
+//     };
+//   }, [groupMap]);
+
+//   // Child chart options
+//   const childOptions = useMemo(() => {
+//     if (!selectedGroup) return {};
+//     const items = groupMap[selectedGroup] || [];
+//     return {
+//       chart: { type: "column", backgroundColor: "transparent", height: 400 },
+//       title: { text: `` },
+//       xAxis: { type: "category", labels: { style: { fontSize: "12px" } } },
+//       yAxis: { title: { text: "Value" } },
+//       tooltip: {
+//         formatter() {
+//           return `<b>${this.key}</b><br/>${formatINR(this.y)}`;
+//         },
+//       },
+//       plotOptions: { column: { borderRadius: 6, minPointLength: 40 } },
+//       series: [
+//         {
+//           name: selectedGroup,
+//           colorByPoint: true,
+//           data: items.map((i) => ({ name: i.ItemName, y: i.value })),
+//         },
+//       ],
+//       credits: { enabled: false },
+//       legend: { enabled: false },
+//     };
+//   }, [groupMap, selectedGroup]);
+
+//   return (
+//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
+//       <CardHeader
+//         title="Item Group Wise Purchase"
+//         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
+//         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
+//       />
+//       <CardContent sx={{ height: 500 }}>
+//         {isLoading ? (
+//           <Box sx={{ textAlign: "center", padding: 4 }}>Loading...</Box>
+//         ) : (
+//           <>
+//             {/* Parent chart shown only if no group selected */}
+//             {!selectedGroup && (
+//               <HighchartsReact
+//                 highcharts={Highcharts}
+//                 options={parentOptions}
+//               />
+//             )}
+
+//             {/* Child chart shown only if group selected */}
+//             {selectedGroup && (
+//               <Box
+//                 sx={{
+//                   mb: 2,
+//                   display: "flex",
+//                   alignItems: "center",
+//                   justifyContent: "space-between",
+//                   gap: 2,
+//                 }}
+//               >
+//                 {/* Selected group name */}
+//                 <Box sx={{ fontWeight: 600, fontSize: "1rem" }}>
+//                   {selectedGroup}
+//                 </Box>
+
+//                 {/* Back button */}
+//                 <Button
+//                   variant="contained"
+//                   size="small"
+//                   onClick={() => setSelectedGroup(null)}
+//                 >
+//                   Back
+//                 </Button>
+//               </Box>
+//             )}
+//             {selectedGroup && (
+//               <HighchartsReact highcharts={Highcharts} options={childOptions} />
+//             )}
+//           </>
+//         )}
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default ItemGroupWiseReport;
+
+//quarter wise 
+
+// import React, { useMemo, useState } from "react";
+// import Highcharts from "highcharts";
+// import HighchartsReact from "highcharts-react-official";
+// import highchartsMore from "highcharts/highcharts-more";
+
+// import {
+//   Card,
+//   CardHeader,
+//   CardContent,
+//   useTheme,
+//   Radio,
+//   RadioGroup,
+//   FormControlLabel,
+//   Box,
+// } from "@mui/material";
+// import {
+//   useGetQuarterPurchaseOrderQuery,
+//   useGetQuarterPurchaseGeneralQuery,
+//   useGetQuarterPurchaseCombinedCOMPQuery,
+// } from "../../../redux/service/purchaseService";
+// import YearWiseTable from "./TableData/YearTable";
+// import { useEffect } from "react";
+// import SpinLoader from "../../../utils/spinLoader";
+
+// highchartsMore(Highcharts);
+
+// const QuarterWise = ({
+//   companyName,
+//   finYear,
+//   finYr,
+//   poType,
+//   companyList,
+//   setChartToShow,
+//   chartToshow,
+//   purchaseTypeOptions,
+// }) => {
+//   const theme = useTheme();
+//   const [showYearTable, setShowYearTable] = useState(false);
+//   const [selectedYear, setSelectedYear] = useState(null);
+//   const [selectedCompCode, setSelectedCompCode] = useState("");
+//   const [selectedOrderType, setSelectedOrderType] = useState("");
+//   const [selectedMonth, setSelectedMonth] = useState(null);
+//   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+//   const [selectedMonthColor, setSelectedMonthColor] = useState("#00C49F");
+//   const [selectedType, setSelectedType] = useState("");
+
+//   console.log(poType, "poType");
+//   const formatINR = (value) =>
+//     `₹ ${Number(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+//   const formatINRShort = (value) => {
+//     const num = Number(value);
+//     if (num >= 1e7) return `₹ ${(num / 1e7).toFixed(2)} Cr`;
+//     if (num >= 1e5) return `₹ ${(num / 1e5).toFixed(2)} L`;
+//     return `₹ ${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+//   };
+
+//   const {
+//     data: quarterResponse,
+//     isLoading,
+//     isFetching,
+//   } = useGetQuarterPurchaseCombinedCOMPQuery(
+//     { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+//   );
+
+//   const { data: quarterOrderRespone } = useGetQuarterPurchaseOrderQuery(
+//     { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+//   );
+// const {
+//     data: quarterGeneralResponse,
+
+//   } = useGetQuarterPurchaseGeneralQuery(
+//     { params: { finYear, companyName } },
+//     { skip: !finYear || !companyName },
+//   );
+//   console.log(quarterResponse, "quarterResponse");
+
+//   useEffect(() => {
+//     setShowYearTable(false);
+//     setSelectedYear(null);
+//     setSelectedCompCode("");
+//   }, [poType]);
+
+//   let responseToshow =
+//     poType === "All" ? quarterResponse?.data : quarterGeneralResponse?.data;
+
+//   const quarterChartData = useMemo(
+//     () =>
+//       (Array.isArray(responseToshow) ? responseToshow : []).map((i) => ({
+//         quarter: i.quarter || i.label,
+//         value: Number(i.VAL || i.value),
+//         month: i.month,
+//         year: i.yearNo,
+//         finYear: i.finyear,
+//         company: i.company,
+//       })),
+//     [responseToshow],
+//   );
+
+//   const quarterCategories = useMemo(
+//     () => quarterChartData.map((i) => i.quarter ?? i.label),
+//     [quarterChartData],
+//   );
+//   const quarterSeriesData = useMemo(
+//     () => quarterChartData.map((i) => Number(i.value)),
+//     [quarterChartData],
+//   );
+//   const QUARTER_COLORS = {
+//     Q1: "#0088FE", // Apr-Jun
+//     Q2: "#00C49F", // Jul-Sep
+//     Q3: "#FFBB28", // Oct-Dec
+//     Q4: "#FF8042", // Jan-Mar
+//   };
+
+//   const quarterChartOptions = useMemo(
+//     () => ({
+//       chart: { type: "column", height: 430, backgroundColor: "transparent" },
+//       title: { text: "" },
+//       xAxis: {
+//         categories: quarterCategories,
+//         lineColor: "#ddd",
+//         tickColor: "#ddd",
+//         labels: { style: { fontSize: "12px" } },
+//       },
+//       yAxis: {
+//         title: { text: "" },
+//         gridLineDashStyle: "Dash",
+//         labels: {
+//           formatter() {
+//             return formatINRShort(this.value);
+//           },
+//           style: { fontSize: "12px" },
+//         },
+//       },
+//       tooltip: {
+//         backgroundColor: "#000",
+//         style: { color: "#fff" },
+//         borderRadius: 8,
+//         formatter() {
+//           return `<b>${this.x}</b><br/>${this.point.month}<br/>${formatINR(this.y)}`;
+//         },
+//       },
+//       plotOptions: {
+//         column: {
+//           borderRadius: 8,
+//           minPointLength: 40,
+//           dataLabels: {
+//             enabled: true,
+//             inside: false, // put label inside the bar
+//             rotation: 0, // rotate label -90 degrees
+//             align: "center", // horizontal alignment
+//             y: -8,
+//             verticalAlign: "middle", // vertical alignment
+//             style: {
+//               fontSize: "13px",
+//               fontWeight: "600",
+//               color: "black", // white text for inside bars
+//             },
+//             formatter() {
+//               return formatINRShort(this.y);
+//             },
+//           },
+//         },
+//       },
+//       colors: QUARTER_COLORS,
+//       series: [
+//         {
+//           name: "Purchase",
+//           data: quarterChartData.map((i) => ({
+//             y: i.value,
+//             month: i.month, // 👈 pass month here
+//             year: i.year,
+//             color: QUARTER_COLORS[i.quarter],
+//           })),
+//         },
+//       ],
+//       legend: { enabled: false },
+//       credits: { enabled: false },
+//     }),
+//     [quarterCategories, quarterSeriesData, QUARTER_COLORS],
+//   );
+
+//   return (
+//     <Card sx={{ backgroundColor: "#f5f5f5", mt: 1, ml: 1 }}>
+//       <CardHeader
+//         title={"Quarter Wise Purchase"}
+//         titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
+//         sx={{ p: 1, borderBottom: `2px solid ${theme.palette.divider}` }}
+//         action={
+//           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+//             {/* Radio buttons */}
+//             <RadioGroup
+//               row
+//               value={chartToshow}
+//               onChange={(e) => setChartToShow(e.target.value)}
+//               sx={{ gap: 1 }}
+//             >
+//               {purchaseTypeOptions.map((opt) => (
+//                 <FormControlLabel
+//                   key={opt.value}
+//                   value={opt.value}
+//                   control={<Radio size="small" />}
+//                   label={opt.label}
+//                   sx={{ fontSize: "11px" }}
+//                 />
+//               ))}
+//             </RadioGroup>
+
+//             {/* Conditional select for PO Type */}
+//             {poType === "Order" && (
+//               <select
+//                 value={selectedType}
+//                 onChange={(e) => setSelectedType(e.target.value)}
+//                 style={{
+//                   fontSize: "11px",
+//                   padding: "0px 14px",
+//                   borderRadius: "6px",
+//                   border: "2px solid #2563eb",
+//                   marginTop: "2px",
+//                   marginLeft: "-12px",
+//                   minWidth: "120px",
+//                 }}
+//               >
+//                 {[
+//                   { label: "GREY YARN", value: "GREY YARN" },
+//                   { label: "DYED YARN", value: "DYED YARN" },
+//                   { label: "GREY FABRIC", value: "GREY FABRIC" },
+//                   { label: "DYED FABRIC", value: "DYED FABRIC" },
+//                   { label: "ACCESSORY", value: "ACCESSORY" },
+//                 ].map((opt) => (
+//                   <option key={opt.value} value={opt.value}>
+//                     {opt.label}
+//                   </option>
+//                 ))}
+//               </select>
+//             )}
+//           </Box>
+//         }
+//       />
+//       <CardContent
+//         sx={{
+//           position: "relative",
+//           backgroundColor: "#fff",
+//           mt: 1,
+//           ml: 1,
+//           height: 460,
+//           display: "flex",
+//           flexDirection: "column",
+//         }}
+//       >
+//         {(isLoading || isFetching) && <SpinLoader />}
+
+//         <Box>
+//           <HighchartsReact
+//             key="quarter-chart"
+//             highcharts={Highcharts}
+//             options={quarterChartOptions}
+//           />
+//         </Box>
+
+//         {showYearTable && selectedYear && (
+//           <YearWiseTable
+//             year={selectedYear}
+//             poType={poType}
+//             type={selectedOrderType}
+//             companyList={companyList}
+//             selectedCompCode={selectedCompCode}
+//             finYr={finYr}
+//             closeTable={() => setShowYearTable(false)}
+//           />
+//         )}
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+// export default QuarterWise;

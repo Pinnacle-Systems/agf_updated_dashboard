@@ -251,6 +251,48 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+
+
+
+    getTopTenItems: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenItemsOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getTopTenItemsPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenItemsGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getTopTenItemsCombined: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getTopTenItemsCombined",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
   }),
 });
 
@@ -277,7 +319,12 @@ export const {
   useGetTopTenSupplierCombinedQuery,
 
   useGetRawMaterialWiseQuery,
-  useGetItemGroupWiseQuery
+  useGetItemGroupWiseQuery,
+
+  useGetTopTenItemsQuery,
+  useGetTopTenItemsPurchaseGeneralQuery,
+  useGetTopTenItemsCombinedQuery
+
 } = purchase;
 
 export default purchase;

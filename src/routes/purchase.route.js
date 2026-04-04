@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup, getTopSupplierListGreyYarn, getTopSupplierListDyedYarn, getTopSupplierListGreyFabric, getTopSupplierListDyedFabric, getTopSupplierListAccessory} from "../services/purchase.service.js";
-import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable,getGeneralSupplierToptenTable,getGreyYarnSupplierToptenTable,getDyedYarnSupplierToptenTable,getGreyFabricSupplierToptenTable,getDyedFabricSupplierToptenTable ,getAccessorySupplierToptenTable,getQuarterGeneralTable} from "../services/purchaseTable.service.js";
+import {getCombinedPurchase,getCombinedPurchaseOrderMonthWise,getGenaralPurchaseMonthWise, getPurchase,getCompany ,getPurchaseOrder,getPurchaseOrderMonthWise,getPurchaseOrderYear,getPurchaseOrderMaterial,getTopTenSupplierOrder,getPurchaseGeneralYear,getPurchaseCombinedCOMPYear,getTopTenSupplierCombined,getTopTenSupplierGeneral,getPurchaseOrderQuarterWise,getPurchaseGeneralQuarterWise,getCombinedPurchaseQuarterWise,getPurchaseGeneralItemGroup, getTopSupplierListGreyYarn, getTopSupplierListDyedYarn, getTopSupplierListGreyFabric, getTopSupplierListDyedFabric, getTopSupplierListAccessory, getTopTenItemsCombined, getTopTenItemsOrder, getTopTenItemsGeneral, getToptenItemListGreyYarn, getToptenItemListDyedYarn, getToptenItemListGreyFabric, getToptenItemListDyedFabric, getToptenItemListAccessory} from "../services/purchase.service.js";
+import { getGeneralTable,getGreyYarnTable,getDyedYarnTable,getGreyFabricTable,getDyedFabricTable,getAccessoryTable,getGeneralSupplierToptenTable,getGreyYarnSupplierToptenTable,getDyedYarnSupplierToptenTable,getGreyFabricSupplierToptenTable,getDyedFabricSupplierToptenTable ,getAccessorySupplierToptenTable,getQuarterGeneralTable,getGreyYarnQuarterTable,getDyedYarnQuarterTable,getGreyFabricQuarterTable,getDyedFabricQuarterTable,getAccessoryQuarterTable,getMonthGeneralTable, getMonthGreyYarnTable, getMonthDyedYarnTable, getMonthGreyFabricTable, getMonthDyedFabricTable, getAccessoryMonthTable, getItemBreakUp, getGeneralItemToptenTable, getGreyYarnItemToptenTable, getDyedYarnItemToptenTable, getGreyFabricItemToptenTable, getDyedFabricItemToptenTable, getAccessoryItemToptenTable} from "../services/purchaseTable.service.js";
 
 const router = Router();
 
@@ -36,6 +36,14 @@ router.get("/getTopTenSupplierGeneral", getTopTenSupplierGeneral);
 router.get("/getTopTenSupplierCombined", getTopTenSupplierCombined);
 
 
+router.get("/getTopTenItemsOrder", getTopTenItemsOrder);
+router.get("/getTopTenItemsGeneral", getTopTenItemsGeneral);
+router.get("/getTopTenItemsCombined", getTopTenItemsCombined);
+
+
+
+
+
 
 
 router.get("/getMaterialWise", getPurchaseOrderMaterial);
@@ -61,7 +69,12 @@ router.get('/getTopTenSupplierDyedFabricTable',getDyedFabricSupplierToptenTable)
 router.get('/getTopTenSupplierAccessoryTable',getAccessorySupplierToptenTable)
 
 
-
+router.get('/getTopTenItemGeneralTable',getGeneralItemToptenTable)
+router.get('/getTopTenItemGreyYarnTable',getGreyYarnItemToptenTable)
+router.get('/getTopTenItemDyedYarnTable',getDyedYarnItemToptenTable)
+router.get('/getTopTenItemGreyFabricTable',getGreyFabricItemToptenTable)
+router.get('/getTopTenItemDyedFabricTable',getDyedFabricItemToptenTable)
+router.get('/getTopTenItemAccessoryTable',getAccessoryItemToptenTable)
 
 
 
@@ -72,7 +85,36 @@ router.get('/getTopTenSupplierListDyedFabricTable',getTopSupplierListDyedFabric)
 router.get('/getTopTenSupplierListAccessoryTable',getTopSupplierListAccessory)
 
 
+
+router.get('/getTopTenItemListGreyYarnTable',getToptenItemListGreyYarn)
+router.get('/getTopTenItemListDyedYarnTable',getToptenItemListDyedYarn)
+router.get('/getTopTenItemListGreyFabricTable',getToptenItemListGreyFabric)
+router.get('/getTopTenItemListDyedFabricTable',getToptenItemListDyedFabric)
+router.get('/getTopTenItemListAccessoryTable',getToptenItemListAccessory)
+
 router.get('/getQuarterwiseGeneralTable',getQuarterGeneralTable)
+router.get('/getQuarterwiseGreyYarnTable',getGreyYarnQuarterTable)
+router.get('/getQuarterwiseDyedYarnTable',getDyedYarnQuarterTable)
+router.get('/getQuarterwiseGreyFabricTable',getGreyFabricQuarterTable)
+router.get('/getQuarterwiseDyedFabricTable',getDyedFabricQuarterTable)
+router.get('/getQuarterwiseAccessoryTable',getAccessoryQuarterTable)
+
+
+
+
+router.get('/getMonthwiseGeneralTable',getMonthGeneralTable)
+router.get('/getMonthwiseGreyYarnTable',getMonthGreyYarnTable)
+router.get('/getMonthwiseDyedYarnTable',getMonthDyedYarnTable)
+router.get('/getMonthwiseGreyFabricTable',getMonthGreyFabricTable)
+router.get('/getMonthwiseDyedFabricTable',getMonthDyedFabricTable)
+router.get('/getMonthwiseAccessoryTable',getAccessoryMonthTable)
+
+
+
+
+router.get('/getItemNameTable',getItemBreakUp)
+
+
 
 
 export default router;

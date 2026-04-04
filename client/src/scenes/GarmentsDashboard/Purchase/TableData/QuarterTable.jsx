@@ -111,10 +111,22 @@ const RangeFilter = ({ range, setRange }) => (
     </div>
   </div>
 );
-
+// ── No quarter selected guard ─────────────────────────────────────────────
+const NoQuarterSelected = ({ cols }) => (
+  <tr>
+    <td colSpan={cols} className="text-center py-10 text-gray-400">
+      <div className="flex flex-col items-center gap-2">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-gray-300">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span className="text-[12px] font-medium">Please select a quarter to view data</span>
+      </div>
+    </td>
+  </tr>
+);
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 const QuarterTable = ({
-  poType,
+  poType,year,
   selectedCompCode,
   setSelectedCompCode,
   companyList,
@@ -126,7 +138,7 @@ const QuarterTable = ({
   initialQuarter,   // ← from chart click
   initialMonth,     // ← from chart click
 }) => {
-    console.log(initialQuarter,initialMonth,initialOrderType,"forming");
+    console.log(selectedYear,selectedCompCode,initialQuarter,initialMonth,initialOrderType,"forming");
     
   const [localPoType,       setLocalPoType]       = useState(poType || "General");
   const [selectedOrderType, setSelectedOrderType] = useState(initialOrderType || "GREY YARN");
@@ -134,7 +146,7 @@ const QuarterTable = ({
   // ── Quarter & Month state ─────────────────────────────────────────────────
   const [selectedQuarter, setSelectedQuarter] = useState(initialQuarter || "");
   const [selectedMonth,   setSelectedMonth]   = useState(initialMonth   || "");
-
+console.log(selectedQuarter,"selectedQuarter")
   // search / range / pagination per table
   const [search,           setSearch]           = useState({});
   const [greyYarnSearch,   setGreyYarnSearch]   = useState({});
@@ -201,18 +213,13 @@ const QuarterTable = ({
     const order = { Q1: 1, Q2: 2, Q3: 3, Q4: 4 };
     return quarters.sort((a, b) => (order[a] ?? 9) - (order[b] ?? 9));
   }, [localPoType, selectedOrderType, combinedQuarterRes, generalQuarterRes, orderQuarterRes]);
+console.log(quarterOptions,"quarterOptions");
 
   // ── Month options: derived from selected quarter (frontend only) ──────────
-  const monthOptions = useMemo(() => {
-    if (!selectedQuarter) return [];
-    return QUARTER_MONTHS[selectedQuarter] ?? [];
-  }, [selectedQuarter]);
+// ── Month options: derived from actual fetched table data (frontend only) ──
 
-  // Reset month when quarter changes
-  useEffect(() => {
-    setSelectedMonth("");
-  }, [selectedQuarter]);
 
+  
   // ── API params for table queries ──────────────────────────────────────────
   const skip = !selectedYear || !selectedCompCode || !selectedQuarter;
   const qParams = {
@@ -239,6 +246,33 @@ const QuarterTable = ({
   const raw4 = useMemo(() => Array.isArray(dyedFabricRes?.data) ? dyedFabricRes.data : [], [dyedFabricRes]);
   const raw5 = useMemo(() => Array.isArray(accessoryRes?.data)  ? accessoryRes.data  : [], [accessoryRes]);
 
+  const monthOptions = useMemo(() => {
+  // pick the right raw dataset based on current view
+  let sourceData = [];
+  if (localPoType === "General") {
+    sourceData = raw0;
+  } else if (selectedOrderType === "GREY YARN")   sourceData = raw1;
+  else if (selectedOrderType === "DYED YARN")     sourceData = raw2;
+  else if (selectedOrderType === "GREY FABRIC")   sourceData = raw3;
+  else if (selectedOrderType === "DYED FABRIC")   sourceData = raw4;
+  else if (selectedOrderType === "ACCESSORY")     sourceData = raw5;
+
+  // extract unique month values e.g. "January 2026", "February 2026"
+  const months = [...new Set(sourceData.map((r) => r.month).filter(Boolean))];
+
+  // sort chronologically by parsing the month string
+  return months.sort((a, b) => {
+    const parse = (m) => {
+      const [mon, yr] = m.split(" ");
+      const monthIdx = ["January","February","March","April","May","June",
+                        "July","August","September","October","November","December"]
+                        .indexOf(mon);
+      return Number(yr) * 12 + monthIdx;
+    };
+    return parse(a) - parse(b);
+  });
+}, [localPoType, selectedOrderType, raw0, raw1, raw2, raw3, raw4, raw5]);
+
   // ── Helpers ───────────────────────────────────────────────────────────────
   const textMatch = (row, key, val) =>
     !val || (row[key]?.toLowerCase() || "").includes(val.toLowerCase());
@@ -254,58 +288,63 @@ const QuarterTable = ({
 
   // ── Filtered data (includes month filter) ────────────────────────────────
   const fd0 = useMemo(() => raw0.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",     search.docId) &&
-    textMatch(r, "itemGroup", search.itemGroup) &&
-    textMatch(r, "item",      search.itemName) &&
-    amtFilter(r, range0)
-  ), [raw0, search, range0, selectedMonth]);
+  monthFilter(r) &&
+  textMatch(r, "docId",     search.docId) &&
+  textMatch(r, "itemGroup", search.itemGroup) &&
+  textMatch(r, "item",      search.itemName) &&
+  textMatch(r, "supplier",  search.supplier) &&   // ← ADD
+  amtFilter(r, range0)
+), [raw0, search, range0, selectedMonth]);
 
-  const fd1 = useMemo(() => raw1.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",    greyYarnSearch.docId) &&
-    textMatch(r, "yarnName", greyYarnSearch.yarnName) &&
-    textMatch(r, "orderNo",  greyYarnSearch.orderNo) &&
-    textMatch(r, "color",    greyYarnSearch.color) &&
-    amtFilter(r, range1)
-  ), [raw1, greyYarnSearch, range1, selectedMonth]);
+const fd1 = useMemo(() => raw1.filter((r) =>
+  monthFilter(r) &&
+  textMatch(r, "docId",    greyYarnSearch.docId) &&
+  textMatch(r, "yarnName", greyYarnSearch.yarnName) &&
+  textMatch(r, "orderNo",  greyYarnSearch.orderNo) &&
+  textMatch(r, "color",    greyYarnSearch.color) &&
+  textMatch(r, "supplier", greyYarnSearch.supplier) &&  // ← ADD
+  amtFilter(r, range1)
+), [raw1, greyYarnSearch, range1, selectedMonth]);
 
-  const fd2 = useMemo(() => raw2.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",    dyedYarnSearch.docId) &&
-    textMatch(r, "yarnName", dyedYarnSearch.yarnName) &&
-    textMatch(r, "orderNo",  dyedYarnSearch.orderNo) &&
-    textMatch(r, "color",    dyedYarnSearch.color) &&
-    amtFilter(r, range2)
-  ), [raw2, dyedYarnSearch, range2, selectedMonth]);
+const fd2 = useMemo(() => raw2.filter((r) =>
+  monthFilter(r) &&
+  textMatch(r, "docId",    dyedYarnSearch.docId) &&
+  textMatch(r, "yarnName", dyedYarnSearch.yarnName) &&
+  textMatch(r, "orderNo",  dyedYarnSearch.orderNo) &&
+  textMatch(r, "color",    dyedYarnSearch.color) &&
+  textMatch(r, "supplier", dyedYarnSearch.supplier) &&  // ← ADD
+  amtFilter(r, range2)
+), [raw2, dyedYarnSearch, range2, selectedMonth]);
 
-  const fd3 = useMemo(() => raw3.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",      greyFabricSearch.docId) &&
-    textMatch(r, "fabricName", greyFabricSearch.fabricName) &&
-    textMatch(r, "orderNo",    greyFabricSearch.orderNo) &&
-    textMatch(r, "color",      greyFabricSearch.color) &&
-    amtFilter(r, range3)
-  ), [raw3, greyFabricSearch, range3, selectedMonth]);
+const fd3 = useMemo(() => raw3.filter((r) =>
+  monthFilter(r) &&
+  textMatch(r, "docId",      greyFabricSearch.docId) &&
+  textMatch(r, "fabricName", greyFabricSearch.fabricName) &&
+  textMatch(r, "orderNo",    greyFabricSearch.orderNo) &&
+  textMatch(r, "color",      greyFabricSearch.color) &&
+  textMatch(r, "supplier",   greyFabricSearch.supplier) &&  // ← ADD
+  amtFilter(r, range3)
+), [raw3, greyFabricSearch, range3, selectedMonth]);
 
-  const fd4 = useMemo(() => raw4.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",      dyedFabricSearch.docId) &&
-    textMatch(r, "fabricName", dyedFabricSearch.fabricName) &&
-    textMatch(r, "orderNo",    dyedFabricSearch.orderNo) &&
-    textMatch(r, "color",      dyedFabricSearch.color) &&
-    amtFilter(r, range4)
-  ), [raw4, dyedFabricSearch, range4, selectedMonth]);
+const fd4 = useMemo(() => raw4.filter((r) =>
+  monthFilter(r) &&
+  textMatch(r, "docId",      dyedFabricSearch.docId) &&
+  textMatch(r, "fabricName", dyedFabricSearch.fabricName) &&
+  textMatch(r, "orderNo",    dyedFabricSearch.orderNo) &&
+  textMatch(r, "color",      dyedFabricSearch.color) &&
+  textMatch(r, "supplier",   dyedFabricSearch.supplier) &&  // ← ADD
+  amtFilter(r, range4)
+), [raw4, dyedFabricSearch, range4, selectedMonth]);
 
-  const fd5 = useMemo(() => raw5.filter((r) =>
-    monthFilter(r) &&
-    textMatch(r, "docId",         accessorySearch.docId) &&
-    textMatch(r, "orderNo",       accessorySearch.orderNo) &&
-    textMatch(r, "accessItemName",accessorySearch.accessItemName) &&
-    textMatch(r, "accessSize",    accessorySearch.accessSize) &&
-    amtFilter(r, range5)
-  ), [raw5, accessorySearch, range5, selectedMonth]);
-
+const fd5 = useMemo(() => raw5.filter((r) =>
+  monthFilter(r) &&
+  textMatch(r, "docId",          accessorySearch.docId) &&
+  textMatch(r, "orderNo",        accessorySearch.orderNo) &&
+  textMatch(r, "accessItemName", accessorySearch.accessItemName) &&
+  textMatch(r, "accessSize",     accessorySearch.accessSize) &&
+  textMatch(r, "supplier",       accessorySearch.supplier) &&  // ← ADD
+  amtFilter(r, range5)
+), [raw5, accessorySearch, range5, selectedMonth]);
   // ── Totals ────────────────────────────────────────────────────────────────
   const tot0 = useMemo(() => fd0.reduce((s, r) => s + Number(r.amount || 0), 0), [fd0]);
   const tot1 = useMemo(() => fd1.reduce((s, r) => s + Number(r.amount || 0), 0), [fd1]);
@@ -314,13 +353,13 @@ const QuarterTable = ({
   const tot4 = useMemo(() => fd4.reduce((s, r) => s + Number(r.amount || 0), 0), [fd4]);
   const tot5 = useMemo(() => fd5.reduce((s, r) => s + Number(r.amount || 0), 0), [fd5]);
 
-  const displayTotal =
-    localPoType === "General" ? tot0 :
-    selectedOrderType === "GREY YARN"   ? tot1 :
-    selectedOrderType === "DYED YARN"   ? tot2 :
-    selectedOrderType === "GREY FABRIC" ? tot3 :
-    selectedOrderType === "DYED FABRIC" ? tot4 :
-    selectedOrderType === "ACCESSORY"   ? tot5 : 0;
+  const displayTotal = !selectedQuarter ? 0 :
+  localPoType === "General" ? tot0 :
+  selectedOrderType === "GREY YARN"   ? tot1 :
+  selectedOrderType === "DYED YARN"   ? tot2 :
+  selectedOrderType === "GREY FABRIC" ? tot3 :
+  selectedOrderType === "DYED FABRIC" ? tot4 :
+  selectedOrderType === "ACCESSORY"   ? tot5 : 0;
 
   // ── Pagination helpers ────────────────────────────────────────────────────
   const paginate = (data, page) => data.slice((page - 1) * RECORDS, page * RECORDS);
@@ -347,121 +386,156 @@ const QuarterTable = ({
   );
 
   // ── Excel export ──────────────────────────────────────────────────────────
-  const buildExcel = async (data, columns, sheetMapper, fileName) => {
-    if (!data.length) { alert("No data"); return; }
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet("Quarter Wise Report");
-    ws.columns = columns;
+ const buildExcel = async (data, columns, sheetMapper, fileName) => {
+  if (!data.length) { alert("No data"); return; }
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Quarter Wise Report");
+  ws.columns = columns;
 
-    ws.insertRow(1, ["Quarter Wise Purchase Report"]);
-    ws.mergeCells(`A1:${String.fromCharCode(64 + columns.length)}1`);
-    const tc = ws.getCell("A1");
-    tc.font = { bold: true, size: 14 };
-    tc.alignment = { horizontal: "center", vertical: "middle" };
-    ws.getRow(1).height = 30;
+  ws.insertRow(1, ["Quarter Wise Purchase Report"]);
+  ws.mergeCells(`A1:${String.fromCharCode(64 + columns.length)}1`);
+  const tc = ws.getCell("A1");
+  tc.font = { bold: true, size: 14 };
+  tc.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(1).height = 30;
 
-    addInsightsRowTurnOver({
-      worksheet: ws, startRow: 2, totalColumns: 3,
-      selectedYear, localCompany: selectedCompCode,
-      dynamicField: "Quarter", dynamicValue: selectedQuarter,
-      ...(selectedMonth && { secondDynamicField: "Month", seconddynamicValue: selectedMonth }),
-      ...(localPoType === "Order" && { secondDynamicField: "Raw Material", seconddynamicValue: selectedOrderType }),
+  addInsightsRowTurnOver({
+    worksheet: ws, startRow: 2, totalColumns: 3,
+    selectedYear, localCompany: selectedCompCode,
+    dynamicField: "Quarter", dynamicValue: selectedQuarter,
+    secondDynamicField: "Month", seconddynamicValue: selectedMonth || "All",
+    thirdDynamicField: "Po Type", thirdDynamicValue: localPoType,
+    ...(localPoType === "Order" && { fourthDynamicField: "Raw Material", fourthDynamicValue: selectedOrderType }),
+  });
+
+  const hr = ws.getRow(3);
+  hr.height = 26;
+  hr.eachCell((cell) => {
+    cell.font = { bold: true };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
+    cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
+  });
+
+  data.forEach((r, i) => {
+    const row = ws.addRow(sheetMapper(r, i));
+    if (r.uom) row.getCell("qty").numFmt = getExcelQtyFormatByUOM(r.uom);
+  });
+
+  // ── Column indexes (1-based) ──────────────────────────────────────────────
+  const rateColIdx   = columns.findIndex((c) => c.key === "rate"   || c.key === "price") + 1;
+  const amountColIdx = columns.findIndex((c) => c.key === "amount") + 1;
+
+  ws.eachRow((row, rn) => {
+    if (rn <= 3) return;
+    row.height = 22;
+    row.eachCell((cell, cn) => {
+      const key = columns[cn - 1]?.key;
+      cell.alignment = {
+        // ── FIX 1: month → left aligned ──────────────────────────────────
+        horizontal: ["qty", "rate", "amount", "price", "gsm"].includes(key)
+          ? "right"
+          : "left",
+        vertical: "middle",
+        indent: 1,
+      };
     });
+  });
 
-    const hr = ws.getRow(3);
-    hr.height = 26;
-    hr.eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.alignment = { horizontal: "center", vertical: "middle" };
-      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-      cell.border = { top: { style: "thin" }, bottom: { style: "thin" }, left: { style: "thin" }, right: { style: "thin" } };
-    });
+  // ── FIX 2: totals for both rate AND amount ────────────────────────────────
+  const totalRate   = data.reduce((s, r) => s + Number(r.rate ?? r.price ?? 0), 0);
+  const totalAmount = data.reduce((s, r) => s + Number(r.amount || 0), 0);
 
-    data.forEach((r, i) => {
-      const row = ws.addRow(sheetMapper(r, i));
-      if (r.uom) row.getCell("qty").numFmt = getExcelQtyFormatByUOM(r.uom);
-    });
+  const totalRowObj = {};
+  columns.forEach((c) => { totalRowObj[c.key] = ""; });
 
-    ws.eachRow((row, rn) => {
-      if (rn <= 3) return;
-      row.height = 22;
-      row.eachCell((cell, cn) => {
-        const key = columns[cn - 1]?.key;
-        cell.alignment = {
-          horizontal: ["qty", "rate", "amount", "price", "gsm"].includes(key) ? "right" : "left",
-          vertical: "middle", indent: 1,
-        };
-      });
-    });
+  // label in first col
+  totalRowObj[columns[0].key] = "TOTAL";
 
-    const totalAmount = data.reduce((s, r) => s + Number(r.amount || 0), 0);
-    const amountColIdx = columns.findIndex((c) => c.key === "amount") + 1;
-    const totalRowObj = {};
-    columns.forEach((c) => { totalRowObj[c.key] = ""; });
-    if (amountColIdx > 0) totalRowObj[columns[amountColIdx - 1].key] = totalAmount;
-    const totalRow = ws.addRow(totalRowObj);
-    totalRow.height = 24;
-    totalRow.eachCell((cell, cn) => {
-      cell.font = { bold: true };
-      cell.border = { top: { style: "thin" } };
-      cell.alignment = { vertical: "middle", horizontal: cn === amountColIdx ? "right" : "center", indent: 1 };
-    });
+  if (rateColIdx   > 0) totalRowObj[columns[rateColIdx   - 1].key] = totalRate;
+  if (amountColIdx > 0) totalRowObj[columns[amountColIdx - 1].key] = totalAmount;
 
-    if (amountColIdx > 0) ws.getColumn("amount").numFmt = "₹ #,##,##0.00";
-    ws.views = [{ state: "frozen", ySplit: 3 }];
-    const buf = await wb.xlsx.writeBuffer();
-    saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), fileName);
-  };
+  const totalRow = ws.addRow(totalRowObj);
+  totalRow.height = 24;
+  totalRow.eachCell((cell, cn) => {
+    cell.font = { bold: true };
+    cell.border = { top: { style: "thin" } };
+    cell.alignment = {
+      vertical: "middle",
+      horizontal: (cn === rateColIdx || cn === amountColIdx) ? "right" : "left",
+      indent: 1,
+    };
+  });
+
+  // ── FIX 3: format both rate and amount columns ────────────────────────────
+  if (rateColIdx   > 0) ws.getColumn(columns[rateColIdx   - 1].key).numFmt = "₹ #,##,##0.00";
+  if (amountColIdx > 0) ws.getColumn(columns[amountColIdx - 1].key).numFmt = "₹ #,##,##0.00";
+
+  ws.views = [{ state: "frozen", ySplit: 3 }];
+  const buf = await wb.xlsx.writeBuffer();
+  saveAs(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), fileName);
+};
 
   // ── per-type download fns (same columns as before, supplier col removed) ──
   const dlGeneral = () => buildExcel(fd0, [
     { header: "S.No", key: "sno", width: 8 },
+     { header: "Month", key: "month", width: 20 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
-    { header: "Item Group", key: "itemGroup", width: 20 },
-    { header: "Item Name", key: "item", width: 80 },
-    { header: "Qty", key: "qty", width: 14 },
-    { header: "UOM", key: "uom", width: 14 },
+    { header: "Supplier",   key: "supplier",  width: 60 },
+    { header: "Item Group", key: "itemGroup", width: 25 },
+    { header: "Item Name", key: "item", width: 90 },
+     
+    { header: "Qty", key: "qty", width: 16 },
+   
+    { header: "UOM", key: "uom", width: 16 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, itemGroup: r.itemGroup, item: r.item, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.rate||0), amount: Number(r.amount||0) }), "Quarter_General.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, itemGroup: r.itemGroup, item: r.item,supplier: r.supplier, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.rate||0), amount: Number(r.amount||0) }), "Quarter_General.xlsx");
 
   const dlGreyYarn = () => buildExcel(fd1, [
     { header: "S.No", key: "sno", width: 8 },
+    { header: "Month", key: "month", width: 20 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
-    { header: "Yarn", key: "yarn", width: 50 },
-    { header: "Order No", key: "orderNo", width: 25 },
+       { header: "Order No", key: "orderNo", width: 25 },
+    { header: "Supplier", key: "supplier", width: 60 }, 
+    { header: "Yarn Name", key: "yarn", width: 50 },
+ 
     { header: "Color", key: "color", width: 25 },
     { header: "Qty", key: "qty", width: 14 },
     { header: "UOM", key: "uom", width: 14 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, yarn: r.yarnName, orderNo: r.orderNo, color: r.color, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_GreyYarn.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, yarn: r.yarnName, orderNo: r.orderNo,  supplier: r.supplier,color: r.color, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_GreyYarn.xlsx");
 
   const dlDyedYarn = () => buildExcel(fd2, [
     { header: "S.No", key: "sno", width: 8 },
+      { header: "Month", key: "month", width: 14 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
-    { header: "Yarn", key: "yarn", width: 50 },
-    { header: "Order No", key: "orderNo", width: 25 },
+  
+      { header: "Order No", key: "orderNo", width: 25 },
+    { header: "Supplier", key: "supplier", width: 60 }, 
+    { header: "Yarn Name", key: "yarn", width: 50 },
+  
     { header: "Color", key: "color", width: 25 },
     { header: "Qty", key: "qty", width: 14 },
     { header: "UOM", key: "uom", width: 14 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, yarn: r.yarnName, orderNo: r.orderNo, color: r.color, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_DyedYarn.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, yarn: r.yarnName, orderNo: r.orderNo, supplier: r.supplier, color: r.color, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_DyedYarn.xlsx");
 
   const dlGreyFabric = () => buildExcel(fd3, [
     { header: "S.No", key: "sno", width: 8 },
+       { header: "Month", key: "month", width: 14 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
+        { header: "Order No", key: "orderNo", width: 25 },
+    { header: "Supplier", key: "supplier", width: 60 }, 
+ 
     { header: "Fabric Name", key: "fabric", width: 90 },
-    { header: "Order No", key: "orderNo", width: 25 },
+
     { header: "Color", key: "color", width: 25 },
     { header: "Design", key: "design", width: 25 },
     { header: "GSM", key: "gsm", width: 15 },
@@ -469,15 +543,18 @@ const QuarterTable = ({
     { header: "UOM", key: "uom", width: 14 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, fabric: r.fabricName, orderNo: r.orderNo, color: r.color, design: r.design, gsm: !isNaN(Number(r.gsm)) ? Number(r.gsm) : "N/A", qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_GreyFabric.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, fabric: r.fabricName, orderNo: r.orderNo,  supplier: r.supplier,color: r.color, design: r.design, gsm: !isNaN(Number(r.gsm)) ? Number(r.gsm) : "N/A", qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_GreyFabric.xlsx");
 
   const dlDyedFabric = () => buildExcel(fd4, [
     { header: "S.No", key: "sno", width: 8 },
+     { header: "Month", key: "month", width: 14 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
+       { header: "Order No", key: "orderNo", width: 25 },
+    { header: "Supplier", key: "supplier", width: 60 }, 
+   
     { header: "Fabric Name", key: "fabric", width: 90 },
-    { header: "Order No", key: "orderNo", width: 25 },
+ 
     { header: "Color", key: "color", width: 25 },
     { header: "Design", key: "design", width: 25 },
     { header: "GSM", key: "gsm", width: 15 },
@@ -485,23 +562,25 @@ const QuarterTable = ({
     { header: "UOM", key: "uom", width: 14 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, fabric: r.fabricName, orderNo: r.orderNo, color: r.color, design: r.design, gsm: !isNaN(Number(r.gsm)) ? Number(r.gsm) : "N/A", qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_DyedFabric.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, fabric: r.fabricName, orderNo: r.orderNo, supplier: r.supplier, color: r.color, design: r.design, gsm: !isNaN(Number(r.gsm)) ? Number(r.gsm) : "N/A", qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_DyedFabric.xlsx");
 
   const dlAccessory = () => buildExcel(fd5, [
     { header: "S.No", key: "sno", width: 8 },
+     { header: "Month", key: "month", width: 14 },
     { header: "Doc No", key: "docNo", width: 24 },
     { header: "Doc Date", key: "docDate", width: 16 },
-    { header: "Month", key: "month", width: 14 },
+   
     { header: "Order No", key: "orderNo", width: 28 },
-    { header: "Acc. Group", key: "accessGroupName", width: 32 },
-    { header: "Acc. Item Group", key: "accessItemName", width: 40 },
+    { header: "Supplier", key: "supplier", width: 60 }, 
+    { header: "Acc. Group Name", key: "accessGroupName", width: 32 },
+    { header: "Acc. Item Group Name", key: "accessItemName", width: 40 },
     { header: "Acc. Item Name", key: "accessItemDesc", width: 72 },
     { header: "Size", key: "accessSize", width: 20 },
     { header: "Qty", key: "qty", width: 14 },
     { header: "UOM", key: "uom", width: 14 },
     { header: "Rate", key: "rate", width: 18 },
     { header: "Amount", key: "amount", width: 20 },
-  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, orderNo: r.orderNo, accessGroupName: r.accessGroupName, accessItemName: r.accessItemName, accessItemDesc: r.accessItemDesc, accessSize: r.accessSize, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_Accessory.xlsx");
+  ], (r, i) => ({ sno: i+1, docNo: r.docId, docDate: fmtDate(r.docDate), month: r.month, orderNo: r.orderNo, supplier: r.supplier, accessGroupName: r.accessGroupName, accessItemName: r.accessItemName, accessItemDesc: r.accessItemDesc, accessSize: r.accessSize, qty: Number(r.qty||0), uom: r.uom, rate: Number(r.price||0), amount: Number(r.amount||0) }), "Quarter_Accessory.xlsx");
 
   const downloadSelected =
     localPoType === "General"                     ? dlGeneral   :
@@ -543,10 +622,12 @@ const QuarterTable = ({
                 onChange={(e) => { setSelectedYear(e.target.value); setSelectedQuarter(""); resetAllPages(); }}
                 className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-24"
               >
-                <option value="" disabled>Select Year</option>
-                {(finYr?.data || []).map((item) => (
-                  <option key={item.finYear} value={item.finYear}>{item.finYear}</option>
-                ))}
+                   <option value="">Select Year</option>
+                  {(finYr?.data || []).map((item) => (
+                    <option key={item.finYear} value={item.finYear}>
+                      {item.finYear}
+                    </option>
+                  ))}
               </select>
 
               {/* Company */}
@@ -555,15 +636,17 @@ const QuarterTable = ({
                 className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-24"
               >
                 <option value="">Select Company</option>
-                {companyList?.data?.map((item) => (
-                  <option key={item.COMPCODE} value={item.COMPCODE}>{item.COMPCODE}</option>
-                ))}
+                  {companyList?.data?.map((item) => (
+                    <option key={item.COMPCODE} value={item.COMPCODE}>
+                      {item.COMPCODE}
+                    </option>
+                  ))}
               </select>
 
               {/* Order Type — only when Order */}
               {localPoType === "Order" && (
                 <select value={selectedOrderType}
-                  onChange={(e) => { setSelectedOrderType(e.target.value); setSelectedQuarter(""); resetAllPages(); }}
+                  onChange={(e) => { setSelectedOrderType(e.target.value);  setSelectedMonth("");  setSelectedQuarter(""); resetAllPages(); }}
                   className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-32"
                 >
                   {ORDER_TYPES.map((o) => (
@@ -574,7 +657,10 @@ const QuarterTable = ({
 
               {/* Quarter — from API */}
               <select value={selectedQuarter}
-                onChange={(e) => { setSelectedQuarter(e.target.value); resetAllPages(); }}
+                onChange={(e) => {
+                   setSelectedQuarter(e.target.value)
+                   setSelectedMonth("")
+                    resetAllPages(); }}
                 className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-24"
               >
                 <option value="">Select Quarter</option>
@@ -587,7 +673,7 @@ const QuarterTable = ({
               <select value={selectedMonth}
                 onChange={(e) => { setSelectedMonth(e.target.value); resetAllPages(); }}
                 disabled={!selectedQuarter}
-                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-28 disabled:opacity-50"
+                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600 w-40 disabled:opacity-50"
               >
                 <option value="">All Months</option>
                 {monthOptions.map((m) => (
@@ -610,19 +696,19 @@ const QuarterTable = ({
 
         {/* SEARCH + RANGE + EXCEL */}
         <div className="flex justify-between items-start mt-2">
-          {localPoType === "General" ? (
-            <SearchBar keys={["docId", "itemGroup", "itemName"]} state={search} setState={setSearch} />
-          ) : selectedOrderType === "GREY YARN" ? (
-            <SearchBar keys={["docId", "yarnName", "orderNo", "color"]} state={greyYarnSearch} setState={setGreyYarnSearch} />
-          ) : selectedOrderType === "DYED YARN" ? (
-            <SearchBar keys={["docId", "yarnName", "orderNo", "color"]} state={dyedYarnSearch} setState={setDyedYarnSearch} />
-          ) : selectedOrderType === "GREY FABRIC" ? (
-            <SearchBar keys={["docId", "fabricName", "orderNo", "color"]} state={greyFabricSearch} setState={setGreyFabricSearch} />
-          ) : selectedOrderType === "DYED FABRIC" ? (
-            <SearchBar keys={["docId", "fabricName", "orderNo", "color"]} state={dyedFabricSearch} setState={setDyedFabricSearch} />
-          ) : selectedOrderType === "ACCESSORY" ? (
-            <SearchBar keys={["docId", "orderNo", "accessItemName", "accessSize"]} state={accessorySearch} setState={setAccessorySearch} />
-          ) : null}
+        {localPoType === "General" ? (
+  <SearchBar keys={["docId", "supplier", "itemGroup", "itemName", ]} state={search} setState={setSearch} />
+) : selectedOrderType === "GREY YARN" ? (
+  <SearchBar keys={["docId",  "orderNo","supplier",  "yarnName",  "color", ]} state={greyYarnSearch} setState={setGreyYarnSearch} />
+) : selectedOrderType === "DYED YARN" ? (
+  <SearchBar keys={["docId",  "orderNo","supplier",  "yarnName",  "color", ]} state={dyedYarnSearch} setState={setDyedYarnSearch} />
+) : selectedOrderType === "GREY FABRIC" ? (
+  <SearchBar keys={["docId",  "orderNo","supplier",  "fabricName",  "color", ]} state={greyFabricSearch} setState={setGreyFabricSearch} />
+) : selectedOrderType === "DYED FABRIC" ? (
+  <SearchBar keys={["docId",  "orderNo","supplier",  "fabricName",  "color", ]} state={dyedFabricSearch} setState={setDyedFabricSearch} />
+) : selectedOrderType === "ACCESSORY" ? (
+  <SearchBar keys={["docId",  "orderNo","supplier",   "accessItemName", "accessSize", ]} state={accessorySearch} setState={setAccessorySearch} />
+) : null}
 
           <div className="flex gap-x-2 items-center">
             {localPoType === "General"                           && <RangeFilter range={range0} setRange={setRange0} />}
@@ -645,31 +731,39 @@ const QuarterTable = ({
 
             {/* GENERAL */}
             {localPoType === "General" && (
-              <table className="w-full border-collapse text-[11px] table-fixed">
+              <table className="w-[1900px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0 tracking-wider">
                   <tr>
-                    <TH cls="w-4">S.No</TH>
-                    <TH cls="w-16">Doc No</TH>
-                    <TH cls="w-[38px]">Doc Date</TH>
+                    <TH cls="w-6">S.No</TH>
                     <TH cls="w-16">Month</TH>
-                    <TH cls="w-12">Item Group</TH>
+                    <TH cls="w-20">Doc No</TH>
+                    <TH cls="w-[48px]">Doc Date</TH>
+                    
+                     <TH cls="w-80">Supplier</TH> 
+                    <TH cls="w-16">Item Group</TH>
                     <TH cls="w-52">Item Name</TH>
-                    <TH cls="w-8">Qty</TH>
+                   
+                    <TH cls="w-12">Qty</TH>
                     <TH cls="w-8">UOM</TH>
                     <TH cls="w-12">Rate</TH>
-                    <TH cls="w-12">Amount</TH>
+                    <TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l0 || f0 ? <LoadingRow cols={10} /> : cr0.length === 0 ? <EmptyRow cols={10} /> :
+                  {!selectedQuarter    ? <NoQuarterSelected cols={11} /> :
+ l0 || f0            ? <LoadingRow cols={11} />        :
+ cr0.length === 0    ? <EmptyRow cols={11} />          :
                     cr0.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
                         <td className="border p-1 text-center">{(page0-1)*RECORDS+i+1}</td>
+                           <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pl-2 text-left">{row.docId}</td>
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
-                        <td className="border p-1 pl-2 text-left">{row.month}</td>
+                     
+                         <td className="border p-1 pl-2 text-left">{row.supplier}</td>
                         <td className="border p-1 pl-2 text-left">{row.itemGroup}</td>
                         <td className="border p-1 pr-2 text-left">{row.item}</td>
+                       
                         <td className="border p-1 pr-2 text-right">{formatQtyByUOM(row.qty, row.uom)}</td>
                         <td className="border p-1 pl-2 text-left">{row.uom}</td>
                         <td className="border p-1 pr-2 text-right">{INR(row.rate)}</td>
@@ -683,32 +777,38 @@ const QuarterTable = ({
 
             {/* GREY YARN */}
             {localPoType === "Order" && selectedOrderType === "GREY YARN" && (
-              <table className="w-[1620px] border-collapse text-[11px] table-fixed">
+              <table className="w-[1960px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0">
                   <tr>
                     <TH cls="w-4">S.No</TH>
-                    <TH cls="w-20">Doc No</TH>
-                    <TH cls="w-[48px]">Doc Date</TH>
-                    <TH cls="w-20">Month</TH>
-                    <TH cls="w-72">Yarn</TH>
-                    <TH cls="w-20">Order No</TH>
-                    <TH cls="w-20">Color</TH>
-                    <TH cls="w-8">Qty</TH>
+                     <TH cls="w-20">Month</TH>
+                    <TH cls="w-24">Doc No</TH>
+                    <TH cls="w-[52px]">Doc Date</TH>
+                   <TH cls="w-24">Order No</TH>
+                    <TH cls="w-80">Supplier</TH> 
+                    <TH cls="w-80">Yarn Name</TH>
+                      
+                    <TH cls="w-32">Color</TH>
+                    <TH cls="w-12">Qty</TH>
                     <TH cls="w-8">UOM</TH>
                     <TH cls="w-12">Rate</TH>
-                    <TH cls="w-12">Amount</TH>
+                    <TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l1 || f1 ? <LoadingRow cols={11} /> : cr1.length === 0 ? <EmptyRow cols={11} /> :
+                  {!selectedQuarter    ? <NoQuarterSelected cols={12} /> :
+ l1 || f1            ? <LoadingRow cols={12} />        :
+ cr1.length === 0    ? <EmptyRow cols={12} />          :
                     cr1.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
                         <td className="border p-1 text-center">{(page1-1)*RECORDS+i+1}</td>
+                        <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pl-2 text-left">{row.docId}</td>
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
-                        <td className="border p-1 pl-2 text-left">{row.month}</td>
+                         <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                        <td className="border p-1 pl-2 text-left">{row.supplier}</td> 
                         <td className="border p-1 pl-2 text-left">{row.yarnName}</td>
-                        <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                       
                         <td className="border p-1 pr-2 text-left">{row.color}</td>
                         <td className="border p-1 pr-2 text-right">{formatQtyByUOM(row.qty, row.uom)}</td>
                         <td className="border p-1 pl-2 text-left">{row.uom}</td>
@@ -723,25 +823,38 @@ const QuarterTable = ({
 
             {/* DYED YARN */}
             {localPoType === "Order" && selectedOrderType === "DYED YARN" && (
-              <table className="w-[1620px] border-collapse text-[11px] table-fixed">
+              <table className="w-[1960px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0">
                   <tr>
-                    <TH cls="w-4">S.No</TH><TH cls="w-20">Doc No</TH><TH cls="w-[48px]">Doc Date</TH>
-                    <TH cls="w-20">Month</TH><TH cls="w-72">Yarn</TH><TH cls="w-20">Order No</TH>
-                    <TH cls="w-20">Color</TH><TH cls="w-8">Qty</TH><TH cls="w-8">UOM</TH>
-                    <TH cls="w-12">Rate</TH><TH cls="w-12">Amount</TH>
+                    <TH cls="w-4">S.No</TH>
+                      <TH cls="w-20">Month</TH>
+                    <TH cls="w-24">Doc No</TH>
+                    <TH cls="w-[52px]">Doc Date</TH>
+                          <TH cls="w-24">Order No</TH>
+                    <TH cls="w-80">Supplier</TH> 
+                    <TH cls="w-80">Yarn Name</TH>
+              
+                    <TH cls="w-32">Color</TH>
+                    <TH cls="w-12">Qty</TH>
+                    <TH cls="w-8">UOM</TH>
+                    <TH cls="w-12">Rate</TH>
+                    <TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l2 || f2 ? <LoadingRow cols={11} /> : cr2.length === 0 ? <EmptyRow cols={11} /> :
+                  {!selectedQuarter    ? <NoQuarterSelected cols={12} /> :
+ l1 || f1            ? <LoadingRow cols={12} />        :
+ cr1.length === 0    ? <EmptyRow cols={12} />          :
                     cr2.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
                         <td className="border p-1 text-center">{(page2-1)*RECORDS+i+1}</td>
+                                    <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pl-2 text-left">{row.docId}</td>
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
-                        <td className="border p-1 pl-2 text-left">{row.month}</td>
+                     <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                        <td className="border p-1 pl-2 text-left">{row.supplier}</td> 
                         <td className="border p-1 pl-2 text-left">{row.yarnName}</td>
-                        <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+               
                         <td className="border p-1 pr-2 text-left">{row.color}</td>
                         <td className="border p-1 pr-2 text-right">{formatQtyByUOM(row.qty, row.uom)}</td>
                         <td className="border p-1 pl-2 text-left">{row.uom}</td>
@@ -756,25 +869,28 @@ const QuarterTable = ({
 
             {/* GREY FABRIC */}
             {localPoType === "Order" && selectedOrderType === "GREY FABRIC" && (
-              <table className="w-[1700px] border-collapse text-[11px] table-fixed">
+              <table className="w-[2000px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0">
                   <tr>
-                    <TH cls="w-4">S.No</TH><TH cls="w-24">Doc No</TH><TH cls="w-16">Doc Date</TH>
-                    <TH cls="w-20">Month</TH><TH cls="w-80">Fabric Name</TH><TH cls="w-24">Order No</TH>
-                    <TH cls="w-20">Color</TH><TH cls="w-20">Design</TH><TH cls="w-12">GSM</TH>
+                    <TH cls="w-4">S.No</TH>  <TH cls="w-20">Month</TH><TH cls="w-24">Doc No</TH><TH cls="w-16">Doc Date</TH><TH cls="w-24">Order No</TH><TH cls="w-80">Supplier</TH> 
+                  <TH cls="w-80">Fabric Name</TH><TH cls="w-32">Color</TH><TH cls="w-20">Design</TH><TH cls="w-12">GSM</TH>
                     <TH cls="w-12">Qty</TH><TH cls="w-8">UOM</TH><TH cls="w-12">Rate</TH><TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l3 || f3 ? <LoadingRow cols={13} /> : cr3.length === 0 ? <EmptyRow cols={13} /> :
+                  {!selectedQuarter    ? <NoQuarterSelected cols={14} /> :
+ l3 || f3            ? <LoadingRow cols={14} />        :
+ cr3.length === 0    ? <EmptyRow cols={14} />          :
                     cr3.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
                         <td className="border p-1 text-center">{(page3-1)*RECORDS+i+1}</td>
+                            <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pl-2 text-left">{row.docId}</td>
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
-                        <td className="border p-1 pl-2 text-left">{row.month}</td>
+                      <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                        <td className="border p-1 pl-2 text-left">{row.supplier}</td>
                         <td className="border p-1 pl-2 text-left">{row.fabricName}</td>
-                        <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                      
                         <td className="border p-1 pr-2 text-left">{row.color}</td>
                         <td className="border p-1 pr-2 text-left">{row.design}</td>
                         <td className="border p-1 pr-2 text-right">{!isNaN(Number(row.gsm)) ? Number(row.gsm).toFixed(3) : "N/A"}</td>
@@ -791,25 +907,28 @@ const QuarterTable = ({
 
             {/* DYED FABRIC */}
             {localPoType === "Order" && selectedOrderType === "DYED FABRIC" && (
-              <table className="w-[1700px] border-collapse text-[11px] table-fixed">
+              <table className="w-[2000px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0">
                   <tr>
-                    <TH cls="w-4">S.No</TH><TH cls="w-24">Doc No</TH><TH cls="w-16">Doc Date</TH>
-                    <TH cls="w-20">Month</TH><TH cls="w-80">Fabric Name</TH><TH cls="w-24">Order No</TH>
-                    <TH cls="w-20">Color</TH><TH cls="w-20">Design</TH><TH cls="w-12">GSM</TH>
+                     <TH cls="w-4">S.No</TH>  <TH cls="w-20">Month</TH><TH cls="w-24">Doc No</TH><TH cls="w-16">Doc Date</TH><TH cls="w-24">Order No</TH><TH cls="w-80">Supplier</TH> 
+                  <TH cls="w-80">Fabric Name</TH><TH cls="w-32">Color</TH><TH cls="w-20">Design</TH><TH cls="w-12">GSM</TH>
                     <TH cls="w-12">Qty</TH><TH cls="w-8">UOM</TH><TH cls="w-12">Rate</TH><TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l4 || f4 ? <LoadingRow cols={13} /> : cr4.length === 0 ? <EmptyRow cols={13} /> :
+                  {!selectedQuarter    ? <NoQuarterSelected cols={14} /> :
+ l3 || f3            ? <LoadingRow cols={14} />        :
+ cr3.length === 0    ? <EmptyRow cols={14} />          :
                     cr4.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
-                        <td className="border p-1 text-center">{(page4-1)*RECORDS+i+1}</td>
+                       <td className="border p-1 text-center">{(page3-1)*RECORDS+i+1}</td>
+                            <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pl-2 text-left">{row.docId}</td>
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
-                        <td className="border p-1 pl-2 text-left">{row.month}</td>
+                      <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                        <td className="border p-1 pl-2 text-left">{row.supplier}</td>
                         <td className="border p-1 pl-2 text-left">{row.fabricName}</td>
-                        <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                      
                         <td className="border p-1 pr-2 text-left">{row.color}</td>
                         <td className="border p-1 pr-2 text-left">{row.design}</td>
                         <td className="border p-1 pr-2 text-right">{!isNaN(Number(row.gsm)) ? Number(row.gsm).toFixed(3) : "N/A"}</td>
@@ -826,18 +945,20 @@ const QuarterTable = ({
 
             {/* ACCESSORY */}
             {localPoType === "Order" && selectedOrderType === "ACCESSORY" && (
-              <table className="w-[1970px] border-collapse text-[11px] table-fixed">
+              <table className="w-[2000px] border-collapse text-[11px] table-fixed">
                 <thead className="bg-gray-100 text-gray-800 sticky top-0">
                   <tr>
                     <TH cls="w-8">S.No</TH><TH cls="w-[110px]">Doc No</TH><TH cls="w-16">Doc Date</TH>
-                    <TH cls="w-20">Month</TH><TH cls="w-28">Order No</TH><TH cls="w-32">Acc. Group</TH>
-                    <TH cls="w-40">Acc. Item Group</TH><TH cls="w-72">Acc. Item Name</TH>
+                    <TH cls="w-20">Month</TH><TH cls="w-28">Order No</TH><TH cls="w-80">Supplier</TH><TH cls="w-32">Acc. Group Name</TH>
+                    <TH cls="w-40">Acc. Item Group Name</TH><TH cls="w-72">Acc. Item Name</TH>
                     <TH cls="w-20">Size</TH><TH cls="w-12">Qty</TH><TH cls="w-12">UOM</TH>
                     <TH cls="w-12">Rate</TH><TH cls="w-16">Amount</TH>
                   </tr>
                 </thead>
                 <tbody>
-                  {l5 || f5 ? <LoadingRow cols={13} /> : cr5.length === 0 ? <EmptyRow cols={13} /> :
+          {!selectedQuarter    ? <NoQuarterSelected cols={14} /> :
+ l5 || f5            ? <LoadingRow cols={14} />        :
+ cr5.length === 0    ? <EmptyRow cols={14} />          :
                     cr5.map((row, i) => (
                       <tr key={i} className="text-gray-800 bg-white even:bg-gray-100">
                         <td className="border p-1 text-center">{(page5-1)*RECORDS+i+1}</td>
@@ -845,6 +966,7 @@ const QuarterTable = ({
                         <td className="border p-1 pl-2 text-left">{fmtDate(row.docDate)}</td>
                         <td className="border p-1 pl-2 text-left">{row.month}</td>
                         <td className="border p-1 pr-2 text-left">{row.orderNo}</td>
+                        <td className="border p-1 pl-2 text-left">{row.supplier}</td>  
                         <td className="border p-1 pr-2 text-left">{row.accessGroupName}</td>
                         <td className="border p-1 pr-2 text-left">{row.accessItemName}</td>
                         <td className="border p-1 pr-2 text-left">{row.accessItemDesc}</td>

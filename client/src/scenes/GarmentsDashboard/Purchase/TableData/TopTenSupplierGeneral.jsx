@@ -527,9 +527,10 @@ const localSupplierOptions = useMemo(() => {
     worksheet: ws, startRow: 2, totalColumns: 3,
     selectedYear, localCompany: selectedCompCode,
     dynamicField: "Supplier", dynamicValue: selectedSupplier,
+    secondDynamicField: "Po Type", seconddynamicValue: localPoType,
       ...(localPoType === "Order" && {
-    secondDynamicField: "Raw Material",
-    seconddynamicValue: selectedOrderType,
+    thirdDynamicField: "Raw Material",
+    thirdDynamicValue: selectedOrderType,
   }),
   });
 
@@ -942,31 +943,31 @@ const localSupplierOptions = useMemo(() => {
         <div className="flex justify-between items-start mt-2">
           {localPoType === "General" ? (
             <SearchBar
-              keys={["docId", "itemGroup", "itemName", "supplier"]}
+              keys={["docId", "itemGroup", "itemName"]}
               state={search}
               setState={setSearch}
             />
           ) : selectedOrderType === "GREY YARN" ? (
             <SearchBar
-              keys={["docId", "yarnName", "orderNo", "supplier", "color"]}
+              keys={["docId", "yarnName", "orderNo", "color"]}
               state={greyYarnSearch}
               setState={setGreyYarnSearch}
             />
           ) : selectedOrderType === "DYED YARN" ? (
             <SearchBar
-              keys={["docId", "yarnName", "orderNo", "supplier", "color"]}
+              keys={["docId", "yarnName", "orderNo", "color"]}
               state={dyedYarnSearch}
               setState={setDyedYarnSearch}
             />
           ) : selectedOrderType === "GREY FABRIC" ? (
             <SearchBar
-              keys={["docId", "fabricName", "orderNo", "supplier", "color"]}
+              keys={["docId", "fabricName", "orderNo", "color"]}
               state={greyFabricSearch}
               setState={setGreyFabricSearch}
             />
           ) : selectedOrderType === "DYED FABRIC" ? (
             <SearchBar
-              keys={["docId", "fabricName", "orderNo", "supplier", "color"]}
+              keys={["docId", "fabricName", "orderNo", "color"]}
               state={dyedFabricSearch}
               setState={setDyedFabricSearch}
             />
@@ -975,7 +976,7 @@ const localSupplierOptions = useMemo(() => {
               keys={[
                 "docId",
                 "orderNo",
-                "supplier",
+                
                 "accessItemName",
                 "accessSize",
               ]}
@@ -1097,8 +1098,9 @@ const localSupplierOptions = useMemo(() => {
                     <TH cls="w-44">Supplier</TH>
                     <TH cls="w-20">Doc No</TH>
                     <TH cls="w-[48px]">Doc Date</TH>
-                    <TH cls="w-72">Yarn</TH>
-                    <TH cls="w-20">Order No</TH>
+                      <TH cls="w-20">Order No</TH>
+                    <TH cls="w-72">Yarn Name</TH>
+                  
                     <TH cls="w-20">Color</TH>
                     <TH cls="w-8">Qty</TH>
                     <TH cls="w-8">UOM</TH>
@@ -1129,12 +1131,13 @@ const localSupplierOptions = useMemo(() => {
                         <td className="border p-1 pl-2 text-left">
                           {fmtDate(row.docDate)}
                         </td>
+                          <td className="border p-1 pr-2 text-left">
+                          {row.orderNo}
+                        </td>
                         <td className="border p-1 pl-2 text-left">
                           {row.yarnName}
                         </td>
-                        <td className="border p-1 pr-2 text-left">
-                          {row.orderNo}
-                        </td>
+                      
                         <td className="border p-1 pr-2 text-left">
                           {row.color}
                         </td>
@@ -1164,8 +1167,9 @@ const localSupplierOptions = useMemo(() => {
                     <TH cls="w-36">Supplier</TH>
                     <TH cls="w-20">Doc No</TH>
                     <TH cls="w-[48px]">Doc Date</TH>
-                    <TH cls="w-72">Yarn</TH>
-                    <TH cls="w-20">Order No</TH>
+                     <TH cls="w-20">Order No</TH>
+                    <TH cls="w-72">Yarn Name</TH>
+                   
                     <TH cls="w-20">Color</TH>
                     <TH cls="w-8">Qty</TH>
                     <TH cls="w-8">UOM</TH>
@@ -1196,12 +1200,13 @@ const localSupplierOptions = useMemo(() => {
                         <td className="border p-1 pl-2 text-left">
                           {fmtDate(row.docDate)}
                         </td>
+                           <td className="border p-1 pr-2 text-left">
+                          {row.orderNo}
+                        </td>
                         <td className="border p-1 pl-2 text-left">
                           {row.yarnName}
                         </td>
-                        <td className="border p-1 pr-2 text-left">
-                          {row.orderNo}
-                        </td>
+                     
                         <td className="border p-1 pr-2 text-left">
                           {row.color}
                         </td>
@@ -1231,8 +1236,9 @@ const localSupplierOptions = useMemo(() => {
                     <TH cls="w-36">Supplier</TH>
                     <TH cls="w-24">Doc No</TH>
                     <TH cls="w-16">Doc Date</TH>
-                    <TH cls="w-80">Fabric Name</TH>
                     <TH cls="w-24">Order No</TH>
+                    <TH cls="w-80">Fabric Name</TH>
+                    
                     <TH cls="w-20">Color</TH>
                     <TH cls="w-20">Design</TH>
                     <TH cls="w-12">GSM</TH>
@@ -1265,12 +1271,13 @@ const localSupplierOptions = useMemo(() => {
                         <td className="border p-1 pl-2 text-left">
                           {fmtDate(row.docDate)}
                         </td>
+                          <td className="border p-1 pr-2 text-left">
+                          {row.orderNo}
+                        </td>
                         <td className="border p-1 pl-2 text-left">
                           {row.fabricName}
                         </td>
-                        <td className="border p-1 pr-2 text-left">
-                          {row.orderNo}
-                        </td>
+                      
                         <td className="border p-1 pr-2 text-left">
                           {row.color}
                         </td>
@@ -1308,8 +1315,9 @@ const localSupplierOptions = useMemo(() => {
                     <TH cls="w-36">Supplier</TH>
                     <TH cls="w-24">Doc No</TH>
                     <TH cls="w-16">Doc Date</TH>
-                    <TH cls="w-80">Fabric Name</TH>
                     <TH cls="w-24">Order No</TH>
+                    <TH cls="w-80">Fabric Name</TH>
+                    
                     <TH cls="w-20">Color</TH>
                     <TH cls="w-20">Design</TH>
                     <TH cls="w-12">GSM</TH>
@@ -1342,12 +1350,13 @@ const localSupplierOptions = useMemo(() => {
                         <td className="border p-1 pl-2 text-left">
                           {fmtDate(row.docDate)}
                         </td>
+                          <td className="border p-1 pr-2 text-left">
+                          {row.orderNo}
+                        </td>
                         <td className="border p-1 pl-2 text-left">
                           {row.fabricName}
                         </td>
-                        <td className="border p-1 pr-2 text-left">
-                          {row.orderNo}
-                        </td>
+                      
                         <td className="border p-1 pr-2 text-left">
                           {row.color}
                         </td>
@@ -1386,8 +1395,8 @@ const localSupplierOptions = useMemo(() => {
                     <TH cls="w-[110px]">Doc No</TH>
                     <TH cls="w-16">Doc Date</TH>
                     <TH cls="w-28">Order No</TH>
-                    <TH cls="w-32">Acc. Group</TH>
-                    <TH cls="w-40">Acc. Item Group</TH>
+                    <TH cls="w-32">Acc. Group Name</TH>
+                    <TH cls="w-40">Acc. Item Group Name</TH>
                     <TH cls="w-72">Acc. Item Name</TH>
                     <TH cls="w-20">Size</TH>
                     <TH cls="w-12">Qty</TH>
