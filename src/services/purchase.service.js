@@ -246,8 +246,9 @@ export async function getPurchaseOrderYear(req, res) {
         sql: `
           SELECT A.FINYR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PRICE) VAL
           FROM YARNPURREG A
-          WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+          WHERE   A.COMPCODE = :companyName
           GROUP BY A.FINYR, A.COMPCODE
+          HAVING SUM((A.POQTY-A.CANQTY)*A.PRICE) > 0
         `,
       },
       {
@@ -255,8 +256,9 @@ export async function getPurchaseOrderYear(req, res) {
         sql: `
           SELECT A.FINYR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PRICE) VAL
           FROM DYARNPURREG A
-          WHERE A.FINYR = :finYear AND A.COMPCODE = :companyName
+          WHERE   A.COMPCODE = :companyName
           GROUP BY A.FINYR, A.COMPCODE
+          HAVING SUM((A.POQTY-A.CANQTY)*A.PRICE) > 0
         `,
       },
       {
@@ -264,8 +266,9 @@ export async function getPurchaseOrderYear(req, res) {
         sql: `
           SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
           FROM GFABPOREG A
-          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          WHERE  A.COMPCODE = :companyName
           GROUP BY A.FINYEAR, A.COMPCODE
+          HAVING SUM((A.POQTY-A.CANQTY)*A.PORATE) > 0
         `,
       },
       {
@@ -273,8 +276,9 @@ export async function getPurchaseOrderYear(req, res) {
         sql: `
           SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
           FROM DFABPOREG A
-          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          WHERE  A.COMPCODE = :companyName
           GROUP BY A.FINYEAR, A.COMPCODE
+          HAVING SUM((A.POQTY-A.CANQTY)*A.PORATE) > 0
         `,
       },
       {
@@ -282,15 +286,16 @@ export async function getPurchaseOrderYear(req, res) {
         sql: `
           SELECT A.FINYEAR, A.COMPCODE, SUM((A.POQTY-A.CANQTY)*A.PORATE) VAL
           FROM ACCPOREG A
-          WHERE A.FINYEAR = :finYear AND A.COMPCODE = :companyName
+          WHERE  A.COMPCODE = :companyName
           GROUP BY A.FINYEAR, A.COMPCODE
+          HAVING SUM((A.POQTY-A.CANQTY)*A.PORATE) > 0
         `,
       },
     ];
 
     // Run all queries in parallel
     const results = await Promise.all(
-      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+      queries.map((q) => connection.execute(q.sql, { companyName })),
     );
 
     // Format and filter response: exclude rows where VAL <= 0, and exclude types with no rows
@@ -334,8 +339,9 @@ export async function getPurchaseGeneralYear(req, res) {
 JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
 JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
 JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
-where D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+where   C.COMPCODE = '${companyName}'
 GROUP BY D.FINYR,C.COMPCODE
+HAVING SUM((B.POQTY - B.CANQTY) * B.PORATE) > 0
 ORDER BY 1,2
      `;
 
@@ -367,27 +373,27 @@ FROM (
    
     SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE  VAL
     FROM YARNPURREG
-    WHERE FINYR = '${finYear}' AND COMPCODE = '${companyName}'
+    WHERE  COMPCODE = '${companyName}'
 
     UNION ALL
     SELECT FINYR, COMPCODE, (POQTY - CANQTY) * PRICE VAL
     FROM DYARNPURREG
-    WHERE FINYR = '${finYear}' AND COMPCODE = '${companyName}'
+    WHERE  COMPCODE = '${companyName}'
 
     UNION ALL
     SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM GFABPOREG
-    WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
+    WHERE   COMPCODE = '${companyName}'
 
     UNION ALL
     SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM DFABPOREG
-    WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
+    WHERE   COMPCODE = '${companyName}'
 
     UNION ALL
     SELECT FINYEAR AS FINYR, COMPCODE, (POQTY - CANQTY) * PORATE VAL
     FROM ACCPOREG
-    WHERE FINYEAR = '${finYear}' AND COMPCODE = '${companyName}'
+    WHERE  COMPCODE = '${companyName}'
 
     
     UNION ALL
@@ -396,7 +402,7 @@ FROM (
     JOIN GTGENPODET B ON A.GTGENPOID = B.GTGENPOID
     JOIN GTCOMPMAST C ON C.GTCOMPMASTID = A.COMPCODE
     JOIN GTFINANCIALYEAR D ON D.GTFINANCIALYEARID = A.FINYEAR
-    WHERE D.FINYR = '${finYear}' AND C.COMPCODE = '${companyName}'
+    WHERE  C.COMPCODE = '${companyName}'
     GROUP BY D.FINYR, C.COMPCODE 
 ) A
 GROUP BY A.FINYR, A.COMPCODE
@@ -1952,9 +1958,6 @@ ORDER BY 1,2
   }
 }
 
-
-
-
 export async function getToptenItemListGreyYarn(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -2114,6 +2117,726 @@ export async function getToptenItemListAccessory(req, res) {
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierDelayedOrder(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+ SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_GYPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+ SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_DYPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+ SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_GFPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+ SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_DFPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+  SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_ACCPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+        `,
+      },
+    ];
+
+    // Run all queries in parallel
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+    );
+
+    // Format and filter response: exclude rows where VAL <= 0, and exclude types with no rows
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows
+          .map((row) => ({
+            SUPPLIER: row[0],
+            VAL: row[1],
+          }))
+          .filter((r) => r.VAL > 0); // only keep VAL > 0
+
+        if (filteredData.length === 0) return null; // exclude entire type if no valid rows
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean); // remove nulls
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+export async function getSupplierDelayedCombined(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+WITH Combined AS (
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_GYPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_DYPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_GFPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_DFPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+   UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_ACCPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+   UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  FROM PROCTBL_GENPO_INWARD
+  WHERE DELEVERYTYPE = 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+)
+SELECT SUPPLIER, SUM(DELAYEDCOUNT) AS VAL
+FROM Combined
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+`;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    // Map the rows to {SUPPLIER, VAL} format
+    const resp = result.rows.map((row) => ({
+      SUPPLIER: row[0],
+      VAL: row[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierDelayedgeneral(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY DELAYEDCOUNT DESC
+`;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    // Map the rows to {SUPPLIER, VAL} format
+    const resp = result.rows.map((row) => ({
+      SUPPLIER: row[0],
+      VAL: row[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+
+
+export async function getSupplierDelayListGreyYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    if (!finYear || !companyName) {
+      return res.status(400).json({ error: "finYear and companyName are required" });
+    }
+
+    const sql = `
+      SELECT SUPPLIER
+      FROM PROCTBL_GYPO_INWARD
+      WHERE DELEVERYTYPE = 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+export async function getSupplierDelayListDyedYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+      const sql = `
+      SELECT SUPPLIER
+      FROM PROCTBL_DYPO_INWARD
+      WHERE DELEVERYTYPE = 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierListDelayGreyFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_GFPO_INWARD
+      WHERE DELEVERYTYPE = 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+export async function getSupplierListDelayDyedFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+   const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_DFPO_INWARD
+      WHERE DELEVERYTYPE = 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierListDelayAccessory(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+   const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_ACCPO_INWARD
+      WHERE DELEVERYTYPE = 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+
+
+
+
+export async function getSupplierEfficiencyListGreyYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    if (!finYear || !companyName) {
+      return res.status(400).json({ error: "finYear and companyName are required" });
+    }
+
+    const sql = `
+      SELECT SUPPLIER
+      FROM PROCTBL_GYPO_INWARD
+      WHERE DELEVERYTYPE <> 'DELAYED'  
+        AND COMPCODE = :companyName
+        AND FINYR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierEfficiencyListDyedYarn(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+      const sql = `
+      SELECT SUPPLIER
+      FROM PROCTBL_DYPO_INWARD
+      WHERE DELEVERYTYPE <> 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierListEfficiencyGreyFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_GFPO_INWARD
+      WHERE DELEVERYTYPE <> 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierListEfficiencyAccessory(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+   const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_ACCPO_INWARD
+       WHERE DELEVERYTYPE <> 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierListEfficiencyDyedFabric(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+   const sql = `
+      SELECT SUPPLIER
+      FROM  PROCTBL_DFPO_INWARD
+     WHERE DELEVERYTYPE <> 'DELAYED'
+        AND COMPCODE = :companyName
+        AND FINYEAR = :finYear
+      GROUP BY SUPPLIER
+    `;
+
+    const result = await connection.execute(sql, { companyName, finYear });
+
+    const resp = result.rows.map((row) => ({ supplier: row[0] }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+
+
+
+
+export async function getSupplierEfficiencyOrder(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const queries = [
+      {
+        name: "GREY YARN",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_GYPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+      {
+        name: "DYED YARN",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_DYPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+      {
+        name: "GREY FABRIC",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_GFPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+      {
+        name: "DYED FABRIC",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_DFPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+      {
+        name: "ACCESSORY",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_ACCPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYEAR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+      {
+        name: "GENERAL",
+        sql: `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      FINYR = :finYear AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+        `,
+      },
+    ];
+
+    const results = await Promise.all(
+      queries.map((q) => connection.execute(q.sql, { finYear, companyName })),
+    );
+
+    const resp = results
+      .map((result, index) => {
+        const filteredData = result.rows
+          .map((row) => ({
+            SUPPLIER: row[0],
+            VAL: row[1],
+          }))
+          .filter((r) => r.VAL > 0);
+
+        if (!filteredData.length) return null;
+
+        return {
+          type: queries[index].name,
+          data: filteredData,
+        };
+      })
+      .filter(Boolean);
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+export async function getSupplierEfficiencyCombined(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+WITH Combined AS (
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_GYPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_DYPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_GFPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_DFPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_ACCPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYEAR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+
+  UNION ALL
+
+  SELECT SUPPLIER, COUNT(1) AS VAL
+  FROM PROCTBL_GENPO_INWARD
+  WHERE DELEVERYTYPE != 'DELAYED'
+    AND FINYR = :finYear
+    AND COMPCODE = :companyName
+  GROUP BY SUPPLIER
+)
+SELECT SUPPLIER, SUM(VAL) AS VAL
+FROM Combined
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+`;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      SUPPLIER: row[0],
+      VAL: row[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getSupplierEfficiencyGeneral(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { finYear, companyName } = req.query;
+
+    const sql = `
+SELECT SUPPLIER, COUNT(1) AS VAL
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED'
+  AND FINYR = :finYear
+  AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+ORDER BY VAL DESC
+`;
+
+    const result = await connection.execute(sql, { finYear, companyName });
+
+    const resp = result.rows.map((row) => ({
+      SUPPLIER: row[0],
+      VAL: row[1],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();

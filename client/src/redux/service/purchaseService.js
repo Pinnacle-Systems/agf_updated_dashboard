@@ -293,6 +293,89 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+
+
+
+    getSupplierDelay: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierDelayOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getSupplierDelayPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierDelayGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getSupplierDelayCombined: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierDelayCombined",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+
+    getSupplierEfficiency: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierEfficiencyOrder",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getSupplierEfficiencyPurchaseGeneral: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierEfficiencyGeneral",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getSupplierEfficiencyCombined: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getSupplierEfficiencyCombined",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
   }),
 });
 
@@ -323,7 +406,16 @@ export const {
 
   useGetTopTenItemsQuery,
   useGetTopTenItemsPurchaseGeneralQuery,
-  useGetTopTenItemsCombinedQuery
+  useGetTopTenItemsCombinedQuery,
+
+
+  useGetSupplierDelayCombinedQuery,
+  useGetSupplierDelayPurchaseGeneralQuery,
+  useGetSupplierDelayQuery,
+
+  useGetSupplierEfficiencyQuery,
+  useGetSupplierEfficiencyCombinedQuery,
+  useGetSupplierEfficiencyPurchaseGeneralQuery
 
 } = purchase;
 

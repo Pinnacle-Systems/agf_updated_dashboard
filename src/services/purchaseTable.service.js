@@ -1741,3 +1741,431 @@ ORDER BY A.FINYEAR,A.COMPCODE
     await connection.close();
   }
 }
+
+
+
+export async function getGeneralSupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getGreyYarnSupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM PROCTBL_GYPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getDyedYarnSupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM PROCTBL_DYPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getGreyFabricSupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT DISTINCT   SUPPLIER,DOCID, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM   PROCTBL_GFPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY PODATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getDyedFabricSupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT  DISTINCT  SUPPLIER,DOCID, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM PROCTBL_DFPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY PODATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+export async function getAccessorySupplierDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+SELECT DISTINCT  SUPPLIER,DOCID, ACCPODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+FROM PROCTBL_ACCPO_INWARD
+WHERE DELEVERYTYPE = 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY ACCPODATE
+     `;
+
+    const result = await connection.execute(sql);
+    let resp = result.rows?.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+      
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+
+
+
+// ===================== Non-Delayed Grey Yarn =====================
+export async function getGeneralSupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+    if (!selectedYear || !companyName) {
+      return res.status(400).json({ error: "selectedYear and companyName are required" });
+    }
+
+    const sql = `
+      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error("Error retrieving data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// ===================== Non-Delayed Grey Yarn =====================
+export async function getGreyYarnSupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_GYPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// ===================== Non-Delayed Dyed Yarn =====================
+export async function getDyedYarnSupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_DYPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY DOCDATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// ===================== Non-Delayed Grey Fabric =====================
+export async function getGreyFabricSupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+    SELECT DISTINCT SUPPLIER, DOCID, PODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_GFPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY PODATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// ===================== Non-Delayed Dyed Fabric =====================
+export async function getDyedFabricSupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+     SELECT DISTINCT SUPPLIER, DOCID, PODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_DFPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY PODATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}
+
+// ===================== Non-Delayed Accessory =====================
+export async function getAccessorySupplierNonDelayTable(req, res) {
+  const connection = await getConnectionERP(res);
+  try {
+    const { selectedYear, companyName, supplier } = req.query;
+
+    const sql = `
+     SELECT DISTINCT SUPPLIER, DOCID, ACCPODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+FROM PROCTBL_ACCPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED' AND
+      COMPCODE = '${companyName}' AND 
+      FINYEAR = '${selectedYear}' AND
+      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
+ORDER BY ACCPODATE
+    `;
+
+    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const resp = result.rows.map((po) => ({
+      supplier: po[0],
+      docId: po[1],
+      docDate: po[2],
+      dueDate: po[3],
+      grnDate: po[4],
+      days: po[5],
+    }));
+
+    return res.json({ statusCode: 0, data: resp });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    await connection.close();
+  }
+}

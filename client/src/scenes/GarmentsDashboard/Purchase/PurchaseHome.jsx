@@ -9,7 +9,7 @@ import ItemGroupWise from "./ItemGroupWise";
 import TopTenSupplierYear from "./TopTenSupplierYear";
 import QuarterWise from "./QuarterWise";
 import MonthChart from "./MonthChart";
-import TopTenItemsYear from './TopTenItems'
+import TopTenItemsYear from "./TopTenItems";
 import {
   setSelectedYear,
   setFilterBuyer,
@@ -17,7 +17,7 @@ import {
   setPoType,
 } from "../../../redux/features/dashboardFiltersSlice";
 import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
-
+import SupplierDelay from "./SupplierDelay";
 import { useEffect, useRef, useState } from "react";
 
 const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
@@ -232,6 +232,21 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
           />
         </Grid> */}
       </Grid>
+
+      <Grid container className="">
+        <Grid item xs={12} md={12}>
+          <SupplierDelay
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+      </Grid>
+
       {poType !== "Order" && (
         <>
           <Grid container className="">
