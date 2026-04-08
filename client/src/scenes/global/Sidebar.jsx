@@ -415,8 +415,8 @@ const Sidebar = () => {
                 {page.link === "Dashboard" && <DashboardIcon sx={{ color }} />}
                 {page.link === "ERP" && <FaDatabase style={{ color }} />}
                 {page.link === "User" && <PersonIcon sx={{ color }} />}
-                {page.link === "MISDashboard" && <PersonIcon sx={{ color }} />}
-                {page.link === "HRDashboard" && <PersonIcon sx={{ color }} />}
+                {page.link === "MIS Dashboard" && <PersonIcon sx={{ color }} />}
+                {page.link === "HR Dashboard" && <PersonIcon sx={{ color }} />}
                 {page.link === "Dyeing Dashboard" && <OpacityIcon sx={{ color }} />}
                 {page.link === "Garments Dashboard" && <DashboardIcon sx={{ color }} />}
                 {/* {page.link === "Purchase Dashboard" && <ShoppingCartIcon sx={{ color }} />} */}

@@ -22,17 +22,17 @@ const tabs = [
   // { key: "Roles", name: "Roles", component: Roles,list:true,list_name:"Role Management" },
   {
     key: "MISDashboard",
-    name: "MISDashboard",
+    name: "MIS Dashboard",
     component: mainDashboard,
     list: true,
-    list_name: "AdminDashboard",
+    list_name: "MIS Dashboard",
   },
   {
-    key: "HRDashboard",
-    name: "HRDashboard",
+    key: "HR Dashboard",
+    name: "HR Dashboard",
     component: HRDashboard,
     list: true,
-    list_name: "HRDashboard",
+    list_name: "HR Dashboard",
   },
   // { key: "OnrollInsight", name: "Stock", component:NumericCard  ,list:true,default:false,list_name:"On Roll Insight" },
   {

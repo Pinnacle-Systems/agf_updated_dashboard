@@ -62,7 +62,7 @@ const ActiveTabList = () => {
         Roles: <RolePermission />,
       },
     },
-    MISDashboard: <Main_Dashboad />,
+    "MIS Dashboard": <Main_Dashboad />,
     ESIDetail: (tabData) => (
       <DetailedDashBoard
         companyName={tabData?.companyName}
