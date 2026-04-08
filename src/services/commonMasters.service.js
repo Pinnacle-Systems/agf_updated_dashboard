@@ -71,7 +71,7 @@ GROUP BY A.PAYPERIOD
 
 export async function getCompCodeData(req, res) {
   const { userId } = req.query;
-  // console.log(userId,"userId lajed");
+  console.log(userId,"userId lajed");
   
 
   const connection = await getConnection(res);

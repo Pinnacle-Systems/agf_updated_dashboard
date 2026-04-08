@@ -19,7 +19,8 @@ import {
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import OpacityIcon from "@mui/icons-material/Opacity";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import GroupIcon from "@mui/icons-material/Group";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useDispatch, useSelector } from "react-redux";
 import { push } from "../../redux/features/opentabs";
 import { useGetUsersQuery } from "../../redux/service/user";
@@ -97,14 +98,10 @@ const Sidebar = () => {
 
   const Rolename = allData?.find((item) => item?.id === roleId)?.rolename;
 
-
   const { data: allPages, refetch: pagerefetch } = useGetuserpagesQuery(
     { params: { userId } },
-    { skip }
+    { skip },
   );
-
-
-
 
   const permissionMap = {};
   allPages?.forEach((p) => {
@@ -114,7 +111,6 @@ const Sidebar = () => {
       edit: p.edit,
       delete: p.delete,
     };
-
   });
   setPermissions(permissionMap);
   // console.log(isSuperAdmin);
@@ -124,82 +120,9 @@ const Sidebar = () => {
       <List className="">
         {isSuperAdmin === true && (
           <>
-            <Tooltip
-              title="PayRoll"
-              placement="right"
-              disableHoverListener={!isCollapsed}
-            >
-              <StyledListItemButton
-                onClick={() => dispatch(push({ id: 1, name: "Dashboard" }))}
-              >
-                <StyledListItemIcon>
-                  <DashboardIcon
-                    sx={{
-                      color: color ? `${color}` : "#CA8A04",
-                      fontSize: "28px",
-                      background: "white",
-                    }}
-                  />
-                </StyledListItemIcon>
-                {/* {!isCollapsed && ( */}
-                <ListItemText
-                  primary="Dashboard"
-                  primaryTypographyProps={{
-                    fontSize: "0.8rem",
-                    fontWeight: "500",
-                  }}
-                  sx={{ ml: 1 }}
-                />
-                {/* )} */}
-              </StyledListItemButton>
-            </Tooltip>
-            <Tooltip
-              title="ERP"
-              placement="right"
-              disableHoverListener={!isCollapsed}
-            >
-              <StyledListItemButton
-                onClick={() => dispatch(push({ id: 2, name: "ERP" }))}
-              >
-                <StyledListItemIcon>
-                  <FaDatabase
-                    style={{
-                      color: color || "#CA8A04",
-                      fontSize: "20px",
-                      background: "white",
-                    }}
-                  />
-                </StyledListItemIcon>
-                {/* {!isCollapsed && ( */}
-                <ListItemText
-                  primary="ERP"
-                  primaryTypographyProps={{
-                    fontSize: "0.8rem",
-                    fontWeight: 500,
-                  }}
-                  sx={{ ml: 1 }}
-                />
-                {/* )} */}
-              </StyledListItemButton>
-            </Tooltip>
-            {/*   already uncomment
-        <Tooltip title="User" placement="right" disableHoverListener={!isCollapsed}>
-        <StyledListItemButton onClick={() => dispatch(push({ id: 4, name: 'User' }))}>
-          <StyledListItemIcon>
-            <PersonIcon sx={{ color: color ? `${color}` : '#CA8A04', fontSize: '28px', background: "white" }} />
-          </StyledListItemIcon>
-          {!isCollapsed && (
-          <ListItemText
-            primary="User"
-            primaryTypographyProps={{
-              fontSize: '0.875rem',
-              fontWeight: '500',
-            }}
-            sx={{ ml: 1 }}
-          />
-           )} 
-        </StyledListItemButton>
-        </Tooltip> */}
+
+
+
             <Tooltip
               title="User"
               placement="right"
@@ -278,12 +201,73 @@ const Sidebar = () => {
             </Tooltip>
 
             <Tooltip
+              title="Dashboard"
+              placement="right"
+              disableHoverListener={!isCollapsed}
+            >
+              <StyledListItemButton
+                onClick={() => dispatch(push({ id: 1, name: "Dashboard" }))}
+              >
+                <StyledListItemIcon>
+                  <DashboardIcon
+                    sx={{
+                      color: color ? `${color}` : "#CA8A04",
+                      fontSize: "28px",
+                      background: "white",
+                    }}
+                  />
+                </StyledListItemIcon>
+                {/* {!isCollapsed && ( */}
+                <ListItemText
+                  primary="Dashboard"
+                  primaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    fontWeight: "500",
+                  }}
+                  sx={{ ml: 1 }}
+                />
+                {/* )} */}
+              </StyledListItemButton>
+            </Tooltip>
+
+            <Tooltip
+              title="ERP"
+              placement="right"
+              disableHoverListener={!isCollapsed}
+            >
+              <StyledListItemButton
+                onClick={() => dispatch(push({ id: 2, name: "ERP" }))}
+              >
+                <StyledListItemIcon>
+                  <FaDatabase
+                    style={{
+                      color: color || "#CA8A04",
+                      fontSize: "20px",
+                      background: "white",
+                    }}
+                  />
+                </StyledListItemIcon>
+                {/* {!isCollapsed && ( */}
+                <ListItemText
+                  primary="ERP"
+                  primaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                  }}
+                  sx={{ ml: 1 }}
+                />
+                {/* )} */}
+              </StyledListItemButton>
+            </Tooltip>
+      
+
+            <Tooltip
               title="MIS Dashborad"
               placement="right"
               disableHoverListener={!isCollapsed}
             >
               <StyledListItemButton
-                onClick={() => dispatch(push({ id: 7, name: "MISDashboard" }))}
+                onClick={() => dispatch(push({ id: 7, name: "MIS Dashboard" }))}
               >
                 <StyledListItemIcon>
                   <PersonIcon
@@ -306,16 +290,17 @@ const Sidebar = () => {
                 {/* )} */}
               </StyledListItemButton>
             </Tooltip>
+
             <Tooltip
-              title="HR Dashborad"
+              title="HR Dashboard"
               placement="right"
               disableHoverListener={!isCollapsed}
             >
               <StyledListItemButton
-                onClick={() => dispatch(push({ id: 8, name: "HRDashBoard" }))}
+                onClick={() => dispatch(push({ id: 17, name: "HR DashBoard" }))}
               >
                 <StyledListItemIcon>
-                  <PersonIcon
+                  <GroupIcon
                     sx={{
                       color: color ? `${color}` : "#CA8A04",
                       fontSize: "28px",
@@ -335,9 +320,68 @@ const Sidebar = () => {
                 {/* )} */}
               </StyledListItemButton>
             </Tooltip>
+
+            <Tooltip
+              title="Dyeing Dashboard"
+              placement="right"
+              disableHoverListener={!isCollapsed}
+            >
+              <StyledListItemButton
+                onClick={() => dispatch(push({ id: 9, name: "Dyeing Dashboard" }))}
+              >
+                <StyledListItemIcon>
+                  <OpacityIcon
+                    sx={{
+                      color: color ? `${color}` : "#CA8A04",
+                      fontSize: "28px",
+                      background: "white",
+                    }}
+                  />
+                </StyledListItemIcon>
+                {/* {!isCollapsed && ( */}
+                <ListItemText
+                  primary="Dyeing Dashboard"
+                  primaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    fontWeight: "500",
+                  }}
+                  sx={{ ml: 1 }}
+                />
+                {/* )} */}
+              </StyledListItemButton>
+            </Tooltip>
+
+            <Tooltip
+              title="Garments Dashboard"
+              placement="right"
+              disableHoverListener={!isCollapsed}
+            >
+              <StyledListItemButton
+                onClick={() => dispatch(push({ id: 10, name: "Garments Dashboard" }))}
+              >
+                <StyledListItemIcon>
+                  <DashboardIcon
+                    sx={{
+                      color: color ? `${color}` : "#CA8A04",
+                      fontSize: "28px",
+                      background: "white",
+                    }}
+                  />
+                </StyledListItemIcon>
+                {/* {!isCollapsed && ( */}
+                <ListItemText
+                  primary="Garments Dashboard"
+                  primaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    fontWeight: "500",
+                  }}
+                  sx={{ ml: 1 }}
+                />
+                {/* )} */}
+              </StyledListItemButton>
+            </Tooltip>
           </>
         )}
-
 
         {Rolename === "Admin" && (
           <Tooltip
@@ -416,9 +460,13 @@ const Sidebar = () => {
                 {page.link === "ERP" && <FaDatabase style={{ color }} />}
                 {page.link === "User" && <PersonIcon sx={{ color }} />}
                 {page.link === "MIS Dashboard" && <PersonIcon sx={{ color }} />}
-                {page.link === "HR Dashboard" && <PersonIcon sx={{ color }} />}
-                {page.link === "Dyeing Dashboard" && <OpacityIcon sx={{ color }} />}
-                {page.link === "Garments Dashboard" && <DashboardIcon sx={{ color }} />}
+                {page.link === "HR Dashboard" && <GroupIcon sx={{ color }} />}
+                {page.link === "Dyeing Dashboard" && (
+                  <OpacityIcon sx={{ color }} />
+                )}
+                {page.link === "Garments Dashboard" && (
+                  <DashboardIcon sx={{ color }} />
+                )}
                 {/* {page.link === "Purchase Dashboard" && <ShoppingCartIcon sx={{ color }} />} */}
               </StyledListItemIcon>
 

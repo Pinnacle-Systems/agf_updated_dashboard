@@ -98,7 +98,7 @@ const ActiveTabList = () => {
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     ),
-    HRDashBoard: <HRDashboard />,
+    "HR DashBoard": <HRDashboard />,
     "Dyeing Dashboard": <FreeLookDyeing />,
     FabricInward: (tabData) => (
       <FabricInward

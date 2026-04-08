@@ -94,7 +94,7 @@ export default function UserCreation() {
     {
       header: "S.No",
       accessor: (_, index) => index + 1,
-      className: "text-center w-12",
+      className: "text-center w-12 pl-2",
     },
     {
       header: "User Name",
@@ -138,7 +138,7 @@ export default function UserCreation() {
           getRefetch={Getrefetch}
         />
       ) : (
-        <div className="p-2 bg-[#F1F1F0] min-h-screen">
+        <div className="p-2 h-[85vh]  bg-[#F1F1F0]">
           <div className="flex flex-col sm:flex-row justify-between bg-white py-1.5 px-1 items-start sm:items-center mb-4 gap-x-4 rounded-tl-lg rounded-tr-lg shadow-sm border border-gray-200">
             <h1 className="text-m text-gray-1000 mb-1 shadow-2xl">
               User Details
@@ -146,13 +146,13 @@ export default function UserCreation() {
 
             <button
               onClick={() => setusercreate(true)}
-              className="hover:bg-green-700 bg-white border border-green-700 hover:text-white text-green-800 px-4 py-1.5 rounded-md flex items-center gap-2 text-sm"
+              className="hover:bg-green-700 bg-white border border-green-700 hover:text-white text-green-800 px-4 py-0.5 rounded-md flex items-center gap-2 text-sm"
             >
               <AddIcon fontSize="small" /> Add User
             </button>
           </div>
           {/* TABLE */}
-          <div className="w-full overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+          <div className="w-full  overflow-x-auto shadow-lg rounded-lg border border-gray-200">
             <ReusableTable
               columns={columns}
               data={allData?.data || []}

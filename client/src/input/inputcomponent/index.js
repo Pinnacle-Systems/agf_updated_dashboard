@@ -493,7 +493,7 @@ export const DropdownWithSearch = forwardRef(
           onChange={(e) => setValue(e.target.value)}
         >
           <option value="">Select</option>
-          {(options || []).map((option) => (
+          {(options || [])?.map((option) => (
             <option key={option.id} value={option.id}>
               <span></span> {option[labelField]}
             </option>
@@ -567,7 +567,7 @@ export const DropdownWithSearch3 = forwardRef(
           onChange={(e) => setValue(e.target.value)}
         >
           <option value="">Select</option>
-          {(options || []).map((option) => (
+          {(options || [])?.map((option) => (
             <option key={option.id} value={option.id}>
               <span></span> {option[labelField]}
             </option>
@@ -641,7 +641,7 @@ export const DropdownWithSearch2 = forwardRef(
           onChange={(e) => setValue(e.target.value)}
         >
           <option value="">Select</option>
-          {(options || []).map((option) => (
+          {(options || [])?.map((option) => (
             <option key={option.companyName} value={option.companyName}>
               <span></span> {option[labelField]}
             </option>
@@ -715,7 +715,7 @@ export const DropdownWithSearch1 = forwardRef(
           onChange={(e) => setValue(e.target.value)}
         >
           <option value="">Select</option>
-          {(options || []).map((option) => (
+          {(options || [])?.map((option) => (
             <option key={option.EMPID} value={option.EMPID}>
               <span></span> {option[labelField]}
             </option>

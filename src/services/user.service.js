@@ -16,7 +16,7 @@ export async function login(req, res) {
   try {
     const user = await prisma_Connector.user.findUnique({
       where: { username },
-      include: { Useronpage: true, Useroncompany: true }, 
+      include: { Useronpage: true, Useroncompany: true },
     });
 
     console.log(user);
@@ -129,7 +129,7 @@ export async function create(req, res) {
     // Check if the username already exists
     const userNameResult = await connection.execute(
       "SELECT COUNT(*) as count FROM SPUSERLOG WHERE username = :username",
-      { username }
+      { username },
     );
 
     if (userNameResult.rows[0][0] > 0) {
@@ -187,20 +187,18 @@ order by userName`;
   }
 }
 export async function getfname(req, res) {
-  const {employeeId}=req.query
+  const { employeeId } = req.query;
 
-  console.log(employeeId,"employeeID erfef");
-  
+  console.log(employeeId, "employeeID erfef");
 
   const connection = await getConnection(res);
   try {
     const sql = `  
     select FNAME from HREMPLOYMAST where IDCARDNO=${employeeId}
   `;
-  const result = await connection.execute(sql);
+    const result = await connection.execute(sql);
     const resp = result.rows.map((user) => ({
       userName: user[0],
-      
     }));
     return res.json({ statusCode: 0, data: resp });
   } catch (err) {
@@ -237,8 +235,8 @@ export async function getUserDetails(req, res) {
             WHERE    ${
               Idcard != "null" ? `A.IDCARDNO IN (${String(Idcard)}) and ` : ""
             }   CM.COMPCODE=:COMPCODE  ${
-        desc == "group" ? `group by c.DESIGNATION` : ``
-      }`;
+              desc == "group" ? `group by c.DESIGNATION` : ``
+            }`;
 
       const result = await connection.execute(sql, { COMPCODE });
 
@@ -303,7 +301,7 @@ export async function getOne(req, res) {
       `
     select userName from spuserlog where gtcompmastid = :gtcompmastid
     `,
-      { gtCompMastId }
+      { gtCompMastId },
     );
     const resp = result.rows.map((user) => ({ userName: user[0] }));
     // console.log(resp, ' resp');
@@ -377,82 +375,68 @@ export async function remove(req, res, next) {
     }
     console.log(
       `Error`,
-      error?.message?.match(/message: "(.*?)"/)?.[1] || error?.message
+      error?.message?.match(/message: "(.*?)"/)?.[1] || error?.message,
     );
   }
 }
 
 export async function get_Usedetails(req, res) {
   const connection = await getConnection(res);
-  const {userId}=req.query
+  const { userId } = req.query;
 
-  if(!userId || userId === "false"){
+  if (!userId || userId === "false") {
     try {
-    const result = await prisma_Connector.user.findMany({});
-    const result1 = await prisma_Connector.useronpage.findMany({});
-    const result2 = await prisma_Connector.useroncompany.findMany({});
+      const result = await prisma_Connector.user.findMany({});
+      const result1 = await prisma_Connector.useronpage.findMany({});
+      const result2 = await prisma_Connector.useroncompany.findMany({});
 
-    return res.status(201).json({
-      data: result,
-      perrmissions: result1,
-      companyList: result2,
-    });
-  } catch (err) {
-    console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await connection.close();
-  }
- }
- else{
-  try{
-    const result = await prisma_Connector.user.findMany({
-    where: { createdbyId: parseInt(userId) },
-    include:{Useroncompany:true}
-  });
-  return res.json({ statusCode: 0, data: result });
-
+      return res.status(201).json({
+        data: result,
+        perrmissions: result1,
+        companyList: result2,
+      });
+    } catch (err) {
+      console.error("Error retrieving data:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+      await connection.close();
     }
-    catch(error){
+  } else {
+    try {
+      const result = await prisma_Connector.user.findMany({
+        where: { createdbyId: parseInt(userId) },
+        include: { Useroncompany: true },
+      });
+      return res.json({ statusCode: 0, data: result });
+    } catch (error) {
       console.error("Error retrieving data:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-
+      res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+      await connection.close();
     }
-    finally {
-    await connection.close();
   }
-
-
- }
-
-  
-  
 }
 
 export async function get_UserOne(req, res) {
   const connection = await getConnection(res);
 
   // const { id } = req.query
-  // 
+  //
   const id = parseInt(req.params.id);
-
-  
 
   try {
     const result = await prisma_Connector.user.findUnique({
       where: {
         id: parseInt(id),
       },
-      include:{
-        Useroncompany:true,
-        Useronpage:true
-      }
+      include: {
+        Useroncompany: true,
+        Useronpage: true,
+      },
     });
-    
 
     return res.status(201).json({
       data: result,
-      
     });
   } catch (err) {
     console.error("Error retrieving data:", err);
@@ -595,7 +579,9 @@ export async function UpdateUserOnPage(req, res) {
     COMPCODE,
     active,
     compList,
-    createdbyId
+    createdbyId,
+    password, // ✅ add this
+    roleId,
   } = req.body;
 
   try {
@@ -610,8 +596,7 @@ export async function UpdateUserOnPage(req, res) {
     if (!compList || !Array.isArray(compList) || compList.length === 0) {
       return res.status(400).json({
         status: 0,
-        message:
-          "Please provide at least one company to allow.",
+        message: "Please provide at least one company to allow.",
       });
     }
 
@@ -621,12 +606,26 @@ export async function UpdateUserOnPage(req, res) {
       return res.status(404).json({ status: 0, message: "User not found" });
     }
 
-    // --- Update main user details ---
+    // ✅ Build user update data
+    const updateData = {
+       employeeId: parseInt(employeeId),
+      username,
+      COMPCODE,
+      active,
+      createdbyId,
+       roleId: parseInt(roleId)
+    };
+    console.log(updateData, "goingtoupdate");
+
+    // ✅ Only hash and update password if a new one is provided
+    if (password && password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
     await prisma_Connector.user.update({
       where: { id: user.id },
-      data: { employeeId, username, COMPCODE, active,createdbyId },
+      data: updateData,
     });
-
     // --- Handle UserOnPage updates ---
     const existingPages = await prisma_Connector.useronpage.findMany({
       where: { userId: user.id },
@@ -634,12 +633,12 @@ export async function UpdateUserOnPage(req, res) {
 
     // Delete pages not in permissions
     const pagesToDelete = existingPages.filter(
-      (page) => !permissions.hasOwnProperty(page.link)
+      (page) => !permissions.hasOwnProperty(page.link),
     );
     await Promise.all(
       pagesToDelete.map((page) =>
-        prisma_Connector.useronpage.delete({ where: { id: page.id } })
-      )
+        prisma_Connector.useronpage.delete({ where: { id: page.id } }),
+      ),
     );
 
     // Upsert/update pages present in request
@@ -670,7 +669,7 @@ export async function UpdateUserOnPage(req, res) {
         } else {
           return prisma_Connector.useronpage.create({ data: upsertData });
         }
-      })
+      }),
     );
 
     // --- Handle UserOnCompany updates ---
@@ -680,12 +679,12 @@ export async function UpdateUserOnPage(req, res) {
 
     // Delete companies not in compList
     const companiesToDelete = existingCompanies.filter(
-      (item) => !compList.some((c) => c.label === item.companyName)
+      (item) => !compList.some((c) => c.label === item.companyName),
     );
     await Promise.all(
       companiesToDelete.map((item) =>
-        prisma_Connector.useroncompany.delete({ where: { id: item.id } })
-      )
+        prisma_Connector.useroncompany.delete({ where: { id: item.id } }),
+      ),
     );
 
     // Upsert/update companies present in compList
@@ -704,7 +703,7 @@ export async function UpdateUserOnPage(req, res) {
         } else {
           return prisma_Connector.useroncompany.create({ data: upsertData });
         }
-      })
+      }),
     );
 
     const failedPageOps = pageResults.filter((r) => r === null).length;

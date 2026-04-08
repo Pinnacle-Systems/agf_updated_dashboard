@@ -49,13 +49,13 @@ const tabs = [
     list: true,
     list_name: "Garments Dashboard",
   },
-  {
-    key: "Purchase Dashboard",
-    name: "Purchase Dashboard",
-    component: PurchaseDashboard,
-    list: true,
-    list_name: "Purchase Dashboard",
-  }
+  // {
+  //   key: "Purchase Dashboard",
+  //   name: "Purchase Dashboard",
+  //   component: PurchaseDashboard,
+  //   list: true,
+  //   list_name: "Purchase Dashboard",
+  // }
 ];
 
 export default tabs;

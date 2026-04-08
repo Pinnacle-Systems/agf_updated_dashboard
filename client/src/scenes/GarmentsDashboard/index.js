@@ -191,7 +191,7 @@ const GarmentsDashboard = () => {
             onOpen={() => dispatch(setLastSection("purchase"))}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <HomePF />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -199,7 +199,7 @@ const GarmentsDashboard = () => {
         </Grid>
         <Grid item xs={12} md={4}>
           <HomeAttrition />
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} md={6}>
           {/* <HomeRegion /> */}
         </Grid>

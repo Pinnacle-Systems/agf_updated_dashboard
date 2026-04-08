@@ -50,7 +50,7 @@ const UserCreate = ({
   const [issuperAdmin, setIssuperAdmin] = useState(false);
   const [allowcomp, setAllowcomp] = useState([]);
   const [userId, setUserId] = useState(null);
-
+  const [isExistingPassword, setIsExistingPassword] = useState(false);
   const [roleId, setRoleId] = useState("");
   const [active, setActive] = useState(false);
   const [toggleScroll, setToggleScroll] = useState(false);
@@ -62,9 +62,10 @@ const UserCreate = ({
   const [createUser] = useCreateRoleOnPageMutation();
   const [updateUser] = useUpdateuserOnPageMutation();
   const { data: compCode } = useGetCompCodeDataQuery(
-    { userId: issuperAdmin ? false : userId },
-    { skip: !issuperAdmin && !userId }
+    { userId: issuperAdmin ? false : parseInt(userId) },
+    { skip: !issuperAdmin && !userId },
   );
+  console.log(compCode, "compCode");
   const params = getCommonParams();
 
   const { finYearId, isSuperAdmin } = params;
@@ -73,63 +74,66 @@ const UserCreate = ({
     data: singleData1,
     isFetching: isSingleFetching,
     isLoading: isSingleLoading,
+    refetch: refetchSingleUser,
   } = useGetuseroneQuery(id);
   console.log(singleData1, "singleData1");
 
   async function Fliter() {
     const userId = secureLocalStorage.getItem(
-      sessionStorage.getItem("sessionId") + "userId"
+      sessionStorage.getItem("sessionId") + "userId",
     );
     setUserId(userId);
     const isSuperAdmin = secureLocalStorage.getItem(
-      sessionStorage.getItem("sessionId") + "superAdmin"
+      sessionStorage.getItem("sessionId") + "superAdmin",
     );
     setIssuperAdmin(isSuperAdmin);
   }
-    const syncFormWithDb = () => {
+  const syncFormWithDb = () => {
     setUsername(singleData1?.data?.username ? singleData1.data.username : "");
     setCOMPCODE(singleData1?.data?.COMPCODE ? singleData1.data.COMPCODE : "");
     setEmployeeId(
-      singleData1?.data?.employeeId ? singleData1.data.employeeId : ""
+      singleData1?.data?.employeeId ? singleData1.data.employeeId : "",
     );
     setRoleId(singleData1?.data?.roleId ? singleData1.data.roleId : "");
     setActive(singleData1?.data?.active ? singleData1.data.active : false);
-
+    if (id && singleData1?.data?.password) {
+      setPassword("");
+      setIsExistingPassword(true); // ✅ flag that password exists in DB
+    } else {
+      setIsExistingPassword(false);
+    }
     if (id) {
       const pages = singleData1?.data?.Useronpage.filter(
-        (item) => item?.userId === id
+        (item) => item?.userId === id,
       );
       const CompanyList = singleData1?.data?.Useroncompany?.filter(
-        (item) => item?.userId === id
+        (item) => item?.userId === id,
       );
 
-      if(issuperAdmin){
+      if (issuperAdmin) {
         setCompList(
-        CompanyList?CompanyList?.map((item) => {
-              return {
-                value: item.com,
-                label: item.com
-              };
-            })
-          : []
-      );
-
-      }else{
+          CompanyList
+            ? CompanyList?.map((item) => {
+                return {
+                  value: item.companyName,
+                  label: item.companyName,
+                };
+              })
+            : [],
+        );
+      } else {
         setCompList(
-        CompanyList?CompanyList?.map((item) => {
-              return {
-                value: item.companyName,
-                label: item.companyName,
-              };
-            })
-          : []
-      );
-              
+          CompanyList
+            ? CompanyList?.map((item) => {
+                return {
+                  value: item.companyName,
+                  label: item.companyName,
+                };
+              })
+            : [],
+        );
       }
 
-
-      
-      
       if (pages) {
         const transformed = pages.reduce((acc, perm) => {
           acc[perm.link] = {
@@ -148,17 +152,23 @@ const UserCreate = ({
 
   useEffect(() => {
     Fliter();
-  }, [userId, issuperAdmin, isSingleFetching, isSingleLoading, id,singleData1]);
+  }, [
+    userId,
+    issuperAdmin,
+    isSingleFetching,
+    isSingleLoading,
+    id,
+    singleData1,
+  ]);
 
   // console.log(singleData1?.data?.username, "compList");
 
   // const SingleData = allData?.users?.find((item) => item?.id === id);
   // console.log(pages,"pages and company");
 
-
   useEffect(() => {
     syncFormWithDb();
-  }, [isSingleFetching,isSingleLoading,singleData1]);
+  }, [isSingleFetching, isSingleLoading, singleData1]);
 
   const handlePermissionChange = (page, permission) => {
     setPermissions((prev) => {
@@ -196,7 +206,7 @@ const UserCreate = ({
         };
       }
       const allFalse = Object.values(updated[page]).every(
-        (val) => val === false
+        (val) => val === false,
       );
       if (allFalse) delete updated[page];
       return updated;
@@ -248,7 +258,7 @@ const UserCreate = ({
       password,
       active,
       compList,
-      createdbyId: issuperAdmin? Number(issuperAdmin):userId,
+      createdbyId: issuperAdmin ? Number(issuperAdmin) : userId,
     };
     // console.log(
     //   id,
@@ -275,7 +285,7 @@ const UserCreate = ({
         // console.log(response);
 
         // toast.success(`User ${edit ? "Updated" : "Created"} Successfully`);
-
+ refetchSingleUser();
         onNew();
         onClose();
         getRefetch();
@@ -289,8 +299,7 @@ const UserCreate = ({
       // toast.error(error?.data?.message || "Something went wrong");
     }
   };
-  console.log(compList,"compList");
-  
+  console.log(compList, "compList");
 
   return (
     <>
@@ -354,7 +363,15 @@ const UserCreate = ({
                 disabled={readonly}
               />
             )}
-
+            {/* <DropdownWithSearch
+                options={compCode?.data || []}
+                labelField={"com"}
+                // required={true}
+                label={"company Name"}
+                value={COMPCODE}
+                setValue={setCOMPCODE}
+                disabled={readonly}
+              /> */}
             <DropdownWithSearch1
               options={basicDetails?.data || []}
               labelField={"FNAME"}
@@ -381,18 +398,42 @@ const UserCreate = ({
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Password
+                Password{" "}
+                {edit && (
+                  <span className="text-gray-400 font-normal text-xs">
+                    (leave  to keep current)
+                  </span>
+                )}
               </label>
               <input
-                value={password}
-                type={"text"}
+                value={isExistingPassword ? "••••••••" : password}
+                type="text"
                 readOnly={readonly}
-                required={true}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={mode}
+                onFocus={() => {
+                  // ✅ When user clicks to type, clear dots and let them type fresh
+                  if (isExistingPassword) {
+                    setIsExistingPassword(false);
+                    setPassword("");
+                  }
+                }}
+                onChange={(e) => {
+                  setIsExistingPassword(false);
+                  setPassword(e.target.value);
+                }}
+                onBlur={() => {
+                  // ✅ If user focused but typed nothing, restore the dots
+                  if (
+                    !isExistingPassword &&
+                    password.trim() === "" &&
+                    id &&
+                    singleData1?.data?.password
+                  ) {
+                    setIsExistingPassword(true);
+                  }
+                }}
                 className={`w-full px-2 py-1 text-xs border border-slate-300 rounded-md 
-            focus:border-indigo-300 focus:outline-none transition-all duration-200
-            hover:border-slate-400 ${mode ? "bg-gray-100 text-gray-700" : ""}`}
+      focus:border-indigo-300 focus:outline-none transition-all duration-200
+      hover:border-slate-400`}
               />
             </div>
             <DropdownWithSearch
@@ -412,7 +453,7 @@ const UserCreate = ({
                 options={multiSelectOption(
                   compCode ? compCode?.data : [],
                   "com",
-                  "com"
+                  "com",
                 )}
                 selected={compList}
                 setSelected={setCompList}
@@ -425,7 +466,7 @@ const UserCreate = ({
                 options={multiSelectOption(
                   compCode ? compCode?.data?.Useroncompany : [],
                   "companyName",
-                  "companyName"
+                  "companyName",
                 )}
                 selected={compList}
                 setSelected={setCompList}
@@ -465,7 +506,7 @@ const UserCreate = ({
                       >
                         {head}
                       </th>
-                    )
+                    ),
                   )}
                 </tr>
               </thead>
@@ -479,7 +520,7 @@ const UserCreate = ({
                         key={item.name}
                         className="text-center border-b hover:bg-gray-50 text-xs"
                       >
-                        <td>{item.list_name}</td>
+                        <td className="text-left pl-2">{item.list_name}</td>
                         {["read", "create", "edit", "delete", "isdefault"].map(
                           (perm) => (
                             <td key={perm}>
@@ -497,7 +538,7 @@ const UserCreate = ({
                                 {p[perm] ? "✔" : ""}
                               </button>
                             </td>
-                          )
+                          ),
                         )}
                       </tr>
                     );
