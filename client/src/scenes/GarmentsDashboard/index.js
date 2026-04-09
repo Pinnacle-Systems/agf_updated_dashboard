@@ -24,6 +24,7 @@ import {
   setFinYr,
   setLastSection,setPoType
 } from "../../redux/features/dashboardFiltersSlice";
+import { useGetuserpagesQuery } from "../../redux/service/Rolemaster.js";
 const GarmentsDashboard = () => {
   const dispatch = useDispatch();
   const { filterBuyer, selectedYear, selectMonths, finYr, lastSection ,poType} =
@@ -42,7 +43,14 @@ const GarmentsDashboard = () => {
   }, []);
 
   const params = getCommonParams();
-  const { isSuperAdmin, employeeId } = params;
+  const { isSuperAdmin, employeeId,userId } = params;
+    const { data: allPages } = useGetuserpagesQuery(
+      { params: { userId } },
+    );
+    const usernames = [...new Set(allPages?.map(item => item.username))]
+    .join(", ");
+    console.log(allPages, "allPages");
+    console.log(usernames, "checkingname");
 
   const { data: userName } = useGetFnameQuery({
     params: { employeeId },
@@ -105,7 +113,7 @@ const GarmentsDashboard = () => {
             filterBuyer={filterBuyer}
             selectedYear={selectedYear}
             selectMonths={selectMonths}
-            finYr={finYr}
+            finYr={finYr} usernames={usernames}
             user={user}
             onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
             onYearChange={(val) => dispatch(setSelectedYear(val))}

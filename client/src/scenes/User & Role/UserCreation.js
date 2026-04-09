@@ -285,7 +285,7 @@ const UserCreate = ({
         // console.log(response);
 
         // toast.success(`User ${edit ? "Updated" : "Created"} Successfully`);
- refetchSingleUser();
+        refetchSingleUser();
         onNew();
         onClose();
         getRefetch();
@@ -354,7 +354,9 @@ const UserCreate = ({
               />
             ) : (
               <DropdownWithSearch2
-                options={compCode?.data?.Useroncompany || []}
+                options={(compCode?.data?.Useroncompany || []).filter(
+                  (item) => item && item.companyName,
+                )}
                 labelField={"companyName"}
                 // required={true}
                 label={"company Name"}
@@ -401,7 +403,7 @@ const UserCreate = ({
                 Password{" "}
                 {edit && (
                   <span className="text-gray-400 font-normal text-xs">
-                    (leave  to keep current)
+                    (leave to keep current)
                   </span>
                 )}
               </label>

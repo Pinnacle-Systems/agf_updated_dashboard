@@ -5,16 +5,23 @@ import { getCommonParams } from '../../utils/hleper'
 import { useGetFnameQuery } from '../../redux/service/user'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import { useGetuserpagesQuery } from "../../redux/service/Rolemaster.js";
 
-const DashboardHeader = ({usernames}) => {
+const DashboardHeader = () => {
 
   const [user,setUser]=useState(null)
 const params=getCommonParams()
 
-const{isSuperAdmin,employeeId}=params
+const{isSuperAdmin,employeeId,userId}=params
 // console.log(employeeId);
 
-
+    const { data: allPages } = useGetuserpagesQuery(
+      { params: { userId } },
+    );
+    const usernames = [...new Set(allPages?.map(item => item.username))]
+    .join(", ");
+    console.log(allPages, "allPages");
+    console.log(usernames, "checkingname");
 
 const {data:userName}=useGetFnameQuery({params:{employeeId}})
 console.log(userName,"userNamecheck");

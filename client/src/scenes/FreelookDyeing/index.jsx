@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material"
-import DashboardHeader from "../maindashboard/DashboardHeader.js"
+import DashboardHeader from "./DashboardHeader.js"
 import Trophy from "../maindashboard/Trophy.js"
 import StatisticsCard from "../maindashboard/StatisticsCard.js"
 import CardStatisticsVerticalComponent from "../../components/CardStatsVertical.js";
@@ -9,8 +9,10 @@ import { Poll } from "@mui/icons-material";
 import OverallFabricInward from "./OverallFabricInward.jsx";
 import FabricOutward from "./FabricOutward/FabricOutward.jsx";
 import TotalPurchase from "./TotalPurchase.jsx";
+import { getCommonParams } from "../../utils/hleper.js";
 
 const index = () => {
+    
   return (
     <div className="w-full  mx-auto rounded-md shadow-lg py-1 overflow-y-auto">
       <Grid container spacing={2}>
