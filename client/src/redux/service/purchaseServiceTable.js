@@ -669,59 +669,59 @@ const purchaseTable = createApi({
     }),
 
     // ===================== Grey Yarn List =====================
-getSupplierEfficiencyGreyYarnListTable: builder.query({
-  query: ({ params }) => ({
-    url: PURCHASE + "/getSupplierEfficiencyGreyYarnListTable",
-    method: "GET",
-    headers: { "Content-type": "application/json; charset=UTF-8" },
-    params,
-  }),
-  providesTags: ["supplierTable"],
-}),
+    getSupplierEfficiencyGreyYarnListTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getSupplierEfficiencyGreyYarnListTable",
+        method: "GET",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        params,
+      }),
+      providesTags: ["supplierTable"],
+    }),
 
-// ===================== Dyed Yarn List =====================
-getSupplierEfficiencyDyedYarnListTable: builder.query({
-  query: ({ params }) => ({
-    url: PURCHASE + "/getSupplierEfficiencyDyedYarnListTable",
-    method: "GET",
-    headers: { "Content-type": "application/json; charset=UTF-8" },
-    params,
-  }),
-  providesTags: ["supplierTable"],
-}),
+    // ===================== Dyed Yarn List =====================
+    getSupplierEfficiencyDyedYarnListTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getSupplierEfficiencyDyedYarnListTable",
+        method: "GET",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        params,
+      }),
+      providesTags: ["supplierTable"],
+    }),
 
-// ===================== Grey Fabric List =====================
-getSupplierEfficiencyGreyFabricListTable: builder.query({
-  query: ({ params }) => ({
-    url: PURCHASE + "/getSupplierEfficiencyGreyFabricListTable",
-    method: "GET",
-    headers: { "Content-type": "application/json; charset=UTF-8" },
-    params,
-  }),
-  providesTags: ["supplierTable"],
-}),
+    // ===================== Grey Fabric List =====================
+    getSupplierEfficiencyGreyFabricListTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getSupplierEfficiencyGreyFabricListTable",
+        method: "GET",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        params,
+      }),
+      providesTags: ["supplierTable"],
+    }),
 
-// ===================== Dyed Fabric List =====================
-getSupplierEfficiencyDyedFabricListTable: builder.query({
-  query: ({ params }) => ({
-    url: PURCHASE + "/getSupplierEfficiencyDyedFabricListTable",
-    method: "GET",
-    headers: { "Content-type": "application/json; charset=UTF-8" },
-    params,
-  }),
-  providesTags: ["supplierTable"],
-}),
+    // ===================== Dyed Fabric List =====================
+    getSupplierEfficiencyDyedFabricListTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getSupplierEfficiencyDyedFabricListTable",
+        method: "GET",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        params,
+      }),
+      providesTags: ["supplierTable"],
+    }),
 
-// ===================== Accessory List =====================
-getSupplierEfficiencyAccessoryListTable: builder.query({
-  query: ({ params }) => ({
-    url: PURCHASE + "/getSupplierEfficiencyAccessoryListTable",
-    method: "GET",
-    headers: { "Content-type": "application/json; charset=UTF-8" },
-    params,
-  }),
-  providesTags: ["supplierTable"],
-}),
+    // ===================== Accessory List =====================
+    getSupplierEfficiencyAccessoryListTable: builder.query({
+      query: ({ params }) => ({
+        url: PURCHASE + "/getSupplierEfficiencyAccessoryListTable",
+        method: "GET",
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+        params,
+      }),
+      providesTags: ["supplierTable"],
+    }),
   }),
 });
 
@@ -778,6 +778,17 @@ export const {
   useGetSupplierDelayedDyedYarnListTableQuery,
   useGetSupplierDelayedDyedFabricListTableQuery,
   useGetSupplierDelayedAccessoryListTableQuery,
+  useGetSupplierEfficiencyGeneralTableQuery,
+  useGetSupplierEfficiencyGreyYarnTableQuery,
+  useGetSupplierEfficiencyDyedYarnTableQuery,
+  useGetSupplierEfficiencyGreyFabricTableQuery,
+  useGetSupplierEfficiencyDyedFabricTableQuery,
+  useGetSupplierEfficiencyAccessoryTableQuery,
+  useGetSupplierEfficiencyGreyYarnListTableQuery,
+  useGetSupplierEfficiencyGreyFabricListTableQuery,
+  useGetSupplierEfficiencyDyedYarnListTableQuery,
+  useGetSupplierEfficiencyDyedFabricListTableQuery,
+  useGetSupplierEfficiencyAccessoryListTableQuery,
 } = purchaseTable;
 
 export default purchaseTable;

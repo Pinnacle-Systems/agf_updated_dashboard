@@ -1448,11 +1448,10 @@ ORDER BY DOCID, DOCDATE
   }
 }
 
-
 export async function getItemBreakUp(req, res) {
   const connection = await getConnectionERP(res);
   try {
-    const { selectedYear, companyName ,itemName} = req.query;
+    const { selectedYear, companyName, itemName } = req.query;
 
     const sql = `
 SELECT D.FINYR FINYEAR,C.COMPCODE,A.DOCDATE,A.DOCID,G.ITEMGRPNAME,I.ITEMNAME,A.SUPPLIER,B.POQTY-B.CANQTY POQTY,
@@ -1491,10 +1490,6 @@ ORDER BY 1,2,3
     await connection.close();
   }
 }
-
-
-
-
 
 export async function getGeneralItemToptenTable(req, res) {
   const connection = await getConnectionERP(res);
@@ -1742,32 +1737,29 @@ ORDER BY A.FINYEAR,A.COMPCODE
   }
 }
 
-
-
 export async function getGeneralSupplierDelayTable(req, res) {
   const connection = await getConnectionERP(res);
   try {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT   DISTINCT DOCID,SUPPLIER, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM PROCTBL_GENPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1785,24 +1777,23 @@ export async function getGreyYarnSupplierDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT   DISTINCT DOCID,SUPPLIER, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM PROCTBL_GYPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1820,24 +1811,23 @@ export async function getDyedYarnSupplierDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT DISTINCT  SUPPLIER,DOCID, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT   DISTINCT DOCID,SUPPLIER, DOCDATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM PROCTBL_DYPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1855,24 +1845,23 @@ export async function getGreyFabricSupplierDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT DISTINCT   SUPPLIER,DOCID, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT   DISTINCT DOCID,SUPPLIER, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM   PROCTBL_GFPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYEAR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY PODATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1890,24 +1879,23 @@ export async function getDyedFabricSupplierDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT  DISTINCT  SUPPLIER,DOCID, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT  DISTINCT DOCID,SUPPLIER, PODATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM PROCTBL_DFPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYEAR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY PODATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1925,24 +1913,23 @@ export async function getAccessorySupplierDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-SELECT DISTINCT  SUPPLIER,DOCID, ACCPODATE, DUEDATE, GRNDATE,DELAYEDDAYS
+SELECT  DISTINCT DOCID,SUPPLIER, ACCPODATE, DUEDATE, GRNDATE,DELAYEDDAYS
 FROM PROCTBL_ACCPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
       COMPCODE = '${companyName}' AND 
       FINYEAR = '${selectedYear}' AND
       (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY ACCPODATE
+ORDER BY DELAYEDDAYS DESC
      `;
 
     const result = await connection.execute(sql);
     let resp = result.rows?.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
       days: po[5],
-      
     }));
 
     return res.json({ statusCode: 0, data: resp });
@@ -1954,32 +1941,35 @@ ORDER BY ACCPODATE
   }
 }
 
-
-
-
-// ===================== Non-Delayed Grey Yarn =====================
+// ===================== Non-Delayed General=====================
 export async function getGeneralSupplierNonDelayTable(req, res) {
   const connection = await getConnectionERP(res);
   try {
     const { selectedYear, companyName, supplier } = req.query;
     if (!selectedYear || !companyName) {
-      return res.status(400).json({ error: "selectedYear and companyName are required" });
+      return res
+        .status(400)
+        .json({ error: "selectedYear and companyName are required" });
     }
 
     const sql = `
-      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+      SELECT DISTINCT DOCID,SUPPLIER, DOCDATE, DUEDATE, GRNDATE, CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_GENPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+      COMPCODE = :companyName
+    AND FINYR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
@@ -2002,19 +1992,27 @@ export async function getGreyYarnSupplierNonDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+ SELECT DISTINCT  DOCID,SUPPLIER, 
+       DOCDATE, 
+       DUEDATE, 
+       GRNDATE,
+       CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_GYPO_INWARD
-WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+WHERE DELEVERYTYPE  != 'DELAYED' AND
+       COMPCODE = :companyName
+    AND FINYR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+    ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
@@ -2037,19 +2035,27 @@ export async function getDyedYarnSupplierNonDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-      SELECT DISTINCT SUPPLIER, DOCID, DOCDATE, DUEDATE, GRNDATE, DELAYEDDAYS
+SELECT DISTINCT  DOCID,SUPPLIER, 
+       DOCDATE, 
+       DUEDATE, 
+       GRNDATE,
+       CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_DYPO_INWARD
-WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY DOCDATE
+WHERE DELEVERYTYPE  != 'DELAYED' AND
+       COMPCODE = :companyName
+    AND FINYR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+    ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
@@ -2072,19 +2078,23 @@ export async function getGreyFabricSupplierNonDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-    SELECT DISTINCT SUPPLIER, DOCID, PODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+    SELECT DISTINCT DOCID,SUPPLIER, PODATE, DUEDATE, GRNDATE, CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_GFPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYEAR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY PODATE
+       COMPCODE = :companyName
+    AND FINYEAR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+    ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
@@ -2107,19 +2117,23 @@ export async function getDyedFabricSupplierNonDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-     SELECT DISTINCT SUPPLIER, DOCID, PODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+   SELECT DISTINCT DOCID,SUPPLIER, PODATE, DUEDATE, GRNDATE, CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_DFPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYEAR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY PODATE
+       COMPCODE = :companyName
+    AND FINYEAR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+    ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],
@@ -2142,19 +2156,23 @@ export async function getAccessorySupplierNonDelayTable(req, res) {
     const { selectedYear, companyName, supplier } = req.query;
 
     const sql = `
-     SELECT DISTINCT SUPPLIER, DOCID, ACCPODATE, DUEDATE, GRNDATE, DELAYEDDAYS
+     SELECT DISTINCT DOCID,SUPPLIER, ACCPODATE, DUEDATE, GRNDATE, CASE WHEN DUEDATE - GRNDATE > 0 THEN ABS(DUEDATE - GRNDATE) ELSE 0 END AS EARLIERDAYS
 FROM PROCTBL_ACCPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
-      COMPCODE = '${companyName}' AND 
-      FINYEAR = '${selectedYear}' AND
-      (SUPPLIER = '${supplier}' OR '${supplier}' = 'ALL')
-ORDER BY ACCPODATE
+       COMPCODE = :companyName
+    AND FINYEAR = :selectedYear
+    AND (SUPPLIER = :supplier OR :supplier = 'ALL')
+    ORDER BY EARLIERDAYS DESC
     `;
 
-    const result = await connection.execute(sql, { companyName, selectedYear, supplier });
+    const result = await connection.execute(sql, {
+      companyName,
+      selectedYear,
+      supplier,
+    });
     const resp = result.rows.map((po) => ({
-      supplier: po[0],
-      docId: po[1],
+      docId: po[0],
+      supplier: po[1],
       docDate: po[2],
       dueDate: po[3],
       grnDate: po[4],

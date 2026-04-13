@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  useTheme,
-} from "@mui/material";
+import { Card, CardContent, CardHeader, useTheme } from "@mui/material";
 import ReactECharts from "echarts-for-react";
 import {
   useGetSupplierDelayCombinedQuery,
@@ -47,8 +42,12 @@ const SupplierDelay = ({
   const [selectedCompCode, setSelectedCompCode] = useState(companyName || "");
   const [selectedType, setSelectedType] = useState("");
 
-  useEffect(() => { setSelectedYear(finYear); }, [finYear]);
-  useEffect(() => { setSelectedCompCode(companyName); }, [companyName]);
+  useEffect(() => {
+    setSelectedYear(finYear);
+  }, [finYear]);
+  useEffect(() => {
+    setSelectedCompCode(companyName);
+  }, [companyName]);
 
   useEffect(() => {
     if (poType === "Order" && orderChartData.length > 0) {
@@ -157,17 +156,24 @@ const SupplierDelay = ({
         return `${p.name}<br/>Delayed Po: <b>${p.value}</b>`;
       },
     },
-    grid: { left: "3%", right: "5%", bottom: "22%", top: "10%", containLabel: true },
+    grid: {
+      left: "3%",
+      right: "5%",
+      bottom: "12%",
+      top: "10%",
+      containLabel: true,
+    },
     xAxis: {
       type: "category",
       data: data.map((d) => d.name),
       axisLabel: {
         fontSize: 12,
-        rotate: 35,           // rotate labels so long supplier names don't overlap
-        interval: 0,          // show every label
+        rotate: 35, // rotate labels so long supplier names don't overlap
+        interval: 0, // show every label
         overflow: "truncate",
         width: 80,
-        formatter: (val) => val.length > 14 ? val.slice(0, 13) + "…" : val,
+        formatter: (val) => (val.length > 14 ? val.slice(0, 13) + "…" : val),
+        fontWeight: 600,
       },
       axisLine: { lineStyle: { color: "#ddd" } },
       axisTick: { show: false },
@@ -182,7 +188,7 @@ const SupplierDelay = ({
     series: [
       {
         type: "line",
-        smooth: true,           // spline smoothing
+        smooth: true, // spline smoothing
         symbol: "circle",
         symbolSize: 10,
         lineStyle: { width: 3 },
@@ -197,7 +203,10 @@ const SupplierDelay = ({
           compCode: d.compCode,
           finYear: d.finYear,
           itemStyle: {
-            color: d.name === "Others" ? "#B0B0B0" : colorArray[idx % colorArray.length],
+            color:
+              d.name === "Others"
+                ? "#B0B0B0"
+                : colorArray[idx % colorArray.length],
             borderColor: "#fff",
             borderWidth: 2,
           },

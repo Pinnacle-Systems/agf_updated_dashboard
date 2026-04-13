@@ -2123,6 +2123,8 @@ export async function getToptenItemListAccessory(req, res) {
   }
 }
 
+// SUPPLIER DELAY QUERY
+
 export async function getSupplierDelayedOrder(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -2132,7 +2134,7 @@ export async function getSupplierDelayedOrder(req, res) {
       {
         name: "GREY YARN",
         sql: `
- SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+ SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_GYPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYR = :finYear AND COMPCODE = :companyName
@@ -2143,7 +2145,7 @@ ORDER BY DELAYEDCOUNT DESC
       {
         name: "DYED YARN",
         sql: `
- SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+ SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_DYPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYR = :finYear AND COMPCODE = :companyName
@@ -2154,7 +2156,7 @@ ORDER BY DELAYEDCOUNT DESC
       {
         name: "GREY FABRIC",
         sql: `
- SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+ SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_GFPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYEAR = :finYear AND COMPCODE = :companyName
@@ -2165,7 +2167,7 @@ ORDER BY DELAYEDCOUNT DESC
       {
         name: "DYED FABRIC",
         sql: `
- SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+ SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_DFPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYEAR = :finYear AND COMPCODE = :companyName
@@ -2176,7 +2178,7 @@ ORDER BY DELAYEDCOUNT DESC
       {
         name: "ACCESSORY",
         sql: `
-  SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_ACCPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYEAR = :finYear AND COMPCODE = :companyName
@@ -2219,7 +2221,6 @@ ORDER BY DELAYEDCOUNT DESC
   }
 }
 
-
 export async function getSupplierDelayedCombined(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -2227,7 +2228,7 @@ export async function getSupplierDelayedCombined(req, res) {
 
     const sql = `
 WITH Combined AS (
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_GYPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYR = :finYear
@@ -2236,7 +2237,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_DYPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYR = :finYear
@@ -2245,7 +2246,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_GFPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYEAR = :finYear
@@ -2254,7 +2255,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_DFPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYEAR = :finYear
@@ -2263,7 +2264,7 @@ WITH Combined AS (
 
    UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_ACCPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYEAR = :finYear
@@ -2271,7 +2272,7 @@ WITH Combined AS (
   GROUP BY SUPPLIER
    UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS DELAYEDCOUNT
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
   FROM PROCTBL_GENPO_INWARD
   WHERE DELEVERYTYPE = 'DELAYED'
     AND FINYR = :finYear
@@ -2307,7 +2308,7 @@ export async function getSupplierDelayedgeneral(req, res) {
     const { finYear, companyName } = req.query;
 
     const sql = `
-SELECT SUPPLIER,COUNT(1) AS DELAYEDCOUNT
+SELECT SUPPLIER,COUNT(DISTINCT DOCID) AS DELAYEDCOUNT
 FROM PROCTBL_GENPO_INWARD
 WHERE DELEVERYTYPE = 'DELAYED' AND
 FINYR = :finYear AND COMPCODE = :companyName
@@ -2332,8 +2333,7 @@ ORDER BY DELAYEDCOUNT DESC
   }
 }
 
-
-
+// SUPPLIER DELAY LIST
 
 export async function getSupplierDelayListGreyYarn(req, res) {
   const connection = await getConnectionERP(res);
@@ -2341,7 +2341,9 @@ export async function getSupplierDelayListGreyYarn(req, res) {
     const { finYear, companyName } = req.query;
 
     if (!finYear || !companyName) {
-      return res.status(400).json({ error: "finYear and companyName are required" });
+      return res
+        .status(400)
+        .json({ error: "finYear and companyName are required" });
     }
 
     const sql = `
@@ -2366,13 +2368,12 @@ export async function getSupplierDelayListGreyYarn(req, res) {
   }
 }
 
-
 export async function getSupplierDelayListDyedYarn(req, res) {
   const connection = await getConnectionERP(res);
   try {
     const { finYear, companyName } = req.query;
 
-      const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM PROCTBL_DYPO_INWARD
       WHERE DELEVERYTYPE = 'DELAYED'
@@ -2421,13 +2422,12 @@ export async function getSupplierListDelayGreyFabric(req, res) {
   }
 }
 
-
 export async function getSupplierListDelayDyedFabric(req, res) {
   const connection = await getConnectionERP(res);
   try {
     const { finYear, companyName } = req.query;
 
-   const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM  PROCTBL_DFPO_INWARD
       WHERE DELEVERYTYPE = 'DELAYED'
@@ -2454,7 +2454,7 @@ export async function getSupplierListDelayAccessory(req, res) {
   try {
     const { finYear, companyName } = req.query;
 
-   const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM  PROCTBL_ACCPO_INWARD
       WHERE DELEVERYTYPE = 'DELAYED'
@@ -2476,10 +2476,7 @@ export async function getSupplierListDelayAccessory(req, res) {
   }
 }
 
-
-
-
-
+// SUPPLIER EFFICIENCY LIST
 
 export async function getSupplierEfficiencyListGreyYarn(req, res) {
   const connection = await getConnectionERP(res);
@@ -2487,7 +2484,9 @@ export async function getSupplierEfficiencyListGreyYarn(req, res) {
     const { finYear, companyName } = req.query;
 
     if (!finYear || !companyName) {
-      return res.status(400).json({ error: "finYear and companyName are required" });
+      return res
+        .status(400)
+        .json({ error: "finYear and companyName are required" });
     }
 
     const sql = `
@@ -2517,7 +2516,7 @@ export async function getSupplierEfficiencyListDyedYarn(req, res) {
   try {
     const { finYear, companyName } = req.query;
 
-      const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM PROCTBL_DYPO_INWARD
       WHERE DELEVERYTYPE <> 'DELAYED'
@@ -2571,7 +2570,7 @@ export async function getSupplierListEfficiencyAccessory(req, res) {
   try {
     const { finYear, companyName } = req.query;
 
-   const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM  PROCTBL_ACCPO_INWARD
        WHERE DELEVERYTYPE <> 'DELAYED'
@@ -2598,7 +2597,7 @@ export async function getSupplierListEfficiencyDyedFabric(req, res) {
   try {
     const { finYear, companyName } = req.query;
 
-   const sql = `
+    const sql = `
       SELECT SUPPLIER
       FROM  PROCTBL_DFPO_INWARD
      WHERE DELEVERYTYPE <> 'DELAYED'
@@ -2620,10 +2619,7 @@ export async function getSupplierListEfficiencyDyedFabric(req, res) {
   }
 }
 
-
-
-
-
+// SUPPLIER EFFICIENCY
 
 export async function getSupplierEfficiencyOrder(req, res) {
   const connection = await getConnectionERP(res);
@@ -2634,7 +2630,7 @@ export async function getSupplierEfficiencyOrder(req, res) {
       {
         name: "GREY YARN",
         sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_GYPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
       FINYR = :finYear AND COMPCODE = :companyName
@@ -2645,9 +2641,9 @@ ORDER BY VAL DESC
       {
         name: "DYED YARN",
         sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_DYPO_INWARD
-WHERE DELEVERYTYPE != 'DELAYED' AND
+WHERE DELEVERYTYPE  != 'DELAYED' AND
       FINYR = :finYear AND COMPCODE = :companyName
 GROUP BY SUPPLIER
 ORDER BY VAL DESC
@@ -2656,7 +2652,7 @@ ORDER BY VAL DESC
       {
         name: "GREY FABRIC",
         sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER,  COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_GFPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
       FINYEAR = :finYear AND COMPCODE = :companyName
@@ -2667,7 +2663,7 @@ ORDER BY VAL DESC
       {
         name: "DYED FABRIC",
         sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_DFPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
       FINYEAR = :finYear AND COMPCODE = :companyName
@@ -2678,21 +2674,10 @@ ORDER BY VAL DESC
       {
         name: "ACCESSORY",
         sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_ACCPO_INWARD
 WHERE DELEVERYTYPE != 'DELAYED' AND
       FINYEAR = :finYear AND COMPCODE = :companyName
-GROUP BY SUPPLIER
-ORDER BY VAL DESC
-        `,
-      },
-      {
-        name: "GENERAL",
-        sql: `
-SELECT SUPPLIER, COUNT(1) AS VAL
-FROM PROCTBL_GENPO_INWARD
-WHERE DELEVERYTYPE != 'DELAYED' AND
-      FINYR = :finYear AND COMPCODE = :companyName
 GROUP BY SUPPLIER
 ORDER BY VAL DESC
         `,
@@ -2730,7 +2715,6 @@ ORDER BY VAL DESC
   }
 }
 
-
 export async function getSupplierEfficiencyCombined(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -2738,7 +2722,7 @@ export async function getSupplierEfficiencyCombined(req, res) {
 
     const sql = `
 WITH Combined AS (
-  SELECT SUPPLIER, COUNT(1) AS VAL
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
   FROM PROCTBL_GYPO_INWARD
   WHERE DELEVERYTYPE != 'DELAYED'
     AND FINYR = :finYear
@@ -2747,7 +2731,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS VAL
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
   FROM PROCTBL_DYPO_INWARD
   WHERE DELEVERYTYPE != 'DELAYED'
     AND FINYR = :finYear
@@ -2756,7 +2740,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS VAL
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
   FROM PROCTBL_GFPO_INWARD
   WHERE DELEVERYTYPE != 'DELAYED'
     AND FINYEAR = :finYear
@@ -2765,7 +2749,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS VAL
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
   FROM PROCTBL_DFPO_INWARD
   WHERE DELEVERYTYPE != 'DELAYED'
     AND FINYEAR = :finYear
@@ -2774,7 +2758,7 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS VAL
+  SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
   FROM PROCTBL_ACCPO_INWARD
   WHERE DELEVERYTYPE != 'DELAYED'
     AND FINYEAR = :finYear
@@ -2783,12 +2767,13 @@ WITH Combined AS (
 
   UNION ALL
 
-  SELECT SUPPLIER, COUNT(1) AS VAL
-  FROM PROCTBL_GENPO_INWARD
-  WHERE DELEVERYTYPE != 'DELAYED'
-    AND FINYR = :finYear
-    AND COMPCODE = :companyName
-  GROUP BY SUPPLIER
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
+FROM PROCTBL_GENPO_INWARD
+WHERE DELEVERYTYPE != 'DELAYED'
+  AND FINYR = :finYear
+  AND COMPCODE = :companyName
+GROUP BY SUPPLIER
+
 )
 SELECT SUPPLIER, SUM(VAL) AS VAL
 FROM Combined
@@ -2818,9 +2803,9 @@ export async function getSupplierEfficiencyGeneral(req, res) {
     const { finYear, companyName } = req.query;
 
     const sql = `
-SELECT SUPPLIER, COUNT(1) AS VAL
+SELECT SUPPLIER, COUNT(DISTINCT DOCID) AS VAL
 FROM PROCTBL_GENPO_INWARD
-WHERE DELEVERYTYPE != 'DELAYED'
+WHERE DELEVERYTYPE  != 'DELAYED'
   AND FINYR = :finYear
   AND COMPCODE = :companyName
 GROUP BY SUPPLIER

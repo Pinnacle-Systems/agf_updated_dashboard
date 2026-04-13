@@ -19,6 +19,7 @@ import {
 import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
 import SupplierDelay from "./SupplierDelay";
 import { useEffect, useRef, useState } from "react";
+import SupplierEfficiency from "./SupplierEfficiency";
 
 const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
   const dispatch = useDispatch();
@@ -234,7 +235,18 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
       </Grid>
 
       <Grid container className="">
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={6}>
+          <SupplierEfficiency
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
           <SupplierDelay
             key={filterBuyer}
             companyName={filterBuyer}
