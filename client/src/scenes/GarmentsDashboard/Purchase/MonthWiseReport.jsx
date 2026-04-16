@@ -122,163 +122,163 @@
 //     }
 //   }, [yearOrderResponse, poType]);
 
-  // const chartOrderOptions = useMemo(() => {
-  //   if (!yearOrderResponse?.data) return {};
+// const chartOrderOptions = useMemo(() => {
+//   if (!yearOrderResponse?.data) return {};
 
-  //   const years = [
-  //     ...new Set(
-  //       yearOrderResponse.data.flatMap((item) =>
-  //         item.data.map((d) => d.FINYEAR),
-  //       ),
-  //     ),
-  //   ];
+//   const years = [
+//     ...new Set(
+//       yearOrderResponse.data.flatMap((item) =>
+//         item.data.map((d) => d.FINYEAR),
+//       ),
+//     ),
+//   ];
 
-  //   // Filter: show only selected type if one is chosen, else show all
-  //   const filteredData = selectedType
-  //     ? yearOrderResponse.data.filter((item) => item.type === selectedType)
-  //     : yearOrderResponse.data;
+//   // Filter: show only selected type if one is chosen, else show all
+//   const filteredData = selectedType
+//     ? yearOrderResponse.data.filter((item) => item.type === selectedType)
+//     : yearOrderResponse.data;
 
-  //   const series = filteredData.map((item, index) => ({
-  //     name: item.type,
-  //     data: years.map((year) => {
-  //       const found = item.data.find((d) => d.FINYEAR === year);
-  //       return found ? found.VAL : 0;
-  //     }),
-  //     color:
-  //       YEAR_COLORS[
-  //         yearOrderResponse.data.findIndex((d) => d.type === item.type) %
-  //           YEAR_COLORS.length
-  //       ], // keep color stable even when filtered
-  //     minPointLength: 30,
-  //     showInLegend: true,
-  //     colorByPoint: false,
-  //     dataLabels: {
-  //       enabled: true,
-  //       inside: false,
-  //       formatter: function () {
-  //         return formatINR(this.y);
-  //       },
-  //       style: { fontSize: "12px", fontWeight: "bold", color: "#000" },
-  //     },
-  //     cursor: "pointer",
-  //     point: {
-  //       events: {
-  //         click: function () {
-  //           const clickedYear = this.category;
-  //           const type = item.type;
-  //           setSelectedYear(clickedYear);
-  //           setSelectedOrderType(type);
-  //           setSelectedCompCode("");
-  //           setShowYearTable(true);
-  //         },
-  //       },
-  //     },
-  //   }));
+//   const series = filteredData.map((item, index) => ({
+//     name: item.type,
+//     data: years.map((year) => {
+//       const found = item.data.find((d) => d.FINYEAR === year);
+//       return found ? found.VAL : 0;
+//     }),
+//     color:
+//       YEAR_COLORS[
+//         yearOrderResponse.data.findIndex((d) => d.type === item.type) %
+//           YEAR_COLORS.length
+//       ], // keep color stable even when filtered
+//     minPointLength: 30,
+//     showInLegend: true,
+//     colorByPoint: false,
+//     dataLabels: {
+//       enabled: true,
+//       inside: false,
+//       formatter: function () {
+//         return formatINR(this.y);
+//       },
+//       style: { fontSize: "12px", fontWeight: "bold", color: "#000" },
+//     },
+//     cursor: "pointer",
+//     point: {
+//       events: {
+//         click: function () {
+//           const clickedYear = this.category;
+//           const type = item.type;
+//           setSelectedYear(clickedYear);
+//           setSelectedOrderType(type);
+//           setSelectedCompCode("");
+//           setShowYearTable(true);
+//         },
+//       },
+//     },
+//   }));
 
-  //   return {
-  //     chart: { type: "column", height: 400 },
-  //     title: { text: "" },
-  //     xAxis: { categories: years, title: { text: "Financial Year" } },
-  //     yAxis: {
-  //       title: { text: "Amount" },
-  //       labels: {
-  //         formatter: function () {
-  //           return formatINRShort(this.value);
-  //         },
-  //       },
-  //     },
-  //     series,
-  //     tooltip: {
-  //       pointFormatter: function () {
-  //         return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${formatINRShort(this.y)}</b><br/>`;
-  //       },
-  //     },
-  //     legend: { symbolHeight: 12, symbolWidth: 12, symbolRadius: 0 },
-  //   };
-  // }, [yearOrderResponse, selectedType]); // <-- add selectedType here
+//   return {
+//     chart: { type: "column", height: 400 },
+//     title: { text: "" },
+//     xAxis: { categories: years, title: { text: "Financial Year" } },
+//     yAxis: {
+//       title: { text: "Amount" },
+//       labels: {
+//         formatter: function () {
+//           return formatINRShort(this.value);
+//         },
+//       },
+//     },
+//     series,
+//     tooltip: {
+//       pointFormatter: function () {
+//         return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${formatINRShort(this.y)}</b><br/>`;
+//       },
+//     },
+//     legend: { symbolHeight: 12, symbolWidth: 12, symbolRadius: 0 },
+//   };
+// }, [yearOrderResponse, selectedType]); // <-- add selectedType here
 
 //   // --- Chart 2: General Purchase ---
 
-  // const chartGeneralOptions = useMemo(() => {
-  //   const data =
-  //     yearGeneralResponse?.data?.map((d) => ({
-  //       y: d.VAL, // numeric value for the bar
-  //       FINYEAR: d.FINYEAR,
-  //       COMPCODE: d.COMPCODE,
-  //     })) || [];
+// const chartGeneralOptions = useMemo(() => {
+//   const data =
+//     yearGeneralResponse?.data?.map((d) => ({
+//       y: d.VAL, // numeric value for the bar
+//       FINYEAR: d.FINYEAR,
+//       COMPCODE: d.COMPCODE,
+//     })) || [];
 
-  //   return {
-  //     chart: {
-  //       type: "bar",
-  //       height: 400,
-  //       backgroundColor: "transparent",
-  //       margin: [20, 40, 60, 120],
-  //     },
-  //     title: { text: "" },
-  //     xAxis: {
-  //       categories: data.map((d) => d.FINYEAR),
-  //       lineColor: "#ddd",
-  //       tickColor: "#ddd",
-  //       labels: {
-  //         style: { fontSize: "13px", fontWeight: "600", color: "#333" },
-  //       },
-  //     },
-  //     yAxis: {
-  //       title: { text: "" },
-  //       gridLineDashStyle: "Dash",
-  //       labels: {
-  //         formatter() {
-  //           return formatINRShort(this.value);
-  //         },
-  //         style: { fontSize: "11px" },
-  //       },
-  //     },
-  //     tooltip: {
-  //       backgroundColor: "#000",
-  //       style: { color: "#fff" },
-  //       borderRadius: 8,
-  //       formatter() {
-  //         return `<b>FY ${this.x}</b><br/>${formatINRShort(this.y)}`;
-  //       },
-  //     },
-  //     plotOptions: {
-  //       bar: {
-  //         borderRadius: 6,
-  //         colorByPoint: true,
-  //         cursor: "pointer",
-  //         point: {
-  //           events: {
-  //             click: function () {
-  //               const clickedData = data[this.index];
-  //               setSelectedYear(clickedData.FINYEAR);
-  //               setSelectedCompCode(clickedData.COMPCODE);
-  //               setShowYearTable(true);
-  //             },
-  //           },
-  //         },
-  //         dataLabels: {
-  //           enabled: true,
-  //           inside: true,
-  //           align: "center",
-  //           verticalAlign: "middle",
-  //           style: {
-  //             fontSize: "30px",
-  //             fontWeight: "600",
-  //             color: "white",
-  //             textAlign: "center",
-  //           },
-  //           formatter() {
-  //             return formatINR(this.y);
-  //           },
-  //         },
-  //       },
-  //     },
-  //     colors: YEAR_COLORS,
-  //     series: [{ name: "Purchase", data }],
-  //     legend: { enabled: false },
-  //     credits: { enabled: false },
-  //   };
-  // }, [yearGeneralResponse]);
+//   return {
+//     chart: {
+//       type: "bar",
+//       height: 400,
+//       backgroundColor: "transparent",
+//       margin: [20, 40, 60, 120],
+//     },
+//     title: { text: "" },
+//     xAxis: {
+//       categories: data.map((d) => d.FINYEAR),
+//       lineColor: "#ddd",
+//       tickColor: "#ddd",
+//       labels: {
+//         style: { fontSize: "13px", fontWeight: "600", color: "#333" },
+//       },
+//     },
+//     yAxis: {
+//       title: { text: "" },
+//       gridLineDashStyle: "Dash",
+//       labels: {
+//         formatter() {
+//           return formatINRShort(this.value);
+//         },
+//         style: { fontSize: "11px" },
+//       },
+//     },
+//     tooltip: {
+//       backgroundColor: "#000",
+//       style: { color: "#fff" },
+//       borderRadius: 8,
+//       formatter() {
+//         return `<b>FY ${this.x}</b><br/>${formatINRShort(this.y)}`;
+//       },
+//     },
+//     plotOptions: {
+//       bar: {
+//         borderRadius: 6,
+//         colorByPoint: true,
+//         cursor: "pointer",
+//         point: {
+//           events: {
+//             click: function () {
+//               const clickedData = data[this.index];
+//               setSelectedYear(clickedData.FINYEAR);
+//               setSelectedCompCode(clickedData.COMPCODE);
+//               setShowYearTable(true);
+//             },
+//           },
+//         },
+//         dataLabels: {
+//           enabled: true,
+//           inside: true,
+//           align: "center",
+//           verticalAlign: "middle",
+//           style: {
+//             fontSize: "30px",
+//             fontWeight: "600",
+//             color: "white",
+//             textAlign: "center",
+//           },
+//           formatter() {
+//             return formatINR(this.y);
+//           },
+//         },
+//       },
+//     },
+//     colors: YEAR_COLORS,
+//     series: [{ name: "Purchase", data }],
+//     legend: { enabled: false },
+//     credits: { enabled: false },
+//   };
+// }, [yearGeneralResponse]);
 
 //   // --- Chart 3: Combined Purchase ---
 //   const chartCombinedOptions = useMemo(() => {
@@ -519,7 +519,7 @@ const applyGlow = (chart, filterId, stdDeviation = 4) => {
            <feMergeNode in="blur"/>
            <feMergeNode in="SourceGraphic"/>
          </feMerge>
-       </filter>`
+       </filter>`,
     );
     chart[`_glow_${filterId}`] = true;
   }
@@ -606,11 +606,11 @@ const Form = ({
     setSelectedYear(null);
     setSelectedCompCode("");
   }, [poType]);
-const sortFinYears = (years) =>
-  [...years].sort((a, b) => {
-    const toNum = (fy) => Number(String(fy).split("-")[0]);
-    return toNum(a) - toNum(b);
-  });
+  const sortFinYears = (years) =>
+    [...years].sort((a, b) => {
+      const toNum = (fy) => Number(String(fy).split("-")[0]);
+      return toNum(a) - toNum(b);
+    });
   // --- Chart 1: Purchase Order ---
   useEffect(() => {
     if (poType === "Order" && yearOrderResponse?.data?.length > 0) {
@@ -631,108 +631,107 @@ const sortFinYears = (years) =>
 
   // --- Chart 1: Order → 3D Column ---
   const chartOrderOptions = useMemo(() => {
-     if (!yearOrderResponse?.data) return {};
- 
-       const years = sortFinYears([
+    if (!yearOrderResponse?.data) return {};
+
+    const years = sortFinYears([
       ...new Set(
         yearOrderResponse.data.flatMap((item) =>
-          item.data.map((d) => d.FINYEAR)
-        )
+          item.data.map((d) => d.FINYEAR),
+        ),
       ),
     ]);
- 
-     const filteredData = selectedType
-       ? yearOrderResponse.data.filter((item) => item.type === selectedType)
-       : yearOrderResponse.data;
- 
-     const series = filteredData.map((item) => ({
-       name: item.type,
-       type: "column",
-       colorByPoint: true, // each bar gets its own color from colors[]
-       data: years.map((year) => {
-         const found = item.data.find((d) => d.FINYEAR === year);
-         const val = Number(found?.VAL ?? 0);
-         return val > 0 ? val : null; // null → bar not rendered at all
-       }),
-       showInLegend: true,
-       dataLabels: {
-         enabled: true,
-         formatter: function () {
-           if (!this.y || this.y === 0) return null;
-           return formatINRShort(this.y);
-         },
-         style: {
-           fontSize: "11px",
-           fontWeight: "600",
-           color: "#333",
-           textOutline: "none",
-         },
-       },
-       cursor: "pointer",
-       point: {
-         events: {
-           click: function () {
-             if (!this.y || this.y === 0) return;
-             setSelectedYear(this.category);
-             setSelectedOrderType(item.type);
-             setSelectedCompCode("");
-             setShowYearTable(true);
-           },
-         },
-       },
-     }));
- 
-     return {
-       chart: {
-         type: "column",
-         height: 400,
-         backgroundColor: "transparent",
-         events: {
-           render: function () {
-             applyGlow(this, "glow-order", 5);
-           },
-         },
-       },
-       title: { text: "" },
-       xAxis: {
-         categories: years,
-         title: { text: "Financial Year" },
-         labels: {
-           style: { fontSize: "12px", fontWeight: "600", color: "#333" },
-         },
-       },
-       yAxis: {
-         title: { text: "" },
-         gridLineDashStyle: "Dash",
-         labels: {
-           formatter: function () {
-             return formatINRShort(this.value);
-           },
-           style: { fontSize: "11px" },
-         },
-       },
-       plotOptions: {
-         column: {
-           minPointLength: 0,
-           borderRadius: 4,
-           groupPadding: 0.15,
-           pointPadding: 0.05,
-         },
-       },
-       colors: YEAR_COLORS, // colorByPoint cycles through this
-       series,
-       tooltip: {
-         pointFormatter: function () {
-           if (!this.y || this.y === 0) return "";
-           return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${formatINRShort(this.y)}</b><br/>`;
-         },
-       },
-       legend: { symbolHeight: 12, symbolWidth: 12, symbolRadius: 2 },
-       credits: { enabled: false },
-     };
-   }, [yearOrderResponse, selectedType]);
 
-  
+    const filteredData = selectedType
+      ? yearOrderResponse.data.filter((item) => item.type === selectedType)
+      : yearOrderResponse.data;
+
+    const series = filteredData.map((item) => ({
+      name: item.type,
+      type: "column",
+      colorByPoint: true, // each bar gets its own color from colors[]
+      data: years.map((year) => {
+        const found = item.data.find((d) => d.FINYEAR === year);
+        const val = Number(found?.VAL ?? 0);
+        return val > 0 ? val : null; // null → bar not rendered at all
+      }),
+      showInLegend: true,
+      dataLabels: {
+        enabled: true,
+        formatter: function () {
+          if (!this.y || this.y === 0) return null;
+          return formatINRShort(this.y);
+        },
+        style: {
+          fontSize: "11px",
+          fontWeight: "600",
+          color: "#333",
+          textOutline: "none",
+        },
+      },
+      cursor: "pointer",
+      point: {
+        events: {
+          click: function () {
+            if (!this.y || this.y === 0) return;
+            setSelectedYear(this.category);
+            setSelectedOrderType(item.type);
+            setSelectedCompCode("");
+            setShowYearTable(true);
+          },
+        },
+      },
+    }));
+
+    return {
+      chart: {
+        type: "column",
+        height: 400,
+        backgroundColor: "transparent",
+        events: {
+          render: function () {
+            applyGlow(this, "glow-order", 5);
+          },
+        },
+      },
+      title: { text: "" },
+      xAxis: {
+        categories: years,
+        title: { text: "Financial Year" },
+        labels: {
+          style: { fontSize: "11px", fontWeight: "bold", color: "#333" },
+        },
+      },
+      yAxis: {
+        title: { text: "" },
+        gridLineDashStyle: "Dash",
+        labels: {
+          formatter: function () {
+            return formatINRShort(this.value);
+          },
+          style: { fontSize: "11px" },
+        },
+      },
+      plotOptions: {
+        column: {
+          minPointLength: 0,
+          borderRadius: 4,
+          groupPadding: 0.15,
+          pointPadding: 0.05,
+        },
+      },
+      colors: YEAR_COLORS, // colorByPoint cycles through this
+      series,
+      tooltip: {
+        pointFormatter: function () {
+          if (!this.y || this.y === 0) return "";
+          return `<span style="color:${this.color}">\u25CF</span> ${this.series.name}: <b>${formatINRShort(this.y)}</b><br/>`;
+        },
+      },
+      legend: { symbolHeight: 12, symbolWidth: 12, symbolRadius: 2 },
+      credits: { enabled: false },
+    };
+  }, [yearOrderResponse, selectedType]);
+
   const chartGeneralOptions = useMemo(() => {
     const rawData = (yearGeneralResponse?.data ?? [])
       .filter((d) => Number(d.VAL ?? 0) > 0) // ← hard filter, zeros never enter pie

@@ -6,7 +6,7 @@ export async function Add_role(req, res) {
   const connection = await getConnection(res);
   const { rolename, active } = req.body;
   try {
-    if (!rolename || active) {
+    if (!rolename) {
       return res.status(400).json({
         status: 0,
         message: "Fill required fields",
@@ -35,35 +35,46 @@ export async function Add_role(req, res) {
 }
 
 export async function get_Role(req, res) {
-  const connection = await getConnection(res);
+  // const connection = await getConnection();
+
   try {
     const result = await prisma_Connector.role.findMany({});
-    console.log(result,'result')
-    return res.status(201).json(result);
+    console.log(result, "result");
+
+    return res.status(200).json(result); // 200 is better for GET
   } catch (err) {
     console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await connection.close();
+    return res.status(500).json({ error: "Internal Server Error" }); // ✅ return added
   }
 }
+
 export async function getUserPages(req, res) {
-  const connection = await getConnection(res);
-  const userId = parseInt(req.query.userId);
-  // const{userId}=req.query.userId
-  // console.log(userId);
+  const userIdRaw = req.query.userId;
+
+  // 🚨 ignore invalid values
+  if (!userIdRaw || userIdRaw === "false" || userIdRaw === false) {
+    return res.status(400).json({
+      message: "Invalid userId",
+    });
+  }
+
+  const userId = parseInt(userIdRaw);
+
+  if (isNaN(userId)) {
+    return res.status(400).json({
+      message: "userId must be a number",
+    });
+  }
 
   try {
     const result = await prisma_Connector.useronpage.findMany({
-      where: { userId: userId },
+      where: { userId },
     });
-    // console.log(result)
-    return res.status(201).json(result);
+
+    return res.status(200).json(result);
   } catch (err) {
     console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await connection.close();
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
@@ -88,7 +99,7 @@ export async function deleteRole(req, res, next) {
     }
     console.log(
       `Error`,
-      error?.message?.match(/message: "(.*?)"/)?.[1] || error?.message
+      error?.message?.match(/message: "(.*?)"/)?.[1] || error?.message,
     );
   }
 }
@@ -174,7 +185,7 @@ export async function createRoleOnPage(req, res) {
         username,
         link: page,
         userId: result1.id,
-      })
+      }),
     );
 
     if (!insertData.length) {

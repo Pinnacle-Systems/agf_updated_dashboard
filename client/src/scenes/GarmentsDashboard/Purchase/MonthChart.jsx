@@ -201,7 +201,7 @@ const MonthChart = ({
             formatter() {
               return formatINRShort(this.y);
             },
-            style: { fontSize: "12px", fontWeight: "600", color: "#000" },
+            style: { fontSize: "11px", fontWeight: "bold", color: "#000" },
           },
           point: {
             events: {
@@ -214,8 +214,6 @@ const MonthChart = ({
                 setSelectedChartMonth(this.category);
                 setSelectedMonthIndex(this.index);
                 setSelectedMonthColor(pointColor);
-
-               
               },
             },
           },

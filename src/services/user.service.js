@@ -420,27 +420,34 @@ export async function get_Usedetails(req, res) {
 export async function get_UserOne(req, res) {
   const connection = await getConnection(res);
 
-  // const { id } = req.query
-  //
-  const id = parseInt(req.params.id);
-
   try {
+    const rawId = req.params.id;
+
+    // 🚨 validate first
+    if (!rawId) {
+      return res.status(400).json({ message: "ID is required" });
+    }
+
+    const id = Number(rawId);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
     const result = await prisma_Connector.user.findUnique({
-      where: {
-        id: parseInt(id),
-      },
+      where: { id },
       include: {
         Useroncompany: true,
         Useronpage: true,
       },
     });
 
-    return res.status(201).json({
+    return res.status(200).json({
       data: result,
     });
   } catch (err) {
     console.error("Error retrieving data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();
   }
@@ -608,12 +615,12 @@ export async function UpdateUserOnPage(req, res) {
 
     // ✅ Build user update data
     const updateData = {
-       employeeId: parseInt(employeeId),
+      employeeId: parseInt(employeeId),
       username,
       COMPCODE,
       active,
       createdbyId,
-       roleId: parseInt(roleId)
+      roleId: parseInt(roleId),
     };
     console.log(updateData, "goingtoupdate");
 

@@ -214,7 +214,7 @@ const SupplierDelay = ({
         label: {
           show: true,
           position: "top",
-          fontSize: 10,
+          fontSize: "10px",
           fontWeight: "bold",
           formatter: ({ value }) => value,
         },

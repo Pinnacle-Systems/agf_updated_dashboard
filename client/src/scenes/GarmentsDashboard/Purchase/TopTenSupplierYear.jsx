@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Card,
@@ -76,8 +74,8 @@ const SupplierPieChart = ({ title, data, onChartClick }) => {
               if (currentLine) lines.push(currentLine);
               return lines.join("\n");
             },
-            fontSize: 11,
-            fontWeight: "bold",
+            fontSize: "11px",
+            // fontWeight: "bold",
           },
           labelLine: { show: true, length: 10, length2: 5 },
           data: data.map((d, idx) => ({
@@ -204,7 +202,12 @@ const TopTenSupplierYear = ({
   const handleChartClick = (params) => {
     if (poType === "All") return;
     const { name, compCode, finYear } = params.data;
-    setTableParams({ supplier: name, year: finYear, company: compCode ,orderType: poType === "Order" ? selectedType : null,});
+    setTableParams({
+      supplier: name,
+      year: finYear,
+      company: compCode,
+      orderType: poType === "Order" ? selectedType : null,
+    });
     setShowYearTable(true);
   };
 
@@ -250,7 +253,7 @@ const TopTenSupplierYear = ({
               if (currentLine) lines.push(currentLine);
               return lines.join("\n");
             },
-            fontSize: 11,
+            fontSize: "10px",
             fontWeight: "bold",
           },
           labelLine: { show: true, length: 10, length2: 5 },
@@ -271,7 +274,11 @@ const TopTenSupplierYear = ({
         <CardHeader
           title="Top Ten Supplier"
           titleTypographyProps={{ sx: { fontSize: ".9rem", fontWeight: 600 } }}
-          sx={{ p: 1,height:40, borderBottom: `2px solid ${theme.palette.divider}` }}
+          sx={{
+            p: 1,
+            height: 40,
+            borderBottom: `2px solid ${theme.palette.divider}`,
+          }}
           action={
             poType === "Order" && orderChartData.length > 0 ? (
               <select
@@ -351,9 +358,9 @@ const TopTenSupplierYear = ({
             setShowYearTable(false);
             setSelectedCompCode(companyName);
             setSelectedYear(finYear);
-            setSelectedType(orderChartData[0].type)
+            setSelectedType(orderChartData[0].type);
           }}
-           initialOrderType={tableParams.orderType} 
+          initialOrderType={tableParams.orderType}
           supplierOptions={supplierOptions}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}

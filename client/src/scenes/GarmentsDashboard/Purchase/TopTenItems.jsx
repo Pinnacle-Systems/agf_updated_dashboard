@@ -301,7 +301,7 @@ const TopTenItemsYear = ({
           `${name}<br/>Purchase: <b>${formatINR(value)}</b><br/>(${percent}%)`,
       },
 
-legend: { show: false },
+      legend: { show: false },
       series: [
         {
           name: "Purchase",
@@ -312,7 +312,7 @@ legend: { show: false },
           itemStyle: { borderRadius: 6 },
           label: {
             show: true,
-            fontSize: 11,
+            fontSize: "10px",
             fontWeight: "bold",
             formatter: ({ name }) => {
               const maxLineLength = 18; // adjust based on space
@@ -396,7 +396,7 @@ legend: { show: false },
                     formatter: ({ name, value, percent }) =>
                       `${name}<br/>Purchase: <b>${formatINR(value)}</b><br/>(${percent}%)`,
                   },
-                 legend: { show: false },
+                  legend: { show: false },
                   series: [
                     {
                       name: "Purchase",
@@ -407,7 +407,7 @@ legend: { show: false },
                       itemStyle: { borderRadius: 6 },
                       label: {
                         show: true,
-                        fontSize: 11,
+                        fontSize: "10px",
                         fontWeight: "bold",
                         formatter: ({ name }) => {
                           const maxLineLength = 18; // adjust based on space
