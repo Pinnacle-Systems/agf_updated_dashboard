@@ -25,12 +25,10 @@ const TurnOver = ({
   user,
   filterBuyerList,
   onMonthChange,
-
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const formatINR = (value) =>
-    `₹ ${Number(value).toLocaleString("en-IN")}`;
+  const formatINR = (value) => `₹ ${Number(value).toLocaleString("en-IN")}`;
 
   /* ---------------- YEAR HANDLING ---------------- */
   const filterYear = useMemo(() => {
@@ -45,16 +43,20 @@ const TurnOver = ({
     const [start, end] = filterYear.split("-").map(Number);
     return `${String(start - 1).padStart(2, "0")}-${String(end - 1).padStart(
       2,
-      "0"
+      "0",
     )}`;
   }, [filterYear]);
 
   /* ---------------- API ---------------- */
-  const { data: turnOverData, isLoading, isError, error } =
-    useGetMisDashboardQuery(
-      { params: { filterYear, previousYear } },
-      { skip: !filterYear }
-    );
+  const {
+    data: turnOverData,
+    isLoading,
+    isError,
+    error,
+  } = useGetMisDashboardQuery(
+    { params: { filterYear, previousYear } },
+    { skip: !filterYear },
+  );
 
   const { data: lastmonth } = useGetsallastmonthQuery();
   const Year = lastmonth?.data?.find((x) => x.Year);
@@ -87,10 +89,7 @@ const TurnOver = ({
   const companyTurnover =
     turnOverData?.data?.totalTurnOver?.map((x) => x.currentValue) ?? [];
 
-  const overallTurnover = companyTurnover.reduce(
-    (sum, val) => sum + val,
-    0
-  );
+  const overallTurnover = companyTurnover.reduce((sum, val) => sum + val, 0);
 
   /* ---------------- CHART ---------------- */
   const options = {
@@ -118,7 +117,7 @@ const TurnOver = ({
           events: {
             click: function () {
               const companyName = companies[this.index];
-              dispatch(setFilterBuyer(companyName));     // update dropdown in TurnOverIndex
+              dispatch(setFilterBuyer(companyName)); // update dropdown in TurnOverIndex
 
               dispatch(
                 push({
@@ -135,7 +134,7 @@ const TurnOver = ({
                     filterBuyerList,
                     finYr,
                   },
-                })
+                }),
               );
             },
           },
@@ -146,7 +145,6 @@ const TurnOver = ({
             return formatINR(this.y);
           },
         },
-
       },
     },
     series: [
@@ -163,22 +161,25 @@ const TurnOver = ({
       <CardHeader
         title="Turn Over"
         titleTypographyProps={{
-          sx: { fontSize: "1rem", fontWeight: 600, },
+          sx: { fontSize: "1rem", fontWeight: 600 },
         }}
         sx={{ borderBottom: `2px solid ${theme.palette.divider}` }}
       />
       <CardContent>
         <HighchartsReact highcharts={Highcharts} options={options} />
-        <Box sx={{  bgcolor: "background.default",
+        <Box
+          sx={{
+            bgcolor: "background.default",
             borderRadius: 3,
             textAlign: "center",
             border: `1px solid ${theme.palette.divider}`,
             // mt: 2,
-            p: 1,}}>
+            p: 1,
+          }}
+        >
           <Typography variant="h6" fontWeight={600}>
             Overall Turnover: {formatINR(overallTurnover)}
           </Typography>
-
         </Box>
       </CardContent>
     </Card>
