@@ -672,6 +672,31 @@ A.STDT1, A.STDT
   }
 }
 
+
+export async function executeMISHRProcedure(req, res) {
+  const connection = await getConnection(res);
+
+  try {
+    console.log("Starting MISHR procedure...");
+
+    await connection.execute(
+      `BEGIN MISHR('JKC'); END;`,  // dummy value, procedure ignores it internally
+      {},
+      { autoCommit: true }
+    );
+
+    console.log("✅ MISHR procedure completed");
+    return res.json({ statusCode: 0, message: "Procedure executed successfully" });
+  } catch (err) {
+    console.error("Error executing MISHR procedure:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message });
+    }
+  } finally {
+    await connection.close();
+  }
+}
+
 export async function getOTwagesdet(req, res) {
   const connection = await getConnection(res);
   const { filterBuyer, search = {}, filterYear } = req.query;

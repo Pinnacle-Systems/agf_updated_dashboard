@@ -15,7 +15,8 @@ import { get, getActualVsBudget, getActualVsBudgetValueMonthWise, getBuyerWiseRe
     getLastSalarydet,
     getSalarydet1,
     getnewjoin,
-    getStateWiseHeadCount} from '../services/misDashboard.service.js';
+    getStateWiseHeadCount,
+    executeMISHRProcedure} from '../services/misDashboard.service.js';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.get ('/salaryDet',getSalarydet)
 router.get ('/salaryDet1',getSalarydet1)
 
 router.get ('/lastsalaryDet',getLastSalarydet)
-
+router.put('/execute-mishr', executeMISHRProcedure);
 router.get ('/pfDet', getpfdet )
 
 router.get ('/esiDet', getesidet )
