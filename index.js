@@ -30,6 +30,9 @@ import {
   fabricOutward,
   purchaseOrder,
   purchase,
+  orderEntry,
+  production,
+  fabric
 } from "./src/routes/index.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -91,6 +94,13 @@ app.use("/fabricOutward", fabricOutward);
 app.use("/purchaseOrder", purchaseOrder);
 
 app.use("/purchase", purchase);
+
+app.use("/orderEntry", orderEntry);
+
+app.use("/production", production);
+
+app.use("/fabric", fabric);
+
 
 // const PORT = 9008;
 const PORT = process.env.PORT || 9000;

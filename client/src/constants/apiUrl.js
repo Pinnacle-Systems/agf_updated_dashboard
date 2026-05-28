@@ -17,3 +17,6 @@ export const FABRIC_OUTWARD = "/fabricOutward"
 export const PURCHASE_ORDER = "/purchaseOrder"
 export const PURCHASE = "/purchase"
 export const PURCHASE_TABLE = "/purchaseTable"
+export const ORDER_ENTRY = "/orderEntry";
+export const PRODUCTION = "/production";
+export const FABRIC = "/fabric";

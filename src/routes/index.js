@@ -11,3 +11,6 @@ export { default as freeLookFabric } from "./freeLookFabric.js";
 export { default as fabricOutward } from "./fabricOutward.js";
 export { default as purchaseOrder } from "./purchaseOrder.js";
 export { default as purchase } from "./purchase.route.js";
+export { default as orderEntry } from "./orderEntry.route.js";
+export { default as production } from "./production.route.js";
+export { default as fabric } from "./fabric.route.js";

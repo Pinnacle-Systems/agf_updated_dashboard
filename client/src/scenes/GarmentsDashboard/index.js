@@ -22,12 +22,16 @@ import {
   setFilterBuyer,
   setSelectMonths,
   setFinYr,
-  setLastSection,setPoType
+  setLastSection, setPoType
 } from "../../redux/features/dashboardFiltersSlice";
 import { useGetuserpagesQuery } from "../../redux/service/Rolemaster.js";
+import OrderEntryIndex from "./OrderEntry/index.jsx";
+import ProductionIndex from "./Production/index.jsx";
+import FabricIndex from "./Fabric/index.jsx";
+
 const GarmentsDashboard = () => {
   const dispatch = useDispatch();
-  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection ,poType} =
+  const { filterBuyer, selectedYear, selectMonths, finYr, lastSection, poType } =
     useSelector((state) => state.dashboardFilters);
   const [user, setUser] = useState(null);
 
@@ -43,14 +47,14 @@ const GarmentsDashboard = () => {
   }, []);
 
   const params = getCommonParams();
-  const { isSuperAdmin, employeeId,userId } = params;
-    const { data: allPages } = useGetuserpagesQuery(
-      { params: { userId } },
-    );
-    const usernames = [...new Set(allPages?.map(item => item.username))]
+  const { isSuperAdmin, employeeId, userId } = params;
+  const { data: allPages } = useGetuserpagesQuery(
+    { params: { userId } },
+  );
+  const usernames = [...new Set(allPages?.map(item => item.username))]
     .join(", ");
-    console.log(allPages, "allPages");
-    console.log(usernames, "checkingname");
+  console.log(allPages, "allPages");
+  console.log(usernames, "checkingname");
 
   const { data: userName } = useGetFnameQuery({
     params: { employeeId },
@@ -196,6 +200,56 @@ const GarmentsDashboard = () => {
             onYearChange={(val) => dispatch(setSelectedYear(val))}
             onMonthChange={(val) => dispatch(setSelectMonths(val))}
             filterBuyerList={filterBuyerListPurchase} poType={poType} setPoType={setPoType}
+            onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <OrderEntryIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            poType={poType}
+            setPoType={setPoType}
+            onOpen={() => dispatch(setLastSection("orderEntry"))}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <ProductionIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            poType={poType}
+            setPoType={setPoType}
+            onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FabricIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            poType={poType}
+            setPoType={setPoType}
             onOpen={() => dispatch(setLastSection("purchase"))}
           />
         </Grid>
