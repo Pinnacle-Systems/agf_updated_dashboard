@@ -1,255 +1,134 @@
-import React, { useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, useTheme, Box } from "@mui/material";
-import ReactECharts from "echarts-for-react";
-import { useGetWorkOrderBillRegisterDataQuery } from "../../../redux/AgfServices/ProcessDetails";
-import { useSelector } from "react-redux";
-import WorkOrderDetailTable from "./TableData/WorkOrderDetailTable";
+import { Box, Grid, Typography } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import { DropdownWithSearch } from "../../../input/inputcomponent";
+import WorkOrderStatus from "./WorkOrderStatus";
 import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
 
-const COLORS = [
-    "#22c55e",
-    "#3b82f6",
-    "#f59e0b",
-    "#ef4444",
-    "#8b5cf6",
-    "#06b6d4",
-    "#14b8a6",
-];
+import {
+  setSelectedYear,
+  setFilterBuyer,
+  setSelectMonths,
+} from "../../../redux/features/dashboardFiltersSlice";
+import { useEffect, useRef, useState } from "react";
 
-const WorkOrderEntryIndex = ({ companyName, finYear }) => {
-    const theme = useTheme();
+const WorkOrderEntryIndex = ({
+  companyName,
+  autoFocusBuyer,
+  filterBuyerList,
+}) => {
+  const dispatch = useDispatch();
+  const buyerRef = useRef();
+  // Redux state
+  const { selectedYear, filterBuyer, selectMonths, finYr } = useSelector(
+    (state) => state.dashboardFilters,
+  );
+  const { data: companyList } = useGetCompanyQuery(
+    { params: { selectedYear } },
+    { skip: !selectedYear },
+  );
+  const [focusBuyer, setFocusBuyer] = useState(false);
 
-    /* ---------------- DATE FORMAT ---------------- */
+  useEffect(() => {
+    setFocusBuyer(true);
 
-    const formatDate = (date) => {
-        const d = new Date(date);
-        const day = String(d.getDate()).padStart(2, "0");
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const year = d.getFullYear();
-        return `${year}-${month}-${day}`;
-    };
+    return () => setFocusBuyer(false);
+  }, []); // runs when page/tab is entered
 
-    const { selectedYear, filterBuyer, finYr, poType } = useSelector(
-        (state) => state.dashboardFilters,
-    );
-    const { data: companyList } = useGetCompanyQuery(
-        { params: { selectedYear } },
-        { skip: !selectedYear },
-    );
-    const today = new Date();
-    const previousWeek = new Date();
-    previousWeek.setDate(today.getDate() - 6);
-
-    const [fromDate, setFromDate] = useState(formatDate(previousWeek));
-    const [toDate, setToDate] = useState(formatDate(today));
-
-    /* ---------------- STORE FILTER ---------------- */
-
-    const [selectedStore, setSelectedStore] = useState("ALL");
-
-    /* ---------------- DETAIL TABLE STATE ---------------- */
-
-    const [tableParams, setTableParams] = useState(null); // null = closed
-
-    /* ---------------- FETCH DATA ---------------- */
-
-    // const { data: response, isLoading } = useGetProductionQuery(
-    //     {
-    //         params: {
-    //             compCode: companyName,
-    //             fromDate,
-    //             toDate,
-    //         },
-    //     },
-    //     {
-    //         skip: !companyName || !fromDate || !toDate,
-    //     },
-    // );
-
-    const { data: response, isLoading } = useGetWorkOrderBillRegisterDataQuery(
-        { params: { selectedYear, companyName: companyName } },
-        { skip: !selectedYear || !companyName }
-    );
-
-    console.log(selectedYear, 'responseresponse', companyName)
-    /* ---------------- DATE HANDLERS ---------------- */
-
-    const handleFromDateChange = (value) => {
-        setFromDate(value);
-        if (new Date(value) > new Date(toDate)) {
-            setToDate(value);
-        }
-    };
-
-    const handleToDateChange = (value) => {
-        if (new Date(value) < new Date(fromDate)) return;
-        setToDate(value);
-    };
-
-
-
-
-
-
-
-
-    /* ---------------- CHART DATA ---------------- */
-
-    const categories = response?.data?.map((x) => x.COMPCODE);
-
-    const qtyData = response?.data?.map((x, index) => ({
-        value: x.TOTALAMOUNT,
-        itemStyle: {
-            color: COLORS[index % COLORS.length],
-            borderRadius: [8, 8, 0, 0],
-        },
-    }));
-
-    /* ---------------- BAR CLICK HANDLER ---------------- */
-
-    // Opens the detail table for the clicked process bar
-    const onChartEvents = {
-        click: (params) => {
-            if (params.componentType !== "series") return;
-
-            const clickedProcess = categories[params.dataIndex];
-
-            setTableParams({
-                processName: clickedProcess,
-                storeId: selectedStore,
-                fromDate,
-                toDate,
-            });
-        },
-    };
-
-    /* ---------------- CHART OPTIONS ---------------- */
-
-    const options = {
-        tooltip: {
-            trigger: "axis",
-            axisPointer: { type: "shadow" },
-        },
-
-        toolbox: {
-            right: 10,
-            top: 0,
-            feature: { saveAsImage: { show: true } },
-        },
-
-        grid: {
-            left: "3%",
-            right: "3%",
-            bottom: "12%",
-            top: "10%",
-            containLabel: true,
-        },
-
-        xAxis: {
-            type: "category",
-            data: categories,
-            axisTick: { alignWithLabel: true },
-            axisLabel: {
-                interval: 0,
-                rotate: 20,
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#374151",
-            },
-        },
-
-        yAxis: {
-            type: "value",
-            axisLabel: { formatter: "{value}" },
-        },
-
-        series: [
-            {
-                name: "Production Qty",
-                type: "bar",
-                barWidth: "45%",
-                data: qtyData,
-                cursor: "pointer", // pointer cursor on hover to signal clickability
-
-                label: {
-                    show: true,
-                    position: "top",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#111827",
-                    formatter: (params) => Number(params.value).toLocaleString("en-IN"),
-                },
-
-                emphasis: {
-                    focus: "series",
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: "rgba(0,0,0,0.25)",
-                    },
-                },
-            },
-        ],
-    };
-
-    /* ---------------- RENDER ---------------- */
-
-    return (
-        <>
-            <Card
-                sx={{
-                    mt: 1,
-                    ml: 1,
-                    borderRadius: 3,
-                    background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                }}
+  return (
+    <>
+      {/* Header and Filters */}
+      <div
+        className="mt-2"
+        style={{
+          position: "sticky",
+          top: 30,
+          zIndex: 50,
+          backgroundColor: "white",
+        }}
+      >
+        <Grid
+          container
+          spacing={0}
+          // alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            backgroundColor: "white",
+            color: "black",
+            p: 0.5,
+            borderBottom: "1px solid #afafaf",
+            borderTop: "1px solid #afafaf",
+          }}
+        >
+          {/* LEFT TITLE */}
+          <Grid item md={5}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 600, textAlign: "start", pt: 0.5, ml: 1 }}
             >
-                <CardHeader
-                    title="Production Process Status"
-                    titleTypographyProps={{
-                        sx: { fontSize: ".95rem", fontWeight: 700 },
-                    }}
-                    action={
-                        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              Overview of Work Order Distribution
+            </Typography>
+          </Grid>
 
+          {/* RIGHT FILTERS GROUP */}
+          <Grid
+            item
+            md={7}
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end", // push the group to the right
+              alignItems: "center",
+              pt: 0.5,
+              pb: 0.4,
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <select
+                value={selectedYear || ""}
+                onChange={(e) => dispatch(setSelectedYear(e.target.value))}
+                className="w-full px-2 py-1 text-xs border-2   rounded-md 
+      border-blue-600 transition-all duration-200"
+              >
+                <option value="">Select Year</option>
 
+                {(finYr?.data || []).map((item) => (
+                  <option key={item.finYear} value={item.finYear}>
+                    {item.finYear}
+                  </option>
+                ))}
+              </select>
 
-                        </Box>
-                    }
-                    sx={{
-                        p: 1,
-                        borderBottom: `2px solid ${theme.palette.divider}`,
-                    }}
-                />
+              <select
+                ref={buyerRef}
+                value={filterBuyer || ""}
+                onChange={(e) => dispatch(setFilterBuyer(e.target.value))}
+                autoFocus={focusBuyer}
+                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600"
+              >
+                <option value="">Select Company</option>
+                {companyList?.data?.map((item) => (
+                  <option key={item.COMPCODE} value={item.COMPCODE}>
+                    {item.COMPCODE}
+                  </option>
+                ))}
+                /{" "}
+              </select>
+            </Box>
+          </Grid>
+        </Grid>
+      </div>
 
-                <CardContent>
-                    {isLoading ? (
-                        <Box sx={{ textAlign: "center", py: 10 }}>Loading...</Box>
-                    ) : (
-                        <ReactECharts
-                            option={options}
-                            onEvents={onChartEvents}
-                            style={{ height: 450, cursor: "pointer" }}
-                        />
-                    )}
-                </CardContent>
-            </Card>
-
-            {tableParams && (
-                <WorkOrderDetailTable
-                    companyName={companyName}
-                    fromDate={tableParams.fromDate}
-                    toDate={tableParams.toDate}
-                    processName={tableParams.processName}
-                    storeId={tableParams.storeId}
-                    onClose={() => setTableParams(null)}
-                    companyList={companyList}
-                    selectedYear={selectedYear}
-                />
-            )}
-        </>
-    );
+      {/* Child Components */}
+      <Grid md={12}>
+        <WorkOrderStatus
+          key={filterBuyer}
+          companyName={filterBuyer}
+          finYear={selectedYear}
+          finYr={finYr}
+          filterBuyerList={filterBuyerList}
+        />
+      </Grid>
+    </>
+  );
 };
 
 export default WorkOrderEntryIndex;

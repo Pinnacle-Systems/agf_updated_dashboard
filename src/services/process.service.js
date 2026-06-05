@@ -1,17 +1,15 @@
 import oracledb from "oracledb";
 import { getConnection, getConnectionERP } from "../constants/db.connection.js";
 
-
 function mapResultRows(queryResult) {
   if (!queryResult || !queryResult.rows) return [];
   return queryResult.rows.map((row) =>
     queryResult.metaData.reduce((acc, column, index) => {
       acc[column.name] = row[index];
       return acc;
-    }, {})
+    }, {}),
   );
 }
-
 
 export async function getProcessDetails(req, res) {
   const connection = await getConnectionERP(res);
@@ -119,7 +117,7 @@ ORDER BY
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
 
     return res.json({
@@ -159,7 +157,7 @@ GROUP BY A.APINO,A.APIDATE,A.SUPPLIER,A.ORDERNO,D.BUYERCODE,C.aliasname,F.APJNO 
 ORDER BY A.APIDATE
 
 `;
-    // A.APIDATE BETWEEN :FROMDATE AND :TODATE AND 
+    // A.APIDATE BETWEEN :FROMDATE AND :TODATE AND
     const queryResult = await connection.execute(sql);
     console.log("getProcessDetailsTable", queryResult);
 
@@ -167,7 +165,7 @@ ORDER BY A.APIDATE
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
     return res.json({
       statusCode: 0,
@@ -187,7 +185,6 @@ ORDER BY A.APIDATE
   }
 }
 
-
 export async function getAccessoryProcessDetails(req, res) {
   const connection = await getConnectionERP(res);
 
@@ -197,7 +194,6 @@ export async function getAccessoryProcessDetails(req, res) {
     const year = selectedYear.split("-");
     const FROMDATE = `01/04/20${year[0]}`;
     const TODATE = `31/03/20${year[1]}`;
-
 
     let result = [];
 
@@ -253,7 +249,7 @@ export async function getAccessoryProcessDetails(req, res) {
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
 
     return res.json({
@@ -280,7 +276,6 @@ export async function getAccessoryProcessDetailsTable(req, res) {
     let result = [];
     const { finyear, buyer, status } = req.query;
 
-
     const year = finyear.split("-");
     const FROMDATE = `01/04/20${year[0]}`;
     const TODATE = `31/03/20${year[1]}`;
@@ -306,7 +301,7 @@ ORDER BY A.APIDATE
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
     return res.json({
       statusCode: 0,
@@ -325,8 +320,6 @@ ORDER BY A.APIDATE
     }
   }
 }
-
-
 
 export async function getYarnProcessData(req, res) {
   const connection = await getConnectionERP(res);
@@ -390,7 +383,7 @@ export async function getYarnProcessData(req, res) {
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
 
     return res.json({
@@ -417,11 +410,9 @@ export async function getYarnProcessDetailsTable(req, res) {
     let result = [];
     const { finyear, buyer, status } = req.query;
 
-
     const year = finyear.split("-");
     const FROMDATE = `01/04/20${year[0]}`;
     const TODATE = `31/03/20${year[1]}`;
-
 
     const sql = `
 SELECT H.COMPCODE,F.DOCID JOBNO,F.DOCDATE JOBDATE, A.YPISNO DOCID,A.YPISDATE DOCDATE,A.SUPPLIER,A.ORDERNO,D.BUYERCODE,I.PROCESSNAME,C.YARNNAME,
@@ -435,7 +426,7 @@ GROUP BY A.YPISNO,A.YPISDATE,A.SUPPLIER,A.ORDERNO,D.BUYERCODE,C.YARNNAME,F.DOCID
 ORDER BY A.YPISDATE
 
 `;
-    // A.APIDATE BETWEEN :FROMDATE AND :TODATE AND 
+    // A.APIDATE BETWEEN :FROMDATE AND :TODATE AND
     const queryResult = await connection.execute(sql);
     console.log("getProcessDetailsTable", queryResult);
 
@@ -443,7 +434,7 @@ ORDER BY A.YPISDATE
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
     return res.json({
       statusCode: 0,
@@ -538,7 +529,7 @@ export async function getDyedFabricProcessData(req, res) {
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
 
     return res.json({
@@ -592,7 +583,7 @@ ORDER BY A.FPDDATE
       queryResult.metaData.reduce((acc, column, index) => {
         acc[column.name] = row[index];
         return acc;
-      }, {})
+      }, {}),
     );
     return res.json({
       statusCode: 0,
@@ -612,65 +603,55 @@ ORDER BY A.FPDDATE
   }
 }
 
-
-
 export async function getWorkOrderBillRegisterData(req, res) {
-
-  const { selectedYear, companyName } = req.query;
-
-
-
-  const year = selectedYear.split("-");
-  const FROMDATE = `01/04/20${year[0]}`;
-  const TODATE = `31/03/20${year[1]}`;
+  const { selectedYear, companyName = "ALL" } = req.query;
 
   const connection = await getConnectionERP(res);
+
   try {
-
-
     const sql = `
-SELECT 
-    C.COMPCODE,
-    SUM(A.NETAMOUNT) AS TOTALAMOUNT
-FROM GTWOBILLENTRY A
-JOIN GTCOMPMAST C
-    ON A.COMPCODE = C.GTCOMPMASTID
-JOIN GTFINANCIALYEAR M
-    ON A.FINYR = M.GTFINANCIALYEARID
-WHERE M.FINYR = '${selectedYear}'
-GROUP BY C.COMPCODE
-ORDER BY C.COMPCODE
-    `
+      SELECT
+          C.COMPCODE,
+          SUM(A.NETAMOUNT) AS TOTALAMOUNT
+      FROM GTWOBILLENTRY A
+      JOIN GTCOMPMAST C
+          ON A.COMPCODE = C.GTCOMPMASTID
+      JOIN GTFINANCIALYEAR M
+          ON A.FINYR = M.GTFINANCIALYEARID
+      WHERE M.FINYR = :selectedYear
+        AND (:companyName = 'ALL' OR C.COMPCODE = :companyName)
+      GROUP BY C.COMPCODE
+      ORDER BY C.COMPCODE
+    `;
 
-    console.log("getWorkOrderBillRegisterData", sql)
-    const queryResult = await connection.execute(sql);
-    return res.json({ statusCode: 0, data: mapResultRows(queryResult) });
+    const queryResult = await connection.execute(sql, {
+      selectedYear,
+      companyName,
+    });
+
+    return res.json({
+      statusCode: 0,
+      data: mapResultRows(queryResult),
+    });
   } catch (err) {
-    console.error("Error retrieving getGeneralGRNDetails:", err);
-    return res.status(500).json({ statusCode: 1, error: err.message });
+    console.error("Error retrieving getWorkOrderBillRegisterData:", err);
+    return res.status(500).json({
+      statusCode: 1,
+      error: err.message,
+    });
   } finally {
     if (connection) await connection.close();
   }
 }
 
-
 export async function getWorkOrderBillRegisterDetailsTable(req, res) {
-
   const { selectedYear, companyName } = req.query;
-
-
-
-  const year = selectedYear.split("-");
-  const FROMDATE = `01/04/20${year[0]}`;
-  const TODATE = `31/03/20${year[1]}`;
 
   const connection = await getConnectionERP(res);
   try {
-
-
     const sql = `
 
-SELECT  L.ALIASNAME, A.GTWOBILLENTRYID ,BB.WONO,BB.WODATE,A.WORKBILLNO,A.WORKBILLDATE,A.SUPPLIER SUPPLIER1,BB.WOTYPES,G.WODESC,H.ITEMGRPNAME,
+SELECT   D.FINYR,L.ALIASNAME, A.GTWOBILLENTRYID ,BB.WONO,BB.WODATE,A.WORKBILLNO,A.WORKBILLDATE,A.SUPPLIER SUPPLIER1,BB.WOTYPES,G.WODESC,H.ITEMGRPNAME,
 I.ITEMNAME,B.DESCRIPTION ,J.UNITNAME UOM,B.WOQTY,B.BILLRATE,B.AMOUNT,B.BILLAMT GROSAMT,((B.BILLQTY*B.BILLRATE)*B.TAX/100)+(B.BILLQTY*B.BILLRATE) TAXAMOUNT,
 A.GROSSAMOUNT,A.NETAMOUNT,K.PAYTERM,A.REMARKS,B.PARTYBILLNO,B.PARTYBILLDATE,B.BILLQTY,
 B.DISCTYPE,B.DVAL,B.ORDERNO,B.CCATEGORY,L.PROJECTNAME
@@ -689,10 +670,10 @@ LEFT JOIN GTPROJECTMAST L ON L.GTPROJECTMASTID=BB.PROJECTNAME
 JOIN GTFINANCIALYEAR M
     ON A.FINYR = M.GTFINANCIALYEARID
 WHERE C.COMPCODE = '${companyName}'
-      AND M.FINYR = '${selectedYear}'
-    `
+      AND D.FINYR = '${selectedYear}'
+    `;
 
-    console.log("getWorkOrderBillRegisterData", sql)
+    console.log("getWorkOrderBillRegisterData", sql);
     const queryResult = await connection.execute(sql);
     return res.json({ statusCode: 0, data: mapResultRows(queryResult) });
   } catch (err) {
