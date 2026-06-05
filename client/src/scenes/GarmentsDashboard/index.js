@@ -28,6 +28,10 @@ import { useGetuserpagesQuery } from "../../redux/service/Rolemaster.js";
 import OrderEntryIndex from "./OrderEntry/index.jsx";
 import ProductionIndex from "./Production/index.jsx";
 import FabricIndex from "./Fabric/index.jsx";
+import ProcessDetailsIndex from "./Processs/index.jsx";
+import GoodsReceivedNoteIndex from "./GoodsReceivedNote/index.jsx";
+import WorkOrderEntryIndex from "./WorkOrderEntry/index.jsx";
+import WorkOrderEntry from "./WorkOrderEntry/index.jsx";
 
 const GarmentsDashboard = () => {
   const dispatch = useDispatch();
@@ -251,6 +255,32 @@ const GarmentsDashboard = () => {
             poType={poType}
             setPoType={setPoType}
             onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ProcessDetailsIndex
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            onFilterBuyerChange={(val) => dispatch(setFilterBuyer(val))}
+            onYearChange={(val) => dispatch(setSelectedYear(val))}
+            onMonthChange={(val) => dispatch(setSelectMonths(val))}
+            filterBuyerList={filterBuyerListPurchase}
+            poType={poType}
+            setPoType={setPoType}
+            onOpen={() => dispatch(setLastSection("purchase"))}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <WorkOrderEntry
+            filterBuyer={filterBuyer}
+            selectedYear={selectedYear}
+            selectMonths={selectMonths}
+            finYr={finYr}
+            user={user}
+            filterBuyerList={filterBuyerListPurchase}
           />
         </Grid>
         {/* <Grid item xs={12} md={4}>

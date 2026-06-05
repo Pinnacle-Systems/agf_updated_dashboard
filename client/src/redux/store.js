@@ -22,6 +22,8 @@ import {
   fabric
 } from "./service";
 import { setupListeners } from "@reduxjs/toolkit/query";
+import processApi from "./AgfServices/ProcessDetails";
+import grnApi from "./AgfServices/GRNservices";
 
 export const store = configureStore({
   reducer: {
@@ -45,7 +47,9 @@ export const store = configureStore({
     [OrderEntry.reducerPath]: OrderEntry.reducer,
     [production.reducerPath]: production.reducer,
     [fabric.reducerPath]: fabric.reducer,
-
+    [processApi.reducerPath]: processApi.reducer,
+    [grnApi.reducerPath]: grnApi.reducer,
+    
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -66,6 +70,8 @@ export const store = configureStore({
       OrderEntry.middleware,
       production.middleware,
       fabric.middleware,
+      processApi.middleware,
+      grnApi.middleware,
 
     ]),
 });

@@ -181,7 +181,7 @@ const purchase = createApi({
       providesTags: ["purchase"],
     }),
 
-   
+
     getTopTenSupplier: builder.query({
       query: ({ params }) => {
         return {
@@ -223,7 +223,7 @@ const purchase = createApi({
     }),
 
 
-     getRawMaterialWise: builder.query({
+    getRawMaterialWise: builder.query({
       query: ({ params }) => {
         return {
           url: PURCHASE + "/getMaterialWise",
@@ -238,7 +238,7 @@ const purchase = createApi({
     }),
 
 
-     getItemGroupWise: builder.query({
+    getItemGroupWise: builder.query({
       query: ({ params }) => {
         return {
           url: PURCHASE + "/getItemGroupWise",
@@ -376,6 +376,37 @@ const purchase = createApi({
       },
       providesTags: ["purchase"],
     }),
+
+    getEmbroideryAccessoryPurchase: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getEmbroideryAccessoryPurchase",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+    getEmbroideryAccessoryPurchaseDetail: builder.query({
+      query: ({ params }) => {
+        return {
+          url: PURCHASE + "/getEmbroideryAccessoryPurchaseDetail",
+          method: "GET",
+          headers: {
+            "Content-type": "application/json; charset=UTF-8",
+          },
+          params,
+        };
+      },
+      providesTags: ["purchase"],
+    }),
+
+
+
+
   }),
 });
 
@@ -415,7 +446,13 @@ export const {
 
   useGetSupplierEfficiencyQuery,
   useGetSupplierEfficiencyCombinedQuery,
-  useGetSupplierEfficiencyPurchaseGeneralQuery
+  useGetSupplierEfficiencyPurchaseGeneralQuery,
+
+
+  useGetEmbroideryAccessoryPurchaseQuery,
+  useGetEmbroideryAccessoryPurchaseDetailQuery,
+
+
 
 } = purchase;
 

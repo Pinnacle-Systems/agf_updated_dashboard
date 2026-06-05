@@ -23,7 +23,7 @@ const gradientColor = (top, bottom) => ({
   ],
 });
 
-const OrderBuyerWiseQty = ({ companyName, finYear, finYr ,companyList }) => {
+const OrderBuyerWiseQty = ({ companyName, finYear, finYr, companyList }) => {
   const theme = useTheme();
   const [tableConfig, setTableConfig] = useState(null);
   const [startIndex, setStartIndex] = useState(0);
@@ -42,6 +42,7 @@ const OrderBuyerWiseQty = ({ companyName, finYear, finYr ,companyList }) => {
       buyerCode: params.name,
     });
   };
+  console.log(tableConfig, "tableConfig")
 
   const buyerCodes = useMemo(() => {
     if (!response?.data) return [];
@@ -265,7 +266,7 @@ const OrderBuyerWiseQty = ({ companyName, finYear, finYr ,companyList }) => {
       {tableConfig && (
         <OrderEntryBuyerQtyWise
           finYear={tableConfig.finYear}
-          compCode={tableConfig.compCode}
+          compCode={tableConfig.companyName}
           buyerCode={tableConfig.buyerCode}
           closeTable={() => setTableConfig(null)}
           finYr={finYr}

@@ -36,6 +36,9 @@ import PurchaseHome from "../GarmentsDashboard/Purchase/PurchaseHome.jsx";
 import OrderEntryHome from "../GarmentsDashboard/OrderEntry/OrderEntryHome.jsx";
 import ProductionHome from "../GarmentsDashboard/Production/ProductionHome.jsx";
 import FabricHome from "../GarmentsDashboard/Fabric/FabricHome.jsx";
+import ProcessDetailsHome from "../GarmentsDashboard/Processs/ProcessHome.jsx";
+import GoodsReceivedNoteHome from "../GarmentsDashboard/GoodsReceivedNote/GoodsReceivedNoteHome.jsx";
+import WorkOrderEntryIndex from "../GarmentsDashboard/WorkOrderEntry/WorkOrderHome.jsx";
 
 const ActiveTabList = () => {
   const { color } = useContext(ColorContext);
@@ -48,6 +51,8 @@ const ActiveTabList = () => {
   }, [openTabs.tabs]);
   const dispatch = useDispatch();
   const [showHidden, setShowHidden] = useState(false);
+  const [tableParams, setTableParams] = useState(true); // null = closed
+
   const ref = useOutsideClick(() => {
     setShowHidden(false);
   });
@@ -147,7 +152,7 @@ const ActiveTabList = () => {
     "Purchase Dashboard": (tabData) => (
       <PurchaseDashboard year={tabData?.year} />
     ),
-      OrderEntry: (tabData) => (
+    OrderEntry: (tabData) => (
       <OrderEntryHome
         companyName={tabData?.companyName}
         finYear={tabData?.finYear}
@@ -161,7 +166,7 @@ const ActiveTabList = () => {
         autoFocusBuyer={tabData?.autoFocusBuyer}
       />
     ),
-        Production: (tabData) => (
+    Production: (tabData) => (
       <ProductionHome
         companyName={tabData?.companyName}
         finYear={tabData?.finYear}
@@ -187,6 +192,36 @@ const ActiveTabList = () => {
         finYr={tabData?.finYr}
         poType={tabData?.poType}
         autoFocusBuyer={tabData?.autoFocusBuyer}
+      />
+    ),
+    ProcessStatus: (tabData) => (
+      <ProcessDetailsHome
+        companyName={tabData?.companyName}
+        finYear={tabData?.finYear}
+        selectedYear={tabData?.selectedYear}
+        filterBuyer={tabData?.filterBuyer}
+        user={tabData?.user}
+        selectMonths={tabData?.selectMonths}
+        filterBuyerList={tabData?.filterBuyerList}
+        finYr={tabData?.finYr}
+        poType={tabData?.poType}
+        autoFocusBuyer={tabData?.autoFocusBuyer}
+        tableParams={tableParams}
+        setTableParams={setTableParams}
+      />
+    ),
+
+    WorkOrderEntryStatus: (tabData) => (
+      <WorkOrderEntryIndex
+        companyName={tabData?.companyName}
+        finYear={tabData?.finYear}
+        selectedYear={tabData?.selectedYear}
+        filterBuyer={tabData?.filterBuyer}
+        user={tabData?.user}
+        selectMonths={tabData?.selectMonths}
+        filterBuyerList={tabData?.filterBuyerList}
+        finYr={tabData?.finYr}
+        poType={tabData?.poType}
       />
     ),
   };
@@ -265,9 +300,8 @@ const ActiveTabList = () => {
             {hiddenTabs.map((tab) => (
               <li
                 key={tab.id}
-                className={`flex justify-between hover:bg-blue-200  ${
-                  tab.active ? "bg-red-300" : "bg-gray-300"
-                } `}
+                className={`flex justify-between hover:bg-blue-200  ${tab.active ? "bg-red-300" : "bg-gray-300"
+                  } `}
               >
                 <button
                   className=" text-gray-500"

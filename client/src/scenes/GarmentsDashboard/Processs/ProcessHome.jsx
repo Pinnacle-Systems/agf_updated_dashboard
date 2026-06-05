@@ -7,16 +7,21 @@ import {
 } from "../../../redux/features/dashboardFiltersSlice";
 import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
 import { useEffect, useRef, useState } from "react";
-import ProductionStatus from "./ProductionStatus";
+import AccessoryProcessDetails from "./AccessoryProcessDetails";
+import AccessoryProcessDetailsTable from "./TableData/AccessoryProcessDetailsTable";
+import YarnProcessDetails from "./YarnProcessDetails";
+import DyedFabricProcessDetails from "./DyedFabricProcessDetails";
 
-const ProductionHome = ({ filterBuyerList }) => {
+
+const ProcessDetailsHome = ({ filterBuyerList }) => {
   const dispatch = useDispatch();
   const buyerRef = useRef();
-  // Redux state
+
   const { selectedYear, filterBuyer, finYr, poType } = useSelector(
     (state) => state.dashboardFilters,
   );
   const [focusBuyer, setFocusBuyer] = useState(false);
+  const [selectedProcess, setSelectedProcess] = useState("ACCESSORY");
   const { data: companyList } = useGetCompanyQuery(
     { params: { selectedYear } },
     { skip: !selectedYear },
@@ -27,7 +32,8 @@ const ProductionHome = ({ filterBuyerList }) => {
     setFocusBuyer(true);
 
     return () => setFocusBuyer(false);
-  }, []); // runs when page/tab is entered
+  }, []);
+
 
   return (
     <>
@@ -60,7 +66,7 @@ const ProductionHome = ({ filterBuyerList }) => {
               variant="h4"
               sx={{ fontWeight: 600, textAlign: "start", pt: 0.5, ml: 1 }}
             >
-              Overview of Production - {filterBuyer}
+              Overview of Process Details - {filterBuyer}
             </Typography>
           </Grid>
 
@@ -107,6 +113,18 @@ const ProductionHome = ({ filterBuyerList }) => {
                     {item.COMPCODE}
                   </option>
                 ))}
+
+              </select>
+
+              {/* PROCESS TYPE */}
+              <select
+                value={selectedProcess}
+                onChange={(e) => setSelectedProcess(e.target.value)}
+                className="px-2 py-1 text-xs border-2 rounded-md border-blue-600"
+              >
+                <option value="ACCESSORY">Accessory Process Details (Outside Suppliers)</option>
+                <option value="YARN">Yarn Process Details (Outside Suppliers)</option>
+                <option value="FABRIC">Dyed Fabric Process Details (Outside Suppliers)</option>
               </select>
             </Box>
           </Grid>
@@ -114,9 +132,9 @@ const ProductionHome = ({ filterBuyerList }) => {
       </div>
 
 
-      <Grid container className="">
-        <Grid item xs={12} md={12}>
-          <ProductionStatus
+      <Box sx={{ mt: 1 }}>
+        {selectedProcess === "ACCESSORY" && (
+          <AccessoryProcessDetails
             key={filterBuyer}
             companyName={filterBuyer}
             finYear={selectedYear}
@@ -124,11 +142,41 @@ const ProductionHome = ({ filterBuyerList }) => {
             poType={poType}
             companyList={companyList}
             filterBuyerList={filterBuyerList}
+            selectedYear={selectedYear}
+            filterBuyer={filterBuyer}
           />
-        </Grid>
-      </Grid>
+        )}
+        {selectedProcess === "YARN" && (
+          <YarnProcessDetails
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+            selectedYear={selectedYear}
+            filterBuyer={filterBuyer}
+          />
+        )}
+        {selectedProcess === "FABRIC" && (
+          <DyedFabricProcessDetails
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+            selectedYear={selectedYear}
+            filterBuyer={filterBuyer}
+          />
+        )}
+      </Box>
+
+
     </>
   );
 };
 
-export default ProductionHome;
+export default ProcessDetailsHome;

@@ -1,6 +1,18 @@
 import { getConnectionERP } from "../constants/db.connection.js";
 import oracledb from "oracledb";
 
+
+function mapResultRows(queryResult) {
+  if (!queryResult || !queryResult.rows) return [];
+  return queryResult.rows.map((row) =>
+    queryResult.metaData.reduce((acc, column, index) => {
+      acc[column.name] = row[index];
+      return acc;
+    }, {})
+  );
+}
+
+
 export async function getGeneralTable(req, res) {
   const connection = await getConnectionERP(res);
   try {
@@ -2185,5 +2197,106 @@ WHERE DELEVERYTYPE != 'DELAYED' AND
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
     await connection.close();
+  }
+}
+
+
+
+
+
+
+
+export async function getEmbroideryAccessoryPurchase(req, res) {
+
+  const { selectedYear, companyName } = req.query;
+
+
+
+  const year = selectedYear.split("-");
+  const FROMDATE = `01/04/20${year[0]}`;
+  const TODATE = `31/03/20${year[1]}`;
+
+  const connection = await getConnectionERP(res);
+  try {
+
+
+
+    const sql = `
+SELECT SUM(GRNVALUE) AS TOTALVALUE,COMPCODE FROM (
+
+SELECT C.COMPCODE ,A.DOCID GRNNO,A.DOCDATE GRNDATE,L.COMPNAME SUPPLIER1 ,A.PARTYDCNO SUPPDCNO,A.PARTYDCDATE SUPPDCDATE,D.DOCID PONO1,D.DOCDATE,
+F.ACCITEM,FF.ACCGRP,G.COLORNAME ACCCOLOR,H.SIZENAME ACCSIZE,I.UNITNAME UOM,B.POQTY,B.PRICE PORATE, B.TOTALRECQTY GRNQTY, B.TOTALRECQTY  * B.PRICE GRNVALUE,
+SUBSTR(D.DOCDATE,10,4)||D.DOCDATE||A.SUPPLIER||F.ACCITEM||G.COLORNAME||H.SIZENAME||I.UNITNAME ITM
+FROM EMBACCINWARD A 
+JOIN EMBACCINWARDDET B ON A.EMBACCINWARDID=B.EMBACCINWARDID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID=A.COMPCODE
+JOIN EMBACCPO D ON D.EMBACCPOID=A.PONO
+JOIN EMBACCITEMMAST F ON F.EMBACCITEMMASTID=B.ITEMDESC
+JOIN EMBACCGRPMAST FF ON FF.EMBACCGRPMASTID=B.ACCGRP
+JOIN GTCOLORMAST G ON G.GTCOLORMASTID=B.COLORNAME
+JOIN GTSIZEMAST H ON H.GTSIZEMASTID=B.SIZENAME
+JOIN GTUNITMAST I ON I.GTUNITMASTID=B.UOM
+JOIN EMBPARTYMAST L ON L.EMBPARTYMASTID=A.SUPPLIER
+JOIN GTFINANCIALYEAR N ON N.GTFINANCIALYEARID=A.FINYEAR
+WHERE C.COMPCODE='${companyName}' AND N.FINYR='${selectedYear}'     
+AND A.PTRANSACTION='Accessory Purchase Order Inward'
+ORDER BY A.SUPPLIER,SUBSTR(D.DOCID,10,4),D.DOCDATE,ITM,B.EMBACCINWARDDETROW
+) GROUP BY COMPCODE
+    `
+
+    console.log("getCuttingPrintingGRNDetails", sql)
+    const queryResult = await connection.execute(sql);
+    return res.json({ statusCode: 0, data: mapResultRows(queryResult) });
+  } catch (err) {
+    console.error("Error retrieving getCuttingPrintingGRNDetails:", err);
+    return res.status(500).json({ statusCode: 1, error: err.message });
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+export async function getEmbroideryAccessoryPurchaseDetail(req, res) {
+
+  const { selectedYear, companyName } = req.query;
+
+
+
+  const year = selectedYear.split("-");
+  const FROMDATE = `01/04/20${year[0]}`;
+  const TODATE = `31/03/20${year[1]}`;
+
+  const connection = await getConnectionERP(res);
+  try {
+
+
+
+    const sql = `
+SELECT C.COMPCODE COMPCODE1,A.DOCID GRNNO,A.DOCDATE GRNDATE,L.COMPNAME SUPPLIER1 ,A.PARTYDCNO SUPPDCNO,A.PARTYDCDATE SUPPDCDATE,D.DOCID PONO1,D.DOCDATE,
+F.ACCITEM,FF.ACCGRP,G.COLORNAME ACCCOLOR,H.SIZENAME ACCSIZE,I.UNITNAME UOM,B.POQTY,B.PRICE PORATE, B.TOTALRECQTY GRNQTY, B.TOTALRECQTY  * B.PRICE GRNVALUE,
+SUBSTR(D.DOCDATE,10,4)||D.DOCDATE||A.SUPPLIER||F.ACCITEM||G.COLORNAME||H.SIZENAME||I.UNITNAME ITM
+FROM EMBACCINWARD A 
+JOIN EMBACCINWARDDET B ON A.EMBACCINWARDID=B.EMBACCINWARDID
+JOIN GTCOMPMAST C ON C.GTCOMPMASTID=A.COMPCODE
+JOIN EMBACCPO D ON D.EMBACCPOID=A.PONO
+JOIN EMBACCITEMMAST F ON F.EMBACCITEMMASTID=B.ITEMDESC
+JOIN EMBACCGRPMAST FF ON FF.EMBACCGRPMASTID=B.ACCGRP
+JOIN GTCOLORMAST G ON G.GTCOLORMASTID=B.COLORNAME
+JOIN GTSIZEMAST H ON H.GTSIZEMASTID=B.SIZENAME
+JOIN GTUNITMAST I ON I.GTUNITMASTID=B.UOM
+JOIN EMBPARTYMAST L ON L.EMBPARTYMASTID=A.SUPPLIER
+JOIN GTFINANCIALYEAR N ON N.GTFINANCIALYEARID=A.FINYEAR
+WHERE C.COMPCODE='${companyName}' AND N.FINYR='${selectedYear}'     
+AND A.PTRANSACTION='Accessory Purchase Order Inward'
+ORDER BY A.SUPPLIER,SUBSTR(D.DOCID,10,4),D.DOCDATE,ITM,B.EMBACCINWARDDETROW
+    `
+
+    console.log("getCuttingPrintingGRNTable", sql)
+    const queryResult = await connection.execute(sql);
+    return res.json({ statusCode: 0, data: mapResultRows(queryResult) });
+  } catch (err) {
+    console.error("Error retrieving getCuttingPrintingGRNTable:", err);
+    return res.status(500).json({ statusCode: 1, error: err.message });
+  } finally {
+    if (connection) await connection.close();
   }
 }

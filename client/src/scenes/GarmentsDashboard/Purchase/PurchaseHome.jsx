@@ -20,6 +20,8 @@ import { useGetCompanyQuery } from "../../../redux/service/purchaseService";
 import SupplierDelay from "./SupplierDelay";
 import { useEffect, useRef, useState } from "react";
 import SupplierEfficiency from "./SupplierEfficiency";
+import GoodsReceivedNote from "./GoodsReceivedNote";
+import EmbroideryAccessoryPurchase from "./EmbroideryAccessoryPurchase";
 
 const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
   const dispatch = useDispatch();
@@ -99,11 +101,10 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
                 <button
                   key={type}
                   onClick={() => dispatch(setPoType(type))}
-                  className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-full shadow-md transition-all ${
-                    poType === type
-                      ? "bg-blue-600 text-white scale-105"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-full shadow-md transition-all ${poType === type
+                    ? "bg-blue-600 text-white scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
                 >
                   {type}
                 </button>
@@ -140,6 +141,8 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
                     {item.COMPCODE}
                   </option>
                 ))}
+                <option key={"EMB"} value={"EMB"}>EMB</option>
+
               </select>
             </Box>
           </Grid>
@@ -276,6 +279,31 @@ const PurchaseHome = ({ companyName, autoFocusBuyer, filterBuyerList }) => {
           </Grid>
         </>
       )}
+      <Grid container className="">
+        <Grid item xs={12} md={6}>
+          <GoodsReceivedNote
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <EmbroideryAccessoryPurchase
+            key={filterBuyer}
+            companyName={filterBuyer}
+            finYear={selectedYear}
+            finYr={finYr}
+            poType={poType}
+            companyList={companyList}
+            filterBuyerList={filterBuyerList}
+          />
+        </Grid>
+      </Grid>
+
     </>
   );
 };

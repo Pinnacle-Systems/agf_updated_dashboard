@@ -11,7 +11,7 @@ export const MIS_DASHBOARDERP = '/misDashboardERP'
 export const ORD_MANAGEMENT = '/ordManagement'
 export const LOGIN_API = "users/login"
 export const USERS_API = "users"
-export const ROLE_API ="role"
+export const ROLE_API = "role"
 export const FREE_LOOK_FABRIC = "/freeLookFabric"
 export const FABRIC_OUTWARD = "/fabricOutward"
 export const PURCHASE_ORDER = "/purchaseOrder"
@@ -20,3 +20,7 @@ export const PURCHASE_TABLE = "/purchaseTable"
 export const ORDER_ENTRY = "/orderEntry";
 export const PRODUCTION = "/production";
 export const FABRIC = "/fabric";
+
+export const PROCESS = "/process";
+export const GRN = "/grn";
+export const WORK_ORDER = "/workOrder";

@@ -93,6 +93,9 @@ import {
   getGreyFabricSupplierNonDelayTable,
   getDyedFabricSupplierNonDelayTable,
   getAccessorySupplierNonDelayTable,
+
+  getEmbroideryAccessoryPurchase,
+  getEmbroideryAccessoryPurchaseDetail
 } from "../services/purchaseTable.service.js";
 
 const router = Router();
@@ -277,5 +280,12 @@ router.get(
   "/getSupplierEfficiencyAccessoryTable",
   getAccessorySupplierNonDelayTable,
 );
+
+
+
+router.get("/getEmbroideryAccessoryPurchase", getEmbroideryAccessoryPurchase);
+
+router.get("/getEmbroideryAccessoryPurchaseDetail", getEmbroideryAccessoryPurchaseDetail);
+
 
 export default router;

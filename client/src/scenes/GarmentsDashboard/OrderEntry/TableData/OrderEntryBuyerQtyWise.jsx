@@ -102,6 +102,7 @@ const OrderEntryBuyerQtyWise = ({
   const [selectedBuyer, setSelectedBuyer] = useState(buyerCode || "ALL");
   const [page, setPage] = useState(1);
 
+
   const [search, setSearch] = useState({
     orderNo: "",
     buyerName: "",
