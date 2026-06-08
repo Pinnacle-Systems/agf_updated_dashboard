@@ -65,7 +65,7 @@ const WorkOrderEntryIndex = ({
               variant="h4"
               sx={{ fontWeight: 600, textAlign: "start", pt: 0.5, ml: 1 }}
             >
-              Overview of Work Order Distribution
+              Overview of Work Order
             </Typography>
           </Grid>
 

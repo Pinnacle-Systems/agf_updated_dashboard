@@ -164,7 +164,7 @@ const WorkOrderDetailTable = ({
     [rawData],
   );
   const totalAmount = useMemo(
-    () => rawData.reduce((sum, r) => sum + Number(r.AMOUNT || 0), 0),
+    () => rawData.reduce((sum, r) => sum + Number(r.NETAMOUNT || 0), 0),
     [rawData],
   );
 
@@ -261,7 +261,7 @@ const WorkOrderDetailTable = ({
         SUPPLIER1: r.SUPPLIER1,
         WOQTY: Number(r.WOQTY || 0),
         BILLRATE: Number(r.BILLRATE || 0),
-        AMOUNT: Number(r.AMOUNT || 0),
+        AMOUNT: Number(r.NETAMOUNT || 0),
       });
     });
 
@@ -470,13 +470,26 @@ const WorkOrderDetailTable = ({
                       <td className="border p-1 pl-2">{row.ITEMNAME}</td>
                       <td className="border p-1 pl-2">{row.SUPPLIER1}</td>
                       <td className="border p-1 pr-2 text-right ">
-                        {Number(row.WOQTY || 0).toLocaleString("en-IN")}
+                        {row.WOQTY?.toFixed(2) || 0}
                       </td>
-                      <td className="border p-1 pr-2 text-right ">
+                      {/* <td className="border p-1 pr-2 text-right ">
                         {Number(row.BILLRATE || 0).toLocaleString("en-IN")}
                       </td>
                       <td className="border p-1 pr-2 text-right ">
                         {Number(row.AMOUNT || 0).toLocaleString("en-IN")}
+                      </td> */}
+
+                      <td className="border p-1 pr-2 text-right text-sky-700 ">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.BILLRATE)}
+                      </td>
+                      <td className="border p-1 pr-2 text-right text-sky-700 ">
+                        {new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: "INR",
+                        }).format(row.NETAMOUNT)}
                       </td>
                     </tr>
                   ))

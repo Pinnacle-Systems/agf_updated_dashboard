@@ -154,7 +154,7 @@ const WorkOrderStatus = ({ companyName, finYear }) => {
         }}
       >
         <CardHeader
-          title="Work Order Details"
+          title="Work Order Bill Register"
           titleTypographyProps={{
             sx: { fontSize: ".95rem", fontWeight: 700 },
           }}
